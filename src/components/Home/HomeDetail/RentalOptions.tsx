@@ -88,13 +88,67 @@ const GlobalStyle = createGlobalStyle`
     font-weight: 600 !important;
   }
 
-  /* 달력 날짜 셀 */
-  .react-datepicker__day {
-    border-radius: 4px !important;
-    margin: 1px !important;
-    width: 32px !important;
-    height: 32px !important;
-    line-height: 30px !important;
+  /* 데스크탑 달력 날짜 셀 */
+  @media (min-width: 768px) {
+    .react-datepicker__day {
+      border-radius: 4px !important;
+      margin: 1px !important;
+      width: 32px !important;
+      height: 32px !important;
+      line-height: 30px !important;
+    }
+  }
+
+  /* 모바일 달력 날짜 셀 */
+  @media (max-width: 767px) {
+    .react-datepicker__day {
+      border-radius: 6px !important;
+      margin: 2px !important;
+      width: 40px !important;
+      height: 40px !important;
+      line-height: 36px !important;
+      font-size: 16px !important;
+      font-weight: 500 !important;
+    }
+    
+    .react-datepicker__day-name {
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      padding: 8px 0 !important;
+    }
+    
+    .react-datepicker__current-month {
+      font-size: 18px !important;
+      font-weight: 800 !important;
+      margin-bottom: 12px !important;
+    }
+    
+    .react-datepicker__month-container {
+      margin: 0 auto !important;
+    }
+    
+    /* 모바일에서 선택된 날짜 더 명확하게 표시 */
+    .react-datepicker__day.day-start,
+    .react-datepicker__day.day-end {
+      border: 3px solid #F6AE24 !important;
+      font-weight: bold !important;
+      font-size: 18px !important;
+    }
+    
+    /* 모바일에서 선택 범위 내부 더 명확하게 표시 */
+    .day-between {
+      background: #F6AE24 !important;
+      color: #000 !important;
+      font-weight: 600 !important;
+    }
+    
+    /* 모바일에서 오늘 날짜 더 명확하게 표시 */
+    .day-today {
+      background-color: #FFA726 !important;
+      color: #000 !important;
+      font-weight: bold !important;
+      font-size: 18px !important;
+    }
   }
 `;
 
@@ -340,7 +394,7 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
                     <DatePicker
                       locale='ko'
                       inline
-                      monthsShown={2}
+                      monthsShown={window.innerWidth >= 768 ? 2 : 1}
                       selectsRange
                       startDate={selectedRange.start}
                       endDate={selectedRange.end}
@@ -545,6 +599,10 @@ const SelectedDateCard = styled.div`
   border: 1px solid #e9ecef;
   border-radius: 12px;
   padding: 20px;
+
+  @media (max-width: 767px) {
+    padding: 16px;
+  }
 `;
 
 const SelectedDateHeader = styled.div`
@@ -552,6 +610,12 @@ const SelectedDateHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
 `;
 
 const SelectedDateTitle = styled.h3`
@@ -559,12 +623,22 @@ const SelectedDateTitle = styled.h3`
   font-size: 16px;
   font-weight: 700;
   color: #000;
+
+  @media (max-width: 767px) {
+    font-size: 18px;
+    text-align: center;
+  }
 `;
 
 const DateAdjustment = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: 767px) {
+    justify-content: center;
+    gap: 16px;
+  }
 `;
 
 const AdjustmentButton = styled.button<{ disabled?: boolean }>`
@@ -579,6 +653,12 @@ const AdjustmentButton = styled.button<{ disabled?: boolean }>`
   justify-content: center;
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   font-size: 12px;
+
+  @media (max-width: 767px) {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
 `;
 
 const AdjustmentText = styled.span`
@@ -587,6 +667,11 @@ const AdjustmentText = styled.span`
   color: #000;
   min-width: 30px;
   text-align: center;
+
+  @media (max-width: 767px) {
+    font-size: 16px;
+    min-width: 40px;
+  }
 `;
 
 const SelectedDateDisplay = styled.div`
@@ -595,17 +680,30 @@ const SelectedDateDisplay = styled.div`
   border-radius: 8px;
   padding: 16px;
   text-align: center;
+
+  @media (max-width: 767px) {
+    padding: 20px;
+  }
 `;
 
 const DateRangeText = styled.div`
   font-size: 16px;
   font-weight: 700;
   color: #000;
+
+  @media (max-width: 767px) {
+    font-size: 18px;
+    line-height: 1.4;
+  }
 `;
 
 const DatePlaceholder = styled.div`
   font-size: 16px;
   color: #adb5bd;
+
+  @media (max-width: 767px) {
+    font-size: 18px;
+  }
 `;
 
 const CalendarSection = styled.div`
@@ -628,10 +726,13 @@ const CalendarContainer = styled.div`
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 767px) {
+    padding: 16px;
+
     .react-datepicker__month-container {
       display: block !important;
       float: none !important;
+      margin: 0 auto !important;
     }
   }
 
@@ -665,6 +766,11 @@ const LegendGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 `;
 
 const LegendItem = styled.div`
@@ -723,6 +829,11 @@ const ModalFooter = styled.div`
   position: sticky;
   bottom: 0;
   z-index: 10;
+
+  @media (max-width: 767px) {
+    padding: 16px;
+    gap: 8px;
+  }
 `;
 
 const CancelButton = styled.button`
@@ -739,6 +850,11 @@ const CancelButton = styled.button`
   &:hover {
     background: #5a6268;
   }
+
+  @media (max-width: 767px) {
+    height: 52px;
+    font-size: 18px;
+  }
 `;
 
 const ConfirmButton = styled.button`
@@ -754,6 +870,11 @@ const ConfirmButton = styled.button`
 
   &:hover {
     background: #333;
+  }
+
+  @media (max-width: 767px) {
+    height: 52px;
+    font-size: 18px;
   }
 `;
 
