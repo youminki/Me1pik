@@ -13,9 +13,6 @@ import { getUnavailableDates } from '../../../api/scedule/scedule';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CustomSelect } from '../../CustomSelect';
 
-interface SquareIconProps {
-  disabled?: boolean;
-}
 registerLocale('ko', ko);
 const hd = new Holidays('KR');
 
@@ -50,8 +47,9 @@ const GlobalStyle = createGlobalStyle`
   .react-datepicker__day.day-end {
     background: #fff !important;
     color: #000 !important;
-    border: 1px solid #F6AE24 !important;
+    border: 2px solid #F6AE24 !important;
     border-radius: .25rem !important;
+    font-weight: bold !important;
   }
 
   /* 선택 범위 내부 */
@@ -76,6 +74,27 @@ const GlobalStyle = createGlobalStyle`
   .react-datepicker__day--in-range:hover {
     background-color: #FFA726 !important;
     border-color: #FFA726 !important;
+  }
+
+  /* 달력 헤더 스타일링 */
+  .react-datepicker__header {
+    background-color: #f8f9fa !important;
+    border-bottom: 1px solid #dee2e6 !important;
+  }
+
+  /* 달력 요일 헤더 */
+  .react-datepicker__day-name {
+    color: #495057 !important;
+    font-weight: 600 !important;
+  }
+
+  /* 달력 날짜 셀 */
+  .react-datepicker__day {
+    border-radius: 4px !important;
+    margin: 1px !important;
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 30px !important;
   }
 `;
 
@@ -269,119 +288,151 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
           <ReusableModal2
             isOpen
             onClose={() => setIsModalOpen(false)}
-            width='100%'
-            height='auto'
+            width='600px'
+            height='90vh'
           >
             <ModalWrapper>
               <ModalHeader>
-                <ModalTitle>
-                  대여일정 -{' '}
+                <ModalTitle>대여일정 선택</ModalTitle>
+                <ModalSubtitle>
                   {selectedRange.start && selectedRange.end
-                    ? `${currentTotal}일`
-                    : '선택해주세요'}
-                </ModalTitle>
+                    ? `${currentTotal}일 (${formatDate(selectedRange.start)} ~ ${formatDate(selectedRange.end)})`
+                    : '날짜를 선택해주세요'}
+                </ModalSubtitle>
               </ModalHeader>
+
               <ModalContent onClick={handleDayClick}>
-                <SelectedBlock>
-                  <RangeBox>
-                    {selectedRange.start && selectedRange.end ? (
-                      <RangeText>{`${formatDate(
-                        selectedRange.start
-                      )} ~ ${formatDate(selectedRange.end)}`}</RangeText>
-                    ) : (
-                      <Placeholder>날짜를 선택해주세요</Placeholder>
-                    )}
-                    <IconWrapper>
-                      <SquareIcon
-                        disabled={currentTotal <= minDays}
-                        onClick={() => adjustEnd(-1)}
-                      >
-                        <FaMinus />
-                      </SquareIcon>
-                      <SquareIcon
-                        disabled={currentTotal >= maxDays}
-                        onClick={() => adjustEnd(1)}
-                      >
-                        <FaPlus />
-                      </SquareIcon>
-                    </IconWrapper>
-                  </RangeBox>
-                </SelectedBlock>
-                <CalendarContainer>
-                  <DatePicker
-                    locale='ko'
-                    inline
-                    monthsShown={2}
-                    selectsRange
-                    startDate={selectedRange.start}
-                    endDate={selectedRange.end}
-                    onChange={handleDateChange}
-                    excludeDates={reservedDates}
-                    dayClassName={(date) => {
-                      if (
-                        date.getFullYear() === 2025 &&
-                        date.getMonth() === 5 &&
-                        date.getDate() === 3
-                      )
-                        return 'day-past';
-                      if (isBefore(date, today)) return 'day-past';
-                      if (
-                        isAfter(date, today) &&
-                        isBefore(date, minSelectableDate)
-                      )
-                        return 'day-past';
-                      if (isSameDay(date, today)) return 'day-today';
-                      if (reservedDates.some((d) => isSameDay(d, date)))
-                        return 'day-reserved';
-                      if (hd.isHoliday(date)) return 'day-holiday';
-                      if (date.getDay() === 0) return 'day-sunday';
-                      if (
-                        selectedRange.start &&
-                        isSameDay(date, selectedRange.start)
-                      )
-                        return 'day-start';
-                      if (
-                        selectedRange.end &&
-                        isSameDay(date, selectedRange.end)
-                      )
-                        return 'day-end';
-                      if (
-                        selectedRange.start &&
-                        selectedRange.end &&
-                        isAfter(date, selectedRange.start) &&
-                        isBefore(date, selectedRange.end)
-                      )
-                        return 'day-between';
-                      return '';
-                    }}
-                  />
-                </CalendarContainer>
-                <Legend>
-                  <LegendItem>
-                    <Dot color='red' /> 일요일·공휴일
-                  </LegendItem>
-                  <LegendItem>
-                    <Dot color='#ccc' /> 예약 불가 날짜 / 오늘 이전 & 오늘 이후
-                    4일
-                  </LegendItem>
-                  <LegendItem>
-                    <Dot color='#FFA726' /> 오늘 기준 4일 이후부터 선택 가능
-                  </LegendItem>
-                </Legend>
-                <Notice>
-                  ※ 서비스 시작일 전에 받아보실 수 있게 발송해 드립니다.
-                </Notice>
-                <Notice>
-                  ※ 일정 선택 시 하루 정도 여유 있게 신청을 권장드립니다.
-                </Notice>
+                <SelectedDateSection>
+                  <SelectedDateCard>
+                    <SelectedDateHeader>
+                      <SelectedDateTitle>선택된 기간</SelectedDateTitle>
+                      <DateAdjustment>
+                        <AdjustmentButton
+                          disabled={currentTotal <= minDays}
+                          onClick={() => adjustEnd(-1)}
+                        >
+                          <FaMinus />
+                        </AdjustmentButton>
+                        <AdjustmentText>{currentTotal}일</AdjustmentText>
+                        <AdjustmentButton
+                          disabled={currentTotal >= maxDays}
+                          onClick={() => adjustEnd(1)}
+                        >
+                          <FaPlus />
+                        </AdjustmentButton>
+                      </DateAdjustment>
+                    </SelectedDateHeader>
+                    <SelectedDateDisplay>
+                      {selectedRange.start && selectedRange.end ? (
+                        <DateRangeText>
+                          {formatDate(selectedRange.start)} ~{' '}
+                          {formatDate(selectedRange.end)}
+                        </DateRangeText>
+                      ) : (
+                        <DatePlaceholder>날짜를 선택해주세요</DatePlaceholder>
+                      )}
+                    </SelectedDateDisplay>
+                  </SelectedDateCard>
+                </SelectedDateSection>
+
+                <CalendarSection>
+                  <CalendarContainer>
+                    <DatePicker
+                      locale='ko'
+                      inline
+                      monthsShown={2}
+                      selectsRange
+                      startDate={selectedRange.start}
+                      endDate={selectedRange.end}
+                      onChange={handleDateChange}
+                      excludeDates={reservedDates}
+                      dayClassName={(date) => {
+                        if (
+                          date.getFullYear() === 2025 &&
+                          date.getMonth() === 5 &&
+                          date.getDate() === 3
+                        )
+                          return 'day-past';
+                        if (isBefore(date, today)) return 'day-past';
+                        if (
+                          isAfter(date, today) &&
+                          isBefore(date, minSelectableDate)
+                        )
+                          return 'day-past';
+                        if (isSameDay(date, today)) return 'day-today';
+                        if (reservedDates.some((d) => isSameDay(d, date)))
+                          return 'day-reserved';
+                        if (hd.isHoliday(date)) return 'day-holiday';
+                        if (date.getDay() === 0) return 'day-sunday';
+                        if (
+                          selectedRange.start &&
+                          isSameDay(date, selectedRange.start)
+                        )
+                          return 'day-start';
+                        if (
+                          selectedRange.end &&
+                          isSameDay(date, selectedRange.end)
+                        )
+                          return 'day-end';
+                        if (
+                          selectedRange.start &&
+                          selectedRange.end &&
+                          isAfter(date, selectedRange.start) &&
+                          isBefore(date, selectedRange.end)
+                        )
+                          return 'day-between';
+                        return '';
+                      }}
+                    />
+                  </CalendarContainer>
+                </CalendarSection>
+
+                <InfoSection>
+                  <Legend>
+                    <LegendTitle>날짜 구분</LegendTitle>
+                    <LegendGrid>
+                      <LegendItem>
+                        <LegendDot color='red' />
+                        <LegendText>일요일·공휴일</LegendText>
+                      </LegendItem>
+                      <LegendItem>
+                        <LegendDot color='#ccc' />
+                        <LegendText>예약 불가 / 과거 날짜</LegendText>
+                      </LegendItem>
+                      <LegendItem>
+                        <LegendDot color='#FFA726' />
+                        <LegendText>선택 가능한 날짜</LegendText>
+                      </LegendItem>
+                      <LegendItem>
+                        <LegendDot color='#F6AE24' />
+                        <LegendText>선택된 기간</LegendText>
+                      </LegendItem>
+                    </LegendGrid>
+                  </Legend>
+
+                  <NoticeSection>
+                    <NoticeTitle>안내사항</NoticeTitle>
+                    <NoticeList>
+                      <NoticeItem>
+                        • 서비스 시작일 전에 받아보실 수 있게 발송해 드립니다.
+                      </NoticeItem>
+                      <NoticeItem>
+                        • 일정 선택 시 하루 정도 여유 있게 신청을 권장드립니다.
+                      </NoticeItem>
+                      <NoticeItem>
+                        • 최소 4일 이후부터 대여 시작 가능합니다.
+                      </NoticeItem>
+                    </NoticeList>
+                  </NoticeSection>
+                </InfoSection>
               </ModalContent>
 
-              <ButtonRow>
+              <ModalFooter>
                 <CancelButton onClick={() => setIsModalOpen(false)}>
                   취소
                 </CancelButton>
                 <ConfirmButton onClick={handleConfirm}>선택완료</ConfirmButton>
-              </ButtonRow>
+              </ModalFooter>
 
               {errorModalOpen && (
                 <ReusableModal
@@ -411,20 +462,24 @@ const Container = styled.div`
   margin-top: 20px;
   width: 100%;
 `;
+
 const Label = styled.label`
   font-weight: 700;
   font-size: 12px;
   margin-bottom: 10px;
 `;
+
 const Wrapper = styled.div`
   display: flex;
   gap: 10px;
   width: 100%;
 `;
+
 const SelectWrapper = styled.div`
   flex: 1;
   min-width: 0;
 `;
+
 const Button = styled.button<{ disabled?: boolean }>`
   flex: 1;
   display: flex;
@@ -439,79 +494,132 @@ const Button = styled.button<{ disabled?: boolean }>`
   color: ${(p) => (p.disabled ? '#aaa' : '#000')};
   min-width: 0;
 `;
+
 const Icon = styled.img`
   width: 24px;
   height: 24px;
 `;
+
 const ModalWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 80vh;
+  height: 100%;
+  max-height: 90vh;
 `;
+
 const ModalHeader = styled.div`
   padding: 20px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eee;
+  background: #fff;
   position: sticky;
   top: 0;
-  background: #fff;
   z-index: 10;
 `;
+
 const ModalTitle = styled.h2`
-  margin: 0;
+  margin: 0 0 8px 0;
   font-weight: 800;
   font-size: 18px;
-  @media (max-width: 480px) {
-    font-size: 16px;
-  }
+  color: #000;
 `;
+
+const ModalSubtitle = styled.p`
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+`;
+
 const ModalContent = styled.div`
   flex: 1;
   overflow-y: auto;
-`;
-const SelectedBlock = styled.div`
   padding: 0 20px;
+`;
+
+const SelectedDateSection = styled.div`
   margin: 20px 0;
 `;
-const RangeBox = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid #000;
-  border-radius: 8px;
-  padding: 16px;
+
+const SelectedDateCard = styled.div`
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
 `;
-const RangeText = styled.span`
+
+const SelectedDateHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+`;
+
+const SelectedDateTitle = styled.h3`
+  margin: 0;
   font-size: 16px;
   font-weight: 700;
-  @media (max-width: 480px) {
-    font-size: 13px;
-  }
+  color: #000;
 `;
-const Placeholder = styled.span`
-  font-size: 16px;
-  color: #aaa;
-`;
-const IconWrapper = styled.div`
+
+const DateAdjustment = styled.div`
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
 `;
-const SquareIcon = styled.div<SquareIconProps>`
+
+const AdjustmentButton = styled.button<{ disabled?: boolean }>`
   width: 32px;
   height: 32px;
-  background: ${(p) => (p.disabled ? '#ccc' : '#000')};
+  background: ${(p) => (p.disabled ? '#e9ecef' : '#000')};
   color: #fff;
+  border: none;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
-  pointer-events: ${(p) => (p.disabled ? 'none' : 'auto')};
+  font-size: 12px;
 `;
+
+const AdjustmentText = styled.span`
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  min-width: 30px;
+  text-align: center;
+`;
+
+const SelectedDateDisplay = styled.div`
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+`;
+
+const DateRangeText = styled.div`
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+`;
+
+const DatePlaceholder = styled.div`
+  font-size: 16px;
+  color: #adb5bd;
+`;
+
+const CalendarSection = styled.div`
+  margin: 20px 0;
+`;
+
 const CalendarContainer = styled.div`
-  width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
   @media (min-width: 768px) {
     .react-datepicker__month-container {
       display: inline-block !important;
@@ -519,63 +627,120 @@ const CalendarContainer = styled.div`
       vertical-align: top;
     }
   }
+
   @media (max-width: 480px) {
     .react-datepicker__month-container {
       display: block !important;
       float: none !important;
     }
   }
+
   .react-datepicker__current-month {
     text-align: center;
     font-weight: 700;
     margin-bottom: 8px;
+    color: #000;
   }
 `;
-const Legend = styled.div`
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 20px;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+
+const InfoSection = styled.div`
+  margin: 20px 0;
 `;
+
+const Legend = styled.div`
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+`;
+
+const LegendTitle = styled.h4`
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+`;
+
+const LegendGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+`;
+
 const LegendItem = styled.div`
-  font-size: 12px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
+  font-size: 12px;
 `;
-const Dot = styled.span<{ color: string }>`
+
+const LegendDot = styled.span<{ color: string }>`
   width: 12px;
   height: 12px;
   border-radius: 50%;
   background: ${(p) => p.color};
   display: inline-block;
+  flex-shrink: 0;
 `;
-const Notice = styled.p`
-  margin: 0 20px 8px;
+
+const LegendText = styled.span`
+  color: #495057;
+  font-weight: 500;
+`;
+
+const NoticeSection = styled.div`
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 12px;
+  padding: 16px;
+`;
+
+const NoticeTitle = styled.h4`
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #856404;
+`;
+
+const NoticeList = styled.ul`
+  margin: 0;
+  padding-left: 16px;
+`;
+
+const NoticeItem = styled.li`
   font-size: 12px;
-  color: #666;
+  color: #856404;
+  margin-bottom: 4px;
+  line-height: 1.4;
 `;
-const ButtonRow = styled.div`
+
+const ModalFooter = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 12px;
   padding: 20px;
+  border-top: 1px solid #eee;
+  background: #fff;
   position: sticky;
   bottom: 0;
-  background: #fff;
   z-index: 10;
 `;
+
 const CancelButton = styled.button`
   flex: 1;
   height: 48px;
-  background: #ccc;
+  background: #6c757d;
   color: #fff;
   border: none;
   border-radius: 8px;
   font-weight: 700;
   font-size: 16px;
+  cursor: pointer;
+
+  &:hover {
+    background: #5a6268;
+  }
 `;
+
 const ConfirmButton = styled.button`
   flex: 1;
   height: 48px;
@@ -585,7 +750,13 @@ const ConfirmButton = styled.button`
   border-radius: 8px;
   font-weight: 700;
   font-size: 16px;
+  cursor: pointer;
+
+  &:hover {
+    background: #333;
+  }
 `;
+
 const ErrorMsg = styled.div`
   font-size: 14px;
   font-weight: 700;
