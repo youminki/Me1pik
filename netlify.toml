@@ -1,0 +1,13 @@
+[build]
+  publish = "dist"
+  command = "yarn build"
+  environment = { NODE_VERSION = "20" }
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# 필요 시 Functions 디렉터리 지정
+[functions]
+  directory = "functions"
