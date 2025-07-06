@@ -221,14 +221,16 @@ const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
   position: absolute;
   bottom: 0px;
   right: 0px;
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1.5px solid;
-  border-color: ${({ $isLiked }) => ($isLiked ? '#fff' : '#F6AE24')};
+  border: 1px solid #ccc;
+  border-right: none;
+  border-bottom: none;
+
   background: ${({ $isLiked }) => ($isLiked ? '#F6AE24' : '#fff')};
   transition:
     background 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -258,7 +260,7 @@ const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
     width: 0;
     height: 0;
     border-style: solid;
-    border-width: 0 0 12px 12px;
+    border-width: 0 0 10px 10px;
     border-color: transparent transparent
       ${({ $isLiked }) => ($isLiked ? '#fff' : '#F6AE24')} transparent;
     background: none;
