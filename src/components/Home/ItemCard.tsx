@@ -284,8 +284,9 @@ const Brand = styled.h3`
 
 const Description = styled.p`
   margin: 5px 0 0 0;
-  font-size: 11px;
+  font-size: 12px;
   color: #999;
+  font-weight: 700;
   margin-bottom: 4px;
   overflow: hidden;
   white-space: nowrap;
@@ -322,7 +323,7 @@ const OriginalPrice = styled.span`
 
 const SubPrice = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 4px;
 `;
 
