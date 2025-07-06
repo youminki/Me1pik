@@ -237,17 +237,19 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
       <Container>
         <Label>대여옵션 (선택)</Label>
         <Wrapper>
-          <CustomSelect
-            value={selectedPeriod}
-            onChange={(e) => {
-              setSelectedPeriod(e.target.value);
-              setSelectedRange({ start: null, end: null });
-            }}
-          >
-            <option value=''>대여기간 선택</option>
-            <option value='3박4일'>3박4일</option>
-            <option value='5박6일'>5박6일</option>
-          </CustomSelect>
+          <SelectWrapper>
+            <CustomSelect
+              value={selectedPeriod}
+              onChange={(e) => {
+                setSelectedPeriod(e.target.value);
+                setSelectedRange({ start: null, end: null });
+              }}
+            >
+              <option value=''>대여기간 선택</option>
+              <option value='3박4일'>3박4일</option>
+              <option value='5박6일'>5박6일</option>
+            </CustomSelect>
+          </SelectWrapper>
           <Button
             disabled={!selectedPeriod}
             onClick={() => setIsModalOpen(true)}
@@ -417,6 +419,11 @@ const Label = styled.label`
 const Wrapper = styled.div`
   display: flex;
   gap: 10px;
+  width: 100%;
+`;
+const SelectWrapper = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 const Button = styled.button<{ disabled?: boolean }>`
   flex: 1;
@@ -430,6 +437,7 @@ const Button = styled.button<{ disabled?: boolean }>`
   border-radius: 4px;
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   color: ${(p) => (p.disabled ? '#aaa' : '#000')};
+  min-width: 0;
 `;
 const Icon = styled.img`
   width: 24px;
