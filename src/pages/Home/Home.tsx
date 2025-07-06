@@ -563,7 +563,7 @@ const IconButton = styled.div`
     padding: 10px;
     border-radius: 4px;
     border: 1px solid #000;
-    background-color: #f9f9f9;
+    background-color: #fff;
     transition: background-color 0.3s ease;
   }
   &:hover img {
