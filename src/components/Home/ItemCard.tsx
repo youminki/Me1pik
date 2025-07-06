@@ -91,7 +91,11 @@ function ItemCard({
   const closeConfirm = () => setConfirmAction(null);
   const handleConfirm = () => {
     closeConfirm();
-    confirmAction === 'add' ? doAdd() : doRemove();
+    if (confirmAction === 'add') {
+      doAdd();
+    } else {
+      doRemove();
+    }
   };
 
   const modalTitle = confirmAction === 'add' ? '찜 등록 확인' : '삭제 확인';
