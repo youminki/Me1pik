@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -100,60 +100,102 @@ import {
 const NativeLoginSync: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     function handleLoginInfoReceived(e: Event) {
       const customEvent = e as CustomEvent;
       const loginInfo = customEvent.detail;
+
+      console.log('네이티브 로그인 정보 수신:', loginInfo);
+
       if (loginInfo.isLoggedIn && loginInfo.userInfo) {
         // 토큰 저장
         localStorage.setItem('accessToken', loginInfo.userInfo.token);
         Cookies.set('accessToken', loginInfo.userInfo.token, { path: '/' });
         Axios.defaults.headers.Authorization = `Bearer ${loginInfo.userInfo.token}`;
-        // 필요하다면 refreshToken도 저장
-        // localStorage.setItem('refreshToken', loginInfo.userInfo.refreshToken);
-        // Cookies.set('refreshToken', loginInfo.userInfo.refreshToken, { path: '/' });
-        // 로그인 후 홈으로 이동
+
+        // refreshToken도 저장
+        if (loginInfo.userInfo.refreshToken) {
+          localStorage.setItem('refreshToken', loginInfo.userInfo.refreshToken);
+          Cookies.set('refreshToken', loginInfo.userInfo.refreshToken, {
+            path: '/',
+          });
+        }
+
+        // 로그인 후 홈으로 이동 (로그인 페이지에 있을 때만)
         if (location.pathname === '/login') {
           navigate('/home', { replace: true });
         }
       } else {
         // 로그아웃 처리
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         Cookies.remove('accessToken');
-        if (location.pathname !== '/login') {
+        Cookies.remove('refreshToken');
+
+        // 로그인 페이지가 아닐 때만 로그인 페이지로 이동
+        if (
+          location.pathname !== '/login' &&
+          location.pathname !== '/landing'
+        ) {
           navigate('/login', { replace: true });
         }
       }
     }
 
-    // 앱 초기화 시 토큰 체크
+    // 앱 초기화 시 토큰 체크 (한 번만 실행)
     const checkInitialAuth = () => {
+      if (isInitialized) return;
+
       const token = hasValidToken();
+      console.log('초기 인증 체크:', {
+        token,
+        pathname: location.pathname,
+        isNative: isNativeApp(),
+      });
 
       if (!token && isProtectedRoute(location.pathname)) {
         if (isNativeApp()) {
-          console.log(
-            '네이티브 앱에서 초기 로그인 토큰이 없습니다. 네이티브 로그인을 요청합니다.'
-          );
+          console.log('네이티브 앱에서 로그인 요청');
           requestNativeLogin();
         } else {
-          console.log(
-            '웹 환경에서 초기 로그인 토큰이 없습니다. 로그인 페이지로 이동합니다.'
-          );
+          console.log('웹 환경에서 로그인 페이지로 이동');
           navigate('/login', { replace: true });
         }
       }
+
+      setIsInitialized(true);
     };
 
-    // 초기 인증 체크 실행
+    // 초기 인증 체크 실행 (한 번만)
     checkInitialAuth();
 
     window.addEventListener('loginInfoReceived', handleLoginInfoReceived);
     return () => {
       window.removeEventListener('loginInfoReceived', handleLoginInfoReceived);
     };
-  }, [location, navigate]);
+  }, []); // location, navigate 의존성 제거
+
+  // 라우트 변경 시에만 추가 체크 (로그인 상태가 변경된 경우)
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const token = hasValidToken();
+    const isProtected = isProtectedRoute(location.pathname);
+
+    // 토큰이 없는데 보호된 페이지에 있으면 로그인 페이지로
+    if (!token && isProtected && location.pathname !== '/login') {
+      console.log('라우트 변경으로 인한 로그인 페이지 이동');
+      navigate('/login', { replace: true });
+    }
+
+    // 토큰이 있는데 로그인 페이지에 있으면 홈으로
+    if (token && location.pathname === '/login') {
+      console.log('이미 로그인되어 있어 홈으로 이동');
+      navigate('/home', { replace: true });
+    }
+  }, [location.pathname, isInitialized, navigate]);
 
   return null;
 };

@@ -11,6 +11,7 @@ import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../components/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
+import Cookies from 'js-cookie';
 
 type LoginFormValues = {
   email: string;
@@ -39,15 +40,26 @@ const Login: React.FC = () => {
   });
 
   useEffect(() => {
+    // 이미 로그인되어 있으면 홈으로 이동
+    const token =
+      localStorage.getItem('accessToken') || Cookies.get('accessToken');
+    if (token) {
+      console.log('이미 로그인되어 있어 홈으로 이동');
+      navigate('/home', { replace: true });
+      return;
+    }
+
     const savedAutoLogin = localStorage.getItem('autoLogin');
     if (savedAutoLogin === 'true') {
       setAutoLogin(true);
       const savedEmail = localStorage.getItem('autoLoginEmail');
       const savedPassword = localStorage.getItem('autoLoginPassword');
       if (savedEmail && savedPassword) {
+        console.log('자동 로그인 시도');
         // 자동 로그인 시도
         handleLoginClick({ email: savedEmail, password: savedPassword }).catch(
-          () => {
+          (error) => {
+            console.log('자동 로그인 실패:', error);
             // 자동로그인 실패 시 자동로그인 정보 삭제
             localStorage.removeItem('autoLogin');
             localStorage.removeItem('autoLoginEmail');
@@ -63,15 +75,25 @@ const Login: React.FC = () => {
 
   const handleLoginClick = async (data: LoginFormValues) => {
     try {
+      console.log('로그인 시도:', data.email);
+
       const response = (await LoginPost(
         data.email,
         data.password
       )) as LoginResponse;
       const { accessToken, refreshToken } = response;
 
+      console.log('로그인 성공, 토큰 저장');
+
+      // 토큰 저장
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
+      Cookies.set('accessToken', accessToken, { path: '/' });
+      if (refreshToken) {
+        Cookies.set('refreshToken', refreshToken, { path: '/' });
+      }
 
+      // 자동로그인 설정
       if (autoLogin) {
         localStorage.setItem('autoLogin', 'true');
         localStorage.setItem('autoLoginEmail', data.email);
@@ -84,6 +106,7 @@ const Login: React.FC = () => {
 
       // === 네이티브 앱에 로그인 정보 전달 ===
       if (isNativeApp()) {
+        console.log('네이티브 앱에 로그인 정보 전달');
         saveNativeLoginInfo({
           id: data.email, // 또는 서버에서 받은 user id
           email: data.email,
@@ -98,6 +121,7 @@ const Login: React.FC = () => {
 
       const membership: MembershipInfo = await getMembershipInfo();
 
+      console.log('홈으로 이동');
       navigate('/home', {
         replace: true,
         state: {
@@ -106,6 +130,7 @@ const Login: React.FC = () => {
         },
       });
     } catch (error: unknown) {
+      console.log('로그인 실패:', error);
       setModalMessage(
         error instanceof Error
           ? error.message
