@@ -205,16 +205,15 @@ const IconText = styled.span<{ selected: boolean }>`
 `;
 const Indicator = styled.div<{ position: number }>`
   position: absolute;
-  bottom: 0;
+  bottom: 0px;
   left: ${({ position }) => position}px;
   width: ${INDICATOR_WIDTH}px;
-  height: 3px;
+  height: 4px;
   background-color: #000;
   border-radius: 3px;
   transition: left 0.3s ease-in-out;
 `;
 const Divider = styled.div`
   width: 100%;
-  border-bottom: 1px solid #eeeeee;
-  margin-top: 4px;
+  border-bottom: 1px solid #d9d9d9;
 `;

@@ -562,7 +562,7 @@ const IconButton = styled.div`
     height: 16px;
     padding: 10px;
     border-radius: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid #000;
     background-color: #f9f9f9;
     transition: background-color 0.3s ease;
   }
