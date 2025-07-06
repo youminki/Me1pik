@@ -476,19 +476,20 @@ const ControlsContainer = styled.div`
 const ScrollToTopButton = styled.button`
   position: fixed;
   bottom: 100px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
+  right: 14px;
+  width: 48px;
+  height: 48px;
   border: none;
   cursor: pointer;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  background: #f6ae24;
+  background: #555555;
   border-radius: 6px;
   transition:
     transform 0.3s,
     box-shadow 0.3s,
     opacity 0.3s;
+
   &:hover {
     transform: scale(1.1);
   }
