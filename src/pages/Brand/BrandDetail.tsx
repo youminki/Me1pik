@@ -8,6 +8,7 @@ import StatsSection from '../../components/Brand/StatsSection';
 import SubHeader from '../../components/Home/SubHeader';
 import ItemList, { UIItem } from '../../components/Home/ItemList';
 import FilterContainer from '../../components/Home/FilterContainer';
+import SearchModal from '../../components/Home/SearchModal';
 import { getBrandList, Brand as ApiBrand } from '../../api/brand/brandApi';
 import {
   getProductsByBrand,
@@ -18,8 +19,6 @@ import HomeDetail from '../Home/HomeDetail';
 import CancleIconIcon from '../../assets/Header/CancleIcon.svg';
 import ShareIcon from '../../assets/Header/ShareIcon.svg';
 import HomeIcon from '../../assets/Header/HomeIcon.svg';
-import ReusableModal from '../../components/ReusableModal';
-import SearchIconSvg from '../../assets/Home/SearchIcon.svg';
 import ArrowIconSvg from '../../assets/ArrowIcon.svg';
 import SkeletonItemList from '../../components/Home/SkeletonItemList';
 
@@ -204,25 +203,8 @@ const BrandDetail: React.FC = () => {
     }
   };
 
-  // 검색 모달 상태 및 입력값, 히스토리
+  // 검색 모달 상태
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
-  const [searchInput, setSearchInput] = useState(searchTerm);
-  const [searchHistory, setSearchHistory] = useState<string[]>(() => {
-    const saved = localStorage.getItem('brandSearchHistory');
-    return saved ? JSON.parse(saved) : [];
-  });
-  // 최근 검색어 최대 개수
-  const MAX_HISTORY = 8;
-  // 검색 히스토리 저장 함수
-  const addToHistory = (keyword: string) => {
-    if (!keyword.trim()) return;
-    setSearchHistory((prev) => {
-      const filtered = prev.filter((item) => item !== keyword);
-      const newHistory = [keyword, ...filtered].slice(0, MAX_HISTORY);
-      localStorage.setItem('brandSearchHistory', JSON.stringify(newHistory));
-      return newHistory;
-    });
-  };
 
   // UIItem 매핑 (filteredProducts 기준)
   const uiItems: UIItem[] = filteredProducts.map((it) => ({
@@ -285,79 +267,23 @@ const BrandDetail: React.FC = () => {
         {/* 필터 및 검색 아이콘 */}
         <ControlsContainer>
           <RowAlignBox>
-            {/* 검색 아이콘 */}
-            <IconButton onClick={() => setSearchModalOpen(true)}>
-              <img src={SearchIconSvg} alt='검색' />
-            </IconButton>
-            {/* 필터 아이콘 */}
-            <FilterContainer />
+            {/* 검색 및 필터 아이콘 */}
+            <FilterContainer onSearchClick={() => setSearchModalOpen(true)} />
           </RowAlignBox>
           {/* 검색 모달 */}
-          <ReusableModal
+          <SearchModal
             isOpen={isSearchModalOpen}
             onClose={() => setSearchModalOpen(false)}
-            title='제품 검색'
-          >
-            <ModalSearchBar>
-              <ModalSearchInput
-                type='text'
-                placeholder='브랜드 또는 설명으로 검색...'
-                value={searchInput}
-                autoFocus
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    setSearchParams(
-                      { category: 'All', search: searchInput },
-                      { replace: true }
-                    );
-                    setSelectedCategory('All');
-                    addToHistory(searchInput);
-                    setSearchModalOpen(false);
-                  }
-                }}
-              />
-              <ModalSearchIconButton
-                onClick={() => {
-                  setSearchParams(
-                    { category: 'All', search: searchInput },
-                    { replace: true }
-                  );
-                  setSelectedCategory('All');
-                  addToHistory(searchInput);
-                  setSearchModalOpen(false);
-                }}
-                aria-label='검색'
-              >
-                <img src={SearchIconSvg} alt='검색' />
-              </ModalSearchIconButton>
-            </ModalSearchBar>
-            {/* 최근 검색어 히스토리 */}
-            {searchHistory.length > 0 && (
-              <HistoryContainer>
-                <HistoryTitle>최근 검색어</HistoryTitle>
-                <HistoryList>
-                  {searchHistory.map((item, idx) => (
-                    <HistoryItem
-                      key={item + idx}
-                      onClick={() => {
-                        setSearchInput(item);
-                        setSearchParams(
-                          { category: 'All', search: item },
-                          { replace: true }
-                        );
-                        setSelectedCategory('All');
-                        addToHistory(item);
-                        setSearchModalOpen(false);
-                      }}
-                    >
-                      {item}
-                    </HistoryItem>
-                  ))}
-                </HistoryList>
-              </HistoryContainer>
-            )}
-          </ReusableModal>
+            onSearch={(searchTerm) => {
+              setSearchParams(
+                { category: 'All', search: searchTerm },
+                { replace: true }
+              );
+              setSelectedCategory('All');
+            }}
+            historyKey='brandSearchHistory'
+            initialValue={searchTerm}
+          />
         </ControlsContainer>
 
         <MainContent>
@@ -575,99 +501,6 @@ const RowAlignBox = styled.div`
   align-items: center;
   gap: 10px;
   margin-top: 20px;
-`;
-const IconButton = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  img {
-    width: 16px;
-    height: 16px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    background-color: #f9f9f9;
-    transition: background-color 0.3s ease;
-  }
-  &:hover img {
-    background-color: #e6e6e6;
-  }
-`;
-const ModalSearchBar = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin-top: 18px;
-`;
-const ModalSearchInput = styled.input`
-  border: 1.5px solid #ccc;
-  border-radius: 6px 0 0 6px;
-  font-size: 17px;
-  padding: 12px 16px;
-  width: 260px;
-  outline: none;
-  box-sizing: border-box;
-  background: #fafafa;
-`;
-const ModalSearchIconButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px;
-  width: 48px;
-  border: 1.5px solid #ccc;
-  border-left: none;
-  border-radius: 0 6px 6px 0;
-  cursor: pointer;
-  transition: background 0.2s;
-  padding: 0;
-  &:hover {
-    background: #ffbe4b;
-  }
-  img {
-    width: 20px;
-    height: 20px;
-    filter: brightness(0.7);
-  }
-`;
-const HistoryContainer = styled.div`
-  margin-top: 24px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`;
-const HistoryTitle = styled.div`
-  font-size: 14px;
-  color: #888;
-  margin-bottom: 8px;
-  font-weight: 600;
-`;
-const HistoryList = styled.ul`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 0;
-  margin: 0;
-`;
-const HistoryItem = styled.li`
-  list-style: none;
-  background: #f5f5f5;
-  color: #333;
-  border-radius: 16px;
-  padding: 6px 16px;
-  font-size: 15px;
-  cursor: pointer;
-  border: 1px solid #e0e0e0;
-  transition:
-    background 0.2s,
-    color 0.2s;
-  &:hover {
-    background: #ffe6b8;
-    color: #f6ae24;
-  }
 `;
 
 // styled-components: Home.tsx에서 ContentWrapper, NoResultText, CountdownText 복사 (파일 하단에 위치)

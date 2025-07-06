@@ -2,13 +2,24 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import FilterIcon from '../../assets/FilterIcon.svg';
+import SearchIconSvg from '../../assets/Home/SearchIcon.svg';
 import ReusableModal from '../../components/ReusableModal';
 
-const FilterContainer: React.FC = () => {
+interface FilterContainerProps {
+  onSearchClick: () => void;
+}
+
+const FilterContainer: React.FC<FilterContainerProps> = ({ onSearchClick }) => {
   const [isFeatureModalOpen, setFeatureModalOpen] = useState(false);
 
   return (
     <Container>
+      {/* 검색 아이콘 */}
+      <IconButton onClick={onSearchClick}>
+        <img src={SearchIconSvg} alt='검색' />
+      </IconButton>
+
+      {/* 필터 아이콘 */}
       <FilterIconContainer onClick={() => setFeatureModalOpen(true)}>
         <img src={FilterIcon} alt='필터' />
       </FilterIconContainer>
@@ -28,8 +39,26 @@ export default FilterContainer;
 
 const Container = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
+`;
+
+const IconButton = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  img {
+    width: 16px;
+    height: 16px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #000;
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+  }
+  &:hover img {
+    background-color: #e6e6e6;
+  }
 `;
 
 const FilterIconContainer = styled.div`

@@ -20,12 +20,12 @@ import HomeIcon from '../../assets/Header/HomeIcon.svg';
 import ArrowIconSvg from '../../assets/ArrowIcon.svg';
 import ReusableModal from '../../components/ReusableModal';
 import FilterContainer from '../../components/Home/FilterContainer';
-import SearchIconSvg from '../../assets/Home/SearchIcon.svg';
+import SearchModal from '../../components/Home/SearchModal';
 import MelpikGuideBanner from '../../components/MelpikGuideBanner';
 import SkeletonItemList from '../../components/Home/SkeletonItemList';
 
 /**
- * Home(상품 리스트) 페이지 - 최적화 버전
+ * Home(상품 리스트) 페이지 - 최적화 버전ㄴ
  * - react-query로 상품 데이터 관리(캐싱/중복방지)
  * - 검색/필터 useMemo 적용
  * - 무한스크롤 IntersectionObserver 적용
@@ -63,13 +63,6 @@ const Home: React.FC = () => {
   );
   // 검색 모달 노출 상태
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
-  // 검색 입력 임시 상태
-  const [searchInput, setSearchInput] = useState(searchQuery);
-  // 검색 히스토리(최근 검색어)
-  const [searchHistory, setSearchHistory] = useState<string[]>(() => {
-    const saved = localStorage.getItem('searchHistory');
-    return saved ? JSON.parse(saved) : [];
-  });
 
   // react-query 상품 데이터
   const {
@@ -210,17 +203,6 @@ const Home: React.FC = () => {
     }
   };
 
-  // 히스토리 저장 함수
-  const addToHistory = (keyword: string) => {
-    if (!keyword.trim()) return;
-    setSearchHistory((prev) => {
-      const filtered = prev.filter((item) => item !== keyword);
-      const newHistory = [keyword, ...filtered].slice(0, MAX_HISTORY);
-      localStorage.setItem('searchHistory', JSON.stringify(newHistory));
-      return newHistory;
-    });
-  };
-
   return (
     <MainContainer>
       {/* 로그인 안내 모달 */}
@@ -260,82 +242,24 @@ const Home: React.FC = () => {
       {/* 필터 및 열 선택 */}
       <ControlsContainer>
         <RowAlignBox>
-          {/* 검색 아이콘 */}
-          <IconButton onClick={() => setSearchModalOpen(true)}>
-            <img src={SearchIconSvg} alt='검색' />
-          </IconButton>
-          {/* 필터 아이콘 */}
-          <FilterContainer />
+          {/* 검색 및 필터 아이콘 */}
+          <FilterContainer onSearchClick={() => setSearchModalOpen(true)} />
         </RowAlignBox>
         {/* 검색 모달 */}
-        <ReusableModal
+        <SearchModal
           isOpen={isSearchModalOpen}
           onClose={() => setSearchModalOpen(false)}
-          title='제품 검색'
-        >
-          <ModalSearchBar>
-            <ModalSearchInput
-              type='text'
-              placeholder='브랜드 또는 설명으로 검색...'
-              value={searchInput}
-              autoFocus
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setSearchQuery(searchInput);
-                  setSelectedCategory('All');
-                  setSearchParams(
-                    { category: 'All', search: searchInput },
-                    { replace: true }
-                  );
-                  addToHistory(searchInput);
-                  setSearchModalOpen(false);
-                }
-              }}
-            />
-            <ModalSearchIconButton
-              onClick={() => {
-                setSearchQuery(searchInput);
-                setSelectedCategory('All');
-                setSearchParams(
-                  { category: 'All', search: searchInput },
-                  { replace: true }
-                );
-                addToHistory(searchInput);
-                setSearchModalOpen(false);
-              }}
-              aria-label='검색'
-            >
-              <img src={SearchIconSvg} alt='검색' />
-            </ModalSearchIconButton>
-          </ModalSearchBar>
-          {/* 최근 검색어 히스토리 */}
-          {searchHistory.length > 0 && (
-            <HistoryContainer>
-              <HistoryTitle>최근 검색어</HistoryTitle>
-              <HistoryList>
-                {searchHistory.map((item, idx) => (
-                  <HistoryItem
-                    key={item + idx}
-                    onClick={() => {
-                      setSearchInput(item);
-                      setSearchQuery(item);
-                      setSelectedCategory('All');
-                      setSearchParams(
-                        { category: 'All', search: item },
-                        { replace: true }
-                      );
-                      addToHistory(item);
-                      setSearchModalOpen(false);
-                    }}
-                  >
-                    {item}
-                  </HistoryItem>
-                ))}
-              </HistoryList>
-            </HistoryContainer>
-          )}
-        </ReusableModal>
+          onSearch={(searchTerm) => {
+            setSearchQuery(searchTerm);
+            setSelectedCategory('All');
+            setSearchParams(
+              { category: 'All', search: searchTerm },
+              { replace: true }
+            );
+          }}
+          historyKey='searchHistory'
+          initialValue={searchQuery}
+        />
       </ControlsContainer>
 
       {/* 제품 리스트 or 로딩 스피너 */}
@@ -552,115 +476,6 @@ const RowAlignBox = styled.div`
   gap: 10px;
   margin-top: 20px;
 `;
-
-// 필터 아이콘과 동일한 스타일의 검색 아이콘 버튼
-const IconButton = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  img {
-    width: 16px;
-    height: 16px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #000;
-    background-color: #fff;
-    transition: background-color 0.3s ease;
-  }
-  &:hover img {
-    background-color: #e6e6e6;
-  }
-`;
-
-// 모달 내 검색 바(가로 배치, 버튼이 인풋 오른쪽)
-const ModalSearchBar = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin-top: 18px;
-`;
-
-const ModalSearchInput = styled.input`
-  border: 1.5px solid #ccc;
-  border-radius: 6px 0 0 6px;
-  font-size: 17px;
-  padding: 12px 16px;
-  width: 260px;
-  outline: none;
-  box-sizing: border-box;
-  background: #fafafa;
-`;
-
-// 모달 내 검색 아이콘 버튼
-const ModalSearchIconButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px;
-  width: 48px;
-
-  border: 1.5px solid #ccc;
-  border-left: none;
-  border-radius: 0 6px 6px 0;
-  cursor: pointer;
-  transition: background 0.2s;
-  padding: 0;
-  &:hover {
-    background: #ffbe4b;
-  }
-  img {
-    width: 20px;
-    height: 20px;
-    filter: brightness(0.7);
-  }
-`;
-
-// 최근 검색어 히스토리 스타일
-const HistoryContainer = styled.div`
-  margin-top: 24px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`;
-
-const HistoryTitle = styled.div`
-  font-size: 14px;
-  color: #888;
-  margin-bottom: 8px;
-  font-weight: 600;
-`;
-
-const HistoryList = styled.ul`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 0;
-  margin: 0;
-`;
-
-const HistoryItem = styled.li`
-  list-style: none;
-  background: #f5f5f5;
-  color: #333;
-  border-radius: 16px;
-  padding: 6px 16px;
-  font-size: 15px;
-  cursor: pointer;
-  border: 1px solid #e0e0e0;
-  transition:
-    background 0.2s,
-    color 0.2s;
-  &:hover {
-    background: #ffe6b8;
-    color: #f6ae24;
-  }
-`;
-
-// 최근 검색어 최대 개수
-const MAX_HISTORY = 8;
 
 // 오버레이 스타일 추가
 const OverlayWrapper = styled.div`
