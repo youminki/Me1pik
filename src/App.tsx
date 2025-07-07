@@ -97,43 +97,18 @@ const AuthGuard: React.FC = () => {
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // 보호된 라우트 목록
-  const protectedRoutes = useMemo(
+  // 공개 경로 목록 (토큰이 없어도 접근 가능)
+  const publicRoutes = useMemo(
     () => [
-      '/home',
-      '/item',
-      '/analysis',
-      '/basket',
-      '/alarm',
-      '/payment',
-      '/brand',
-      '/melpik',
-      '/create-melpik',
-      '/createMelpik',
-      '/melpik-settings',
-      '/sales-settlement',
-      '/sales-settlement-detail',
-      '/settlement-request',
-      '/sales-schedule',
-      '/schedule',
-      '/lockerRoom',
-      '/usage-history',
-      '/point',
-      '/my-closet',
-      '/my-ticket',
-      '/payment-method',
-      '/product-review',
-      '/customerService',
-      '/MyinfoList',
-      '/MyStyle',
-      '/UpdateProfile',
-      '/ChangePassword',
-      '/DeliveryManagement',
-      '/EditAddress',
-      '/password-change',
-      '/payment-complete',
-      '/payment-fail',
-      '/ticketDetail',
+      '/login',
+      '/landing',
+      '/signup',
+      '/findid',
+      '/findPassword',
+      '/PersonalLink',
+      '/test/payple',
+      '/test/AddCardPayple',
+      '/Link',
     ],
     []
   );
@@ -141,9 +116,9 @@ const AuthGuard: React.FC = () => {
   // 현재 경로가 보호된 라우트인지 확인
   const isProtectedRoute = useCallback(
     (pathname: string): boolean => {
-      return protectedRoutes.some((route) => pathname.startsWith(route));
+      return !publicRoutes.includes(pathname);
     },
-    [protectedRoutes]
+    [publicRoutes]
   );
 
   // 토큰 유효성 검사
@@ -253,38 +228,6 @@ const AuthGuard: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  // 간단한 인증 체크
-  useEffect(() => {
-    const checkAuth = () => {
-      const token =
-        localStorage.getItem('accessToken') || Cookies.get('accessToken');
-      const currentPath = window.location.pathname;
-
-      console.log('인증 체크:', { token: !!token, path: currentPath });
-
-      // 공개 경로 목록 (토큰이 없어도 접근 가능)
-      const publicPaths = [
-        '/login',
-        '/landing',
-        '/signup',
-        '/findid',
-        '/findPassword',
-        '/PersonalLink',
-        '/test/payple',
-        '/test/AddCardPayple',
-        '/Link',
-      ];
-
-      // 토큰이 없고 공개 경로가 아니면 로그인으로
-      if (!token && !publicPaths.includes(currentPath)) {
-        console.log('토큰이 없어서 로그인 페이지로 이동');
-        window.location.href = '/login';
-      }
-    };
-
-    checkAuth();
-  }, []);
-
   return (
     <Router>
       <AuthGuard />
