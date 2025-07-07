@@ -1,6 +1,6 @@
 // src/page/Login.tsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -11,7 +11,6 @@ import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../components/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
-import { saveTokens } from '../utils/auth';
 
 type LoginFormValues = {
   email: string;
@@ -72,22 +71,37 @@ const NaverEyeCloseIcon = () => (
 
 const NaverLoginBg = styled.div`
   min-height: 100vh;
-  background: #f5f6f7;
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
 `;
 
 const NaverLoginBox = styled.div`
   background: #fff;
   border-radius: 12px;
-  border: 1.5px solid #e3e5e8;
+
   width: 100%;
   max-width: 400px;
-  padding: 48px 32px 32px 32px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 100px;
+`;
+
+const FormSectionWrapper = styled.div`
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100px;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
 const LogoWrap = styled.div`
@@ -123,10 +137,17 @@ const FormSection = styled.form`
 `;
 
 const InputLabel = styled.label`
-  font-size: 14px;
+  font-size: 10px;
   color: #222;
   font-weight: 700;
   margin-bottom: 4px;
+`;
+
+const InputFieldsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
 `;
 
 const InputWrap = styled.div`
@@ -152,7 +173,7 @@ const StyledInput = styled.input<{ hasError?: boolean }>`
   width: 100%;
   height: 51px;
   border: 1.5px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#dadada')};
-  border-radius: 6px;
+
   font-size: 16px;
   padding: 0 44px 0 15px;
   background: #fafbfb;
@@ -179,10 +200,10 @@ const ErrorMessage = styled.div`
   margin-bottom: 2px;
 `;
 
-const LoginBtn = styled.button`
+const LoginBtn = styled.button<{ active?: boolean }>`
   width: 100%;
   height: 52px;
-  background: #f6ae24;
+  background: ${({ active }) => (active ? '#222' : '#F6AE24')};
   color: #fff;
   font-size: 18px;
   font-weight: 800;
@@ -193,29 +214,37 @@ const LoginBtn = styled.button`
   cursor: pointer;
   transition: background 0.2s;
   &:hover:enabled {
-    background: #e09e1f;
+    background: ${({ active }) => (active ? '#111' : '#e09e1f')};
   }
   &:disabled {
-    background: #ffe2a9;
+    background: #f6ae24;
     cursor: not-allowed;
   }
 `;
 
-const LinksWrap = styled.div`
+const LinksRow = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 0;
   width: 100%;
   margin-top: 18px;
+`;
+
+const LinksLeft = styled.div`
+  display: flex;
+  gap: 0;
+`;
+
+const LinksRight = styled.div`
+  display: flex;
 `;
 
 const LinkBtn = styled.button`
   background: none;
   border: none;
-  color: #666;
-  font-size: 14px;
-  font-weight: 600;
+  color: #000;
+  font-size: 12px;
+  font-weight: 800;
   cursor: pointer;
   padding: 0 8px;
   &:hover {
@@ -230,13 +259,92 @@ const Divider = styled.div`
   background: #e5e5e5;
 `;
 
+const KeepLoginWrap = styled.div`
+  width: 100%;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+`;
+
+const KeepLoginLabel = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: #222;
+  user-select: none;
+`;
+
+const KeepLoginCheckbox = styled.input`
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+`;
+
+const CustomCheckbox = styled.span<{ checked: boolean }>`
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid ${({ checked }) => (checked ? '#F6AE24' : '#ddd')};
+  background: ${({ checked }) => (checked ? '#F6AE24' : '#fff')};
+  margin-right: 8px;
+  display: inline-block;
+  position: relative;
+  transition:
+    border 0.2s,
+    background 0.2s;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  ${KeepLoginLabel}:hover & {
+    border-color: #f6ae24;
+  }
+
+  &:focus {
+    outline: 2px solid #f6ae24;
+    outline-offset: 2px;
+  }
+
+  &::after {
+    content: '';
+    display: ${({ checked }) => (checked ? 'block' : 'none')};
+    position: absolute;
+    left: 5px;
+    top: 0px;
+    width: 7px;
+    height: 12px;
+    border: solid #fff;
+    border-width: 0 3px 3px 0;
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+`;
+
+const KeepLoginNotice = styled.div`
+  font-size: 13px;
+  color: #ff4d4f;
+  margin-bottom: 8px;
+  margin-left: 2px;
+`;
+
+const CapsLockNotice = styled.div`
+  color: #ff4d4f;
+  font-size: 13px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+`;
+
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [keepLogin, setKeepLogin] = useState(false);
+  const [isCapsLock, setIsCapsLock] = useState(false);
 
   const {
     handleSubmit,
@@ -248,7 +356,25 @@ const Login: React.FC = () => {
     defaultValues: { email: '', password: '' },
   });
 
+  useEffect(() => {
+    // 앱 시작 시 localStorage에 토큰이 있으면 자동 로그인 처리
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken && location.pathname === '/login') {
+      navigate('/', { replace: true }); // 메인 페이지 등으로 이동
+    }
+  }, [navigate, location.pathname]);
+
   const handleModalClose = () => setIsModalOpen(false);
+
+  // Caps Lock 감지
+  const handlePwKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.getModifierState && e.getModifierState('CapsLock')) {
+      setIsCapsLock(true);
+    } else {
+      setIsCapsLock(false);
+    }
+  };
+  const handlePwBlur = () => setIsCapsLock(false);
 
   const handleLoginClick = async (data: LoginFormValues) => {
     try {
@@ -259,7 +385,13 @@ const Login: React.FC = () => {
       )) as LoginResponse;
       const { accessToken, refreshToken } = response;
       console.log('로그인 성공, 토큰 저장');
-      saveTokens(accessToken, refreshToken);
+      if (keepLogin) {
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+      } else {
+        sessionStorage.setItem('accessToken', accessToken);
+        sessionStorage.setItem('refreshToken', refreshToken);
+      }
       if (isNativeApp()) {
         console.log('네이티브 앱에 로그인 정보 전달');
         saveNativeLoginInfo({
@@ -275,7 +407,8 @@ const Login: React.FC = () => {
       }
       const membership: MembershipInfo = await getMembershipInfo();
       console.log('홈으로 이동');
-      navigate('/home', {
+      const redirectTo = location.state?.from || '/';
+      navigate(redirectTo, {
         replace: true,
         state: {
           showNotice: true,
@@ -317,6 +450,10 @@ const Login: React.FC = () => {
     setShowPassword((v) => !v);
   };
 
+  const handleKeepLoginChange = () => {
+    setKeepLogin((prev) => !prev);
+  };
+
   return (
     <ThemeProvider theme={Theme}>
       <NaverLoginBg>
@@ -331,72 +468,113 @@ const Login: React.FC = () => {
             <br />
             <SloganSub>사고, 팔고, 빌리는 것을 한번에!</SloganSub>
           </Slogan>
+        </NaverLoginBox>
+        <FormSectionWrapper>
           <FormSection onSubmit={handleSubmit(handleLoginClick)}>
-            <InputLabel htmlFor='email'>아이디</InputLabel>
-            <InputWrap>
-              <StyledInput
-                id='email'
-                type='text'
-                placeholder='아이디(이메일)'
-                value={email}
-                onChange={handleEmailChange}
-                hasError={!!errors.email}
-                autoComplete='username'
-              />
-              {email && (
-                <InputIconBtn type='button' onClick={handleEmailClear}>
-                  <NaverDeleteIcon />
-                </InputIconBtn>
+            <InputLabel style={{ marginBottom: '8px' }}>로그인 계정</InputLabel>
+            <InputFieldsContainer>
+              <InputWrap>
+                <StyledInput
+                  id='email'
+                  type='text'
+                  placeholder='아이디(이메일)'
+                  value={email}
+                  onChange={handleEmailChange}
+                  hasError={!!errors.email}
+                  autoComplete='username'
+                />
+                {email && (
+                  <InputIconBtn type='button' onClick={handleEmailClear}>
+                    <NaverDeleteIcon />
+                  </InputIconBtn>
+                )}
+              </InputWrap>
+              {errors.email && (
+                <ErrorMessage>{errors.email.message}</ErrorMessage>
               )}
-            </InputWrap>
-            {errors.email && (
-              <ErrorMessage>{errors.email.message}</ErrorMessage>
+              <InputWrap>
+                <StyledInput
+                  id='password'
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder='비밀번호'
+                  value={password}
+                  onChange={handlePwChange}
+                  hasError={!!errors.password}
+                  autoComplete='current-password'
+                  onKeyDown={handlePwKeyDown}
+                  onBlur={handlePwBlur}
+                />
+                {password && (
+                  <InputIconBtn type='button' onClick={handlePwClear}>
+                    <NaverDeleteIcon />
+                  </InputIconBtn>
+                )}
+                {password && (
+                  <InputIconBtn
+                    style={{ right: '40px' }}
+                    onClick={toggleShowPassword}
+                    type='button'
+                  >
+                    {showPassword ? (
+                      <NaverEyeOpenIcon />
+                    ) : (
+                      <NaverEyeCloseIcon />
+                    )}
+                  </InputIconBtn>
+                )}
+              </InputWrap>
+              {isCapsLock && (
+                <CapsLockNotice>Caps Lock이 켜져 있습니다.</CapsLockNotice>
+              )}
+              {errors.password && (
+                <ErrorMessage>{errors.password.message}</ErrorMessage>
+              )}
+            </InputFieldsContainer>
+            <KeepLoginWrap>
+              <KeepLoginLabel htmlFor='keepLogin'>
+                <KeepLoginCheckbox
+                  type='checkbox'
+                  checked={keepLogin}
+                  onChange={handleKeepLoginChange}
+                  id='keepLogin'
+                  aria-label='로그인 상태 유지'
+                />
+                <CustomCheckbox checked={keepLogin} tabIndex={0} />
+                <span>
+                  로그인 상태 유지 <span style={{ color: '#aaa' }}>(선택)</span>
+                </span>
+              </KeepLoginLabel>
+            </KeepLoginWrap>
+            {keepLogin && (
+              <KeepLoginNotice>
+                공용 PC에서는 개인정보 보호를 위해 로그인 상태 유지를 사용하지
+                마세요.
+              </KeepLoginNotice>
             )}
 
-            <InputLabel htmlFor='password'>비밀번호</InputLabel>
-            <InputWrap>
-              <StyledInput
-                id='password'
-                type={showPassword ? 'text' : 'password'}
-                placeholder='비밀번호'
-                value={password}
-                onChange={handlePwChange}
-                hasError={!!errors.password}
-                autoComplete='current-password'
-              />
-              {password && (
-                <InputIconBtn type='button' onClick={handlePwClear}>
-                  <NaverDeleteIcon />
-                </InputIconBtn>
-              )}
-              {password && (
-                <InputIconBtn
-                  style={{ right: '40px' }}
-                  onClick={toggleShowPassword}
-                  type='button'
-                >
-                  {showPassword ? <NaverEyeOpenIcon /> : <NaverEyeCloseIcon />}
-                </InputIconBtn>
-              )}
-            </InputWrap>
-            {errors.password && (
-              <ErrorMessage>{errors.password.message}</ErrorMessage>
-            )}
-
-            <LoginBtn type='submit' disabled={!isValid || isSubmitting}>
+            <LoginBtn
+              type='submit'
+              disabled={!isValid || isSubmitting}
+              active={isValid && !isSubmitting}
+            >
               {isSubmitting ? '로그인 중...' : '로그인'}
             </LoginBtn>
           </FormSection>
-          <LinksWrap>
-            <LinkBtn onClick={() => navigate('/findid')}>아이디 찾기</LinkBtn>
-            <Divider />
-            <LinkBtn onClick={() => navigate('/findPassword')}>
-              비밀번호 찾기
-            </LinkBtn>
-            <Divider />
-            <LinkBtn onClick={() => navigate('/signup')}>회원가입</LinkBtn>
-          </LinksWrap>
-        </NaverLoginBox>
+          <LinksRow>
+            <LinksLeft>
+              <LinkBtn onClick={() => navigate('/findid')}>아이디 찾기</LinkBtn>
+              <Divider />
+              <LinkBtn onClick={() => navigate('/findPassword')}>
+                비밀번호 찾기
+              </LinkBtn>
+            </LinksLeft>
+            <LinksRight>
+              <LinkBtn onClick={() => navigate('/signup')}>
+                회원가입 <span style={{ color: '#aaa' }}>(이메일)</span>
+              </LinkBtn>
+            </LinksRight>
+          </LinksRow>
+        </FormSectionWrapper>
         <ReusableModal
           isOpen={isModalOpen}
           onClose={handleModalClose}
