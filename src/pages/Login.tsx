@@ -1,5 +1,5 @@
 // src/page/Login.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm } from 'react-hook-form';
@@ -346,6 +346,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [keepLogin, setKeepLogin] = useState(false);
   const [isCapsLock, setIsCapsLock] = useState(false);
+  const [hasReceivedNativeToken, setHasReceivedNativeToken] = useState(false);
 
   const {
     handleSubmit,
@@ -357,15 +358,81 @@ const Login: React.FC = () => {
     defaultValues: { email: '', password: '' },
   });
 
-  useEffect(() => {
-    // 무신사 스타일 자동로그인 체크
-    const isAutoLoginAvailable = checkAutoLogin();
+  // 자동 로그인 처리
+  const handleAutoLogin = useCallback(async () => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        console.log('자동 로그인 시도');
 
-    if (isAutoLoginAvailable && location.pathname === '/login') {
-      console.log('자동로그인 가능, 홈으로 이동');
-      navigate('/', { replace: true });
+        // 토큰 유효성 검사 (실제로는 API 호출)
+        const membership = await getMembershipInfo();
+
+        navigate('/', {
+          replace: true,
+          state: {
+            showNotice: true,
+            membership,
+            autoLogin: true,
+          },
+        });
+      }
+    } catch (error) {
+      console.log('자동 로그인 실패:', error);
+      // 토큰이 유효하지 않으면 삭제
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     }
-  }, [navigate, location.pathname]);
+  }, [navigate]);
+
+  useEffect(() => {
+    // 네이티브 토큰 수신 (무한루프 방지)
+    function handleNativeToken(e: CustomEvent) {
+      const { accessToken, refreshToken, source } = e.detail || {};
+
+      // 네이티브에서 온 토큰만 처리 (무한루프 방지)
+      if (source === 'native' && !hasReceivedNativeToken) {
+        console.log('네이티브에서 토큰 수신:', {
+          accessToken: !!accessToken,
+          refreshToken: !!refreshToken,
+        });
+
+        if (accessToken) {
+          localStorage.setItem('accessToken', accessToken);
+        }
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+
+        setHasReceivedNativeToken(true);
+
+        // 자동 로그인 처리
+        handleAutoLogin();
+      }
+    }
+
+    // 토큰 수신 이벤트 리스너 등록
+    window.addEventListener('nativeToken', handleNativeToken as EventListener);
+
+    return () => {
+      window.removeEventListener(
+        'nativeToken',
+        handleNativeToken as EventListener
+      );
+    };
+  }, [hasReceivedNativeToken, handleAutoLogin]);
+
+  useEffect(() => {
+    // 무신사 스타일 자동로그인 체크 (네이티브 토큰 수신 후에만)
+    if (!hasReceivedNativeToken) {
+      const isAutoLoginAvailable = checkAutoLogin();
+
+      if (isAutoLoginAvailable && location.pathname === '/login') {
+        console.log('자동로그인 가능, 홈으로 이동');
+        navigate('/', { replace: true });
+      }
+    }
+  }, [navigate, location.pathname, hasReceivedNativeToken]);
 
   const handleModalClose = () => setIsModalOpen(false);
 
