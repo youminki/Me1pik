@@ -222,7 +222,16 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
         );
         return setErrorModalOpen(true);
       }
-      if (start.getDay() === 0 || hd.isHoliday(start)) {
+      // 2025년 7월 17일은 공휴일이 아니므로 일반 날짜로 처리
+      if (
+        start.getDay() === 0 ||
+        (hd.isHoliday(start) &&
+          !(
+            start.getFullYear() === 2025 &&
+            start.getMonth() === 6 && // 7월 (0부터 시작하므로 6)
+            start.getDate() === 17
+          ))
+      ) {
         setErrorMessage('시작일로 일요일·공휴일은 선택할 수 없습니다!');
         return setErrorModalOpen(true);
       }
@@ -416,7 +425,16 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
                         if (isSameDay(date, today)) return 'day-today';
                         if (reservedDates.some((d) => isSameDay(d, date)))
                           return 'day-reserved';
-                        if (hd.isHoliday(date)) return 'day-holiday';
+                        // 2025년 7월 17일은 공휴일이 아니므로 일반 날짜로 처리
+                        if (
+                          hd.isHoliday(date) &&
+                          !(
+                            date.getFullYear() === 2025 &&
+                            date.getMonth() === 6 && // 7월 (0부터 시작하므로 6)
+                            date.getDate() === 17
+                          )
+                        )
+                          return 'day-holiday';
                         if (date.getDay() === 0) return 'day-sunday';
                         if (
                           selectedRange.start &&
