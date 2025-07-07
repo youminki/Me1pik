@@ -95,6 +95,7 @@ import {
   saveTokens,
   isProtectedRoute,
   checkTokenAndRedirect,
+  checkInstagramLoginStatus,
 } from './utils/auth';
 
 const AuthGuard: React.FC = () => {
@@ -135,12 +136,21 @@ const AuthGuard: React.FC = () => {
       if (isInitialized) return;
 
       const isProtected = isProtectedRoute(location.pathname);
+      const isInstagramLoginValid = checkInstagramLoginStatus();
 
       console.log('초기 인증 체크:', {
         pathname: location.pathname,
         isProtected,
+        isInstagramLoginValid,
         isNative: isNativeApp(),
       });
+
+      // 인스타그램 방식 로그인 상태 유지 체크
+      if (isInstagramLoginValid && isProtected) {
+        console.log('인스타그램 방식 로그인 상태 유지 성공');
+        setIsInitialized(true);
+        return;
+      }
 
       // 보호된 라우트에서 토큰 체크 및 리다이렉트
       if (checkTokenAndRedirect(location.pathname)) {
