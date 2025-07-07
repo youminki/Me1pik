@@ -208,22 +208,37 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
   const boxRef = useRef<HTMLDivElement>(null);
 
   // react-query로 헤더 정보 패칭
-  const { data: headerInfo } = useHeaderInfo();
+  const {
+    data: headerInfo,
+    error: headerError,
+    isLoading: headerLoading,
+  } = useHeaderInfo();
 
   // 헤더 정보 조회 (로그인/닉네임 등)
   useEffect(() => {
     if (variant === 'default' || variant === 'oneDepth') {
       const token = Cookies.get('accessToken');
-      setIsLoggedIn(!!token);
+      const isTokenValid = !!token;
+      setIsLoggedIn(isTokenValid);
 
       const imgFromCookie = Cookies.get('profileImageUrl');
       setProfileImageUrl(imgFromCookie || null);
 
-      if (token && headerInfo && typeof headerInfo.nickname === 'string') {
+      // 토큰이 있고 헤더 정보가 성공적으로 로드된 경우에만 닉네임 설정
+      if (
+        isTokenValid &&
+        headerInfo &&
+        typeof headerInfo.nickname === 'string' &&
+        !headerError &&
+        !headerLoading
+      ) {
         setNickname(headerInfo.nickname);
+      } else if (!isTokenValid || headerError) {
+        // 토큰이 없거나 헤더 정보 로드 실패 시 기본값 설정
+        setNickname('멜픽 회원');
       }
     }
-  }, [variant, headerInfo]);
+  }, [variant, headerInfo, headerError, headerLoading]);
 
   // 로컬스토리지에서 히스토리 불러오기
   useEffect(() => {

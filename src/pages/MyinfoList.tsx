@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import Cookies from 'js-cookie';
 import userInfoIcon from '../assets/Myinfo/UserInfoChangeIcon.svg';
 import passwordIcon from '../assets/Myinfo/PasswordChangeIcon.svg';
 import deliveryIcon from '../assets/Myinfo/DeliveryAdminIcon.svg';
@@ -51,16 +52,34 @@ const MyinfoList: React.FC = () => {
         setLoadingHeader(true);
         const data = await getHeaderInfo();
         setHeaderInfo(data);
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('헤더 정보 조회 실패:', err);
-        // 필요시 사용자에게 알림: 예를 들어:
-        // alert('회원 정보를 가져오는 중 오류가 발생했습니다.');
+
+        // 401 오류인 경우 로그인 페이지로 이동
+        if (err && typeof err === 'object' && 'response' in err) {
+          const axiosError = err as { response?: { status?: number } };
+          if (axiosError.response?.status === 401) {
+            navigate('/login');
+            return;
+          }
+        }
+
+        // 다른 오류는 사용자에게 알림
+        setHeaderInfo(null);
       } finally {
         setLoadingHeader(false);
       }
     };
-    fetchHeader();
-  }, []);
+
+    // 토큰이 있는 경우에만 API 호출
+    const token = Cookies.get('accessToken');
+    if (token && token.trim() !== '') {
+      fetchHeader();
+    } else {
+      setLoadingHeader(false);
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const handleMenuClick = (key: string) => {
     if (key === 'info') {

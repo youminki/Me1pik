@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -90,19 +90,71 @@ import NotFound from './pages/NotFound';
 
 import Cookies from 'js-cookie';
 import { Axios } from './api/Axios';
-import {
-  isNativeApp,
-  requestNativeLogin,
-  hasValidToken,
-  isProtectedRoute,
-} from './utils/nativeApp';
+import { isNativeApp, requestNativeLogin } from './utils/nativeApp';
 
-const NativeLoginSync: React.FC = () => {
+const AuthGuard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // 보호된 라우트 목록
+  const protectedRoutes = useMemo(
+    () => [
+      '/home',
+      '/item',
+      '/analysis',
+      '/basket',
+      '/alarm',
+      '/payment',
+      '/brand',
+      '/melpik',
+      '/create-melpik',
+      '/createMelpik',
+      '/melpik-settings',
+      '/sales-settlement',
+      '/sales-settlement-detail',
+      '/settlement-request',
+      '/sales-schedule',
+      '/schedule',
+      '/lockerRoom',
+      '/usage-history',
+      '/point',
+      '/my-closet',
+      '/my-ticket',
+      '/payment-method',
+      '/product-review',
+      '/customerService',
+      '/MyinfoList',
+      '/MyStyle',
+      '/UpdateProfile',
+      '/ChangePassword',
+      '/DeliveryManagement',
+      '/EditAddress',
+      '/password-change',
+      '/payment-complete',
+      '/payment-fail',
+      '/ticketDetail',
+    ],
+    []
+  );
+
+  // 현재 경로가 보호된 라우트인지 확인
+  const isProtectedRoute = useCallback(
+    (pathname: string): boolean => {
+      return protectedRoutes.some((route) => pathname.startsWith(route));
+    },
+    [protectedRoutes]
+  );
+
+  // 토큰 유효성 검사
+  const hasValidToken = (): boolean => {
+    const localToken = localStorage.getItem('accessToken');
+    const cookieToken = Cookies.get('accessToken');
+    return !!(localToken?.trim() || cookieToken?.trim());
+  };
+
   useEffect(() => {
+    // 네이티브 앱 로그인 정보 수신 처리
     function handleLoginInfoReceived(e: Event) {
       const customEvent = e as CustomEvent;
       const loginInfo = customEvent.detail;
@@ -122,11 +174,6 @@ const NativeLoginSync: React.FC = () => {
             path: '/',
           });
         }
-
-        // 로그인 후 홈으로 이동 (로그인 페이지에 있을 때만)
-        if (location.pathname === '/login') {
-          navigate('/home', { replace: true });
-        }
       } else {
         // 로그아웃 처리
         localStorage.removeItem('accessToken');
@@ -134,7 +181,7 @@ const NativeLoginSync: React.FC = () => {
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
 
-        // 로그인 페이지가 아닐 때만 로그인 페이지로 이동
+        // 로그인 페이지로 이동
         if (
           location.pathname !== '/login' &&
           location.pathname !== '/landing'
@@ -144,18 +191,22 @@ const NativeLoginSync: React.FC = () => {
       }
     }
 
-    // 앱 초기화 시 토큰 체크 (한 번만 실행)
+    // 초기 인증 체크
     const checkInitialAuth = () => {
       if (isInitialized) return;
 
       const token = hasValidToken();
+      const isProtected = isProtectedRoute(location.pathname);
+
       console.log('초기 인증 체크:', {
         token,
         pathname: location.pathname,
+        isProtected,
         isNative: isNativeApp(),
       });
 
-      if (!token && isProtectedRoute(location.pathname)) {
+      // 토큰이 없고 보호된 라우트에 있으면 로그인 페이지로
+      if (!token && isProtected) {
         if (isNativeApp()) {
           console.log('네이티브 앱에서 로그인 요청');
           requestNativeLogin();
@@ -168,178 +219,216 @@ const NativeLoginSync: React.FC = () => {
       setIsInitialized(true);
     };
 
-    // 초기 인증 체크 실행 (한 번만)
     checkInitialAuth();
 
     window.addEventListener('loginInfoReceived', handleLoginInfoReceived);
     return () => {
       window.removeEventListener('loginInfoReceived', handleLoginInfoReceived);
     };
-  }, []); // location, navigate 의존성 제거
+  }, [location.pathname, navigate, isInitialized, location, isProtectedRoute]);
 
-  // 라우트 변경 시에만 추가 체크 (로그인 상태가 변경된 경우)
+  // 라우트 변경 시 인증 체크
   useEffect(() => {
     if (!isInitialized) return;
 
     const token = hasValidToken();
     const isProtected = isProtectedRoute(location.pathname);
 
-    // 토큰이 없는데 보호된 페이지에 있으면 로그인 페이지로
+    console.log('라우트 변경 인증 체크:', {
+      pathname: location.pathname,
+      token,
+      isProtected,
+      isInitialized,
+    });
+
+    // 토큰이 없고 보호된 라우트에 있으면 로그인 페이지로
     if (!token && isProtected && location.pathname !== '/login') {
       console.log('라우트 변경으로 인한 로그인 페이지 이동');
       navigate('/login', { replace: true });
+      return;
     }
-
-    // 토큰이 있는데 로그인 페이지에 있으면 홈으로
-    if (token && location.pathname === '/login') {
-      console.log('이미 로그인되어 있어 홈으로 이동');
-      navigate('/home', { replace: true });
-    }
-  }, [location.pathname, isInitialized, navigate]);
+  }, [location.pathname, isInitialized, navigate, isProtectedRoute]);
 
   return null;
 };
 
-const App: React.FC = () => (
-  <Router>
-    <NativeLoginSync />
-    <Routes>
-      {/* Landing & Auth */}
-      <Route path='/landing' element={<Landing />} />
-      <Route path='/' element={<Navigate to='/home' replace />} />
-      <Route path='/login' element={<Login />} />
-      <Route path='/ladyLogin' element={<ReadyLogin />} />
-      <Route path='/TestLogin' element={<TestLogin />} />
-      <Route path='/PersonalLink' element={<PersonalLink />} />
-      <Route path='/test/payple' element={<PaypleTest />} />
-      <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
-      <Route path='/Link' element={<Link />} />
-      <Route path='/signup' element={<Signup />} />
-      <Route path='/findid' element={<FindId />} />
-      <Route path='/findPassword' element={<FindPassword />} />
+const App: React.FC = () => {
+  // 간단한 인증 체크
+  useEffect(() => {
+    const checkAuth = () => {
+      const token =
+        localStorage.getItem('accessToken') || Cookies.get('accessToken');
+      const currentPath = window.location.pathname;
 
-      <Route element={<AppLayout />}>
-        <Route path='/UpdateProfile' element={<UpdateProfile />} />
-        <Route path='/ChangePassword' element={<ChangePassword />} />
-        <Route path='/DeliveryManagement' element={<DeliveryManagement />} />
-        <Route path='/EditAddress' element={<EditAddress />} />
-        {/* User Pages */}
-        <Route path='/MyinfoList' element={<MyinfoList />} />
-        <Route path='/MyStyle' element={<MyStyle />} />
+      console.log('인증 체크:', { token: !!token, path: currentPath });
 
-        {/* Main */}
-        <Route path='/home' element={<Home />} />
-        <Route path='/item/:id' element={<HomeDetail />} />
-        <Route path='/analysis' element={<Analysis />} />
-        <Route path='/basket' element={<Basket />} />
-        <Route path='/alarm' element={<Alarm />} />
-        <Route path='/payment/:id' element={<Payment />} />
+      // 공개 경로 목록 (토큰이 없어도 접근 가능)
+      const publicPaths = [
+        '/login',
+        '/landing',
+        '/signup',
+        '/findid',
+        '/findPassword',
+        '/PersonalLink',
+        '/test/payple',
+        '/test/AddCardPayple',
+        '/Link',
+      ];
 
-        {/* Brand */}
-        <Route path='/brand' element={<Brand />} />
-        <Route path='/brand/:brandId' element={<BrandDetail />} />
+      // 토큰이 없고 공개 경로가 아니면 로그인으로
+      if (!token && !publicPaths.includes(currentPath)) {
+        console.log('토큰이 없어서 로그인 페이지로 이동');
+        window.location.href = '/login';
+      }
+    };
 
-        {/* Melpik */}
-        <Route path='/melpik' element={<Melpik />} />
-        <Route path='/create-melpik' element={<CreateMelpik />} />
-        <Route
-          path='/createMelpik/settings'
-          element={<ContemporarySettings />}
-        />
-        <Route path='/melpik-settings' element={<Setting />} />
+    checkAuth();
+  }, []);
 
-        {/* Settlement */}
-        <Route path='/sales-settlement' element={<SalesSettlement />} />
-        <Route
-          path='/sales-settlement-detail/:id'
-          element={<SalesSettlementDetail />}
-        />
-        <Route path='/settlement-request' element={<SettlementRequest />} />
+  return (
+    <Router>
+      <AuthGuard />
+      <Routes>
+        {/* Landing & Auth */}
+        <Route path='/landing' element={<Landing />} />
+        <Route path='/' element={<Navigate to='/home' replace />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/ladyLogin' element={<ReadyLogin />} />
+        <Route path='/TestLogin' element={<TestLogin />} />
+        <Route path='/PersonalLink' element={<PersonalLink />} />
+        <Route path='/test/payple' element={<PaypleTest />} />
+        <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
+        <Route path='/Link' element={<Link />} />
+        <Route path='/signup' element={<Signup />} />
+        <Route path='/findid' element={<FindId />} />
+        <Route path='/findPassword' element={<FindPassword />} />
 
-        {/* Schedule */}
-        <Route path='/sales-schedule' element={<Scedule />} />
-        <Route
-          path='/schedule/confirmation/:scheduleId'
-          element={<ScheduleConfirmation />}
-        />
-        <Route
-          path='/schedule/reservation1'
-          element={<ScheduleReservation1 />}
-        />
-        <Route
-          path='/schedule/reservation2'
-          element={<ScheduleReservation2 />}
-        />
-        <Route
-          path='/schedule/reservation3'
-          element={<ScheduleReservation3 />}
-        />
+        <Route element={<AppLayout />}>
+          <Route path='/UpdateProfile' element={<UpdateProfile />} />
+          <Route path='/ChangePassword' element={<ChangePassword />} />
+          <Route path='/DeliveryManagement' element={<DeliveryManagement />} />
+          <Route path='/EditAddress' element={<EditAddress />} />
+          {/* User Pages */}
+          <Route path='/MyinfoList' element={<MyinfoList />} />
+          <Route path='/MyStyle' element={<MyStyle />} />
 
-        {/* LockerRoom */}
-        <Route path='/lockerRoom' element={<LockerRoom />} />
-        <Route path='/usage-history' element={<UsageHistory />} />
-        <Route path='/point' element={<Point />} />
-        <Route path='/my-closet' element={<MyCloset />} />
-        <Route path='/my-ticket' element={<MyTicket />} />
-        <Route
-          path='/my-ticket/PurchaseOfPasses'
-          element={<PurchaseOfPasses />}
-        />
+          {/* Main */}
+          <Route path='/home' element={<Home />} />
+          <Route path='/item/:id' element={<HomeDetail />} />
+          <Route path='/analysis' element={<Analysis />} />
+          <Route path='/basket' element={<Basket />} />
+          <Route path='/alarm' element={<Alarm />} />
+          <Route path='/payment/:id' element={<Payment />} />
 
-        <Route
-          path='/my-ticket/PurchaseOfPasses/TicketPayment'
-          element={<TicketPayment />}
-        />
+          {/* Brand */}
+          <Route path='/brand' element={<Brand />} />
+          <Route path='/brand/:brandId' element={<BrandDetail />} />
 
-        {/* <Route
+          {/* Melpik */}
+          <Route path='/melpik' element={<Melpik />} />
+          <Route path='/create-melpik' element={<CreateMelpik />} />
+          <Route
+            path='/createMelpik/settings'
+            element={<ContemporarySettings />}
+          />
+          <Route path='/melpik-settings' element={<Setting />} />
+
+          {/* Settlement */}
+          <Route path='/sales-settlement' element={<SalesSettlement />} />
+          <Route
+            path='/sales-settlement-detail/:id'
+            element={<SalesSettlementDetail />}
+          />
+          <Route path='/settlement-request' element={<SettlementRequest />} />
+
+          {/* Schedule */}
+          <Route path='/sales-schedule' element={<Scedule />} />
+          <Route
+            path='/schedule/confirmation/:scheduleId'
+            element={<ScheduleConfirmation />}
+          />
+          <Route
+            path='/schedule/reservation1'
+            element={<ScheduleReservation1 />}
+          />
+          <Route
+            path='/schedule/reservation2'
+            element={<ScheduleReservation2 />}
+          />
+          <Route
+            path='/schedule/reservation3'
+            element={<ScheduleReservation3 />}
+          />
+
+          {/* LockerRoom */}
+          <Route path='/lockerRoom' element={<LockerRoom />} />
+          <Route path='/usage-history' element={<UsageHistory />} />
+          <Route path='/point' element={<Point />} />
+          <Route path='/my-closet' element={<MyCloset />} />
+          <Route path='/my-ticket' element={<MyTicket />} />
+          <Route
+            path='/my-ticket/PurchaseOfPasses'
+            element={<PurchaseOfPasses />}
+          />
+
+          <Route
+            path='/my-ticket/PurchaseOfPasses/TicketPayment'
+            element={<TicketPayment />}
+          />
+
+          {/* <Route
           path='/my-ticket/SubscriptionPass'
           element={<SubscriptionPass />}
         />
         <Route path='/my-ticket/OnetimePass' element={<OnetimePass />} /> */}
 
-        {/* PaymentMethod & Reviews */}
-        <Route path='/payment-method' element={<PaymentMethod />} />
-        <Route path='/payment-method/addcard' element={<AddCard />} />
+          {/* PaymentMethod & Reviews */}
+          <Route path='/payment-method' element={<PaymentMethod />} />
+          <Route path='/payment-method/addcard' element={<AddCard />} />
 
-        <Route path='/product-review' element={<ProductReview />} />
-        <Route path='/payment-review/Write' element={<ProductReviewWrite />} />
+          <Route path='/product-review' element={<ProductReview />} />
+          <Route
+            path='/payment-review/Write'
+            element={<ProductReviewWrite />}
+          />
 
-        {/* CustomerService */}
-        <Route path='/customerService' element={<CustomerService />} />
-        <Route
-          path='/customerService/FrequentlyAskedQuestions'
-          element={<FrequentlyAskedQuestions />}
-        />
-        <Route path='/customerService/Notice' element={<Notice />} />
-        <Route
-          path='/customerService/NoticeDetail'
-          element={<NoticeDetail />}
-        />
-        <Route
-          path='/customerService/PersonalInformationProcessingPolicy'
-          element={<PersonalInformationProcessingPolicy />}
-        />
-        <Route
-          path='/customerService/PersonalInformationProcessingPolicyDetail'
-          element={<PersonalInformationProcessingPolicyDetail />}
-        />
-        <Route
-          path='/customerService/TermsAndConditionsOfUse'
-          element={<TermsAndConditionsOfUse />}
-        />
-        <Route
-          path='/customerService/TermsAndConditionsOfUseDetail'
-          element={<TermsAndConditionsOfUseDetail />}
-        />
-        <Route path='/password-change' element={<PasswordChange />} />
-        <Route path='/payment-complete' element={<PaymentComplete />} />
-        <Route path='/payment-fail' element={<PaymentFail />} />
+          {/* CustomerService */}
+          <Route path='/customerService' element={<CustomerService />} />
+          <Route
+            path='/customerService/FrequentlyAskedQuestions'
+            element={<FrequentlyAskedQuestions />}
+          />
+          <Route path='/customerService/Notice' element={<Notice />} />
+          <Route
+            path='/customerService/NoticeDetail'
+            element={<NoticeDetail />}
+          />
+          <Route
+            path='/customerService/PersonalInformationProcessingPolicy'
+            element={<PersonalInformationProcessingPolicy />}
+          />
+          <Route
+            path='/customerService/PersonalInformationProcessingPolicyDetail'
+            element={<PersonalInformationProcessingPolicyDetail />}
+          />
+          <Route
+            path='/customerService/TermsAndConditionsOfUse'
+            element={<TermsAndConditionsOfUse />}
+          />
+          <Route
+            path='/customerService/TermsAndConditionsOfUseDetail'
+            element={<TermsAndConditionsOfUseDetail />}
+          />
+          <Route path='/password-change' element={<PasswordChange />} />
+          <Route path='/payment-complete' element={<PaymentComplete />} />
+          <Route path='/payment-fail' element={<PaymentFail />} />
 
-        <Route path='/ticketDetail/:ticketId' element={<TicketDetail />} />
-      </Route>
-      <Route path='*' element={<NotFound />} />
-    </Routes>
-  </Router>
-);
+          <Route path='/ticketDetail/:ticketId' element={<TicketDetail />} />
+        </Route>
+        <Route path='*' element={<NotFound />} />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App;

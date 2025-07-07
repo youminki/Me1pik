@@ -62,8 +62,12 @@ const Login: React.FC = () => {
           membership,
         },
       });
-    } catch (error: any) {
-      setModalMessage(error?.message || '로그인 실패. 다시 시도해주세요.');
+    } catch (error: unknown) {
+      const errorMessage =
+        error && typeof error === 'object' && 'message' in error
+          ? (error as { message: string }).message
+          : '로그인 실패. 다시 시도해주세요.';
+      setModalMessage(errorMessage);
       setIsModalOpen(true);
     }
   };
@@ -107,13 +111,6 @@ const Login: React.FC = () => {
                 )}
               />
             </InputFieldRow>
-
-            <CheckboxWrapper>
-              <CheckboxLabel>
-                <CheckboxInput type='checkbox' />
-                <CheckboxText>자동 로그인</CheckboxText>
-              </CheckboxLabel>
-            </CheckboxWrapper>
 
             <LoginButton type='submit' disabled={!isValid || isSubmitting}>
               {isSubmitting ? '로그인 중...' : '로그인'}
@@ -173,41 +170,7 @@ const LoginForm = styled.form`
 const InputFieldRow = styled.div`
   width: 100%;
 `;
-const CheckboxWrapper = styled.div`
-  width: 100%;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-`;
-const CheckboxLabel = styled.label`
-  display: flex;
-  align-items: center;
-`;
-const CheckboxInput = styled.input`
-  width: 20px;
-  height: 20px;
-  border: 1px solid lightgray;
-  appearance: none;
-  position: relative;
-  cursor: pointer;
 
-  &:checked::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 10px;
-    height: 5px;
-    border-left: 3px solid orange;
-    border-bottom: 3px solid orange;
-    transform: rotate(-45deg);
-  }
-`;
-const CheckboxText = styled.div`
-  font-size: 12px;
-  font-weight: 700;
-  margin-left: 8px;
-`;
 const ExtraLinks = styled.div`
   display: flex;
   justify-content: space-around;

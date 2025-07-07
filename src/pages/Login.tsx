@@ -1,5 +1,5 @@
 // src/page/Login.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, Controller } from 'react-hook-form';
@@ -27,7 +27,6 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
-  const [autoLogin, setAutoLogin] = useState(true);
 
   const {
     control,
@@ -38,38 +37,6 @@ const Login: React.FC = () => {
     mode: 'onChange',
     defaultValues: { email: '', password: '' },
   });
-
-  useEffect(() => {
-    // 이미 로그인되어 있으면 홈으로 이동
-    const token =
-      localStorage.getItem('accessToken') || Cookies.get('accessToken');
-    if (token) {
-      console.log('이미 로그인되어 있어 홈으로 이동');
-      navigate('/home', { replace: true });
-      return;
-    }
-
-    const savedAutoLogin = localStorage.getItem('autoLogin');
-    if (savedAutoLogin === 'true') {
-      setAutoLogin(true);
-      const savedEmail = localStorage.getItem('autoLoginEmail');
-      const savedPassword = localStorage.getItem('autoLoginPassword');
-      if (savedEmail && savedPassword) {
-        console.log('자동 로그인 시도');
-        // 자동 로그인 시도
-        handleLoginClick({ email: savedEmail, password: savedPassword }).catch(
-          (error) => {
-            console.log('자동 로그인 실패:', error);
-            // 자동로그인 실패 시 자동로그인 정보 삭제
-            localStorage.removeItem('autoLogin');
-            localStorage.removeItem('autoLoginEmail');
-            localStorage.removeItem('autoLoginPassword');
-          }
-        );
-      }
-    }
-    // eslint-disable-next-line
-  }, []);
 
   const handleModalClose = () => setIsModalOpen(false);
 
@@ -91,17 +58,6 @@ const Login: React.FC = () => {
       Cookies.set('accessToken', accessToken, { path: '/' });
       if (refreshToken) {
         Cookies.set('refreshToken', refreshToken, { path: '/' });
-      }
-
-      // 자동로그인 설정
-      if (autoLogin) {
-        localStorage.setItem('autoLogin', 'true');
-        localStorage.setItem('autoLoginEmail', data.email);
-        localStorage.setItem('autoLoginPassword', data.password);
-      } else {
-        localStorage.removeItem('autoLogin');
-        localStorage.removeItem('autoLoginEmail');
-        localStorage.removeItem('autoLoginPassword');
       }
 
       // === 네이티브 앱에 로그인 정보 전달 ===
@@ -192,16 +148,7 @@ const Login: React.FC = () => {
               </div>
             )}
           />
-          <AutoLoginRow>
-            <CheckboxInput
-              type='checkbox'
-              checked={autoLogin}
-              onChange={() => setAutoLogin((prev) => !prev)}
-            />
-            <CheckboxText>
-              자동 로그인 <span className='option'>(선택)</span>
-            </CheckboxText>
-          </AutoLoginRow>
+
           <StyledLoginButton type='submit' disabled={!isValid || isSubmitting}>
             {isSubmitting ? '로그인 중...' : '로그인'}
           </StyledLoginButton>
@@ -290,47 +237,6 @@ const InputLabel = styled.div`
   font-size: 10px;
   color: #000;
   margin-bottom: 8px;
-`;
-
-const AutoLoginRow = styled.div`
-  display: flex;
-  align-items: center;
-
-  margin-bottom: 8px;
-`;
-
-const CheckboxInput = styled.input`
-  width: 20px;
-  height: 20px;
-  border: 1px solid lightgray;
-  appearance: none;
-  position: relative;
-  cursor: pointer;
-
-  &:checked::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 10px;
-    height: 5px;
-    border-left: 3px solid orange;
-    border-bottom: 3px solid orange;
-    transform: rotate(-45deg);
-  }
-`;
-
-const CheckboxText = styled.div`
-  font-size: 12px;
-  font-weight: 700;
-  margin-left: 8px;
-  color: #000;
-
-  /* (선택) 부분만 색상 변경 */
-  span.option {
-    color: #aaaaaa;
-    font-weight: 400;
-  }
 `;
 
 const StyledLoginButton = styled.button`

@@ -64,9 +64,6 @@ const MypageModal: React.FC<MypageModalProps> = ({ isOpen, onClose }) => {
       Cookies.remove('profileImageUrl');
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
-      localStorage.removeItem('autoLogin');
-      localStorage.removeItem('autoLoginEmail');
-      localStorage.removeItem('autoLoginPassword');
 
       Axios.defaults.headers.Authorization = '';
       setLogoutModalOpen(false);

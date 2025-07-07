@@ -1,5 +1,6 @@
 import { Axios } from '../Axios';
 import { useQuery } from '@tanstack/react-query';
+import Cookies from 'js-cookie';
 
 export interface SignupRequest {
   email: string;
@@ -397,9 +398,24 @@ export function useMyInfo() {
  * 헤더 정보(닉네임, 이메일)를 react-query로 가져오는 커스텀 훅
  */
 export function useHeaderInfo() {
+  const token = Cookies.get('accessToken');
+
   return useQuery<HeaderInfoResponse>({
-    queryKey: ['headerInfo'],
+    queryKey: ['headerInfo', token], // 토큰을 쿼리 키에 포함하여 토큰 변경 시 쿼리 무효화
     queryFn: getHeaderInfo,
     staleTime: 1000 * 60 * 5,
+    enabled: !!token, // 토큰이 있을 때만 쿼리 실행
+    retry: (failureCount, error: unknown) => {
+      // 401 오류는 재시도하지 않음 (인증 문제)
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401) {
+          return false;
+        }
+      }
+      // 다른 오류는 최대 3번 재시도
+      return failureCount < 3;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
