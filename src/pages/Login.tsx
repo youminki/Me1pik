@@ -11,11 +11,7 @@ import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../components/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
-import {
-  forceSaveAppToken,
-  saveTokensWithKeepLogin,
-  getKeepLoginSetting,
-} from '../utils/auth';
+import { saveTokens, forceSaveAppToken } from '../utils/auth';
 
 type LoginFormValues = {
   email: string;
@@ -26,19 +22,6 @@ type LoginResponse = {
   accessToken: string;
   refreshToken: string;
 };
-
-interface WebLoginSuccessData {
-  token: string;
-  refreshToken: string;
-  email: string;
-  userId: string;
-  name: string;
-  keepLogin: boolean;
-}
-
-interface WindowWithWebLogin extends Window {
-  handleWebLoginSuccess?: (data: WebLoginSuccessData) => void;
-}
 
 // 네이버 스타일 X(전체삭제) 아이콘
 const NaverDeleteIcon = () => (
@@ -278,66 +261,66 @@ const Divider = styled.div`
 `;
 
 // 로그인 상태 유지 관련 스타일 주석처리
-const KeepLoginWrap = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-`;
-const KeepLoginLabel = styled.label`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 700;
-  color: #222;
-  user-select: none;
-`;
-const KeepLoginCheckbox = styled.input`
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-`;
-const CustomCheckbox = styled.span<{ checked: boolean }>`
-  width: 24px;
-  height: 24px;
-  border: 1.5px solid ${({ checked }) => (checked ? '#F6AE24' : '#ddd')};
-  background: ${({ checked }) => (checked ? '#F6AE24' : '#fff')};
-  margin-right: 8px;
-  display: inline-block;
-  position: relative;
-  transition:
-    border 0.2s,
-    background 0.2s;
-  box-sizing: border-box;
-  cursor: pointer;
-  // ${KeepLoginLabel}:hover & {
-  //   border-color: #f6ae24;
-  // }
-  &:focus {
-    outline: 2px solid #f6ae24;
-    outline-offset: 2px;
-  }
-  &::after {
-    content: '';
-    display: ${({ checked }) => (checked ? 'block' : 'none')};
-    position: absolute;
-    left: 5px;
-    top: 0px;
-    width: 7px;
-    height: 12px;
-    border: solid #fff;
-    border-width: 0 3px 3px 0;
-    border-radius: 1px;
-    transform: rotate(45deg);
-  }
-`;
-const KeepLoginNotice = styled.div`
-  font-size: 13px;
-  color: #ff4d4f;
-  margin-bottom: 8px;
-  margin-left: 2px;
-`;
+// const KeepLoginWrap = styled.div`
+//   display: flex;
+//   align-items: center;
+//   margin-bottom: 12px;
+// `;
+// const KeepLoginLabel = styled.label`
+//   display: flex;
+//   align-items: center;
+//   cursor: pointer;
+//   font-size: 12px;
+//   font-weight: 700;
+//   color: #222;
+//   user-select: none;
+// `;
+// const KeepLoginCheckbox = styled.input`
+//   position: absolute;
+//   opacity: 0;
+//   width: 0;
+//   height: 0;
+// `;
+// const CustomCheckbox = styled.span<{ checked: boolean }>`
+//   width: 24px;
+//   height: 24px;
+//   border: 1.5px solid ${({ checked }) => (checked ? '#F6AE24' : '#ddd')};
+//   background: ${({ checked }) => (checked ? '#F6AE24' : '#fff')};
+//   margin-right: 8px;
+//   display: inline-block;
+//   position: relative;
+//   transition:
+//     border 0.2s,
+//     background 0.2s;
+//   box-sizing: border-box;
+//   cursor: pointer;
+//   // ${KeepLoginLabel}:hover & {
+//   //   border-color: #f6ae24;
+//   // }
+//   &:focus {
+//     outline: 2px solid #f6ae24;
+//     outline-offset: 2px;
+//   }
+//   &::after {
+//     content: '';
+//     display: ${({ checked }) => (checked ? 'block' : 'none')};
+//     position: absolute;
+//     left: 5px;
+//     top: 0px;
+//     width: 7px;
+//     height: 12px;
+//     border: solid #fff;
+//     border-width: 0 3px 3px 0;
+//     border-radius: 1px;
+//     transform: rotate(45deg);
+//   }
+// `;
+// const KeepLoginNotice = styled.div`
+//   font-size: 13px;
+//   color: #ff4d4f;
+//   margin-bottom: 8px;
+//   margin-left: 2px;
+// `;
 
 const CapsLockNotice = styled.div`
   color: #ff4d4f;
@@ -354,7 +337,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [keepLogin, setKeepLogin] = useState(() => getKeepLoginSetting()); // 이전 설정 복원
+  // const [keepLogin, setKeepLogin] = useState(false); // 로그인 상태 유지
   const [isCapsLock, setIsCapsLock] = useState(false);
 
   const {
@@ -419,8 +402,21 @@ const Login: React.FC = () => {
         forceSaveAppToken(accessToken, refreshToken);
         console.log('앱에 토큰 영구 저장됨');
       } else {
-        // 인스타그램 방식: 로그인 상태 유지 토큰 저장
-        saveTokensWithKeepLogin(accessToken, refreshToken, keepLogin);
+        // 로그인 상태 유지 분기 주석처리
+        // if (keepLogin) {
+        //   // 로그인 상태 유지: localStorage에 저장
+        //   localStorage.setItem('accessToken', accessToken);
+        //   localStorage.setItem('refreshToken', refreshToken);
+        //   console.log('localStorage에 토큰 저장됨');
+        // } else {
+        //   // 세션 유지: sessionStorage에 저장
+        //   sessionStorage.setItem('accessToken', accessToken);
+        //   sessionStorage.setItem('refreshToken', refreshToken);
+        //   console.log('sessionStorage에 토큰 저장됨');
+        // }
+
+        // 항상 saveTokens만 호출
+        saveTokens(accessToken, refreshToken);
       }
 
       // 디버깅: 토큰 저장 상태 확인
@@ -453,14 +449,13 @@ const Login: React.FC = () => {
       }
 
       // 인스타그램 방식: 웹뷰 통신 스크립트 호출
-      if ((window as WindowWithWebLogin).handleWebLoginSuccess) {
-        (window as WindowWithWebLogin).handleWebLoginSuccess!({
+      if ((window as any).handleWebLoginSuccess) {
+        (window as any).handleWebLoginSuccess({
           token: accessToken,
           refreshToken: refreshToken,
           email: data.email,
           userId: data.email, // 또는 서버에서 받은 user id
           name: '', // 필요하다면 서버에서 받은 이름
-          keepLogin: keepLogin, // 인스타그램 방식 로그인 상태 유지 설정
         });
       }
 
@@ -509,9 +504,9 @@ const Login: React.FC = () => {
     setShowPassword((v) => !v);
   };
 
-  const handleKeepLoginChange = () => {
-    setKeepLogin((prev) => !prev);
-  };
+  // const handleKeepLoginChange = () => {
+  //   setKeepLogin((prev) => !prev);
+  // };
 
   return (
     <ThemeProvider theme={Theme}>
@@ -589,6 +584,7 @@ const Login: React.FC = () => {
                 <ErrorMessage>{errors.password.message}</ErrorMessage>
               )}
             </InputFieldsContainer>
+            {/*
             <KeepLoginWrap>
               <KeepLoginLabel htmlFor='keepLogin'>
                 <KeepLoginCheckbox
@@ -610,6 +606,7 @@ const Login: React.FC = () => {
                 마세요.
               </KeepLoginNotice>
             )}
+            */}
 
             <LoginBtn
               type='submit'
