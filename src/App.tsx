@@ -89,13 +89,11 @@ import EditAddress from './pages/profile/EditAddress';
 import NotFound from './pages/NotFound';
 
 import { Axios } from './api/Axios';
-import { isNativeApp, requestNativeLogin } from './utils/nativeApp';
+import { isNativeApp } from './utils/nativeApp';
 import {
   clearTokens,
   saveTokens,
   isProtectedRoute,
-  checkAutoLogin,
-  ensureAppToken,
   checkTokenAndRedirect,
 } from './utils/auth';
 
@@ -132,46 +130,22 @@ const AuthGuard: React.FC = () => {
       }
     }
 
-    // 초기 인증 체크 (무신사 스타일)
+    // 초기 인증 체크
     const checkInitialAuth = () => {
       if (isInitialized) return;
 
-      const isAutoLoginAvailable = checkAutoLogin();
       const isProtected = isProtectedRoute(location.pathname);
-      const hasAppToken = ensureAppToken();
 
-      console.log('초기 인증 체크 (무신사 스타일):', {
-        isAutoLoginAvailable,
-        hasAppToken,
+      console.log('초기 인증 체크:', {
         pathname: location.pathname,
         isProtected,
         isNative: isNativeApp(),
       });
 
-      // 앱에서 토큰이 없고 보호된 라우트에 있으면 로그인 페이지로
-      if (!hasAppToken && isProtected) {
-        console.log('앱에 토큰이 없어 로그인 페이지로 이동');
-        redirectToLogin();
+      // 보호된 라우트에서 토큰 체크 및 리다이렉트
+      if (checkTokenAndRedirect(location.pathname)) {
         setIsInitialized(true);
         return;
-      }
-
-      // 자동로그인이 가능하고 보호된 라우트에 있으면 그대로 유지
-      if (isAutoLoginAvailable && isProtected) {
-        console.log('자동로그인 성공, 현재 페이지 유지');
-        setIsInitialized(true);
-        return;
-      }
-
-      // 자동로그인이 불가능하고 보호된 라우트에 있으면 로그인 페이지로
-      if (!isAutoLoginAvailable && isProtected) {
-        if (isNativeApp()) {
-          console.log('네이티브 앱에서 로그인 요청');
-          requestNativeLogin();
-        } else {
-          console.log('웹 환경에서 로그인 페이지로 이동');
-          redirectToLogin();
-        }
       }
 
       setIsInitialized(true);
@@ -185,7 +159,7 @@ const AuthGuard: React.FC = () => {
     };
   }, [location.pathname, navigate, isInitialized, location, redirectToLogin]);
 
-  // 라우트 변경 시 인증 체크 (무신사 스타일)
+  // 라우트 변경 시 인증 체크
   useEffect(() => {
     if (!isInitialized) return;
 
@@ -194,22 +168,7 @@ const AuthGuard: React.FC = () => {
       return; // 이미 리다이렉트됨
     }
 
-    const isAutoLoginAvailable = checkAutoLogin();
-    const isProtected = isProtectedRoute(location.pathname);
-
-    console.log('라우트 변경 인증 체크 (무신사 스타일):', {
-      pathname: location.pathname,
-      isAutoLoginAvailable,
-      isProtected,
-      isInitialized,
-    });
-
-    // 자동로그인이 불가능하고 보호된 라우트에 있으면 로그인 페이지로
-    if (!isAutoLoginAvailable && isProtected) {
-      console.log('라우트 변경으로 인한 로그인 페이지 이동');
-      redirectToLogin();
-      return;
-    }
+    // 필요 없는 자동로그인 체크 코드 제거
   }, [location.pathname, isInitialized, navigate, redirectToLogin]);
 
   return null;

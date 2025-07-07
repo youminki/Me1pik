@@ -98,7 +98,7 @@ export const isProtectedRoute = (pathname: string): boolean => {
 };
 
 /**
- * 로그아웃 처리를 합니다 (무신사 스타일)
+ * 로그아웃 처리를 합니다
  */
 export const logout = async (): Promise<void> => {
   try {
@@ -140,47 +140,6 @@ const getEmailFromToken = (): string | null => {
   } catch {
     return null;
   }
-};
-
-/**
- * 무신사 스타일 자동로그인 체크
- */
-export const checkAutoLogin = (): boolean => {
-  const token = getCurrentToken();
-  if (!token) return false;
-
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    const currentTime = Date.now() / 1000;
-
-    // 토큰이 유효한지 확인
-    if (payload.exp && payload.exp < currentTime) {
-      console.log('토큰이 만료되어 자동로그인 불가');
-      clearTokens();
-      return false;
-    }
-
-    console.log('자동로그인 가능');
-    return true;
-  } catch (error) {
-    console.log('토큰 파싱 오류로 자동로그인 불가:', error);
-    clearTokens();
-    return false;
-  }
-};
-
-/**
- * 앱에서 토큰이 항상 저장되어 있는지 확인
- */
-export const ensureAppToken = (): boolean => {
-  const token = getCurrentToken();
-  if (token) {
-    console.log('앱에 토큰이 저장되어 있음');
-    return true;
-  }
-
-  console.log('앱에 토큰이 없음');
-  return false;
 };
 
 /**

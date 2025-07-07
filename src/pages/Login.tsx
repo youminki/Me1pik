@@ -1,5 +1,5 @@
 // src/page/Login.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm } from 'react-hook-form';
@@ -11,7 +11,7 @@ import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../components/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
-import { saveTokens, checkAutoLogin, forceSaveAppToken } from '../utils/auth';
+import { saveTokens, forceSaveAppToken } from '../utils/auth';
 
 type LoginFormValues = {
   email: string;
@@ -260,74 +260,67 @@ const Divider = styled.div`
   background: #e5e5e5;
 `;
 
-const KeepLoginWrap = styled.div`
-  width: 100%;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-`;
-
-const KeepLoginLabel = styled.label`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 700;
-  color: #222;
-  user-select: none;
-`;
-
-const KeepLoginCheckbox = styled.input`
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-`;
-
-const CustomCheckbox = styled.span<{ checked: boolean }>`
-  width: 24px;
-  height: 24px;
-  border: 1.5px solid ${({ checked }) => (checked ? '#F6AE24' : '#ddd')};
-  background: ${({ checked }) => (checked ? '#F6AE24' : '#fff')};
-  margin-right: 8px;
-  display: inline-block;
-  position: relative;
-  transition:
-    border 0.2s,
-    background 0.2s;
-  box-sizing: border-box;
-  cursor: pointer;
-
-  ${KeepLoginLabel}:hover & {
-    border-color: #f6ae24;
-  }
-
-  &:focus {
-    outline: 2px solid #f6ae24;
-    outline-offset: 2px;
-  }
-
-  &::after {
-    content: '';
-    display: ${({ checked }) => (checked ? 'block' : 'none')};
-    position: absolute;
-    left: 5px;
-    top: 0px;
-    width: 7px;
-    height: 12px;
-    border: solid #fff;
-    border-width: 0 3px 3px 0;
-    border-radius: 1px;
-    transform: rotate(45deg);
-  }
-`;
-
-const KeepLoginNotice = styled.div`
-  font-size: 13px;
-  color: #ff4d4f;
-  margin-bottom: 8px;
-  margin-left: 2px;
-`;
+// 로그인 상태 유지 관련 스타일 주석처리
+// const KeepLoginWrap = styled.div`
+//   display: flex;
+//   align-items: center;
+//   margin-bottom: 12px;
+// `;
+// const KeepLoginLabel = styled.label`
+//   display: flex;
+//   align-items: center;
+//   cursor: pointer;
+//   font-size: 12px;
+//   font-weight: 700;
+//   color: #222;
+//   user-select: none;
+// `;
+// const KeepLoginCheckbox = styled.input`
+//   position: absolute;
+//   opacity: 0;
+//   width: 0;
+//   height: 0;
+// `;
+// const CustomCheckbox = styled.span<{ checked: boolean }>`
+//   width: 24px;
+//   height: 24px;
+//   border: 1.5px solid ${({ checked }) => (checked ? '#F6AE24' : '#ddd')};
+//   background: ${({ checked }) => (checked ? '#F6AE24' : '#fff')};
+//   margin-right: 8px;
+//   display: inline-block;
+//   position: relative;
+//   transition:
+//     border 0.2s,
+//     background 0.2s;
+//   box-sizing: border-box;
+//   cursor: pointer;
+//   // ${KeepLoginLabel}:hover & {
+//   //   border-color: #f6ae24;
+//   // }
+//   &:focus {
+//     outline: 2px solid #f6ae24;
+//     outline-offset: 2px;
+//   }
+//   &::after {
+//     content: '';
+//     display: ${({ checked }) => (checked ? 'block' : 'none')};
+//     position: absolute;
+//     left: 5px;
+//     top: 0px;
+//     width: 7px;
+//     height: 12px;
+//     border: solid #fff;
+//     border-width: 0 3px 3px 0;
+//     border-radius: 1px;
+//     transform: rotate(45deg);
+//   }
+// `;
+// const KeepLoginNotice = styled.div`
+//   font-size: 13px;
+//   color: #ff4d4f;
+//   margin-bottom: 8px;
+//   margin-left: 2px;
+// `;
 
 const CapsLockNotice = styled.div`
   color: #ff4d4f;
@@ -344,7 +337,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [keepLogin, setKeepLogin] = useState(false);
+  // const [keepLogin, setKeepLogin] = useState(false); // 로그인 상태 유지
   const [isCapsLock, setIsCapsLock] = useState(false);
 
   const {
@@ -357,48 +350,11 @@ const Login: React.FC = () => {
     defaultValues: { email: '', password: '' },
   });
 
-  // 자동 로그인 처리
-  const handleAutoLogin = useCallback(async () => {
-    try {
-      const accessToken = localStorage.getItem('accessToken');
-      if (accessToken) {
-        console.log('자동 로그인 시도');
-
-        // 토큰 유효성 검사 (실제로는 API 호출)
-        const membership = await getMembershipInfo();
-
-        navigate('/', {
-          replace: true,
-          state: {
-            showNotice: true,
-            membership,
-            autoLogin: true,
-          },
-        });
-      }
-    } catch (error) {
-      console.log('자동 로그인 실패:', error);
-      // 토큰이 유효하지 않으면 삭제
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('userEmail');
-    }
-  }, [navigate]);
-
+  // 네이티브 토큰 수신 이벤트 리스너만 등록 (자동로그인 제거)
   useEffect(() => {
-    // 네이티브 토큰 수신 (무한루프 방지)
     function handleNativeToken(e: CustomEvent) {
       const { accessToken, refreshToken, email, source } = e.detail || {};
-
-      // 네이티브에서 온 토큰만 처리 (무한루프 방지)
       if (source === 'native' && accessToken) {
-        console.log('네이티브에서 토큰 수신:', {
-          accessToken: !!accessToken,
-          refreshToken: !!refreshToken,
-          email: email,
-        });
-
-        // 토큰 저장
         if (accessToken) {
           localStorage.setItem('accessToken', accessToken);
         }
@@ -408,30 +364,16 @@ const Login: React.FC = () => {
         if (email) {
           localStorage.setItem('userEmail', email);
         }
-
-        // 자동 로그인 처리
-        handleAutoLogin();
       }
     }
-
-    // 토큰 수신 이벤트 리스너 등록
     window.addEventListener('nativeToken', handleNativeToken as EventListener);
-
     return () => {
       window.removeEventListener(
         'nativeToken',
         handleNativeToken as EventListener
       );
     };
-  }, [handleAutoLogin]);
-
-  useEffect(() => {
-    // 무신사 스타일 자동로그인 체크 (네이티브 토큰 수신 후에만)
-    if (checkAutoLogin()) {
-      console.log('자동로그인 가능, 홈으로 이동');
-      navigate('/', { replace: true });
-    }
-  }, [navigate]);
+  }, []);
 
   const handleModalClose = () => setIsModalOpen(false);
 
@@ -460,20 +402,20 @@ const Login: React.FC = () => {
         forceSaveAppToken(accessToken, refreshToken);
         console.log('앱에 토큰 영구 저장됨');
       } else {
-        // 웹에서는 keepLogin 상태에 따라 토큰 저장 방식 결정
-        if (keepLogin) {
-          // 로그인 상태 유지: localStorage에 저장
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('refreshToken', refreshToken);
-          console.log('localStorage에 토큰 저장됨');
-        } else {
-          // 세션 유지: sessionStorage에 저장
-          sessionStorage.setItem('accessToken', accessToken);
-          sessionStorage.setItem('refreshToken', refreshToken);
-          console.log('sessionStorage에 토큰 저장됨');
-        }
+        // 로그인 상태 유지 분기 주석처리
+        // if (keepLogin) {
+        //   // 로그인 상태 유지: localStorage에 저장
+        //   localStorage.setItem('accessToken', accessToken);
+        //   localStorage.setItem('refreshToken', refreshToken);
+        //   console.log('localStorage에 토큰 저장됨');
+        // } else {
+        //   // 세션 유지: sessionStorage에 저장
+        //   sessionStorage.setItem('accessToken', accessToken);
+        //   sessionStorage.setItem('refreshToken', refreshToken);
+        //   console.log('sessionStorage에 토큰 저장됨');
+        // }
 
-        // auth.ts의 saveTokens 함수도 호출하여 일관성 유지
+        // 항상 saveTokens만 호출
         saveTokens(accessToken, refreshToken);
       }
 
@@ -550,9 +492,9 @@ const Login: React.FC = () => {
     setShowPassword((v) => !v);
   };
 
-  const handleKeepLoginChange = () => {
-    setKeepLogin((prev) => !prev);
-  };
+  // const handleKeepLoginChange = () => {
+  //   setKeepLogin((prev) => !prev);
+  // };
 
   return (
     <ThemeProvider theme={Theme}>
@@ -630,6 +572,7 @@ const Login: React.FC = () => {
                 <ErrorMessage>{errors.password.message}</ErrorMessage>
               )}
             </InputFieldsContainer>
+            {/*
             <KeepLoginWrap>
               <KeepLoginLabel htmlFor='keepLogin'>
                 <KeepLoginCheckbox
@@ -651,6 +594,7 @@ const Login: React.FC = () => {
                 마세요.
               </KeepLoginNotice>
             )}
+            */}
 
             <LoginBtn
               type='submit'
