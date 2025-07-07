@@ -11,8 +11,6 @@ import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../components/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
-import DeleteIcon from '../assets/DeleteButtonIcon.svg';
-
 import { saveTokens } from '../utils/auth';
 
 type LoginFormValues = {
@@ -131,19 +129,46 @@ const InputLabel = styled.label`
   margin-bottom: 4px;
 `;
 
-const StyledInput = styled.input`
+const InputWrap = styled.div`
+  position: relative;
   width: 100%;
-  height: 48px;
-  border: 1.5px solid #dadada;
+`;
+
+const InputIconBtn = styled.button`
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+`;
+
+const StyledInput = styled.input<{ hasError?: boolean }>`
+  width: 100%;
+  height: 51px;
+  border: 1.5px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#dadada')};
   border-radius: 6px;
   font-size: 16px;
-  padding: 0 44px 0 12px;
+  padding: 0 44px 0 15px;
   background: #fafbfb;
   box-sizing: border-box;
+  color: #222;
+  transition:
+    border 0.2s,
+    background 0.2s;
   &:focus {
-    border-color: #03c75a;
+    border-color: ${({ hasError }) => (hasError ? '#ff4d4f' : '#F6AE24')};
     background: #fff;
     outline: none;
+  }
+  &::placeholder {
+    color: #b0b8c1;
+    font-size: 16px;
   }
 `;
 
@@ -157,7 +182,7 @@ const ErrorMessage = styled.div`
 const LoginBtn = styled.button`
   width: 100%;
   height: 52px;
-  background: #03c75a;
+  background: #f6ae24;
   color: #fff;
   font-size: 18px;
   font-weight: 800;
@@ -168,10 +193,10 @@ const LoginBtn = styled.button`
   cursor: pointer;
   transition: background 0.2s;
   &:hover:enabled {
-    background: #02b152;
+    background: #e09e1f;
   }
   &:disabled {
-    background: #b2e2c6;
+    background: #ffe2a9;
     cursor: not-allowed;
   }
 `;
@@ -194,7 +219,7 @@ const LinkBtn = styled.button`
   cursor: pointer;
   padding: 0 8px;
   &:hover {
-    color: #03c75a;
+    color: #f6ae24;
     text-decoration: underline;
   }
 `;
@@ -278,6 +303,20 @@ const Login: React.FC = () => {
     setValue('password', e.target.value, { shouldValidate: true });
   };
 
+  const handleEmailClear = () => {
+    setEmail('');
+    setValue('email', '', { shouldValidate: true });
+  };
+
+  const handlePwClear = () => {
+    setPassword('');
+    setValue('password', '', { shouldValidate: true });
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword((v) => !v);
+  };
+
   return (
     <ThemeProvider theme={Theme}>
       <NaverLoginBg>
@@ -301,15 +340,11 @@ const Login: React.FC = () => {
                 placeholder='아이디(이메일)'
                 value={email}
                 onChange={handleEmailChange}
+                hasError={!!errors.email}
+                autoComplete='username'
               />
               {email && (
-                <InputIconBtn
-                  type='button'
-                  onClick={() => {
-                    setEmail('');
-                    setValue('email', '', { shouldValidate: true });
-                  }}
-                >
+                <InputIconBtn type='button' onClick={handleEmailClear}>
                   <NaverDeleteIcon />
                 </InputIconBtn>
               )}
@@ -326,23 +361,19 @@ const Login: React.FC = () => {
                 placeholder='비밀번호'
                 value={password}
                 onChange={handlePwChange}
+                hasError={!!errors.password}
+                autoComplete='current-password'
               />
               {password && (
-                <InputIconBtn
-                  type='button'
-                  onClick={() => {
-                    setPassword('');
-                    setValue('password', '', { shouldValidate: true });
-                  }}
-                >
+                <InputIconBtn type='button' onClick={handlePwClear}>
                   <NaverDeleteIcon />
                 </InputIconBtn>
               )}
               {password && (
                 <InputIconBtn
+                  style={{ right: '40px' }}
+                  onClick={toggleShowPassword}
                   type='button'
-                  onClick={() => setShowPassword((v) => !v)}
-                  style={{ right: email ? 44 : 12 }}
                 >
                   {showPassword ? <NaverEyeOpenIcon /> : <NaverEyeCloseIcon />}
                 </InputIconBtn>
@@ -379,83 +410,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-
-// --- styled-components (display 기반) ---
-const Container = styled.div`
-  min-height: 100vh;
-  margin: 0 auto;
-  padding: 1rem;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  max-width: 600px;
-`;
-
-const TopSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-
-  margin-top: 15vh;
-`;
-
-const Logo = styled.img`
-  width: 184px;
-  height: 83px;
-  margin-bottom: 21px;
-`;
-
-const BottomLinks = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: 32px;
-`;
-
-const LeftLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 24px;
-`;
-
-const RightLink = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Link = styled.a`
-  font-weight: 800;
-  font-size: 12px;
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-`;
-
-const InputWrap = styled.div<{ focus?: boolean }>`
-  width: 100%;
-  margin-bottom: 18px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  border: 1.5px solid ${({ focus }) => (focus ? '#03c75a' : '#dadada')};
-  border-radius: 6px;
-  background: #fafbfb;
-  transition: border 0.2s;
-`;
-
-const InputIconBtn = styled.button`
-  position: absolute;
-  right: 12px;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-`;
