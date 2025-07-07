@@ -87,11 +87,11 @@ const NaverLoginBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 100px;
+  margin-top: 64px;
 `;
 
 const FormSectionWrapper = styled.div`
-  width: 100%;
+  padding: 2rem;
   max-width: 400px;
   display: flex;
   flex-direction: column;
@@ -99,7 +99,7 @@ const FormSectionWrapper = styled.div`
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 100px;
+  bottom: 64px;
   margin-left: auto;
   margin-right: auto;
 `;
