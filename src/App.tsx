@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -88,45 +88,27 @@ import DeliveryManagement from './pages/profile/DeliveryManagement';
 import EditAddress from './pages/profile/EditAddress';
 import NotFound from './pages/NotFound';
 
-import Cookies from 'js-cookie';
 import { Axios } from './api/Axios';
 import { isNativeApp, requestNativeLogin } from './utils/nativeApp';
+import {
+  hasValidToken,
+  clearTokens,
+  saveTokens,
+  isProtectedRoute,
+} from './utils/auth';
 
 const AuthGuard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // 공개 경로 목록 (토큰이 없어도 접근 가능)
-  const publicRoutes = useMemo(
-    () => [
-      '/login',
-      '/landing',
-      '/signup',
-      '/findid',
-      '/findPassword',
-      '/PersonalLink',
-      '/test/payple',
-      '/test/AddCardPayple',
-      '/Link',
-    ],
-    []
-  );
-
-  // 현재 경로가 보호된 라우트인지 확인
-  const isProtectedRoute = useCallback(
-    (pathname: string): boolean => {
-      return !publicRoutes.includes(pathname);
-    },
-    [publicRoutes]
-  );
-
-  // 토큰 유효성 검사
-  const hasValidToken = (): boolean => {
-    const localToken = localStorage.getItem('accessToken');
-    const cookieToken = Cookies.get('accessToken');
-    return !!(localToken?.trim() || cookieToken?.trim());
-  };
+  // 로그인 페이지로 이동하는 함수
+  const redirectToLogin = useCallback(() => {
+    if (location.pathname !== '/login') {
+      console.log('인증 실패로 로그인 페이지로 이동');
+      navigate('/login', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     // 네이티브 앱 로그인 정보 수신 처리
@@ -138,31 +120,13 @@ const AuthGuard: React.FC = () => {
 
       if (loginInfo.isLoggedIn && loginInfo.userInfo) {
         // 토큰 저장
-        localStorage.setItem('accessToken', loginInfo.userInfo.token);
-        Cookies.set('accessToken', loginInfo.userInfo.token, { path: '/' });
+        saveTokens(loginInfo.userInfo.token, loginInfo.userInfo.refreshToken);
         Axios.defaults.headers.Authorization = `Bearer ${loginInfo.userInfo.token}`;
-
-        // refreshToken도 저장
-        if (loginInfo.userInfo.refreshToken) {
-          localStorage.setItem('refreshToken', loginInfo.userInfo.refreshToken);
-          Cookies.set('refreshToken', loginInfo.userInfo.refreshToken, {
-            path: '/',
-          });
-        }
       } else {
         // 로그아웃 처리
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
-
+        clearTokens();
         // 로그인 페이지로 이동
-        if (
-          location.pathname !== '/login' &&
-          location.pathname !== '/landing'
-        ) {
-          navigate('/login', { replace: true });
-        }
+        redirectToLogin();
       }
     }
 
@@ -187,7 +151,7 @@ const AuthGuard: React.FC = () => {
           requestNativeLogin();
         } else {
           console.log('웹 환경에서 로그인 페이지로 이동');
-          navigate('/login', { replace: true });
+          redirectToLogin();
         }
       }
 
@@ -200,7 +164,7 @@ const AuthGuard: React.FC = () => {
     return () => {
       window.removeEventListener('loginInfoReceived', handleLoginInfoReceived);
     };
-  }, [location.pathname, navigate, isInitialized, location, isProtectedRoute]);
+  }, [location.pathname, navigate, isInitialized, location, redirectToLogin]);
 
   // 라우트 변경 시 인증 체크
   useEffect(() => {
@@ -217,12 +181,12 @@ const AuthGuard: React.FC = () => {
     });
 
     // 토큰이 없고 보호된 라우트에 있으면 로그인 페이지로
-    if (!token && isProtected && location.pathname !== '/login') {
+    if (!token && isProtected) {
       console.log('라우트 변경으로 인한 로그인 페이지 이동');
-      navigate('/login', { replace: true });
+      redirectToLogin();
       return;
     }
-  }, [location.pathname, isInitialized, navigate, isProtectedRoute]);
+  }, [location.pathname, isInitialized, navigate, redirectToLogin]);
 
   return null;
 };

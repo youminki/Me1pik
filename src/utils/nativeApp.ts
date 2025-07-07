@@ -78,48 +78,13 @@ export const saveNativeLoginInfo = (
   }
 };
 
-/**
- * 토큰이 있는지 확인
- */
-export const hasValidToken = (): boolean => {
-  // localStorage에서 토큰 확인
-  const localToken = localStorage.getItem('accessToken');
-  if (localToken && localToken.trim() !== '') {
-    return true;
-  }
-
-  // cookie에서 토큰 확인
-  if (typeof document !== 'undefined') {
-    const cookies = document.cookie.split(';');
-    const accessTokenCookie = cookies.find((cookie) =>
-      cookie.trim().startsWith('accessToken=')
-    );
-    if (accessTokenCookie) {
-      const tokenValue = accessTokenCookie.split('=')[1];
-      if (tokenValue && tokenValue.trim() !== '') {
-        return true;
-      }
-    }
-  }
-
-  return false;
-};
+import { isProtectedRoute as checkProtectedRoute } from './auth';
 
 /**
  * 인증이 필요한 페이지인지 확인
  */
 export const isProtectedRoute = (pathname: string): boolean => {
-  const publicPaths = [
-    '/signup',
-    '/findId',
-    '/findid',
-    '/findPassword',
-    '/landing',
-    '/',
-    '/login',
-    '/PersonalLink',
-  ];
-  return !publicPaths.includes(pathname);
+  return checkProtectedRoute(pathname);
 };
 
 /**

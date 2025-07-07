@@ -11,7 +11,8 @@ import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../components/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
-import Cookies from 'js-cookie';
+
+import { saveTokens } from '../utils/auth';
 
 type LoginFormValues = {
   email: string;
@@ -52,13 +53,8 @@ const Login: React.FC = () => {
 
       console.log('로그인 성공, 토큰 저장');
 
-      // 토큰 저장
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      Cookies.set('accessToken', accessToken, { path: '/' });
-      if (refreshToken) {
-        Cookies.set('refreshToken', refreshToken, { path: '/' });
-      }
+      // 토큰 저장 (새로운 유틸리티 함수 사용)
+      saveTokens(accessToken, refreshToken);
 
       // === 네이티브 앱에 로그인 정보 전달 ===
       if (isNativeApp()) {
