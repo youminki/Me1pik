@@ -91,10 +91,12 @@ import NotFound from './pages/NotFound';
 import { Axios } from './api/Axios';
 import { isNativeApp, requestNativeLogin } from './utils/nativeApp';
 import {
-  hasValidToken,
   clearTokens,
   saveTokens,
   isProtectedRoute,
+  checkAutoLogin,
+  ensureAppToken,
+  checkTokenAndRedirect,
 } from './utils/auth';
 
 const AuthGuard: React.FC = () => {
@@ -119,7 +121,7 @@ const AuthGuard: React.FC = () => {
       console.log('네이티브 로그인 정보 수신:', loginInfo);
 
       if (loginInfo.isLoggedIn && loginInfo.userInfo) {
-        // 토큰 저장
+        // 토큰 저장 (앱에서는 항상 localStorage에 저장)
         saveTokens(loginInfo.userInfo.token, loginInfo.userInfo.refreshToken);
         Axios.defaults.headers.Authorization = `Bearer ${loginInfo.userInfo.token}`;
       } else {
@@ -130,22 +132,39 @@ const AuthGuard: React.FC = () => {
       }
     }
 
-    // 초기 인증 체크
+    // 초기 인증 체크 (무신사 스타일)
     const checkInitialAuth = () => {
       if (isInitialized) return;
 
-      const token = hasValidToken();
+      const isAutoLoginAvailable = checkAutoLogin();
       const isProtected = isProtectedRoute(location.pathname);
+      const hasAppToken = ensureAppToken();
 
-      console.log('초기 인증 체크:', {
-        token,
+      console.log('초기 인증 체크 (무신사 스타일):', {
+        isAutoLoginAvailable,
+        hasAppToken,
         pathname: location.pathname,
         isProtected,
         isNative: isNativeApp(),
       });
 
-      // 토큰이 없고 보호된 라우트에 있으면 로그인 페이지로
-      if (!token && isProtected) {
+      // 앱에서 토큰이 없고 보호된 라우트에 있으면 로그인 페이지로
+      if (!hasAppToken && isProtected) {
+        console.log('앱에 토큰이 없어 로그인 페이지로 이동');
+        redirectToLogin();
+        setIsInitialized(true);
+        return;
+      }
+
+      // 자동로그인이 가능하고 보호된 라우트에 있으면 그대로 유지
+      if (isAutoLoginAvailable && isProtected) {
+        console.log('자동로그인 성공, 현재 페이지 유지');
+        setIsInitialized(true);
+        return;
+      }
+
+      // 자동로그인이 불가능하고 보호된 라우트에 있으면 로그인 페이지로
+      if (!isAutoLoginAvailable && isProtected) {
         if (isNativeApp()) {
           console.log('네이티브 앱에서 로그인 요청');
           requestNativeLogin();
@@ -166,22 +185,27 @@ const AuthGuard: React.FC = () => {
     };
   }, [location.pathname, navigate, isInitialized, location, redirectToLogin]);
 
-  // 라우트 변경 시 인증 체크
+  // 라우트 변경 시 인증 체크 (무신사 스타일)
   useEffect(() => {
     if (!isInitialized) return;
 
-    const token = hasValidToken();
+    // 보호된 라우트에서 토큰 체크 및 리다이렉트
+    if (checkTokenAndRedirect(location.pathname)) {
+      return; // 이미 리다이렉트됨
+    }
+
+    const isAutoLoginAvailable = checkAutoLogin();
     const isProtected = isProtectedRoute(location.pathname);
 
-    console.log('라우트 변경 인증 체크:', {
+    console.log('라우트 변경 인증 체크 (무신사 스타일):', {
       pathname: location.pathname,
-      token,
+      isAutoLoginAvailable,
       isProtected,
       isInitialized,
     });
 
-    // 토큰이 없고 보호된 라우트에 있으면 로그인 페이지로
-    if (!token && isProtected) {
+    // 자동로그인이 불가능하고 보호된 라우트에 있으면 로그인 페이지로
+    if (!isAutoLoginAvailable && isProtected) {
       console.log('라우트 변경으로 인한 로그인 페이지 이동');
       redirectToLogin();
       return;

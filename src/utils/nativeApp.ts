@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 // 네이티브 앱 타입 선언
 declare global {
   interface Window {
@@ -19,14 +21,14 @@ declare global {
 }
 
 /**
- * 네이티브 앱 환경인지 확인
+ * 네이티브 앱 환경인지 확인합니다
  */
 export const isNativeApp = (): boolean => {
-  return (
+  return !!(
     typeof window !== 'undefined' &&
-    (window.nativeApp !== undefined ||
-      window.ReactNativeWebView !== undefined ||
-      window.webkit?.messageHandlers !== undefined)
+    (window.nativeApp ||
+      window.ReactNativeWebView ||
+      window.webkit?.messageHandlers?.loginHandler)
   );
 };
 
@@ -53,28 +55,32 @@ export const requestNativeLogin = (): void => {
 };
 
 /**
- * 네이티브 앱에 로그인 정보 저장 요청
+ * 네이티브 앱에서 로그인 정보를 저장합니다 (앱에서는 항상 영구 저장)
  */
-export const saveNativeLoginInfo = (
-  loginData: Record<string, unknown>
-): void => {
-  if (typeof window !== 'undefined' && window.nativeApp?.saveLoginInfo) {
-    window.nativeApp.saveLoginInfo(loginData);
-  } else if (typeof window !== 'undefined' && window.ReactNativeWebView) {
-    window.ReactNativeWebView.postMessage(
-      JSON.stringify({
-        type: 'SAVE_LOGIN_INFO',
-        data: loginData,
-      })
-    );
-  } else if (
-    typeof window !== 'undefined' &&
-    window.webkit?.messageHandlers?.loginHandler
-  ) {
-    window.webkit.messageHandlers.loginHandler.postMessage({
-      type: 'SAVE_LOGIN_INFO',
-      data: loginData,
-    });
+export const saveNativeLoginInfo = (loginInfo: {
+  id: string;
+  email: string;
+  name: string;
+  token: string;
+  refreshToken: string;
+  expiresAt: string;
+}): void => {
+  try {
+    // 앱에서는 항상 localStorage에 저장 (영구 보관)
+    localStorage.setItem('accessToken', loginInfo.token);
+    localStorage.setItem('refreshToken', loginInfo.refreshToken);
+    localStorage.setItem('userId', loginInfo.id);
+    localStorage.setItem('userEmail', loginInfo.email);
+    localStorage.setItem('userName', loginInfo.name);
+    localStorage.setItem('tokenExpiresAt', loginInfo.expiresAt);
+
+    // Cookies에도 저장 (웹뷰 호환성)
+    Cookies.set('accessToken', loginInfo.token, { path: '/' });
+    Cookies.set('refreshToken', loginInfo.refreshToken, { path: '/' });
+
+    console.log('네이티브 앱에 로그인 정보 영구 저장 완료');
+  } catch (error) {
+    console.error('네이티브 앱 로그인 정보 저장 실패:', error);
   }
 };
 

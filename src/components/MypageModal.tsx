@@ -3,24 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import MypageBox from '../assets/MypageBox.svg';
 import MystyleBox from '../assets/MystyleBox.svg';
 import ReusableModal2 from '../components/ReusableModal2';
-import { logoutUser } from '../api/user/userApi';
-import { Axios } from '../api/Axios';
-
-const getEmailFromToken = (): string | null => {
-  const token =
-    Cookies.get('accessToken') || localStorage.getItem('accessToken') || '';
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(window.atob(token.split('.')[1]));
-    return payload.email as string;
-  } catch {
-    return null;
-  }
-};
+import { logout } from '../utils/auth';
 
 type MypageModalProps = {
   isOpen: boolean;
@@ -52,24 +38,21 @@ const MypageModal: React.FC<MypageModalProps> = ({ isOpen, onClose }) => {
 
   const handleLogoutConfirm = async () => {
     try {
-      const email = getEmailFromToken();
-      if (email) {
-        await logoutUser(email);
-      }
-    } catch (err) {
-      console.error('logout error:', err);
-    } finally {
-      Cookies.remove('accessToken');
-      Cookies.remove('refreshToken');
-      Cookies.remove('profileImageUrl');
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      console.log('로그아웃 시작');
+      await logout();
+      console.log('로그아웃 완료, 로그인 페이지로 이동');
 
-      Axios.defaults.headers.Authorization = '';
+      setLogoutModalOpen(false);
+      onClose();
+
+      // 로그인 페이지로 이동 (무신사 스타일)
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('로그아웃 중 오류:', error);
+      // 오류가 발생해도 로그인 페이지로 이동
       setLogoutModalOpen(false);
       onClose();
       navigate('/login', { replace: true });
-      window.location.reload();
     }
   };
 

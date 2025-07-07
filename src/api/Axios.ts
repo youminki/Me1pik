@@ -13,7 +13,12 @@ export const Axios = axios.create({
 // 요청 인터셉터: 매 요청마다 최신 토큰을 헤더에 추가
 Axios.interceptors.request.use(
   (config) => {
-    const accessToken = Cookies.get('accessToken');
+    const localToken = localStorage.getItem('accessToken');
+    const sessionToken = sessionStorage.getItem('accessToken');
+    const cookieToken = Cookies.get('accessToken');
+    const accessToken =
+      localToken?.trim() || sessionToken?.trim() || cookieToken?.trim();
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -24,7 +29,7 @@ Axios.interceptors.request.use(
   }
 );
 
-// 응답 인터셉터: 401 오류 시 토큰 갱신 시도
+// 응답 인터셉터: 401 오류 시 토큰 갱신 시도 (무신사 스타일)
 Axios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -34,11 +39,24 @@ Axios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = Cookies.get('refreshToken');
+        // sessionStorage도 확인
+        const localRefreshToken = localStorage.getItem('refreshToken');
+        const sessionRefreshToken = sessionStorage.getItem('refreshToken');
+        const cookieRefreshToken = Cookies.get('refreshToken');
+        const refreshToken =
+          localRefreshToken || sessionRefreshToken || cookieRefreshToken;
+
         if (!refreshToken) {
-          // 리프레시 토큰이 없으면 로그인 페이지로 이동
+          console.log('리프레시 토큰이 없어 로그인 페이지로 이동');
+          // 모든 토큰 제거
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          sessionStorage.removeItem('accessToken');
+          sessionStorage.removeItem('refreshToken');
           Cookies.remove('accessToken');
           Cookies.remove('refreshToken');
+
+          // 로그인 페이지로 이동 (무신사 스타일)
           window.location.href = '/login';
           return Promise.reject(error);
         }
@@ -50,9 +68,14 @@ Axios.interceptors.response.use(
           { withCredentials: true }
         );
 
-        // 새 토큰 저장
+        // 새 토큰 저장 (localStorage와 sessionStorage 모두에)
+        localStorage.setItem('accessToken', data.accessToken);
+        sessionStorage.setItem('accessToken', data.accessToken);
         Cookies.set('accessToken', data.accessToken, { secure: true });
+
         if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+          sessionStorage.setItem('refreshToken', data.refreshToken);
           Cookies.set('refreshToken', data.refreshToken, { secure: true });
         }
 
@@ -60,9 +83,16 @@ Axios.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return Axios(originalRequest);
       } catch {
-        // 토큰 갱신 실패 시 로그인 페이지로 이동
+        console.log('토큰 갱신 실패, 로그인 페이지로 이동');
+        // 모든 토큰 제거
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('refreshToken');
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
+
+        // 로그인 페이지로 이동 (무신사 스타일)
         window.location.href = '/login';
         return Promise.reject(error);
       }

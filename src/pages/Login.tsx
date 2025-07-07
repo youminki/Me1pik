@@ -11,6 +11,7 @@ import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../components/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
+import { saveTokens, checkAutoLogin, forceSaveAppToken } from '../utils/auth';
 
 type LoginFormValues = {
   email: string;
@@ -357,10 +358,12 @@ const Login: React.FC = () => {
   });
 
   useEffect(() => {
-    // 앱 시작 시 localStorage에 토큰이 있으면 자동 로그인 처리
-    const accessToken = localStorage.getItem('accessToken');
-    if (accessToken && location.pathname === '/login') {
-      navigate('/', { replace: true }); // 메인 페이지 등으로 이동
+    // 무신사 스타일 자동로그인 체크
+    const isAutoLoginAvailable = checkAutoLogin();
+
+    if (isAutoLoginAvailable && location.pathname === '/login') {
+      console.log('자동로그인 가능, 홈으로 이동');
+      navigate('/', { replace: true });
     }
   }, [navigate, location.pathname]);
 
@@ -385,13 +388,44 @@ const Login: React.FC = () => {
       )) as LoginResponse;
       const { accessToken, refreshToken } = response;
       console.log('로그인 성공, 토큰 저장');
-      if (keepLogin) {
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
+
+      // 앱에서는 항상 localStorage에 저장 (영구 보관)
+      if (isNativeApp()) {
+        forceSaveAppToken(accessToken, refreshToken);
+        console.log('앱에 토큰 영구 저장됨');
       } else {
-        sessionStorage.setItem('accessToken', accessToken);
-        sessionStorage.setItem('refreshToken', refreshToken);
+        // 웹에서는 keepLogin 상태에 따라 토큰 저장 방식 결정
+        if (keepLogin) {
+          // 로그인 상태 유지: localStorage에 저장
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+          console.log('localStorage에 토큰 저장됨');
+        } else {
+          // 세션 유지: sessionStorage에 저장
+          sessionStorage.setItem('accessToken', accessToken);
+          sessionStorage.setItem('refreshToken', refreshToken);
+          console.log('sessionStorage에 토큰 저장됨');
+        }
+
+        // auth.ts의 saveTokens 함수도 호출하여 일관성 유지
+        saveTokens(accessToken, refreshToken);
       }
+
+      // 디버깅: 토큰 저장 상태 확인
+      console.log('토큰 저장 상태 확인:');
+      console.log(
+        '- localStorage accessToken:',
+        localStorage.getItem('accessToken') ? '있음' : '없음'
+      );
+      console.log(
+        '- sessionStorage accessToken:',
+        sessionStorage.getItem('accessToken') ? '있음' : '없음'
+      );
+      console.log(
+        '- Cookies accessToken:',
+        document.cookie.includes('accessToken') ? '있음' : '없음'
+      );
+
       if (isNativeApp()) {
         console.log('네이티브 앱에 로그인 정보 전달');
         saveNativeLoginInfo({
