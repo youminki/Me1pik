@@ -346,7 +346,6 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [keepLogin, setKeepLogin] = useState(false);
   const [isCapsLock, setIsCapsLock] = useState(false);
-  const [hasReceivedNativeToken, setHasReceivedNativeToken] = useState(false);
 
   const {
     handleSubmit,
@@ -382,29 +381,33 @@ const Login: React.FC = () => {
       // 토큰이 유효하지 않으면 삭제
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userEmail');
     }
   }, [navigate]);
 
   useEffect(() => {
     // 네이티브 토큰 수신 (무한루프 방지)
     function handleNativeToken(e: CustomEvent) {
-      const { accessToken, refreshToken, source } = e.detail || {};
+      const { accessToken, refreshToken, email, source } = e.detail || {};
 
       // 네이티브에서 온 토큰만 처리 (무한루프 방지)
-      if (source === 'native' && !hasReceivedNativeToken) {
+      if (source === 'native' && accessToken) {
         console.log('네이티브에서 토큰 수신:', {
           accessToken: !!accessToken,
           refreshToken: !!refreshToken,
+          email: email,
         });
 
+        // 토큰 저장
         if (accessToken) {
           localStorage.setItem('accessToken', accessToken);
         }
         if (refreshToken) {
           localStorage.setItem('refreshToken', refreshToken);
         }
-
-        setHasReceivedNativeToken(true);
+        if (email) {
+          localStorage.setItem('userEmail', email);
+        }
 
         // 자동 로그인 처리
         handleAutoLogin();
@@ -420,19 +423,15 @@ const Login: React.FC = () => {
         handleNativeToken as EventListener
       );
     };
-  }, [hasReceivedNativeToken, handleAutoLogin]);
+  }, [handleAutoLogin]);
 
   useEffect(() => {
     // 무신사 스타일 자동로그인 체크 (네이티브 토큰 수신 후에만)
-    if (!hasReceivedNativeToken) {
-      const isAutoLoginAvailable = checkAutoLogin();
-
-      if (isAutoLoginAvailable && location.pathname === '/login') {
-        console.log('자동로그인 가능, 홈으로 이동');
-        navigate('/', { replace: true });
-      }
+    if (checkAutoLogin()) {
+      console.log('자동로그인 가능, 홈으로 이동');
+      navigate('/', { replace: true });
     }
-  }, [navigate, location.pathname, hasReceivedNativeToken]);
+  }, [navigate]);
 
   const handleModalClose = () => setIsModalOpen(false);
 
