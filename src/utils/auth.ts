@@ -1,5 +1,8 @@
 import Cookies from 'js-cookie';
 
+// 인스타그램 방식 토큰 갱신 타이머
+let tokenRefreshTimer: NodeJS.Timeout | null = null;
+
 /**
  * 토큰의 유효성을 검사합니다 (존재 여부와 만료 여부 확인)
  */
@@ -44,22 +47,40 @@ export const clearTokens = (): void => {
   sessionStorage.removeItem('refreshToken');
   Cookies.remove('accessToken');
   Cookies.remove('refreshToken');
+
+  // 토큰 갱신 타이머 정리
+  if (tokenRefreshTimer) {
+    clearTimeout(tokenRefreshTimer);
+    tokenRefreshTimer = null;
+  }
+
+  // 앱에 로그아웃 이벤트 전달
+  notifyAppLogout();
 };
 
 /**
- * 토큰을 저장합니다
+ * 토큰을 저장합니다 (인스타그램 방식)
  */
 export const saveTokens = (
   accessToken: string,
   refreshToken?: string
 ): void => {
+  // 다중 저장소에 토큰 저장
   localStorage.setItem('accessToken', accessToken);
+  sessionStorage.setItem('accessToken', accessToken);
   Cookies.set('accessToken', accessToken, { path: '/' });
 
   if (refreshToken) {
     localStorage.setItem('refreshToken', refreshToken);
+    sessionStorage.setItem('refreshToken', refreshToken);
     Cookies.set('refreshToken', refreshToken, { path: '/' });
   }
+
+  // 토큰 갱신 타이머 설정
+  setupTokenRefreshTimer(accessToken);
+
+  // 앱에 로그인 이벤트 전달
+  notifyAppLogin(accessToken, refreshToken);
 };
 
 /**
@@ -72,6 +93,121 @@ export const getCurrentToken = (): string | null => {
   return (
     localToken?.trim() || sessionToken?.trim() || cookieToken?.trim() || null
   );
+};
+
+/**
+ * Refresh 토큰을 가져옵니다
+ */
+export const getRefreshToken = (): string | null => {
+  const localToken = localStorage.getItem('refreshToken');
+  const sessionToken = sessionStorage.getItem('refreshToken');
+  const cookieToken = Cookies.get('refreshToken');
+  return (
+    localToken?.trim() || sessionToken?.trim() || cookieToken?.trim() || null
+  );
+};
+
+/**
+ * 토큰 갱신 타이머 설정 (인스타그램 방식)
+ */
+const setupTokenRefreshTimer = (token: string): void => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Date.now() / 1000;
+    const expiresAt = payload.exp;
+
+    if (!expiresAt) return;
+
+    // 토큰 만료 5분 전에 갱신
+    const refreshTime = (expiresAt - currentTime - 300) * 1000;
+
+    if (refreshTime > 0) {
+      // 기존 타이머 정리
+      if (tokenRefreshTimer) {
+        clearTimeout(tokenRefreshTimer);
+      }
+
+      tokenRefreshTimer = setTimeout(async () => {
+        await refreshToken();
+      }, refreshTime);
+
+      console.log(`토큰 갱신 타이머 설정: ${refreshTime}ms 후`);
+    }
+  } catch (error) {
+    console.error('토큰 갱신 타이머 설정 실패:', error);
+  }
+};
+
+/**
+ * 토큰 갱신 (인스타그램 방식)
+ */
+export const refreshToken = async (): Promise<boolean> => {
+  try {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      console.log('리프레시 토큰이 없습니다.');
+      return false;
+    }
+
+    // 토큰 갱신 API 호출
+    const { Axios } = await import('../api/Axios');
+    const response = await Axios.post('/auth/refresh', {
+      refreshToken,
+    });
+
+    const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+    // 새 토큰 저장
+    saveTokens(accessToken, newRefreshToken);
+
+    console.log('토큰 갱신 성공');
+    return true;
+  } catch (error) {
+    console.error('토큰 갱신 실패:', error);
+    // 갱신 실패 시 로그아웃
+    await logout();
+    return false;
+  }
+};
+
+/**
+ * 앱에 로그인 이벤트 전달
+ */
+const notifyAppLogin = (accessToken: string, refreshToken?: string): void => {
+  // 네이티브 앱에 로그인 정보 전달
+  if (window.webkit?.messageHandlers?.loginHandler) {
+    window.webkit.messageHandlers.loginHandler.postMessage({
+      type: 'login',
+      token: accessToken,
+      refreshToken: refreshToken,
+    });
+  }
+
+  // 커스텀 이벤트로 웹뷰에 알림
+  window.dispatchEvent(
+    new CustomEvent('webLoginSuccess', {
+      detail: {
+        token: accessToken,
+        refreshToken: refreshToken,
+      },
+    })
+  );
+};
+
+/**
+ * 앱에 로그아웃 이벤트 전달
+ */
+const notifyAppLogout = (): void => {
+  // 네이티브 앱에 로그아웃 알림
+  const messageHandlers = window.webkit?.messageHandlers;
+  if (messageHandlers && 'logoutHandler' in messageHandlers) {
+    (messageHandlers as any).logoutHandler.postMessage({
+      type: 'logout',
+    });
+  }
+
+  // 커스텀 이벤트로 웹뷰에 알림
+  window.dispatchEvent(new CustomEvent('webLogout'));
 };
 
 /**
@@ -98,7 +234,7 @@ export const isProtectedRoute = (pathname: string): boolean => {
 };
 
 /**
- * 로그아웃 처리를 합니다
+ * 로그아웃 처리를 합니다 (인스타그램 방식)
  */
 export const logout = async (): Promise<void> => {
   try {
@@ -161,6 +297,9 @@ export const forceSaveAppToken = (
     Cookies.set('refreshToken', refreshToken, { path: '/' });
   }
 
+  // 토큰 갱신 타이머 설정
+  setupTokenRefreshTimer(accessToken);
+
   console.log('앱에 토큰 강제 저장 완료');
 };
 
@@ -178,7 +317,7 @@ export const redirectToLoginIfNoToken = (): boolean => {
 };
 
 /**
- * 보호된 라우트에서 토큰 체크 및 리다이렉트
+ * 보호된 라우트에서 토크 체크 및 리다이렉트
  */
 export const checkTokenAndRedirect = (pathname: string): boolean => {
   const isProtected = isProtectedRoute(pathname);
@@ -192,4 +331,31 @@ export const checkTokenAndRedirect = (pathname: string): boolean => {
   }
 
   return false; // 이동하지 않음
+};
+
+/**
+ * 앱에서 받은 로그인 정보 처리 (인스타그램 방식)
+ */
+export const handleAppLogin = (loginInfo: {
+  token: string;
+  refreshToken?: string;
+  email?: string;
+}): void => {
+  console.log('앱에서 로그인 정보 수신:', loginInfo);
+
+  // 토큰 저장
+  saveTokens(loginInfo.token, loginInfo.refreshToken);
+
+  // 이메일 저장
+  if (loginInfo.email) {
+    localStorage.setItem('userEmail', loginInfo.email);
+  }
+};
+
+/**
+ * 앱에서 받은 로그아웃 처리 (인스타그램 방식)
+ */
+export const handleAppLogout = (): void => {
+  console.log('앱에서 로그아웃 요청 수신');
+  logout();
 };

@@ -447,6 +447,18 @@ const Login: React.FC = () => {
           ).toISOString(), // 예시: 7일 뒤 만료
         });
       }
+
+      // 인스타그램 방식: 웹뷰 통신 스크립트 호출
+      if ((window as any).handleWebLoginSuccess) {
+        (window as any).handleWebLoginSuccess({
+          token: accessToken,
+          refreshToken: refreshToken,
+          email: data.email,
+          userId: data.email, // 또는 서버에서 받은 user id
+          name: '', // 필요하다면 서버에서 받은 이름
+        });
+      }
+
       const membership: MembershipInfo = await getMembershipInfo();
       console.log('홈으로 이동');
       const redirectTo = location.state?.from || '/';
