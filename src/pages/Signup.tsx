@@ -932,8 +932,8 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   margin: 0 auto;
-  padding: 72px 1rem 1rem 1rem; /* 헤더 높이(56px) + 여유 */
-  max-width: 600px;
+  padding: 2rem;
+  max-width: 400px;
 `;
 
 const Form = styled.form`

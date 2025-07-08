@@ -3,8 +3,9 @@
 import React, { useState, forwardRef, InputHTMLAttributes } from 'react';
 import styled from 'styled-components';
 import Button02 from './Button02';
-import { CustomSelect } from './CustomSelect';
 import type { FieldError } from 'react-hook-form';
+import { StyledInput } from '../auth/AuthCommon';
+import { CustomSelect } from './CustomSelect';
 
 type InputFieldProps = {
   label?: string;
@@ -115,11 +116,12 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             {prefixcontent && renderPrefixContent()}
 
             {options ? (
-              <StyledSelect
+              <CustomSelect
                 id={id as string}
                 value={selectedOption}
                 onChange={handleSelectChange}
                 disabled={readOnly}
+                style={{ borderRadius: 0 }}
               >
                 {options.map((option: string) => (
                   <option
@@ -130,15 +132,16 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                     {option}
                   </option>
                 ))}
-              </StyledSelect>
+              </CustomSelect>
             ) : (
-              <Input
+              <StyledInput
                 as={as}
                 type={type}
                 id={id as string}
                 ref={ref}
                 readOnly={readOnly}
                 onChange={onChange}
+                hasError={!!error}
                 {...rest}
               />
             )}
@@ -237,8 +240,6 @@ const InputWrapper = styled.div<{ $readOnly: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
-  border: 1px solid #dddddd;
-  border-radius: 4px;
   height: 57px;
   flex: 1;
   background-color: ${({ $readOnly }) => ($readOnly ? '#f5f5f5' : 'white')};
@@ -258,43 +259,6 @@ const ToggleWrapper = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
-`;
-
-const Input = styled.input<{ readOnly?: boolean }>`
-  flex: 1;
-  height: 100%;
-  border: none;
-  padding: 0 11px;
-  font-size: 13px;
-  background-color: ${({ readOnly }) => (readOnly ? '#f5f5f5' : 'white')};
-  color: ${({ readOnly }) => (readOnly ? '#999999' : '#000000')};
-
-  &:disabled {
-    color: #999999;
-    cursor: not-allowed;
-  }
-
-  &:focus {
-    outline: none;
-  }
-`;
-
-const StyledSelect = styled(CustomSelect)<{ disabled?: boolean }>`
-  flex: 1;
-  height: 100%;
-  border: none;
-  padding: 0 11px;
-  font-size: 13px;
-  background-color: ${({ disabled }) => (disabled ? '#f5f5f5' : 'white')};
-  color: ${({ disabled }) => (disabled ? '#999999' : '#000000')};
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-
-  &:focus {
-    outline: none;
-  }
 `;
 
 const ErrorContainer = styled.div`

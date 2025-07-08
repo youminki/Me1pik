@@ -96,6 +96,7 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
   background: #fafbfb;
   box-sizing: border-box;
   color: #222;
+  border-radius: 0;
   transition:
     border 0.2s,
     background 0.2s;
@@ -112,20 +113,25 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
 export const StyledSelect = styled.select<{ hasError?: boolean }>`
   width: 100%;
   height: 51px;
-  border: 1.5px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#dadada')};
+  border: 1.5px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#000000')};
   font-size: 16px;
-  padding: 0 15px;
-  background: #fafbfb;
+  padding: 0 40px 0 15px;
+  background:
+    url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
+    #fafbfb;
   box-sizing: border-box;
   color: #222;
-  transition:
-    border 0.2s,
-    background 0.2s;
-  border-radius: 6px;
+  border-radius: 0 !important;
+  transition: border 0.2s;
+
   margin-bottom: 0;
+  appearance: none;
+
   &:focus {
     border-color: ${({ hasError }) => (hasError ? '#ff4d4f' : '#F6AE24')};
-    background: #fff;
+    background:
+      url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
+      #fff;
     outline: none;
   }
 `;
