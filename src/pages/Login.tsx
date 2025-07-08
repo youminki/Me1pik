@@ -12,6 +12,22 @@ import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../components/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
 import { saveTokens, forceSaveAppToken } from '../utils/auth';
+import {
+  NaverLoginBg,
+  NaverLoginBox,
+  FormSectionWrapper,
+  LogoWrap,
+  LogoImg,
+  Slogan,
+  SloganSub,
+  FormSection,
+  InputLabel,
+  InputFieldsContainer,
+  InputWrap,
+  InputIconBtn,
+  StyledInput,
+  ErrorMessage,
+} from '../auth/AuthCommon';
 
 type LoginFormValues = {
   email: string;
@@ -69,137 +85,6 @@ const NaverEyeCloseIcon = () => (
     </g>
   </svg>
 );
-
-const NaverLoginBg = styled.div`
-  min-height: 100vh;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const NaverLoginBox = styled.div`
-  background: #fff;
-  border-radius: 12px;
-
-  width: 100%;
-  max-width: 400px;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 64px;
-`;
-
-const FormSectionWrapper = styled.div`
-  padding: 2rem;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 64px;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const LogoWrap = styled.div`
-  margin-bottom: 24px;
-`;
-
-const LogoImg = styled.img`
-  width: 184px;
-  height: 83px;
-`;
-
-const Slogan = styled.div`
-  text-align: center;
-  font-size: 18px;
-  font-weight: 700;
-  color: #222;
-  margin-bottom: 18px;
-  line-height: 1.5;
-`;
-
-const SloganSub = styled.div`
-  font-size: 15px;
-  font-weight: 500;
-  color: #888;
-  margin-top: 4px;
-`;
-
-const FormSection = styled.form`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const InputLabel = styled.label`
-  font-size: 10px;
-  color: #222;
-  font-weight: 700;
-  margin-bottom: 4px;
-`;
-
-const InputFieldsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-`;
-
-const InputWrap = styled.div`
-  position: relative;
-  width: 100%;
-`;
-
-const InputIconBtn = styled.button`
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  z-index: 2;
-`;
-
-const StyledInput = styled.input<{ hasError?: boolean }>`
-  width: 100%;
-  height: 51px;
-  border: 1.5px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#dadada')};
-
-  font-size: 16px;
-  padding: 0 44px 0 15px;
-  background: #fafbfb;
-  box-sizing: border-box;
-  color: #222;
-  transition:
-    border 0.2s,
-    background 0.2s;
-  &:focus {
-    border-color: ${({ hasError }) => (hasError ? '#ff4d4f' : '#F6AE24')};
-    background: #fff;
-    outline: none;
-  }
-  &::placeholder {
-    color: #b0b8c1;
-    font-size: 16px;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  color: #ff4d4f;
-  font-size: 13px;
-  margin-top: 2px;
-  margin-bottom: 2px;
-`;
 
 const LoginBtn = styled.button<{ active?: boolean }>`
   width: 100%;
@@ -448,9 +333,19 @@ const Login: React.FC = () => {
         });
       }
 
-      // 인스타그램 방식: 웹뷰 통신 스크립트 호출
-      if ((window as any).handleWebLoginSuccess) {
-        (window as any).handleWebLoginSuccess({
+      // window 타입 확장으로 any 사용 제거
+      interface MelpikWindow extends Window {
+        handleWebLoginSuccess?: (params: {
+          token: string;
+          refreshToken: string;
+          email: string;
+          userId: string;
+          name: string;
+        }) => void;
+      }
+      const melpikWindow = window as MelpikWindow;
+      if (melpikWindow.handleWebLoginSuccess) {
+        melpikWindow.handleWebLoginSuccess({
           token: accessToken,
           refreshToken: refreshToken,
           email: data.email,
