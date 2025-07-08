@@ -1,4 +1,243 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap'); */
+@font-face {
+  font-family: 'NanumSquare Neo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src:
+    url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('woff2'),
+    url('/fonts/woff/NanumSquareNeo-Variable.woff') format('woff');
+}
+
+:root {
+  --primary-shadow-color: #646cffaa;
+  --logo-height: 6em;
+  --logo-padding: 1.5em;
+}
+
+html,
+body {
+  font-family: 'NanumSquare Neo', sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.logo {
+  height: var(--logo-height);
+  padding: var(--logo-padding);
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em var(--primary-shadow-color));
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 0.5rem;
+  }
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
+} margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.logo {
+  height: var(--logo-height);
+  padding: var(--logo-padding);
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em var(--primary-shadow-color));
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 0.5rem;
+  }
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
+}ls src/pagesls src/pages
+.logo {
+  height: var(--logo-height);
+  padding: var(--logo-padding);
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em var(--primary-shadow-color));
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 0.5rem;
+  }
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
+}
+@font-face {
+  font-family: 'NanumSquare Neo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src:
+    url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('woff2'),
+    url('/fonts/woff/NanumSquareNeo-Variable.woff') format('woff');
+}
+
+:root {
+  --primary-shadow-color: #646cffaa;
+  --logo-height: 6em;
+  --logo-padding: 1.5em;
+}
+
+html,
+body {
+  font-family: 'NanumSquare Neo', sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.logo {
+  height: var(--logo-height);
+  padding: var(--logo-padding);
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em var(--primary-shadow-color));
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 0.5rem;
+  }
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
+} @font-face {
+  font-family: 'NanumSquare Neo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: 
+    url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('woff2'),
+    url('/fonts/woff/NanumSquareNeo-Variable.woff') format('woff');
+}
+
+:root {
+  --primary-shadow-color: #646cffaa;
+  --logo-height: 6em;
+  --logo-padding: 1.5em;
+}
+
+html, body {
+  font-family: 'NanumSquare Neo', sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.logo {
+  height: var(--logo-height);
+  padding: var(--logo-padding);
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em var(--primary-shadow-color));
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 0.5rem;
+  }
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
+}@font-face {
+  font-family: 'NanumSquare Neo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: 
+    url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('woff2'),
+    url('/fonts/woff/NanumSquareNeo-Variable.woff') format('woff');
+}
+
+:root {
+  --primary-shadow-color: #646cffaa;
+  --logo-height: 6em;
+  --logo-padding: 1.5em;
+}
+
+html, body {
+  font-family: 'NanumSquare Neo', sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.logo {
+  height: var(--logo-height);
+  padding: var(--logo-padding);
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em var(--primary-shadow-color));
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 0.5rem;
+  }
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
+}/* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap'); */
 
 @font-face {
   font-family: 'NanumSquare Neo';
