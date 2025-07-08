@@ -934,6 +934,7 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 2rem;
   max-width: 400px;
+  margin-top: 30px;
 `;
 
 const Form = styled.form`

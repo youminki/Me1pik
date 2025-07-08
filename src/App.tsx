@@ -190,8 +190,8 @@ const App: React.FC = () => {
         <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
         <Route path='/Link' element={<Link />} />
         <Route path='/signup' element={<Signup />} />
-        <Route path='/findid' element={<FindId />} />
-        <Route path='/findPassword' element={<FindPassword />} />
+        {/* <Route path='/findid' element={<FindId />} />
+        <Route path='/findPassword' element={<FindPassword />} /> */}
 
         <Route element={<AppLayout />}>
           <Route path='/UpdateProfile' element={<UpdateProfile />} />
@@ -249,6 +249,10 @@ const App: React.FC = () => {
             path='/schedule/reservation3'
             element={<ScheduleReservation3 />}
           />
+
+          {/* FindId, FindPassword를 AppLayout 내부로 이동 */}
+          <Route path='/findid' element={<FindId />} />
+          <Route path='/findPassword' element={<FindPassword />} />
 
           {/* LockerRoom */}
           <Route path='/lockerRoom' element={<LockerRoom />} />
