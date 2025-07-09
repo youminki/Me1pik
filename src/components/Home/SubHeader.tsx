@@ -9,7 +9,6 @@ import All from '../../assets/SubHeader/Entire.svg';
 import MiniDress from '../../assets/SubHeader/MiniDress.svg';
 import MidiDress from '../../assets/SubHeader/MidiDress.svg';
 import LongDress from '../../assets/SubHeader/LongDress.svg';
-import TwoDress from '../../assets/SubHeader/TwoDress.svg';
 import JumpSuit from '../../assets/SubHeader/JumpSuit.svg';
 import Blouse from '../../assets/SubHeader/Blouse.svg';
 import KnitTop from '../../assets/SubHeader/KnitTop.svg';
@@ -31,7 +30,6 @@ const homeIcons = [
   { src: MiniDress, alt: '미니원피스', category: 'MiniDress' },
   { src: MidiDress, alt: '미디원피스', category: 'MidiDress' },
   { src: LongDress, alt: '롱 원피스', category: 'LongDress' },
-  { src: TwoDress, alt: '투피스', category: 'TwoDress' },
   { src: JumpSuit, alt: '점프수트', category: 'JumpSuit' },
   { src: Blouse, alt: '블라우스', category: 'Blouse' },
   { src: KnitTop, alt: '니트 상의', category: 'KnitTop' },
