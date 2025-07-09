@@ -167,22 +167,26 @@ const Home: React.FC = () => {
     return <div>상품을 불러오는 데 실패했습니다: {String(error)}</div>;
 
   // 상세 모달 핸들러
-  const handleOpenModal = (id: string) => {
-    const params: Record<string, string> = {};
-    if (searchParams.get('category')) params.category = selectedCategory;
-    if (searchParams.get('search')) params.search = searchQuery;
-    params.id = id;
-    setSearchParams(params, { replace: true });
-  };
-  const handleCloseModal = () => {
+  const handleOpenModal = useCallback(
+    (id: string) => {
+      const params: Record<string, string> = {};
+      if (searchParams.get('category')) params.category = selectedCategory;
+      if (searchParams.get('search')) params.search = searchQuery;
+      params.id = id;
+      setSearchParams(params, { replace: true });
+    },
+    [searchParams, selectedCategory, searchQuery, setSearchParams]
+  );
+
+  const handleCloseModal = useCallback(() => {
     const params = Object.fromEntries(searchParams.entries());
     delete params.id;
     setSearchParams(params, { replace: true });
     setFeatureModalOpen(false);
-  };
+  }, [searchParams, setSearchParams]);
 
-  // 공유하기 핸들러
-  const handleShare = async () => {
+  // 공유하기 핸들러도 useCallback 적용
+  const handleShare = useCallback(async () => {
     const shareData = {
       title: document.title,
       url: window.location.href,
@@ -201,7 +205,7 @@ const Home: React.FC = () => {
         console.error('클립보드 복사 실패', err);
       }
     }
-  };
+  }, []);
 
   return (
     <MainContainer>
