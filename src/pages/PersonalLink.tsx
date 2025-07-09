@@ -146,37 +146,40 @@ const PersonalLink: React.FC = () => {
             </IntroText>
 
             {/* 직접 그리드 + 카드 구조 삽입 */}
-            <ItemsGrid>
-              {uiDummyItems.map((item) => (
-                <ItemCardWrapper
-                  key={item.id}
-                  onClick={() => handleItemClick()}
-                >
-                  <ImageWrapper>
-                    {/* 이미지 URL이 # 뒤에 옵션이 붙을 수 있으므로 split 처리 */}
-                    <Image
-                      src={item.image.split('#')[0] || '/default.jpg'}
-                      alt={item.brand}
-                    />
-                  </ImageWrapper>
-                  <BrandText>{item.brand}</BrandText>
-                  <DescriptionText>
-                    {item.description.includes('/')
-                      ? item.description.split('/')[1]
-                      : item.description}
-                  </DescriptionText>
-                  <PriceWrapper>
-                    <OriginalPriceText>
-                      {item.price.toLocaleString()}원
-                    </OriginalPriceText>
-                    <SubPriceWrapper>
-                      <NowLabel>NOW</NowLabel>
-                      <DiscountLabel>{item.discount}%</DiscountLabel>
-                    </SubPriceWrapper>
-                  </PriceWrapper>
-                </ItemCardWrapper>
-              ))}
-            </ItemsGrid>
+            <ListContainer>
+              <ItemsWrapper>
+                {uiDummyItems.map((item) => (
+                  <ItemCardWrapper
+                    key={item.id}
+                    onClick={() => handleItemClick()}
+                  >
+                    <ImageWrapper>
+                      {/* 이미지 URL이 # 뒤에 옵션이 붙을 수 있으므로 split 처리 */}
+                      <Image
+                        src={item.image.split('#')[0] || '/default.jpg'}
+                        alt={item.brand}
+                      />
+                    </ImageWrapper>
+                    <BrandText>{item.brand}</BrandText>
+                    <DescriptionText>
+                      {item.description.includes('/')
+                        ? item.description.split('/')[1]
+                        : item.description}
+                    </DescriptionText>
+                    <PriceWrapper>
+                      <PointBar />
+                      <OriginalPriceText>
+                        {item.price.toLocaleString()}원
+                      </OriginalPriceText>
+                      <SubPriceWrapper>
+                        <NowLabel>NOW</NowLabel>
+                        <DiscountLabel>{item.discount}%</DiscountLabel>
+                      </SubPriceWrapper>
+                    </PriceWrapper>
+                  </ItemCardWrapper>
+                ))}
+              </ItemsWrapper>
+            </ListContainer>
           </ProductListWrapper>
         )}
       </ContentWrapper>
@@ -193,7 +196,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh; /* 화면 높이 전체를 차지 */
-  max-width: 600px;
+  max-width: 430px;
+  width: 100%;
   margin: 0 auto;
   background: #ffffff;
   overflow-x: hidden;
@@ -313,7 +317,7 @@ const LinkListWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
+
   padding: 1rem;
 `;
 
@@ -394,18 +398,21 @@ const IntroText = styled.div`
   font-size: 14px;
   color: #000;
   margin-bottom: 20px;
+  align-items: center;
+  text-align: center;
 `;
 
-// 반응형 그리드: 모바일 2열, 데스크탑 1024px 이상 4열
-const ItemsGrid = styled.div`
-  display: grid;
+const ListContainer = styled.div`
+  background-color: #fff;
+  margin: 0 auto;
+  box-sizing: border-box;
   width: 100%;
-  gap: 16px;
-  grid-template-columns: repeat(2, 1fr);
+`;
 
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
+const ItemsWrapper = styled.div`
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 `;
 
 // 카드 내부 요소 스타일
@@ -415,28 +422,37 @@ const ItemCardWrapper = styled.div`
   flex-direction: column;
   cursor: pointer;
   margin-bottom: 12px;
-  /* 카드 높이를 일정 비율로 유지하고 싶으면 고정 aspect-ratio 사용 가능 */
 `;
 
 const ImageWrapper = styled.div`
   position: relative;
   width: 100%;
   aspect-ratio: 2/3;
+  min-height: 240px;
   background: #f5f5f5;
   border: 1px solid #ccc;
   overflow: hidden;
+  @supports not (aspect-ratio: 2/3) {
+    min-height: 240px;
+    height: 360px;
+  }
 `;
 
 const Image = styled.img`
   width: 100%;
   height: 100%;
+  min-height: 240px;
+  aspect-ratio: 2/3;
   object-fit: cover;
+  display: block;
+  background: #f5f5f5;
 `;
 
 const BrandText = styled.h3`
   margin: 10px 0 0 0;
-  font-size: 10px;
   font-weight: 900;
+  font-size: 10px;
+  line-height: 11px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -444,8 +460,9 @@ const BrandText = styled.h3`
 
 const DescriptionText = styled.p`
   margin: 5px 0 0 0;
-  font-size: 11px;
+  font-size: 12px;
   color: #999;
+  font-weight: 700;
   margin-bottom: 4px;
   overflow: hidden;
   white-space: nowrap;
@@ -457,12 +474,21 @@ const PriceWrapper = styled.div`
   align-items: center;
   gap: 4px;
   margin-top: 5px;
-  margin-left: 10px;
+  position: relative;
 
   @media (max-width: 768px) {
     margin-top: 5px;
     margin-left: 5px;
   }
+`;
+
+const PointBar = styled.div`
+  display: block;
+  width: 2px;
+  height: 16px;
+  background: #f6ae24;
+  border-radius: 2px;
+  margin-right: 5px;
 `;
 
 const OriginalPriceText = styled.span`
@@ -472,7 +498,7 @@ const OriginalPriceText = styled.span`
 
 const SubPriceWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 4px;
 `;
 
