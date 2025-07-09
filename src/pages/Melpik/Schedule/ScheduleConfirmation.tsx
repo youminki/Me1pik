@@ -250,11 +250,16 @@ const ScheduleConfirmation: React.FC = () => {
         <TextBox>{detail.title}</TextBox>
 
         <Label>스케줄 예약일자</Label>
-        <ClickableBox onClick={() => setShowModal(true)}>
-          {detail.dateRange
-            .split('~')
-            .map((d) => formatDateWithDay(d.trim()))
-            .join(' ~ ')}
+        <ClickableBox>
+          <span style={{ flex: 1 }}>
+            {detail.dateRange
+              .split('~')
+              .map((d) => formatDateWithDay(d.trim()))
+              .join(' ~ ')}
+          </span>
+          <ChangeBtn type='button' onClick={() => setShowModal(true)}>
+            변경
+          </ChangeBtn>
         </ClickableBox>
 
         <RowContainer>
@@ -373,15 +378,35 @@ const Label = styled.label`
   line-height: 11px;
 `;
 const TextBox = styled.div`
-  padding: 21px 10px;
-  border: 1px solid ${Theme.colors.gray4};
-  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  height: 51px;
+  padding: 0 10px;
+  border: 1px solid #000;
+
   font-weight: 800;
   font-size: 13px;
   line-height: 14px;
 `;
 const ClickableBox = styled(TextBox)`
+  cursor: default;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+`;
+const ChangeBtn = styled.button`
+  padding: 6px 12px;
+  margin-left: 8px;
+  background: ${Theme.colors.yellow};
+  color: #fff;
+
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
+  height: 32px;
 `;
 const RowContainer = styled.div`
   display: flex;
