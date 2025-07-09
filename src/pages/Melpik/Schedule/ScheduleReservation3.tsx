@@ -202,12 +202,15 @@ const ScheduleReservation3: React.FC = () => {
       // 성공 시 알림 후 /sales-schedule로 이동
       alert('판매 스케줄이 생성되었습니다.');
       navigate('/sales-schedule');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('스케줄 생성 실패', error);
-      const msg =
-        error.response?.data?.message ||
-        error.message ||
-        '스케줄 생성 중 오류가 발생했습니다.';
+      let msg = '스케줄 생성 중 오류가 발생했습니다.';
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        const e = error as { response?: { data?: { message?: string } } };
+        msg = e.response?.data?.message || msg;
+      } else if (error instanceof Error) {
+        msg = error.message;
+      }
       alert(`스케줄 생성 실패: ${msg}`);
     } finally {
       setSubmitting(false);
@@ -307,7 +310,6 @@ const ScheduleReservation3: React.FC = () => {
 export default ScheduleReservation3;
 
 // 색상 코드 예시: 프로젝트에 맞춰 변경하세요.
-const COLOR_GRAY4 = '#bdbdbd';
 const COLOR_GRAY3 = '#9e9e9e';
 const COLOR_GRAY2 = '#757575';
 const COLOR_GRAY1 = '#616161';
@@ -334,11 +336,11 @@ const ScheduleInfo = styled.div`
 `;
 
 const InfoText = styled.div`
-  height: 57px;
-  padding: 10px;
+  height: 51px;
+  padding: 0 10px;
   margin-top: 10px;
-  border: 1px solid ${COLOR_GRAY4};
-  border-radius: 5px;
+  border: 1px solid #000;
+
   display: flex;
   align-items: center;
 
@@ -380,8 +382,8 @@ const Label = styled.label`
 `;
 
 const StyledSelect = styled.select`
-  padding: 20px;
-  border-radius: 5px;
+  height: 51px;
+  padding: 0 10px;
   border: 1px solid ${COLOR_BLACK};
   font-weight: 800;
   font-size: 13px;
@@ -420,12 +422,18 @@ const ListContainer = styled.div`
 const ItemsWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow-x: scroll;
+  scrollbar-width: auto;
+  -ms-overflow-style: auto;
 
   &::-webkit-scrollbar {
-    display: none;
+    display: block;
+    height: 8px;
+    background: #eee;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
   }
 `;
 
@@ -449,6 +457,7 @@ const ImageWrapper = styled.div`
   width: 140px;
   height: 210px;
   cursor: pointer;
+  border: 1px solid #cccccc;
 `;
 
 const Image = styled.img`
@@ -458,22 +467,24 @@ const Image = styled.img`
 `;
 
 const Brand = styled.h3`
-  margin-top: 10px;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 10px;
+  font-weight: 900;
+  margin-bottom: 0;
+  line-height: 1;
 `;
 
 const Description = styled.p`
-  margin-top: 5px;
   font-size: 12px;
+  font-weight: 400;
   color: ${COLOR_GRAY2};
+  margin-top: 5px;
+  line-height: 1;
 `;
 
 const CustomHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
 `;
 
 const GrayText2 = styled.span`

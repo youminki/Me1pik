@@ -119,6 +119,6 @@ export default ScheduleReservation1;
 
 const Container = styled.div`
   padding: 1rem;
-  max-width: 600px;
+  max-width: 400px;
   margin: auto;
 `;

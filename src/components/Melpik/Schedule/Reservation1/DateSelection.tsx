@@ -57,9 +57,9 @@ const DateRow = styled.div`
 `;
 
 const DateInput = styled.select`
-  padding: 10px;
-  border: 1px solid #cccccc;
-  border-radius: 5px;
+  height: 51px;
+  border: 1px solid #000;
+
   flex: 1;
 
   font-weight: 800;
@@ -69,9 +69,9 @@ const DateInput = styled.select`
 `;
 
 const DateDropdown = styled.select`
-  padding: 10px;
-  border: 1px solid #cccccc;
-  border-radius: 5px;
+  height: 51px;
+  border: 1px solid #000;
+
   flex: 1;
   margin-left: 10px;
 

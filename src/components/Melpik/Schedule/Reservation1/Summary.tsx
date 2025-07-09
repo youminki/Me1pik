@@ -66,9 +66,9 @@ const Label = styled.label`
 const InfoBox = styled.div`
   margin-top: 10px;
   padding: 0 10px;
-  border: 1px solid #cccccc; /* 연회색 테두리 */
-  border-radius: 5px;
-  min-height: 57px;
+  border: 1px solid #000;
+
+  min-height: 51px;
   display: flex;
   align-items: center;
 `;

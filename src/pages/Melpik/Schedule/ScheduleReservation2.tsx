@@ -272,11 +272,11 @@ const ScheduleInfo = styled.div`
 `;
 
 const InfoText = styled.div`
-  height: 57px;
-  padding: 10px;
+  height: 51px;
+  padding: 0 10px;
   margin-top: 10px;
-  border: 1px solid ${COLOR_GRAY4};
-  border-radius: 5px;
+  border: 1px solid #000;
+
   display: flex;
   align-items: center;
 
@@ -310,7 +310,7 @@ const CustomHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 `;
 
 const GrayText2 = styled.span`
@@ -331,25 +331,34 @@ const ListContainer = styled.div`
 const ItemsWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow-x: scroll;
+  scrollbar-width: auto;
+  -ms-overflow-style: auto;
 
   &::-webkit-scrollbar {
-    display: none;
+    display: block;
+    height: 8px;
+    background: #eee;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
   }
 `;
 
 const Brand = styled.h3`
-  margin-top: 10px;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 10px;
+  font-weight: 900;
+  margin-bottom: 0;
+  line-height: 1;
 `;
 
 const Description = styled.p`
-  margin-top: 5px;
   font-size: 12px;
+  font-weight: 400;
   color: ${COLOR_GRAY2};
+  margin-top: 5px;
+  line-height: 1;
 `;
 
 const CardContainer = styled.div`
@@ -365,6 +374,7 @@ const ImageWrapper = styled.div`
   width: 140px;
   height: 210px;
   cursor: pointer;
+  border: 1px solid #cccccc;
 `;
 
 const Image = styled.img`
