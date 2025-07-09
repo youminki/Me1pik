@@ -90,7 +90,7 @@ export const InputIconBtn = styled.button`
 export const StyledInput = styled.input<{ hasError?: boolean }>`
   width: 100%;
   height: 51px;
-  border: 1.5px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#dadada')};
+  border: 1px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#dadada')};
   font-size: 16px;
   padding: 0 44px 0 15px;
   background: #fafbfb;

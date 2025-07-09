@@ -1,10 +1,90 @@
 import React, { useState } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
+import styled, { ThemeProvider, css } from 'styled-components';
 import Theme from '../../../styles/Theme';
 import StatsSection from '../../../components/StatsSection';
 import InputField from '../../../components/InputField';
-import ReusableModal from '../../../components/ReusableModal';
-import DeleteIcon from '../../../assets/Melpik/DeleteIcon.svg';
+import CustomModal from '../../../components/CustomModal';
+
+// 링크 리스트 스타일 요소 const로 분리
+const LinkListWrapper = styled.div`
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px auto;
+`;
+const LinkRow = styled.div`
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #000;
+
+  min-height: 50px;
+  padding: 0 12px;
+  gap: 12px;
+`;
+const LinkLabel = styled.div`
+  min-width: 55px;
+
+  font-weight: 900;
+  font-size: 13px;
+  color: #000;
+  margin-right: 8px;
+`;
+const LinkText = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+
+  font-size: 13px;
+  color: #000;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  gap: 4px;
+`;
+const LinkTitle = styled.span`
+  font-weight: 400;
+  font-size: 13px;
+  color: #000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+const LinkSeparator = styled.span`
+  margin: 0 2px;
+  color: #000;
+`;
+const LinkUrl = styled.span`
+  font-weight: 800;
+  font-size: 13px;
+  color: #000;
+  margin-left: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+const LinkDeleteButton = styled.button`
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  background: #fff;
+  border: 1px solid #000;
+  color: #000;
+  margin-left: 8px;
+  font-size: 20px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover {
+    background: #f5f5f5;
+  }
+`;
 
 const SettingMelpik: React.FC = () => {
   const visits = '@styleweex';
@@ -15,6 +95,7 @@ const SettingMelpik: React.FC = () => {
   const salesLabel = '등록된 링크';
 
   const [melpickAddress] = useState('styleweex');
+  const [isSubscriber, setIsSubscriber] = useState(true);
 
   const [accountInfo, setAccountInfo] = useState({
     bank: '국민은행',
@@ -31,10 +112,6 @@ const SettingMelpik: React.FC = () => {
   const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
   const [profileImage, setProfileImage] = useState<string>('');
-
-  const handleImageChangeClick = () => {
-    document.getElementById('profile-image-input')?.click();
-  };
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -91,6 +168,313 @@ const SettingMelpik: React.FC = () => {
       .catch(() => {});
   };
 
+  // 토글 UI
+  const ToggleSwitch = styled.div<{ $on: boolean }>`
+    width: 60px;
+    height: 30px;
+    background: ${({ $on }) => ($on ? '#222' : '#D9D9D9')};
+    border-radius: 15px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 8px;
+  `;
+  const ToggleCircle = styled.div<{ $on: boolean }>`
+    width: 28px;
+    height: 28px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+    left: ${({ $on }) => ($on ? '31px' : '1px')};
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: left 0.2s;
+  `;
+  const ToggleText = styled.span<{ $on: boolean }>`
+    position: absolute;
+    top: 9px;
+    left: ${({ $on }) => ($on ? '12px' : '35px')};
+    font-size: 10px;
+    font-weight: 700;
+    color: ${({ $on }) => ($on ? '#fff' : '#222')};
+    z-index: 2;
+    user-select: none;
+    pointer-events: none;
+  `;
+
+  // 커스텀 InputField Wrapper
+  const CustomInputField = styled.div<{
+    $yellow?: boolean;
+    $readonly?: boolean;
+  }>`
+    width: 100%;
+    max-width: 430px;
+    min-height: 50px;
+    background: ${({ $readonly }) => ($readonly ? '#f5f5f5' : '#fff')};
+    border: 1px solid ${({ $yellow }) => ($yellow ? '#F6AE24' : '#000')};
+
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0 16px;
+
+    margin-bottom: 16px;
+    ${(props) =>
+      props.$yellow &&
+      css`
+        border: 1px solid #f6ae24;
+      `}
+  `;
+  const CustomLabel = styled.div`
+    width: 100%;
+    max-width: 430px;
+
+    font-size: 10px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 6px;
+    margin-left: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  `;
+  const CustomPrefix = styled.div`
+    font-size: 14px;
+    font-weight: 800;
+    color: #000;
+    margin-right: 8px;
+    min-width: 94px;
+  `;
+
+  const CustomButton = styled.button<{ $gray?: boolean; $yellow?: boolean }>`
+    width: 69px;
+    height: 34px;
+    background: ${({ $gray, $yellow }) =>
+      $yellow ? '#F6AE24' : $gray ? '#999' : '#000'};
+    border-radius: 5px;
+    border: none;
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 13px;
+    text-align: center;
+    margin-left: auto;
+    cursor: pointer;
+    transition: background 0.2s;
+    &:active {
+      opacity: 0.8;
+    }
+  `;
+  const CustomInput = styled.input<{ readOnly?: boolean }>`
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-weight: 800;
+    color: #000;
+    background: ${({ readOnly }) => (readOnly ? '#f5f5f5' : 'transparent')};
+    &::placeholder {
+      color: #ccc;
+      font-weight: 400;
+    }
+  `;
+
+  const ProfileImageSection = styled.div`
+    width: 100%;
+    max-width: 430px;
+    background: #fafafa;
+    border: 1px solid #000;
+
+    padding: 24px 0 28px 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-bottom: 20px;
+  `;
+  const ProfileImageLabelRow = styled.div`
+    font-size: 13px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 18px;
+  `;
+  const ProfileImageUploadBox = styled.label`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  `;
+  const ProfileImageDisplay = styled.img`
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #ccc;
+    background: #fff;
+    transition: filter 0.2s;
+    &:hover {
+      filter: brightness(0.85);
+    }
+  `;
+  const PlaceholderText = styled.div`
+    width: 80px;
+    height: 80px;
+    border: 1.5px dashed #ccc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 13px;
+    text-align: center;
+    background: #fff;
+  `;
+  const Overlay = styled.div`
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 2;
+    user-select: none;
+    ${ProfileImageUploadBox}:hover & {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  `;
+  const HiddenFileInput = styled.input`
+    display: none;
+  `;
+  const ImageGuide = styled.div`
+    font-size: 11px;
+    color: #888;
+    margin-top: 10px;
+    text-align: center;
+  `;
+
+  const [tempAccountInfo, setTempAccountInfo] = useState(accountInfo);
+  const [tempLinkInfo, setTempLinkInfo] = useState(linkInfo);
+
+  // 모달 열릴 때 임시 state 초기화
+  const openAccountModal = () => {
+    setTempAccountInfo(accountInfo);
+    setAccountModalOpen(true);
+  };
+  const openLinkModal = () => {
+    setTempLinkInfo(linkInfo);
+    setLinkModalOpen(true);
+  };
+
+  // InputField 최적화를 위한 메모이제이션
+  const memoizedAccountInputs = React.useMemo(
+    () => (
+      <>
+        <InputField
+          label='계좌번호 *'
+          id='account-number'
+          type='text'
+          placeholder='계좌번호를 입력하세요'
+          value={tempAccountInfo.accountNumber}
+          onChange={(
+            e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+          ) =>
+            setTempAccountInfo({
+              ...tempAccountInfo,
+              accountNumber: e.target.value,
+            })
+          }
+        />
+        <FlexRow>
+          <InputField
+            label='은행 선택 *'
+            id='bank-select'
+            options={[
+              '국민은행',
+              '신한은행',
+              '하나은행',
+              '우리은행',
+              '카카오뱅크',
+            ]}
+            onSelectChange={(value: string) =>
+              setTempAccountInfo({ ...tempAccountInfo, bank: value })
+            }
+            defaultValue={tempAccountInfo.bank}
+          />
+          <InputField
+            label='예금주 입력 *'
+            id='account-owner'
+            type='text'
+            placeholder='예금주를 입력하세요'
+            value={tempAccountInfo.accountOwner}
+            onChange={(
+              e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+            ) =>
+              setTempAccountInfo({
+                ...tempAccountInfo,
+                accountOwner: e.target.value,
+              })
+            }
+          />
+        </FlexRow>
+      </>
+    ),
+    [tempAccountInfo]
+  );
+
+  const memoizedLinkInputs = React.useMemo(
+    () => (
+      <>
+        <InputField
+          label='링크명 *'
+          id='link-name'
+          type='text'
+          placeholder='등록할 링크명을 입력하세요'
+          value={tempLinkInfo.linkName}
+          onChange={(
+            e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+          ) => setTempLinkInfo({ ...tempLinkInfo, linkName: e.target.value })}
+        />
+        <InputField
+          label='URL 입력 *'
+          id='link-url'
+          type='text'
+          placeholder='등록할 URL을 입력하세요'
+          value={tempLinkInfo.linkUrl}
+          onChange={(
+            e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+          ) => setTempLinkInfo({ ...tempLinkInfo, linkUrl: e.target.value })}
+        />
+      </>
+    ),
+    [tempLinkInfo]
+  );
+
+  // 모달 확인 시 반영
+  const handleAccountModalConfirm = () => {
+    setAccountInfo(tempAccountInfo);
+    setAccountModalOpen(false);
+  };
+  const handleLinkModalConfirm = () => {
+    setLinkInfo(tempLinkInfo);
+    setLinkModalOpen(false);
+  };
+
   return (
     <ThemeProvider theme={Theme}>
       <Container>
@@ -109,184 +493,151 @@ const SettingMelpik: React.FC = () => {
           />
         </StatsRow>
         <Divider />
-
-        <Section>
-          <InputField
-            label='멜픽 주소 (변경불가)'
-            id='melpickAddress'
-            type='text'
-            placeholder='주소를 입력하세요'
-            required
-            maxLength={12}
-            prefix='melpick.com/'
-            readOnly
-            value={melpickAddress}
-            buttonLabel='링크복사'
-            buttonColor='black'
-            onButtonClick={handleCopyLink}
-          />
-
-          <InputField
-            prefixcontent='이용상태 | 구독자'
-            label='멜픽 자동생성 설정'
-            id='auto-create-toggle'
-            type='text'
-            useToggle={true}
-          />
-
-          <InputField
-            label='정산 계좌정보 (필수)'
-            id='account-info'
-            type='text'
-            placeholder={
-              accountInfo.accountNumber
-                ? `${maskAccountNumber(accountInfo.accountNumber)} (${accountInfo.bank})`
-                : '등록하실 계좌 정보를 입력하세요'
-            }
-            buttonLabel='등록/변경'
-            buttonColor='yellow'
-            onButtonClick={() => setAccountModalOpen(true)}
-          />
-
-          <InputField
-            label='개인 링크 설정 (선택)'
-            id='personal-link'
-            type='text'
-            placeholder={
-              linkInfo.linkName
-                ? `${linkInfo.linkName} (${linkInfo.linkUrl})`
-                : '등록하실 링크를 추가하세요'
-            }
-            buttonLabel='링크등록'
-            buttonColor='black'
-            onButtonClick={() => setLinkModalOpen(true)}
-          />
-        </Section>
-
-        <Section>
-          <LinkList>
-            {links.map((link) => (
-              <LinkItem key={link.id}>
-                <Label $isEmpty={links.length === 0}>{link.label}</Label>
-                <LinkContent>
-                  <LinkTitle>{link.title}</LinkTitle>
-                  <Separator>|</Separator>
-                  <LinkUrl
-                    href={link.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    {link.url}
-                  </LinkUrl>
-                  <DeleteButton onClick={() => handleDelete(link.id)}>
-                    <img src={DeleteIcon} alt='Delete' />
-                  </DeleteButton>
-                </LinkContent>
-              </LinkItem>
-            ))}
-          </LinkList>
-        </Section>
-
-        <ReusableModal
-          isOpen={isAccountModalOpen}
-          onClose={() => setAccountModalOpen(false)}
-          title='정산 계좌등록'
-        >
-          <ModalContent>
-            <InputField
-              label='계좌번호 *'
-              id='account-number'
-              type='text'
-              placeholder='계좌번호를 입력하세요'
-              value={accountInfo.accountNumber}
-              onChange={(e) =>
-                setAccountInfo({
-                  ...accountInfo,
-                  accountNumber: e.target.value,
-                })
-              }
-            />
-            <FlexRow>
-              <InputField
-                label='은행 선택 *'
-                id='bank-select'
-                options={[
-                  '국민은행',
-                  '신한은행',
-                  '하나은행',
-                  '우리은행',
-                  '카카오뱅크',
-                ]}
-                onSelectChange={(value: string) =>
-                  setAccountInfo({ ...accountInfo, bank: value })
-                }
-                defaultValue={accountInfo.bank}
-              />
-              <InputField
-                label='예금주 입력 *'
-                id='account-owner'
-                type='text'
-                placeholder='예금주를 입력하세요'
-                value={accountInfo.accountOwner}
-                onChange={(e) =>
-                  setAccountInfo({
-                    ...accountInfo,
-                    accountOwner: e.target.value,
-                  })
-                }
-              />
-            </FlexRow>
-          </ModalContent>
-        </ReusableModal>
-
-        <ReusableModal
-          isOpen={isLinkModalOpen}
-          onClose={() => setLinkModalOpen(false)}
-          title='개인 링크등록'
-        >
-          <ModalContent>
-            <InputField
-              label='링크명 *'
-              id='link-name'
-              type='text'
-              placeholder='등록할 링크명을 입력하세요'
-              value={linkInfo.linkName}
-              onChange={(e) =>
-                setLinkInfo({ ...linkInfo, linkName: e.target.value })
-              }
-            />
-            <InputField
-              label='URL 입력 *'
-              id='link-url'
-              type='text'
-              placeholder='등록할 URL을 입력하세요'
-              value={linkInfo.linkUrl}
-              onChange={(e) =>
-                setLinkInfo({ ...linkInfo, linkUrl: e.target.value })
-              }
-            />
-          </ModalContent>
-        </ReusableModal>
-
-        <Section>
-          <ProfileImageLabel>프로필 이미지 수정</ProfileImageLabel>
-          <ProfileImageField>
+        {/* 프로필 이미지 수정 영역 */}
+        <ProfileImageSection>
+          <ProfileImageLabelRow>프로필 이미지 수정</ProfileImageLabelRow>
+          <ProfileImageUploadBox htmlFor='profile-image-input'>
             {profileImage ? (
-              <ProfileImageDisplay src={profileImage} alt='프로필 이미지' />
+              <>
+                <ProfileImageDisplay src={profileImage} alt='프로필 이미지' />
+                <Overlay>수정</Overlay>
+              </>
             ) : (
-              <PlaceholderText>이미지를 추가해 주세요</PlaceholderText>
+              <>
+                <PlaceholderText>이미지 추가</PlaceholderText>
+                <Overlay>추가</Overlay>
+              </>
             )}
-            <ChangeImageButton type='button' onClick={handleImageChangeClick}>
-              이미지 수정
-            </ChangeImageButton>
             <HiddenFileInput
               id='profile-image-input'
               type='file'
               accept='image/*'
               onChange={handleImageFileChange}
             />
-          </ProfileImageField>
-        </Section>
+          </ProfileImageUploadBox>
+          <ImageGuide>이미지를 클릭해 프로필을 변경하세요</ImageGuide>
+        </ProfileImageSection>
+        {/* 멜픽 주소 */}
+        <CustomLabel>
+          멜픽 주소{' '}
+          <span style={{ fontWeight: 400, color: '#888', fontSize: 10 }}>
+            (변경불가)
+          </span>
+        </CustomLabel>
+        <CustomInputField $readonly>
+          <CustomPrefix>me1pik.com/</CustomPrefix>
+          <CustomInput
+            readOnly
+            value={melpickAddress}
+            style={{ maxWidth: 120 }}
+          />
+          <CustomButton $gray onClick={handleCopyLink}>
+            링크복사
+          </CustomButton>
+        </CustomInputField>
+
+        {/* 멜픽 자동생성 설정 */}
+        <CustomLabel>
+          멜픽 자동생성 설정{' '}
+          <span style={{ fontWeight: 400, color: '#888', fontSize: 10 }}>
+            (구독 이용자 선택가능)
+          </span>
+        </CustomLabel>
+        <CustomInputField>
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 400,
+              color: '#000',
+              minWidth: 103,
+              marginRight: 8,
+            }}
+          >
+            이용상태 |{' '}
+            <b style={{ fontWeight: 900 }}>
+              {isSubscriber ? '구독자' : '일반 이용자'}
+            </b>
+          </div>
+          <div style={{ marginLeft: 'auto', position: 'relative' }}>
+            <ToggleSwitch
+              $on={isSubscriber}
+              onClick={() => setIsSubscriber((v) => !v)}
+            >
+              <ToggleCircle $on={isSubscriber} />
+              <ToggleText $on={isSubscriber}>
+                {isSubscriber ? '켜짐' : '꺼짐'}
+              </ToggleText>
+            </ToggleSwitch>
+          </div>
+        </CustomInputField>
+
+        {/* 정산 계좌정보 */}
+        <CustomLabel>정산 계좌정보 (필수) *</CustomLabel>
+        <CustomInputField $yellow $readonly>
+          <CustomInput
+            readOnly
+            value={
+              accountInfo.accountNumber
+                ? `${maskAccountNumber(accountInfo.accountNumber)} (${accountInfo.bank})`
+                : ''
+            }
+            style={{ fontWeight: 800, fontSize: 13 }}
+          />
+          <CustomButton $yellow onClick={openAccountModal}>
+            등록/변경
+          </CustomButton>
+        </CustomInputField>
+
+        {/* 개인 링크 설정 */}
+        <CustomLabel>개인 링크 설정 (선택)</CustomLabel>
+        <CustomInputField $readonly style={{ marginBottom: 8 }}>
+          <CustomInput
+            readOnly
+            placeholder='등록하실 링크를 추가하세요'
+            value={
+              linkInfo.linkName
+                ? `${linkInfo.linkName} (${linkInfo.linkUrl})`
+                : ''
+            }
+            style={{ fontWeight: 400, fontSize: 13, color: '#ccc' }}
+          />
+          <CustomButton onClick={openLinkModal}>링크등록</CustomButton>
+        </CustomInputField>
+
+        {/* 링크 리스트 */}
+        <LinkListWrapper>
+          {links.map((link, idx) => (
+            <LinkRow key={link.id}>
+              <LinkLabel>{`링크 ${idx + 1}`}</LinkLabel>
+              <LinkText>
+                <LinkTitle>{link.title}</LinkTitle>
+                <LinkSeparator>|</LinkSeparator>
+                <LinkUrl>{link.url}</LinkUrl>
+              </LinkText>
+              <LinkDeleteButton onClick={() => handleDelete(link.id)}>
+                ×
+              </LinkDeleteButton>
+            </LinkRow>
+          ))}
+        </LinkListWrapper>
+
+        <CustomModal
+          isOpen={isAccountModalOpen}
+          onClose={() => setAccountModalOpen(false)}
+          onConfirm={handleAccountModalConfirm}
+          title='정산 계좌등록'
+        >
+          <ModalContent>{memoizedAccountInputs}</ModalContent>
+        </CustomModal>
+
+        <CustomModal
+          isOpen={isLinkModalOpen}
+          onClose={() => setLinkModalOpen(false)}
+          onConfirm={handleLinkModalConfirm}
+          title='개인 링크등록'
+        >
+          <ModalContent>{memoizedLinkInputs}</ModalContent>
+        </CustomModal>
       </Container>
     </ThemeProvider>
   );
@@ -326,16 +677,6 @@ const Divider = styled.div`
   margin: 20px 0;
 `;
 
-const Section = styled.div`
-  width: 100%;
-  padding: 10px 0;
-`;
-
-const FlexRow = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -350,128 +691,8 @@ const StatsRow = styled.div`
   padding: 0 20px;
 `;
 
-const LinkList = styled.ul`
-  margin-top: 10px;
-  list-style: none;
-  padding: 0;
-`;
-
-const LinkItem = styled.li`
+// 스타일 컴포넌트 FlexRow도 다시 추가
+const FlexRow = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 10px;
-`;
-
-const Label = styled.label<{ $isEmpty: boolean }>`
-  margin-bottom: 10px;
-
-  font-weight: 900;
-  font-size: 12px;
-  line-height: 16px;
-  color: #000000;
-  text-align: left;
-  flex-shrink: 0;
-`;
-
-const LinkContent = styled.div`
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-  margin-left: 11px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  padding: 10px;
-  border: 1px solid ${Theme.colors.gray1};
-`;
-
-const LinkTitle = styled.span`
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 16px;
-  color: #000000;
-`;
-
-const Separator = styled.span`
-  color: #aaa;
-  margin: 0 5px;
-`;
-
-const LinkUrl = styled.a`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
-  text-decoration: none;
-
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 16px;
-`;
-
-const DeleteButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding-left: 10px;
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-`;
-
-/* 프로필 이미지 관련 스타일 */
-const ProfileImageLabel = styled.div`
-  font-size: 12px;
-  font-weight: bold;
-  margin-top: 30px;
-  text-align: left;
-
-  margin-bottom: 10px;
-`;
-
-const ProfileImageField = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 20px;
-  gap: 30px;
-  border: 1px solid #ccc;
-  justify-content: center;
-`;
-
-const ProfileImageDisplay = styled.img`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid #ccc;
-`;
-
-const PlaceholderText = styled.div`
-  width: 60px;
-  height: 60px;
-  border: 1px dashed #ccc;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999;
-  font-size: 10px;
-  text-align: center;
-`;
-
-const ChangeImageButton = styled.button`
-  padding: 8px 12px;
-  font-size: 12px;
-  background-color: #000;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-`;
-
-const HiddenFileInput = styled.input`
-  display: none;
+  gap: 10px;
 `;
