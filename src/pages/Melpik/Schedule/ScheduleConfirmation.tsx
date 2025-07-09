@@ -324,30 +324,45 @@ const ScheduleConfirmation: React.FC = () => {
         <ModalOverlay onClick={() => setShowModal(false)}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
             <ModalHeader>
-              <DateSelection
-                year={modalYear}
-                month={modalMonth}
-                onYearChange={(e) => setModalYear(Number(e.target.value))}
-                onMonthChange={(e) => setModalMonth(Number(e.target.value))}
-              />
-              <CloseBtn onClick={() => setShowModal(false)}>✕</CloseBtn>
+              <ModalTitle>예약일자 변경</ModalTitle>
             </ModalHeader>
-            <Calendar
-              year={modalYear}
-              month={modalMonth}
-              startDate={editRange[0]}
-              endDate={editRange[1]}
-              onDateClick={handleDateClick}
-              onIncrease={() => adjustEnd(1)}
-              onDecrease={() => adjustEnd(-1)}
-              today={today}
-            />
+
+            <ModalBody>
+              <DateSelectionSection>
+                <DateSelection
+                  year={modalYear}
+                  month={modalMonth}
+                  onYearChange={(e) => setModalYear(Number(e.target.value))}
+                  onMonthChange={(e) => setModalMonth(Number(e.target.value))}
+                />
+              </DateSelectionSection>
+
+              <CalendarSection>
+                <Calendar
+                  year={modalYear}
+                  month={modalMonth}
+                  startDate={editRange[0]}
+                  endDate={editRange[1]}
+                  onDateClick={handleDateClick}
+                  onIncrease={() => adjustEnd(1)}
+                  onDecrease={() => adjustEnd(-1)}
+                  today={today}
+                />
+              </CalendarSection>
+
+              <SummarySection>
+                <Summary
+                  range={editRange}
+                  seasonProgress={{ total: 6, completed: 2, pending: 0 }}
+                />
+              </SummarySection>
+            </ModalBody>
+
             <ModalFooter>
-              <Summary
-                range={editRange}
-                seasonProgress={{ total: 6, completed: 2, pending: 0 }}
-              />
-              <ApplyBtn onClick={applyModal}>적용하기</ApplyBtn>
+              <ButtonGroup>
+                <CancelBtn onClick={() => setShowModal(false)}>취소</CancelBtn>
+                <ApplyBtn onClick={applyModal}>적용하기</ApplyBtn>
+              </ButtonGroup>
             </ModalFooter>
           </ModalContent>
         </ModalOverlay>
@@ -536,39 +551,104 @@ const ModalOverlay = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  overflow: hidden;
 `;
 const ModalContent = styled.div`
   background: #fff;
   width: 90%;
   max-width: 500px;
-  border-radius: 8px;
+  max-height: 90vh;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
 `;
 const ModalHeader = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: left;
   align-items: center;
-  padding: 12px;
-  border-bottom: 1px solid #eee;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
 `;
-const CloseBtn = styled.button`
-  background: transparent;
-  border: none;
+const ModalTitle = styled.h2`
   font-size: 18px;
-  cursor: pointer;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+`;
+const ModalBody = styled.div`
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+`;
+const DateSelectionSection = styled.div`
+  margin-bottom: 20px;
+`;
+const CalendarSection = styled.div`
+  margin-bottom: 20px;
+`;
+const SummarySection = styled.div`
+  margin-bottom: 16px;
 `;
 const ModalFooter = styled.div`
-  padding: 12px;
-  border-top: 1px solid #eee;
+  padding: 20px 24px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+`;
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+const CancelBtn = styled.button`
+  flex: 1;
+  padding: 14px;
+  background: #f5f5f5;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #e8e8e8;
+    border-color: #ccc;
+  }
 `;
 const ApplyBtn = styled.button`
-  width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  background: #000;
+  flex: 1;
+  padding: 14px;
+  background: ${Theme.colors.yellow};
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #e6a000;
+  }
 `;

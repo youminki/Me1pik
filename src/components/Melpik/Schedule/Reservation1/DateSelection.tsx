@@ -38,7 +38,6 @@ const DateSelection: React.FC<DateSelectionProps> = ({
 export default DateSelection;
 
 const DateSelectionContainer = styled.div`
-  margin-top: 20px;
   gap: 10px;
   width: 100%;
 `;

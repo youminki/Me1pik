@@ -105,7 +105,6 @@ const CalendarWrapper = styled.div`
   position: relative;
 
   border-radius: 4px;
-  padding-top: 2.5rem;
 `;
 
 const Header = styled.div`
