@@ -79,7 +79,9 @@ const OptionsWrapper = styled.div`
 
     border: 1px solid ${Theme.colors.black};
     background-color: ${Theme.colors.white};
-    font-size: 16px;
+    font-size: 14px;
+    padding: 0 15px;
+    font-weight: 700;
     color: ${Theme.colors.black};
     margin-right: 8px;
 

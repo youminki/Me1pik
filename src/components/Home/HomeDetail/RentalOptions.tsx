@@ -510,10 +510,13 @@ const Button = styled.button<{ disabled?: boolean }>`
   font-size: 16px;
   background: #fff;
   border: 1px solid #000;
-  border-radius: 4px;
+  font-weight: 700;
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   color: ${(p) => (p.disabled ? '#aaa' : '#000')};
   min-width: 0;
+  @media (max-width: 767px) {
+    font-size: 12px;
+  }
 `;
 
 const Icon = styled.img`
