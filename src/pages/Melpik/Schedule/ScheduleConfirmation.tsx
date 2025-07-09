@@ -118,9 +118,16 @@ const ScheduleConfirmation: React.FC = () => {
         setEditRange([s, e]);
         setModalYear(s.getFullYear());
         setModalMonth(s.getMonth() + 1);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
-        setError(err.response?.data?.message || err.message);
+        let errorMsg = '오류가 발생했습니다.';
+        if (typeof err === 'object' && err !== null && 'response' in err) {
+          const e = err as { response?: { data?: { message?: string } } };
+          errorMsg = e.response?.data?.message || errorMsg;
+        } else if (err instanceof Error) {
+          errorMsg = err.message;
+        }
+        setError(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -172,7 +179,7 @@ const ScheduleConfirmation: React.FC = () => {
       title: detail.title,
       startDate: s,
       endDate: e,
-      // productIds: selectedItems.map((id) => Number(id)),
+      productIds: selectedItems.map((id) => Number(id)), // 제품 목록 전달
     });
     // 저장 후 다시 상세 조회
     const updated = await getSaleScheduleDetail(Number(scheduleId));
@@ -403,6 +410,7 @@ const ProductImage = styled.img`
   width: 140px;
   height: 210px;
   object-fit: cover;
+  border: 1px solid ${Theme.colors.gray4};
 `;
 const ProductLabel = styled.div`
   font-size: 12px;
@@ -444,6 +452,7 @@ const ImageWrapper = styled.div`
   width: 140px;
   height: 210px;
   cursor: pointer;
+  border: 1px solid ${Theme.colors.gray4};
 `;
 const Image = styled.img`
   object-fit: cover;

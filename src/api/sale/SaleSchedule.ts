@@ -67,6 +67,7 @@ export interface PatchSaleScheduleRequest {
   title?: string;
   startDate?: string; // "YYYY-MM-DD"
   endDate?: string; // "YYYY-MM-DD"
+  productIds?: number[]; // 추가: 제품 ID 목록
 }
 
 // API 호출 함수들
@@ -134,7 +135,7 @@ export async function deleteSaleSchedule(
 }
 
 /**
- * 판매 스케줄 수정 (타이틀, 예약일자)
+ * 판매 스케줄 수정 (타이틀, 예약일자, 제품 목록)
  * PATCH /sale_schedule/{scheduleId}
  */
 export async function patchSaleSchedule(
