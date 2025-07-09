@@ -75,8 +75,8 @@ const OptionsWrapper = styled.div`
     padding: 8px;
     box-sizing: border-box;
     width: 100%;
-    height: 57px;
-    border-radius: 4px;
+    height: 51px;
+
     border: 1px solid ${Theme.colors.black};
     background-color: ${Theme.colors.white};
     font-size: 16px;
