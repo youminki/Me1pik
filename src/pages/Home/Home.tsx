@@ -163,9 +163,6 @@ const Home: React.FC = () => {
     // eslint-disable-next-line
   }, [isLoading, uiItems.length, searchQuery]);
 
-  if (isError)
-    return <div>상품을 불러오는 데 실패했습니다: {String(error)}</div>;
-
   // 상세 모달 핸들러
   const handleOpenModal = useCallback(
     (id: string) => {
@@ -206,6 +203,11 @@ const Home: React.FC = () => {
       }
     }
   }, []);
+
+  // 에러 상태일 때 렌더링
+  if (isError) {
+    return <div>상품을 불러오는 데 실패했습니다: {String(error)}</div>;
+  }
 
   return (
     <MainContainer>
@@ -266,7 +268,7 @@ const Home: React.FC = () => {
         />
       </ControlsContainer>
 
-      {/* 제품 리스트 or 로딩 스피너 */}
+      {/* ContentWrapper: 리스트 등 */}
       <ContentWrapper>
         {isLoading ? (
           <SkeletonItemList columns={viewCols} count={products.length || 8} />
@@ -289,8 +291,6 @@ const Home: React.FC = () => {
           />
         )}
       </ContentWrapper>
-
-      {/* 푸터 */}
       <Footer />
 
       {/* 스크롤 탑 버튼 */}
@@ -349,7 +349,6 @@ const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-
   margin: auto;
   max-width: 1000px;
   padding: 1rem;
@@ -373,27 +372,71 @@ const ContentWrapper = styled.div`
 
 const ScrollToTopButton = styled.button`
   position: fixed;
-  bottom: 100px;
-  right: 14px;
-  width: 48px;
-  height: 48px;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #f6ae24;
+  color: white;
   border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  background: #555555;
-  border-radius: 6px;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s,
-    opacity 0.3s;
-
   &:hover {
-    transform: scale(1.1);
+    background-color: #e69a19;
   }
-  @media (min-width: 1000px) {
-    right: calc((100vw - 1000px) / 2 + 20px);
+`;
+
+const InfoList = styled.ol`
+  margin: 12px 0 0 16px;
+  padding: 0;
+  list-style: decimal;
+  font-size: 14px;
+  & li {
+    margin-bottom: 8px;
   }
+`;
+
+const RowAlignBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+`;
+
+const OverlayWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+`;
+
+const OverlayMessage = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.85);
+  padding: 40px 32px;
+  border-radius: 18px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #222;
+  text-align: center;
+  z-index: 2;
+`;
+
+const CountdownText = styled.div`
+  margin-top: 18px;
+  font-size: 15px;
+  color: #f6ae24;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
 `;
 
 const ArrowIconImg = styled.img``;
@@ -405,7 +448,6 @@ const ModalOverlay = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  /* 모달 바깥으로 스크롤 전파되지 않도록 */
   overscroll-behavior: contain;
 `;
 
@@ -416,7 +458,6 @@ const ModalBox = styled.div`
   height: 100%;
   overflow-y: auto;
   position: relative;
-  /* 모달 내 스크롤이 바깥으로 전파되지 않도록 막음 */
   overscroll-behavior: contain;
   &::-webkit-scrollbar {
     display: none;
@@ -460,55 +501,4 @@ const CancleIcon = styled.img`
 `;
 const Icon = styled.img`
   cursor: pointer;
-`;
-
-const InfoList = styled.ol`
-  margin: 12px 0 0 16px;
-  padding: 0;
-  list-style: decimal;
-  font-size: 14px;
-  & li {
-    margin-bottom: 8px;
-  }
-`;
-
-// row 정렬을 위한 래퍼
-const RowAlignBox = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-`;
-
-// 오버레이 스타일 추가
-const OverlayWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  min-height: 400px;
-`;
-const OverlayMessage = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.85);
-  padding: 40px 32px;
-  border-radius: 18px;
-
-  font-size: 2rem;
-  font-weight: 800;
-  color: #222;
-  text-align: center;
-  z-index: 2;
-`;
-
-// 검색 결과 없음 텍스트
-const CountdownText = styled.div`
-  margin-top: 18px;
-  font-size: 15px;
-  color: #f6ae24;
-  font-weight: 600;
-  width: 100%;
-  text-align: center;
 `;

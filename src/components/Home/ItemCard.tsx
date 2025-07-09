@@ -20,7 +20,7 @@ type ItemCardProps = {
 
 type ConfirmAction = 'add' | 'remove' | null;
 
-function ItemCard({
+const ItemCard = React.memo(function ItemCard({
   id,
   image,
   brand,
@@ -182,7 +182,7 @@ function ItemCard({
       </ReusableModal>
     </>
   );
-}
+});
 
 export default ItemCard;
 
