@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import personalLinkShareIcon from '../assets/personalLink/personalLinkShareIcon.svg';
 import personalLinkProfileIcon from '../assets/personalLink/personalLinkProfileIcon.svg';
 import personalLinkAlramIcon from '../assets/personalLink/personalLinkAlramIcon.svg';
+import LinkArrowIcon from '../assets/personalLink/LinkArrowIcon.svg';
 
 export interface UIItem {
   id: string;
@@ -132,7 +133,7 @@ const PersonalLink: React.FC = () => {
                 <LinkTitle>업무 및 비지니스 제휴 문의</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
               </LinkTextWrapper>
-              <LinkArrow />
+              <LinkArrow src={LinkArrowIcon} alt='arrow' />
             </LinkItem>
             {/* ... 기타 LinkItem */}
           </LinkListWrapper>
@@ -192,7 +193,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh; /* 화면 높이 전체를 차지 */
-  max-width: 1000px;
+  max-width: 600px;
   margin: 0 auto;
   background: #ffffff;
   overflow-x: hidden;
@@ -329,16 +330,29 @@ const LinkItem = styled.div`
 `;
 
 const LinkLabelBox = styled.div`
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 7px 12px;
+  width: 60px;
+  height: 25px;
   background: #000000;
   color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
   font-weight: 700;
-  font-size: 12px;
-  border-radius: 5px 20px 20px 5px;
+  font-size: 10px;
+  line-height: 12px;
+  border-radius: 5px 0 0 5px;
+  position: relative;
   margin-bottom: 20px;
+  /* 오른쪽 뾰족하게 */
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 50%,
+    calc(100% - 12px) 100%,
+    0 100%
+  );
 `;
 
 const LinkTextWrapper = styled.div`
@@ -361,14 +375,11 @@ const LinkDesc = styled.div`
   text-decoration: underline;
 `;
 
-const LinkArrow = styled.div`
+const LinkArrow = styled.img`
   position: absolute;
   right: 16px;
-  font-size: 25px;
-  color: #aaaaaa;
-  &::before {
-    content: '>';
-  }
+  width: 20px;
+  height: 20px;
 `;
 
 const ProductListWrapper = styled.div`
