@@ -36,7 +36,7 @@ const SizeInfo: React.FC<SizeInfoProps> = ({
   const sortedKeys = measurementKeys.sort((a, b) => a.localeCompare(b));
 
   // 표 헤더에는 알파벳만 표시
-  const columnLabels = sortedKeys.map((key, idx) =>
+  const columnLabels = sortedKeys.map((_, idx) =>
     String.fromCharCode(65 + idx)
   );
 
