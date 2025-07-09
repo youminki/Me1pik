@@ -130,7 +130,7 @@ const Title = styled.h3`
 
 const InfoWrapper = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
   gap: 20px;
   width: 100%;
@@ -140,17 +140,18 @@ const InfoWrapper = styled.div`
 `;
 
 const PictureWrapper = styled.div`
-  flex: none;
+  flex: 1;
+  min-width: 120px;
   overflow: hidden;
   border-radius: 4px;
   background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100%;
 `;
 
 const StyledImg = styled.img`
-  min-width: 300px;
   width: 100%;
   height: auto;
   object-fit: contain;
@@ -161,7 +162,9 @@ const LabelInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-width: 200px;
+  min-width: 100px;
+
+  justify-content: center;
 `;
 
 const LabelList = styled.ul`
@@ -191,7 +194,7 @@ const LabelKey = styled.span`
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid #f6ae24;
-  min-width: 20px;
+  min-width: 10px;
   text-align: center;
 `;
 
@@ -204,6 +207,12 @@ const LabelDescription = styled.span`
 
 const TableWrapper = styled.div`
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-height: 400px;
+  overflow-y: auto;
 `;
 
 const Table = styled.table`
