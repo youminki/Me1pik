@@ -181,19 +181,19 @@ const LabelItem = styled.li`
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  background-color: #f8f8f8;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  background-color: #fff;
+
+  border: 1px solid #000;
 `;
 
 const LabelKey = styled.span`
   font-size: 12px;
   font-weight: 700;
-  color: #f6ae24;
+  color: #000;
   background-color: #fff;
   padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid #f6ae24;
+
+  border: 1px solid #000;
   min-width: 10px;
   text-align: center;
 `;
