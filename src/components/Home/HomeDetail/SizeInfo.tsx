@@ -35,12 +35,10 @@ const SizeInfo: React.FC<SizeInfoProps> = ({
   const measurementKeys = Object.keys(productSizes[0].measurements || {});
   const sortedKeys = measurementKeys.sort((a, b) => a.localeCompare(b));
 
-  // 항상 ABCDE 라벨을 사용하되, labelGuide가 있으면 설명을 포함
-  const columnLabels = sortedKeys.map((key, idx) => {
-    const baseLabel = String.fromCharCode(65 + idx);
-    const description = labelGuide && labelGuide[key] ? labelGuide[key] : '';
-    return description ? `${baseLabel}.${description}` : baseLabel;
-  });
+  // 표 헤더에는 알파벳만 표시
+  const columnLabels = sortedKeys.map((key, idx) =>
+    String.fromCharCode(65 + idx)
+  );
 
   const formatSize = (raw: string) => {
     if (/free/i.test(raw)) return 'Free';
