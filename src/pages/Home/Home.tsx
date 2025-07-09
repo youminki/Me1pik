@@ -163,9 +163,6 @@ const Home: React.FC = () => {
     // eslint-disable-next-line
   }, [isLoading, uiItems.length, searchQuery]);
 
-  if (isError)
-    return <div>상품을 불러오는 데 실패했습니다: {String(error)}</div>;
-
   // 상세 모달 핸들러
   const handleOpenModal = useCallback(
     (id: string) => {
@@ -206,6 +203,9 @@ const Home: React.FC = () => {
       }
     }
   }, []);
+
+  if (isError)
+    return <div>상품을 불러오는 데 실패했습니다: {String(error)}</div>;
 
   return (
     <MainContainer>
