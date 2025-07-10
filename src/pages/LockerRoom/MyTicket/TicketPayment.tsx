@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { format, addMonths } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 import InputField from '../../../components/InputField';
 import FixedBottomBar from '../../../components/FixedBottomBar';
@@ -55,9 +56,18 @@ const TicketPayment: React.FC = () => {
     useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  const today = new Date();
-  const formattedToday = format(today, 'yyyy.MM.dd');
-  const formattedOneMonthLater = format(addMonths(today, 1), 'MM.dd');
+  // 한국 시간으로 오늘 날짜 생성 및 한 달 후 날짜 포맷
+  const getKoreanTime = () => {
+    const now = new Date();
+    const koreanTime = new Date(now.getTime() + 9 * 60 * 60 * 1000); // UTC+9
+    return koreanTime;
+  };
+
+  const today = getKoreanTime();
+  const formattedToday = format(today, 'yyyy.MM.dd', { locale: ko });
+  const formattedOneMonthLater = format(addMonths(today, 1), 'MM.dd', {
+    locale: ko,
+  });
 
   // 팝업 윈도우에서 결제 결과를 부모 윈도우에 전달 (1회 결제용)
   useEffect(() => {
