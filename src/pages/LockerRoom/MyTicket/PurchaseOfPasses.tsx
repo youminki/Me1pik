@@ -1,12 +1,12 @@
 // src/pages/my-ticket/PurchaseOfPasses.tsx
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import InputField from '../../../components/InputField';
 import { CustomSelect } from '../../../components/CustomSelect';
 import FixedBottomBar from '../../../components/FixedBottomBar';
 import ReusableModal2 from '../../../components/ReusableModal2';
 import { format, addMonths } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { useTicketList } from '../../../api/ticket/ticket';
 import { useMembershipInfo } from '../../../api/user/userApi';
 
@@ -26,7 +26,7 @@ const PurchaseOfPasses: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 템플릿 목록과 할인율 계산
-  const templates = ticketData?.items ?? [];
+  const templates = useMemo(() => ticketData?.items ?? [], [ticketData?.items]);
   const discountRate = membershipInfo
     ? Math.max(0, parseFloat(membershipInfo.discountRate?.toString() || '0'))
     : 0;
@@ -38,10 +38,18 @@ const PurchaseOfPasses: React.FC = () => {
     }
   }, [initialName, templates]);
 
-  // 오늘 및 한 달 후 날짜 포맷
-  const today = new Date();
-  const formattedToday = format(today, 'yyyy.MM.dd');
-  const formattedOneMonthLater = format(addMonths(today, 1), 'yyyy.MM.dd');
+  // 한국 시간으로 오늘 날짜 생성 및 한 달 후 날짜 포맷
+  const getKoreanTime = () => {
+    const now = new Date();
+    const koreanTime = new Date(now.getTime() + 9 * 60 * 60 * 1000); // UTC+9
+    return koreanTime;
+  };
+
+  const today = getKoreanTime();
+  const formattedToday = format(today, 'yyyy.MM.dd', { locale: ko });
+  const formattedOneMonthLater = format(addMonths(today, 1), 'yyyy.MM.dd', {
+    locale: ko,
+  });
 
   // 선택된 템플릿 객체
   const selectedTemplate = templates.find((t) => t.name === purchaseOption);
@@ -80,54 +88,41 @@ const PurchaseOfPasses: React.FC = () => {
 
   return (
     <Container>
-      <InputField
-        name='purchaseOption'
-        label='구매할 이용권 *'
-        id='purchaseOption'
-        as={CustomSelect}
-        value={purchaseOption}
-        onChange={(e) => setPurchaseOption(e.target.value)}
-      >
-        {templates.map((tpl) => (
-          <option key={tpl.id} value={tpl.name}>
-            {tpl.name}
-          </option>
-        ))}
-      </InputField>
+      <InputBox>
+        <Label>구매할 이용권 *</Label>
+        <CustomSelect
+          value={purchaseOption}
+          onChange={(e) => setPurchaseOption(e.target.value)}
+        >
+          {templates.map((tpl) => (
+            <option key={tpl.id} value={tpl.name}>
+              {tpl.name}
+            </option>
+          ))}
+        </CustomSelect>
+      </InputBox>
 
-      <InputField
-        name='usagePeriod'
-        label='이용권 사용기간'
-        id='usagePeriod'
-        prefixcontent={`${formattedToday} ~ ${formattedOneMonthLater} (1개월)`}
-        readOnly
-      />
+      <InputBox>
+        <Label>이용권 사용기간</Label>
+        <ContentBox>
+          {formattedToday} ~ {formattedOneMonthLater} (1개월)
+        </ContentBox>
+      </InputBox>
 
-      <RowLabel>
-        <InputField
-          name='paymentAmount'
-          label='이용권 결제금액'
-          id='paymentAmount'
-          prefixcontent={`${formattedDiscountedPrice}원`}
-          readOnly
-        />
-      </RowLabel>
+      <InputBox>
+        <Label>이용권 결제금액</Label>
+        <ContentBox>{formattedDiscountedPrice}원</ContentBox>
+      </InputBox>
 
-      <InputField
-        name='currentSeason'
-        label='진행 중인 시즌 표시'
-        id='currentSeason'
-        prefixcontent='2025 SPRING | 2025.05 ~ 2025.07'
-        readOnly
-      />
+      <InputBox>
+        <Label>진행 중인 시즌 표시</Label>
+        <ContentBox>2025 SPRING | 2025.05 ~ 2025.07</ContentBox>
+      </InputBox>
 
-      <InputField
-        name='autoPaymentDate'
-        label='자동결제 일자'
-        id='autoPaymentDate'
-        prefixcontent={formattedToday}
-        readOnly
-      />
+      <InputBox>
+        <Label>자동결제 일자</Label>
+        <ContentBox>{formattedToday}</ContentBox>
+      </InputBox>
 
       <Divider />
       <NoticeArea>
@@ -173,11 +168,31 @@ const Container = styled.div`
   background-color: #ffffff;
 `;
 
-const RowLabel = styled.div`
+const InputBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 16px;
+`;
+
+const Label = styled.label`
+  font-size: 10px;
+  font-weight: 700;
+  color: #333333;
+  margin-bottom: 8px;
+`;
+
+const ContentBox = styled.div`
+  padding: 0 10px;
+  height: 51px;
+  border: 1px solid #ccc;
+
+  background-color: #fff;
+  font-size: 14px;
+  color: #666666;
+  min-height: 20px;
   display: flex;
   align-items: center;
-  gap: 20px;
-  width: 100%;
 `;
 
 const Divider = styled.hr`
