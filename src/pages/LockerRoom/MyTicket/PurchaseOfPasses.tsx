@@ -10,6 +10,15 @@ import { ko } from 'date-fns/locale';
 import { useTicketList } from '../../../api/ticket/ticket';
 import { useMembershipInfo } from '../../../api/user/userApi';
 
+// 한국 시간 기준 오늘 0시 반환 함수
+function getKoreanToday() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const koreaTime = new Date(utc + 9 * 60 * 60 * 1000);
+  koreaTime.setHours(0, 0, 0, 0);
+  return koreaTime;
+}
+
 const PurchaseOfPasses: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,13 +48,7 @@ const PurchaseOfPasses: React.FC = () => {
   }, [initialName, templates]);
 
   // 한국 시간으로 오늘 날짜 생성 및 한 달 후 날짜 포맷
-  const getKoreanTime = () => {
-    const now = new Date();
-    const koreanTime = new Date(now.getTime() + 9 * 60 * 60 * 1000); // UTC+9
-    return koreanTime;
-  };
-
-  const today = getKoreanTime();
+  const today = getKoreanToday();
   const formattedToday = format(today, 'yyyy.MM.dd', { locale: ko });
   const formattedOneMonthLater = format(addMonths(today, 1), 'yyyy.MM.dd', {
     locale: ko,
