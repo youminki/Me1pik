@@ -64,80 +64,39 @@ const Home: React.FC = () => {
   // 검색 모달 노출 상태
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
 
-  // 무한 스크롤 관련 상태
-  const [page, setPage] = useState(1);
-  const [allProducts, setAllProducts] = useState<UIItem[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const limit = 20;
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastItemRef = useRef<HTMLDivElement>(
-    null
-  ) as React.RefObject<HTMLDivElement>;
-
-  // react-query 상품 데이터 (페이지네이션 적용)
-  const { data, isLoading, isError, error } = useProducts(
-    selectedCategory === 'All' ? 'all' : selectedCategory,
-    page,
-    limit
-  );
+  // react-query 상품 데이터
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+    error,
+  } = useProducts(selectedCategory === 'All' ? 'all' : selectedCategory);
 
   // 검색/필터된 상품 목록 (useMemo로 연산 최소화)
   const filteredProducts = useMemo(() => {
-    const items = data?.items ?? [];
+    if (!products) return [];
     const term = searchQuery.trim().toLowerCase();
-    return items.filter(
+    return products.filter(
       (item) =>
         item.brand.toLowerCase().includes(term) ||
         item.description.toLowerCase().includes(term)
     );
-  }, [data, searchQuery]);
+  }, [products, searchQuery]);
 
-  // UIItem 변환 (페이지별로 누적)
-  useEffect(() => {
-    if (!isLoading && filteredProducts.length > 0) {
-      setAllProducts((prev) => {
-        // 중복 방지
-        const ids = new Set(prev.map((p) => p.id));
-        const newItems = filteredProducts
-          .map((p) => ({
-            id: p.id.toString(),
-            image: p.image,
-            brand: p.brand,
-            description: p.description,
-            price: p.price,
-            discount: p.discount,
-            isLiked: p.isLiked,
-          }))
-          .filter((item) => !ids.has(item.id));
-        return [...prev, ...newItems];
-      });
-      setHasMore(
-        allProducts.length + filteredProducts.length < (data?.totalCount ?? 0)
-      );
-    }
-    // eslint-disable-next-line
-  }, [filteredProducts, isLoading, data]);
-
-  // 카테고리/검색 변경 시 초기화
-  useEffect(() => {
-    setPage(1);
-    setAllProducts([]);
-  }, [selectedCategory, searchQuery]);
-
-  // Intersection Observer로 마지막 아이템 감지
-  useEffect(() => {
-    if (!hasMore) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setPage((prev) => prev + 1);
-      }
-    });
-    if (lastItemRef.current) observer.current.observe(lastItemRef.current);
-    return () => {
-      if (observer.current) observer.current.disconnect();
-    };
-  }, [isLoading, allProducts, hasMore]);
+  // UIItem 변환 (모든 상품을 한 번에 불러옴)
+  const uiItems: UIItem[] = useMemo(
+    () =>
+      filteredProducts.map((p) => ({
+        id: p.id.toString(),
+        image: p.image,
+        brand: p.brand,
+        description: p.description,
+        price: p.price,
+        discount: p.discount,
+        isLiked: p.isLiked,
+      })),
+    [filteredProducts]
+  );
 
   // URL 동기화
   useEffect(() => {
@@ -182,7 +141,7 @@ const Home: React.FC = () => {
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!isLoading && allProducts.length === 0 && searchQuery) {
+    if (!isLoading && uiItems.length === 0 && searchQuery) {
       setNoResultCountdown(3);
       if (countdownRef.current) clearInterval(countdownRef.current);
       countdownRef.current = setInterval(() => {
@@ -202,7 +161,7 @@ const Home: React.FC = () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
     // eslint-disable-next-line
-  }, [isLoading, allProducts.length, searchQuery]);
+  }, [isLoading, uiItems.length, searchQuery]);
 
   // 상세 모달 핸들러
   const handleOpenModal = useCallback(
@@ -309,9 +268,9 @@ const Home: React.FC = () => {
 
       {/* 제품 리스트 or 로딩 스피너 */}
       <ContentWrapper>
-        {isLoading && allProducts.length === 0 ? (
-          <SkeletonItemList columns={viewCols} count={8} />
-        ) : allProducts.length === 0 && searchQuery ? (
+        {isLoading ? (
+          <SkeletonItemList columns={viewCols} count={products.length || 8} />
+        ) : uiItems.length === 0 && searchQuery ? (
           <OverlayWrapper>
             <OverlayMessage>
               검색 결과가 없습니다
@@ -322,22 +281,12 @@ const Home: React.FC = () => {
             </OverlayMessage>
           </OverlayWrapper>
         ) : (
-          <>
-            <ItemList
-              items={allProducts}
-              columns={viewCols}
-              onItemClick={handleOpenModal}
-              isLoading={isLoading}
-              lastItemRef={lastItemRef}
-            />
-            {!hasMore && (
-              <div
-                style={{ textAlign: 'center', color: '#aaa', margin: '20px 0' }}
-              >
-                더 이상 상품이 없습니다.
-              </div>
-            )}
-          </>
+          <ItemList
+            items={uiItems}
+            columns={viewCols}
+            onItemClick={handleOpenModal}
+            isLoading={isLoading}
+          />
         )}
       </ContentWrapper>
 

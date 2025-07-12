@@ -18,7 +18,6 @@ type ItemListProps = {
   onItemClick?: (id: string) => void;
   onDelete?: (id: string) => void;
   isLoading?: boolean;
-  lastItemRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 const SKELETON_COUNT = 8;
@@ -29,7 +28,6 @@ const ItemList: React.FC<ItemListProps> = ({
   onItemClick,
   onDelete,
   isLoading = false,
-  lastItemRef,
 }) => {
   const handleOpen = onItemClick ?? (() => {});
   const handleDelete = onDelete ?? (() => {});
@@ -51,22 +49,14 @@ const ItemList: React.FC<ItemListProps> = ({
                 onOpenModal={() => {}}
               />
             ))
-          : items.map((item, idx) => {
-              const isLast = idx === items.length - 1;
-              return (
-                <div
-                  key={item.id}
-                  ref={isLast && lastItemRef ? lastItemRef : undefined}
-                  style={{ height: '100%' }}
-                >
-                  <ItemCard
-                    {...item}
-                    onOpenModal={handleOpen}
-                    onDelete={handleDelete}
-                  />
-                </div>
-              );
-            })}
+          : items.map((item) => (
+              <ItemCard
+                key={item.id}
+                {...item}
+                onOpenModal={handleOpen}
+                onDelete={handleDelete}
+              />
+            ))}
       </ItemsWrapper>
     </ListContainer>
   );
