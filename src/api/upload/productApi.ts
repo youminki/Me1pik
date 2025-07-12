@@ -50,38 +50,22 @@ export interface GetProductInfoResponse {
   product: ProductDetail;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5173';
-
-interface RawProductListItem {
-  id: number;
-  image: string;
-  brand: string;
-  description: string;
-  category: string;
-  price: number;
-  discount: number;
-  isLiked?: boolean;
+export interface ProductListResponse {
+  items: ProductListItem[];
+  totalCount: number;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5173';
+
 export const getProducts = async (
-  category?: string
-): Promise<ProductListItem[]> => {
+  category?: string,
+  page: number = 1,
+  limit: number = 20
+): Promise<ProductListResponse> => {
   const response = await Axios.get('/admin/product/product/list', {
-    params: { category },
+    params: { category, page, limit },
   });
-  return (response.data || []).map((p: RawProductListItem) => ({
-    id: p.id,
-    image:
-      p.image && !p.image.startsWith('http')
-        ? `${API_BASE_URL}${p.image}`
-        : p.image,
-    brand: p.brand,
-    description: p.description,
-    category: p.category,
-    price: p.price,
-    discount: p.discount,
-    isLiked: Boolean(p.isLiked),
-  }));
+  return response.data;
 };
 
 interface RawProductDetail extends Omit<ProductDetail, 'fabricComposition'> {
@@ -161,11 +145,15 @@ export const getProductInfo = async (
  * 상품 리스트를 react-query로 가져오는 커스텀 훅
  * @param category 상품 카테고리 (all 등)
  */
-export function useProducts(category?: string) {
-  return useQuery<ProductListItem[]>({
-    queryKey: ['products', category],
-    queryFn: () => getProducts(category),
-    staleTime: 1000 * 60 * 5, // 5분 캐싱
+export function useProducts(
+  category?: string,
+  page: number = 1,
+  limit: number = 20
+) {
+  return useQuery<ProductListResponse>({
+    queryKey: ['products', category, page, limit],
+    queryFn: () => getProducts(category, page, limit),
+    staleTime: 1000 * 60 * 5,
   });
 }
 
