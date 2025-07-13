@@ -168,46 +168,148 @@ const PaypleTest: React.FC = () => {
     }
   };
 
+  // 앱카드 결제 테스트 함수 추가
+  const testAppCardPayment = useCallback(async () => {
+    setError(null);
+    setSuccessMessage(null);
+
+    if (!userInfo) {
+      setError('로그인 정보를 불러올 수 없습니다.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('토큰이 없습니다.');
+
+      // 앱카드 결제 초기화 요청 (서버에서 필요한 파라미터 받기)
+      const res = await fetch(
+        'https://api.stylewh.com/payple/init-appcard-payment',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            goods: '앱카드 테스트 상품',
+            amount: 1000, // 1,000원
+            userName: userInfo.userName,
+            userEmail: userInfo.userEmail,
+            userId: userInfo.userId,
+          }),
+        }
+      );
+
+      if (!res.ok) throw new Error('앱카드 결제 초기화 실패');
+
+      const data = await res.json();
+      console.log('[✅ 앱카드 결제 초기화 데이터]', data);
+
+      if (typeof window.PaypleCpayAuthCheck !== 'function') {
+        console.error('[❌ Payple SDK 로딩 실패]');
+        throw new Error('Payple SDK 준비 오류');
+      }
+
+      // 앱카드 결제창 호출
+      window.PaypleCpayAuthCheck({
+        ...data,
+        PCD_PAY_TYPE: 'card',
+        PCD_PAY_WORK: 'CERT',
+        PCD_CARD_VER: '02', // 앱카드 결제 설정
+        PCD_PAY_GOODS: '앱카드 테스트 상품',
+        PCD_PAY_TOTAL: 1000,
+        PCD_PAYER_NAME: userInfo.userName,
+        PCD_PAYER_EMAIL: userInfo.userEmail,
+        PCD_PAYER_NO: userInfo.userId,
+        PCD_PAY_ISTAX: 'Y',
+        // 모바일 앱에서 사용시 아래 파라미터 추가
+        // PCD_APP_SCHEME: 'yourapp://',
+      });
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.error('[🔥] 앱카드 결제 오류:', e);
+        setError('앱카드 결제 중 오류 발생: ' + e.message);
+      } else {
+        console.error('[🔥] 앱카드 결제 오류:', e);
+        setError('앱카드 결제 중 오류 발생');
+      }
+    }
+  }, [userInfo]);
+
   useEffect(() => {
     window.PCD_PAY_CALLBACK = async (result: unknown) => {
       console.log('[✅ Payple 결과 수신]', result);
       if (!userInfo) return setError('로그인 정보를 찾을 수 없습니다.');
+
       if (
         typeof result === 'object' &&
         result !== null &&
         'PCD_AUTH_KEY' in result &&
-        'PCD_PAY_REQKEY' in result &&
-        'PCD_PAYER_ID' in result &&
-        'PCD_PAY_GOODS' in result &&
-        'PCD_PAY_TOTAL' in result
+        'PCD_PAY_REQKEY' in result
       ) {
         const r = result as {
           PCD_AUTH_KEY: string;
           PCD_PAY_REQKEY: string;
-          PCD_PAYER_ID: string;
+          PCD_PAYER_ID?: string;
           PCD_PAY_GOODS: string;
           PCD_PAY_TOTAL: number;
+          PCD_CARD_VER?: string;
+          PCD_PAY_RST?: string;
         };
+
         try {
-          const res = await fetch(
-            'https://api.stylewh.com/payple/confirm-payment',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                PCD_AUTH_KEY: r.PCD_AUTH_KEY,
-                PCD_PAY_REQKEY: r.PCD_PAY_REQKEY,
-                PCD_PAYER_ID: r.PCD_PAYER_ID,
-                PCD_PAY_GOODS: r.PCD_PAY_GOODS,
-                PCD_PAY_TOTAL: r.PCD_PAY_TOTAL,
-              }),
+          // 앱카드 결제인 경우 (PCD_CARD_VER === '02')
+          if (r.PCD_CARD_VER === '02') {
+            console.log('[✅ 앱카드 결제 인증 성공]');
+
+            // 앱카드 승인 요청
+            const res = await fetch(
+              'https://api.stylewh.com/payple/confirm-appcard-payment',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                },
+                body: JSON.stringify({
+                  PCD_AUTH_KEY: r.PCD_AUTH_KEY,
+                  PCD_PAY_REQKEY: r.PCD_PAY_REQKEY,
+                }),
+              }
+            );
+
+            const data = await res.json();
+            if (!res.ok || data.PCD_PAY_RST !== 'success') {
+              throw new Error(data.PCD_PAY_MSG || '앱카드 결제 실패');
             }
-          );
-          const data = await res.json();
-          if (!res.ok || data.PCD_PAY_RST !== 'success') {
-            throw new Error(data.PCD_PAY_MSG || '결제 실패');
+
+            setSuccessMessage(
+              `✅ 앱카드 결제 성공!\n주문번호: ${data.PCD_PAY_OID}\n카드사: ${data.PCD_PAY_CARDNAME}\n승인번호: ${data.PCD_PAY_CARDAUTHNO}`
+            );
           }
-          setSuccessMessage('✅ 결제 성공: ' + data.PCD_PAY_OID);
+          // 기존 간편결제인 경우
+          else if (r.PCD_PAYER_ID) {
+            const res = await fetch(
+              'https://api.stylewh.com/payple/confirm-payment',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  PCD_AUTH_KEY: r.PCD_AUTH_KEY,
+                  PCD_PAY_REQKEY: r.PCD_PAY_REQKEY,
+                  PCD_PAYER_ID: r.PCD_PAYER_ID,
+                  PCD_PAY_GOODS: r.PCD_PAY_GOODS,
+                  PCD_PAY_TOTAL: r.PCD_PAY_TOTAL,
+                }),
+              }
+            );
+            const data = await res.json();
+            if (!res.ok || data.PCD_PAY_RST !== 'success') {
+              throw new Error(data.PCD_PAY_MSG || '결제 실패');
+            }
+            setSuccessMessage('✅ 결제 성공: ' + data.PCD_PAY_OID);
+          }
         } catch (e: unknown) {
           if (e instanceof Error) {
             console.error('[🔥] 결제 승인 오류:', e);
@@ -229,41 +331,53 @@ const PaypleTest: React.FC = () => {
   return (
     <Container>
       <Title>Payple 카드 등록 및 결제</Title>
-      <Button disabled={!userInfo} onClick={registerCard}>
-        카드 등록하기
-      </Button>
 
-      <Button
-        onClick={() => {
-          const payerId = cards[0]?.payerId;
-          if (!payerId) return alert('카드 없음');
+      <ButtonGroup>
+        <Button disabled={!userInfo} onClick={registerCard}>
+          카드 등록하기
+        </Button>
 
-          fetch('https://api.stylewh.com/payple/recurring-payment', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              payerId,
-              goods: '정기결제 테스트 상품',
-              amount: 500, // 500원
-            }),
-          })
-            .then((res) => res.json())
-            .then((data) =>
-              alert('정기결제 성공! 주문번호: ' + data.PCD_PAY_OID)
-            )
-            .catch((err: unknown) => {
-              if (err instanceof Error) {
-                alert('정기결제 실패: ' + err.message);
-              } else {
-                alert('정기결제 실패');
-              }
-            });
-        }}
-      >
-        정기결제 테스트
-      </Button>
+        <Button
+          disabled={!userInfo}
+          onClick={testAppCardPayment}
+          $variant='appcard'
+        >
+          앱카드 결제 테스트
+        </Button>
+
+        <Button
+          onClick={() => {
+            const payerId = cards[0]?.payerId;
+            if (!payerId) return alert('카드 없음');
+
+            fetch('https://api.stylewh.com/payple/recurring-payment', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                payerId,
+                goods: '정기결제 테스트 상품',
+                amount: 500, // 500원
+              }),
+            })
+              .then((res) => res.json())
+              .then((data) =>
+                alert('정기결제 성공! 주문번호: ' + data.PCD_PAY_OID)
+              )
+              .catch((err: unknown) => {
+                if (err instanceof Error) {
+                  alert('정기결제 실패: ' + err.message);
+                } else {
+                  alert('정기결제 실패');
+                }
+              });
+          }}
+        >
+          정기결제 테스트
+        </Button>
+      </ButtonGroup>
+
       {cards.length > 0 && (
         <CardSection>
           <h3>등록된 카드 목록</h3>
@@ -297,33 +411,48 @@ const Container = styled.div`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
 `;
+
 const Title = styled.h1`
   font-size: 1.8rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 24px;
 `;
-const Button = styled.button<{ disabled?: boolean }>`
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+`;
+
+const Button = styled.button<{ disabled?: boolean; $variant?: string }>`
   padding: 14px 28px;
   font-size: 1rem;
   font-weight: 500;
-  background: #fa9a00;
+  background: ${({ $variant }) =>
+    $variant === 'appcard' ? '#4285f4' : '#fa9a00'};
   color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s;
+
   &:hover {
-    background: #e08800;
+    background: ${({ $variant }) =>
+      $variant === 'appcard' ? '#357ae8' : '#e08800'};
   }
+
   &:disabled {
     background: #ccc;
     cursor: not-allowed;
   }
 `;
+
 const CardSection = styled.div`
   margin-top: 32px;
 `;
+
 const CardBox = styled.div`
   margin: 12px 0;
   padding: 12px;
@@ -331,6 +460,7 @@ const CardBox = styled.div`
   border: 1px solid #ddd;
   border-radius: 8px;
 `;
+
 const CardButton = styled.button`
   margin-top: 8px;
   padding: 10px 18px;
@@ -344,9 +474,11 @@ const CardButton = styled.button`
     background: #256528;
   }
 `;
+
 const Message = styled.p<{ type?: 'error' }>`
   margin-top: 20px;
   font-size: 0.95rem;
   color: ${({ type }) => (type === 'error' ? '#d32f2f' : '#2e7d32')};
   font-weight: 500;
+  white-space: pre-line;
 `;
