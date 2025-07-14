@@ -3,7 +3,7 @@ import styled, { css, keyframes } from 'styled-components';
 
 interface Button02Props {
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 
   color: 'yellow' | 'blue' | 'red' | 'black';
 }

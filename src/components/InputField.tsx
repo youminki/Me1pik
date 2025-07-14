@@ -153,10 +153,8 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 <Button02
                   onClick={
                     onButtonClick
-                      ? () =>
-                          onButtonClick(
-                            {} as React.MouseEvent<HTMLButtonElement>
-                          )
+                      ? (e: React.MouseEvent<HTMLButtonElement>) =>
+                          onButtonClick(e)
                       : undefined
                   }
                   color={buttonColor}

@@ -181,7 +181,6 @@ const Signup: React.FC = () => {
   const [gender, setGender] = useState<string>('여성');
   const [selectedGenderButton, setSelectedGenderButton] =
     useState<string>('여성');
-  const [melpickAddress, setMelpickAddress] = useState<string>('');
 
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const handleBrandSelect = (brands: string[]) => {
@@ -336,6 +335,7 @@ const Signup: React.FC = () => {
   const handleMelpickAddressCheck = async (): Promise<void> => {
     const valid = await trigger('melpickAddress');
     if (!valid) return;
+    const melpickAddress = getValues('melpickAddress');
     try {
       const result = await checkWebpage(melpickAddress);
       if (result.isAvailable) {
@@ -495,8 +495,26 @@ const Signup: React.FC = () => {
     (field: 'email' | 'nickname' | 'melpickAddress') =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       resetVerificationState(field);
+      if (field === 'email') {
+        setValue('email', (e.target as HTMLInputElement).value);
+        setIsEmailChecked(false);
+        setEmailButtonText('중복확인');
+        setEmailButtonColor('yellow');
+        setEmailApiError('');
+      }
+      if (field === 'nickname') {
+        setValue('nickname', (e.target as HTMLInputElement).value);
+        setIsNicknameChecked(false);
+        setNicknameButtonText('중복확인');
+        setNicknameButtonColor('yellow');
+        setNicknameApiError('');
+      }
       if (field === 'melpickAddress') {
-        setMelpickAddress((e.target as HTMLInputElement).value);
+        setValue('melpickAddress', (e.target as HTMLInputElement).value);
+        setIsMelpickAddressChecked(false);
+        setMelpickAddressButtonText('체크');
+        setMelpickAddressButtonColor('yellow');
+        setMelpickApiError('');
       }
     };
 
@@ -728,7 +746,6 @@ const Signup: React.FC = () => {
                 }
                 {...register('melpickAddress')}
                 onChange={(e) => handleInputChange('melpickAddress')(e)}
-                value={melpickAddress}
                 buttonLabel={melpickAddressButtonText}
                 buttonColor={melpickAddressButtonColor}
                 required
@@ -828,9 +845,6 @@ const Signup: React.FC = () => {
                   placeholder='브랜드 3가지를 선택하세요'
                   error={errors.brand}
                   {...register('brand')}
-                  value={
-                    selectedBrands.join(', ') || '브랜드 3가지를 선택하세요'
-                  }
                   buttonLabel={brandButtonLabel}
                   buttonColor={brandButtonColor}
                   onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
