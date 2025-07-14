@@ -22,6 +22,7 @@ import {
 import { regionDistrictData } from '../components/Signup/regionDistrictData';
 import Modal from '../components/Melpik/CreateMelpik/Settings/Modal';
 import SimpleHeader from '../components/SimpleHeader';
+import type { AxiosError } from 'axios';
 
 export type SignupFormData = {
   email: string;
@@ -296,11 +297,11 @@ const Signup: React.FC = () => {
         setPhoneApiError(result.message || '전화번호 인증 실패');
         setPhoneVerificationButtonColor('red');
       }
-    } catch (err: unknown) {
+    } catch (err) {
       setPhoneVerificationButtonText('인증 실패');
-      setPhoneApiError(
-        err instanceof Error ? err.message : '전화번호 인증 실패'
-      );
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      const serverMsg = axiosErr.response?.data?.message;
+      setPhoneApiError(serverMsg || (axiosErr.message ?? '전화번호 인증 실패'));
       setPhoneVerificationButtonColor('red');
     }
   };
