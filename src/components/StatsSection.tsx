@@ -39,6 +39,7 @@ export default StatsSection;
 const StatsContainer = styled.div`
   display: flex;
   gap: 0;
+
   width: 100%;
 `;
 

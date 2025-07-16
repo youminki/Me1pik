@@ -5,6 +5,9 @@ import {
 } from '../../../api/terms/termsApi';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
+import StatsSection from '../../../components/StatsSection';
+import ArrowToggleIcon from '../../../assets/library/ArrowToggleIcon';
+import CustomerServiceIcon from '../../../assets/CustomerServiceIcons.svg';
 
 const typeToTitle: Record<string, string> = {
   notice: '공지사항',
@@ -102,10 +105,26 @@ const DocumentList: React.FC = () => {
   if (!list.length) return <ListContainer>데이터가 없습니다.</ListContainer>;
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1 style={{ fontWeight: 700, fontSize: 24, marginBottom: 16 }}>
-        {title}
-      </h1>
+    <ResponsiveContainer>
+      <Header>
+        <ResponsiveTitle>{title}</ResponsiveTitle>
+        <Subtitle>새로운 소식 및 서비스 안내를 드립니다.</Subtitle>
+      </Header>
+      <StatsRow>
+        <StatsSection
+          visits={999}
+          sales={999}
+          dateRange='2024-01-01 ~ 2024-01-31'
+          visitLabel='전체'
+          salesLabel='최근업데이트'
+        />
+        <img
+          src={CustomerServiceIcon}
+          alt='고객센터 아이콘'
+          style={{ width: 64, height: 'auto' }}
+        />
+      </StatsRow>
+      <Divider />
       {categoryTabs.length > 0 && (
         <TabSection>
           {categoryTabs.map((tab) => (
@@ -123,17 +142,28 @@ const DocumentList: React.FC = () => {
         </TabSection>
       )}
       <ListContainer>
-        {list.map((item) => (
+        {list.map((item, idx) => (
           <div key={item.id}>
             <ListItem onClick={() => handleClick(item.id)}>
-              <ItemTitle>{item.title}</ItemTitle>
-              <ItemMeta>
-                <span>{item.category}</span>
-                <span>{item.author}</span>
-                <span>{item.createdAt.slice(0, 10)}</span>
-              </ItemMeta>
+              <div style={{ flex: 1 }}>
+                <ItemTitle>
+                  <span style={{ fontWeight: 700, color: '#222' }}>Q. </span>
+                  {item.title}
+                </ItemTitle>
+                <ItemMeta>
+                  <CategoryOrange>{item.category}</CategoryOrange>
+                </ItemMeta>
+              </div>
+              <IconRight>
+                <ArrowToggleIcon
+                  direction={openId === item.id ? 'up' : 'down'}
+                />
+              </IconRight>
             </ListItem>
-            <DetailWrapper isOpen={openId === item.id}>
+            <DetailWrapper
+              isOpen={openId === item.id}
+              isLast={idx === list.length - 1}
+            >
               <DetailInner isOpen={openId === item.id}>
                 {detail[item.id] || (openId === item.id && '로딩 중...')}
               </DetailInner>
@@ -141,7 +171,7 @@ const DocumentList: React.FC = () => {
           </div>
         ))}
       </ListContainer>
-    </div>
+    </ResponsiveContainer>
   );
 };
 
@@ -150,7 +180,15 @@ export default DocumentList;
 const TabSection = styled.div`
   display: flex;
   gap: 8px;
-  margin-bottom: 20px;
+
+  border: 1px solid #dddddd;
+  background-color: #f3f3f3;
+  padding: 20px;
+  @media (max-width: 600px) {
+    gap: 4px;
+    margin-bottom: 12px;
+    padding: 10px 4px;
+  }
 `;
 
 const TabButton = styled.button<{ active: boolean }>`
@@ -163,13 +201,18 @@ const TabButton = styled.button<{ active: boolean }>`
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
+  @media (max-width: 600px) {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 14px;
+  }
 `;
 
 const ListContainer = styled.div`
   width: 100%;
   background: #fff;
   border: 1px solid #dddddd;
-  border-radius: 8px;
+
   box-sizing: border-box;
   margin-top: 8px;
   margin-bottom: 24px;
@@ -178,6 +221,9 @@ const ListContainer = styled.div`
 `;
 
 const ListItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 20px 16px 16px 16px;
   border-bottom: 1px solid #eeeeee;
   cursor: pointer;
@@ -196,31 +242,118 @@ const ItemTitle = styled.div`
   font-size: 16px;
   color: #222;
   margin-bottom: 8px;
+  @media (max-width: 600px) {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
 `;
 
 const ItemMeta = styled.div`
-  font-size: 12px;
-  color: #888;
+  font-size: 14px;
   display: flex;
   gap: 12px;
+  margin-bottom: 4px;
+  align-items: center;
+  justify-content: space-between;
+  @media (max-width: 600px) {
+    font-size: 12px;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
 `;
 
-const DetailWrapper = styled.div<{ isOpen: boolean }>`
-  max-height: ${({ isOpen }) => (isOpen ? '500px' : '0')};
+const CategoryOrange = styled.span`
+  color: #ff9100;
+  font-weight: 700;
+  flex: 1;
+  font-size: 14px;
+  @media (max-width: 600px) {
+    font-size: 12px;
+  }
+`;
+
+const DetailWrapper = styled.div<{ isOpen: boolean; isLast?: boolean }>`
+  max-height: ${({ isOpen }) => (isOpen ? '350px' : '0')};
   overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #f8f8f8;
-  border-bottom: 1px solid #eeeeee;
+  transition: max-height 0.45s ease;
+  background: #f5f5f5;
+  border-bottom: ${({ isLast }) => (isLast ? 'none' : '1px solid #eeeeee')};
 `;
 
 const DetailInner = styled.div<{ isOpen: boolean }>`
   opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
-  transform: translateY(${({ isOpen }) => (isOpen ? '0' : '-20px')});
+  transform: translateY(${({ isOpen }) => (isOpen ? '0' : '12px')});
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.45s ease,
+    transform 0.45s ease,
+    padding 0.45s ease;
   padding: ${({ isOpen }) => (isOpen ? '20px 16px' : '0 16px')};
   font-size: 15px;
   color: #333;
   white-space: pre-wrap;
+  @media (max-width: 600px) {
+    font-size: 13px;
+    padding: ${({ isOpen }) => (isOpen ? '14px 8px' : '0 8px')};
+  }
+`;
+
+const IconRight = styled.span`
+  min-width: 32px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 6px;
+  @media (min-width: 1024px) {
+    margin-bottom: 24px;
+  }
+`;
+
+const ResponsiveTitle = styled.h1`
+  font-weight: 800;
+  font-size: 24px;
+  margin: 0;
+  color: #000;
+  @media (min-width: 1024px) {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+`;
+
+const Subtitle = styled.p`
+  font-size: 12px;
+  line-height: 28px;
+  margin: 0;
+  color: #ccc;
+  font-weight: 400;
+  @media (min-width: 1024px) {
+    font-size: 16px;
+  }
+`;
+
+const StatsRow = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+`;
+
+const Divider = styled.div`
+  width: 100%;
+  height: 1px;
+  background: #eee;
+  margin: 30px 0;
+`;
+
+const ResponsiveContainer = styled.div`
+  padding: 1rem;
+  font-size: 16px;
+  background: #fff;
+  box-sizing: border-box;
+  @media (min-width: 1024px) {
+    padding: 3rem;
+  }
 `;
