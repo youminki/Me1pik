@@ -131,6 +131,8 @@ const Home: React.FC = () => {
   // 필터 모달 상태
   const [isFilterModalOpen, setFilterModalOpen] = useState(false);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  // 필터모달 임시 색상 상태
+  const [tempSelectedColors, setTempSelectedColors] = useState<string[]>([]);
 
   // react-query 상품 데이터
   const {
@@ -275,7 +277,11 @@ const Home: React.FC = () => {
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!isLoading && uiItems.length === 0 && searchQuery) {
+    if (
+      !isLoading &&
+      uiItems.length === 0 &&
+      (searchQuery || selectedColors.length > 0)
+    ) {
       setNoResultCountdown(3);
       if (countdownRef.current) clearInterval(countdownRef.current);
       countdownRef.current = setInterval(() => {
@@ -284,6 +290,7 @@ const Home: React.FC = () => {
             clearInterval(countdownRef.current!);
             setSearchQuery('');
             setSelectedCategory('All');
+            setSelectedColors([]);
             setSearchParams({ category: 'All' }, { replace: true });
             return 3;
           }
@@ -295,7 +302,7 @@ const Home: React.FC = () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
     // eslint-disable-next-line
-  }, [isLoading, uiItems.length, searchQuery]);
+  }, [isLoading, uiItems.length, searchQuery, selectedColors]);
 
   // 상세 모달 핸들러
   const handleOpenModal = useCallback(
@@ -338,6 +345,13 @@ const Home: React.FC = () => {
     }
   }, []);
 
+  // 필터 모달이 열릴 때 tempSelectedColors를 selectedColors로 동기화
+  useEffect(() => {
+    if (isFilterModalOpen) {
+      setTempSelectedColors(selectedColors);
+    }
+  }, [isFilterModalOpen, selectedColors]);
+
   if (isError)
     return <div>상품을 불러오는 데 실패했습니다: {String(error)}</div>;
 
@@ -369,13 +383,15 @@ const Home: React.FC = () => {
       {/* 필터 모달 */}
       <FilterModal
         isOpen={isFilterModalOpen}
-        onClose={() => setFilterModalOpen(false)}
+        onClose={() => {
+          setFilterModalOpen(false);
+        }}
         onColorSelect={(colors: string[]) => {
           setSelectedColors(colors);
           setFilterModalOpen(false);
         }}
-        selectedColors={selectedColors}
-        setSelectedColors={setSelectedColors}
+        selectedColors={tempSelectedColors}
+        setSelectedColors={setTempSelectedColors}
       />
 
       {/* 서브헤더 */}
@@ -471,7 +487,8 @@ const Home: React.FC = () => {
       <ContentWrapper>
         {isLoading ? (
           <SkeletonItemList columns={viewCols} count={products.length || 8} />
-        ) : uiItems.length === 0 && searchQuery ? (
+        ) : uiItems.length === 0 &&
+          (searchQuery || selectedColors.length > 0) ? (
           <OverlayWrapper>
             <OverlayMessage>
               검색 결과가 없습니다
