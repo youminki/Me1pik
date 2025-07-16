@@ -23,6 +23,7 @@ import FilterContainer from '../../components/Home/FilterContainer';
 import SearchModal from '../../components/Home/SearchModal';
 import MelpikGuideBanner from '../../components/MelpikGuideBanner';
 import SkeletonItemList from '../../components/Home/SkeletonItemList';
+import FilterModal from '../../components/FilterModal';
 
 /**
  * Home(상품 리스트) 페이지 - 최적화 버전ㄴ
@@ -31,6 +32,69 @@ import SkeletonItemList from '../../components/Home/SkeletonItemList';
  * - 무한스크롤 IntersectionObserver 적용
  * - 상태 최소화, 타입 보강, 주석 추가
  */
+
+// 컴포넌트 함수 바깥에 위치
+const colorMap: Record<string, string> = {
+  화이트: 'WHITE',
+  블랙: 'BLACK',
+  그레이: 'GRAY',
+  네이비: 'NAVY',
+  아이보리: 'IVORY',
+  베이지: 'BEIGE',
+  브라운: 'BROWN',
+  카키: 'KHAKI',
+  그린: 'GREEN',
+  블루: 'BLUE',
+  퍼플: 'PURPLE',
+  버건디: 'BURGUNDY',
+  레드: 'RED',
+  핑크: 'PINK',
+  옐로우: 'YELLOW',
+  오렌지: 'ORANGE',
+  마젠타: 'MAGENTA',
+  민트: 'MINT',
+};
+
+// Chip 스타일 컴포넌트
+const ChipList = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  /* 줄바꿈 시 Chip 간격 조정 */
+  row-gap: 8px;
+  max-width: 100vw;
+  /* 모바일에서 Chip이 많아질 때 가로 스크롤 */
+  overflow-x: auto;
+  white-space: nowrap;
+  /* 스크롤바 숨기기 (웹킷 브라우저) */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+const Chip = styled.div`
+  display: flex;
+  align-items: center;
+  background: #f6f6f6;
+  border-radius: 16px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #333;
+  height: 28px;
+  font-weight: 600;
+  border: 1px solid #e0e0e0;
+`;
+const ChipClose = styled.button`
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 16px;
+  margin-left: 4px;
+  cursor: pointer;
+  padding: 0;
+`;
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,6 +128,10 @@ const Home: React.FC = () => {
   // 검색 모달 노출 상태
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
 
+  // 필터 모달 상태
+  const [isFilterModalOpen, setFilterModalOpen] = useState(false);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+
   // react-query 상품 데이터
   const {
     data: products = [],
@@ -76,12 +144,78 @@ const Home: React.FC = () => {
   const filteredProducts = useMemo(() => {
     if (!products) return [];
     const term = searchQuery.trim().toLowerCase();
-    return products.filter(
-      (item) =>
-        item.brand.toLowerCase().includes(term) ||
-        item.description.toLowerCase().includes(term)
-    );
-  }, [products, searchQuery]);
+    // 쉼표로 분리된 여러 검색어 처리
+    const terms = term
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    // 색상 매핑: 한글 <-> 영문
+    const colorMapEntries = Object.entries(colorMap);
+    const allColorKeywords = [
+      ...colorMapEntries.map(([kor]) => kor.toLowerCase()),
+      ...colorMapEntries.map(([, eng]) => eng.toLowerCase()),
+    ];
+
+    // 검색어 중 색상 키워드와 일반 키워드 분리
+    const searchColors: string[] = [];
+    const searchKeywords: string[] = [];
+    terms.forEach((t) => {
+      if (allColorKeywords.includes(t)) {
+        searchColors.push(t);
+      } else if (t) {
+        searchKeywords.push(t);
+      }
+    });
+
+    const filtered = products.filter((item) => {
+      const brand = item.brand?.toLowerCase() || '';
+      const desc = item.description?.toLowerCase() || '';
+      const color = item.color?.toLowerCase() || '';
+
+      // 브랜드/설명 검색: 모든 일반 키워드가 브랜드/설명에 하나라도 포함되면 true
+      const matchesBrandOrDesc =
+        searchKeywords.length === 0 ||
+        searchKeywords.some((kw) => brand.includes(kw) || desc.includes(kw));
+
+      // 색상 검색: 검색어에 색상 키워드가 있으면, 상품 색상에 하나라도 포함되면 true
+      let matchesSearchColors = true;
+      if (searchColors.length > 0) {
+        matchesSearchColors = searchColors.some((searchColor) => {
+          // 한글로 입력한 경우 영문도 체크, 영문으로 입력한 경우 한글도 체크
+          const found = colorMapEntries.find(
+            ([kor, eng]) =>
+              kor.toLowerCase() === searchColor ||
+              eng.toLowerCase() === searchColor
+          );
+          if (found) {
+            const [kor, eng] = found;
+            return (
+              color.includes(kor.toLowerCase()) ||
+              color.includes(eng.toLowerCase()) ||
+              color.toUpperCase().includes(eng.toUpperCase())
+            );
+          }
+          return color.includes(searchColor);
+        });
+      }
+
+      // 여러 색상 필터(필터 모달): selectedColors 중 하나라도 포함되면 true
+      let matchesSelectedColors = true;
+      if (selectedColors.length > 0) {
+        matchesSelectedColors = selectedColors.some((selected) => {
+          const engColor = colorMap[selected] || selected;
+          return (
+            color.toUpperCase().includes(engColor) || color.includes(selected)
+          );
+        });
+      }
+
+      return matchesBrandOrDesc && matchesSearchColors && matchesSelectedColors;
+    });
+
+    return filtered;
+  }, [products, searchQuery, selectedColors]);
 
   // UIItem 변환 (모든 상품을 한 번에 불러옴)
   const uiItems: UIItem[] = useMemo(
@@ -232,6 +366,16 @@ const Home: React.FC = () => {
         현재 페이지 URL이 클립보드에 복사되었습니다.
       </ReusableModal>
 
+      {/* 필터 모달 */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        onColorSelect={(colors: string[]) => {
+          setSelectedColors(colors);
+          setFilterModalOpen(false);
+        }}
+      />
+
       {/* 서브헤더 */}
       <MelpikGuideBanner />
       <SubHeader
@@ -245,9 +389,64 @@ const Home: React.FC = () => {
 
       {/* 필터 및 열 선택 */}
       <ControlsContainer>
+        {/* 필터/검색 Chip 리스트 */}
+        <ChipList>
+          {/* 검색어 Chip */}
+          {searchQuery.trim() &&
+            searchQuery.split(',').map((kw, idx) => (
+              <Chip key={kw + idx}>
+                {kw.trim()}
+                <ChipClose
+                  aria-label='검색어 삭제'
+                  onClick={() => {
+                    // 해당 검색어만 제거
+                    const terms = searchQuery
+                      .split(',')
+                      .map((t) => t.trim())
+                      .filter(Boolean);
+                    const newTerms = terms.filter((_, i) => i !== idx);
+                    setSearchQuery(newTerms.join(', '));
+                    // URL 동기화
+                    setSearchParams(
+                      (prev) => {
+                        const params = Object.fromEntries(prev.entries());
+                        if (newTerms.length > 0) {
+                          params.search = newTerms.join(', ');
+                        } else {
+                          delete params.search;
+                        }
+                        return params;
+                      },
+                      { replace: true }
+                    );
+                  }}
+                >
+                  ×
+                </ChipClose>
+              </Chip>
+            ))}
+          {/* 색상 Chip (필터 모달 선택) */}
+          {selectedColors.map((color, idx) => (
+            <Chip key={color + idx}>
+              {color}
+              <ChipClose
+                aria-label='색상 삭제'
+                onClick={() => {
+                  const newColors = selectedColors.filter((_, i) => i !== idx);
+                  setSelectedColors(newColors);
+                }}
+              >
+                ×
+              </ChipClose>
+            </Chip>
+          ))}
+        </ChipList>
         <RowAlignBox>
           {/* 검색 및 필터 아이콘 */}
-          <FilterContainer onSearchClick={() => setSearchModalOpen(true)} />
+          <FilterContainer
+            onSearchClick={() => setSearchModalOpen(true)}
+            onFilterClick={() => setFilterModalOpen(true)}
+          />
         </RowAlignBox>
         {/* 검색 모달 */}
         <SearchModal
@@ -360,8 +559,9 @@ const ControlsContainer = styled.div`
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  margin: 8px 0;
+  margin: 12px 0;
   position: relative;
+  min-height: 48px; /* Chip, FilterContainer 높이에 맞게 조정 */
 `;
 
 const ContentWrapper = styled.div`
@@ -478,7 +678,7 @@ const RowAlignBox = styled.div`
   flex-direction: row;
   align-items: center;
   gap: 10px;
-  margin-top: 20px;
+  /* margin-top: 20px; 삭제하여 위로 치우치지 않게 함 */
 `;
 
 // 오버레이 스타일 추가

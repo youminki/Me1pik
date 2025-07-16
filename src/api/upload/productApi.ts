@@ -11,6 +11,7 @@ export interface ProductListItem {
   price: number;
   discount: number;
   isLiked: boolean;
+  color?: string;
 }
 
 export interface ProductSize {
@@ -61,6 +62,7 @@ interface RawProductListItem {
   price: number;
   discount: number;
   isLiked?: boolean;
+  color?: string;
 }
 
 export const getProducts = async (
@@ -69,19 +71,22 @@ export const getProducts = async (
   const response = await Axios.get('/admin/product/product/list', {
     params: { category },
   });
-  return (response.data || []).map((p: RawProductListItem) => ({
-    id: p.id,
-    image:
-      p.image && !p.image.startsWith('http')
-        ? `${API_BASE_URL}${p.image}`
-        : p.image,
-    brand: p.brand,
-    description: p.description,
-    category: p.category,
-    price: p.price,
-    discount: p.discount,
-    isLiked: Boolean(p.isLiked),
-  }));
+  return (response.data || []).map(
+    (p: RawProductListItem & { color?: string }) => ({
+      id: p.id,
+      image:
+        p.image && !p.image.startsWith('http')
+          ? `${API_BASE_URL}${p.image}`
+          : p.image,
+      brand: p.brand,
+      description: p.description,
+      category: p.category,
+      price: p.price,
+      discount: p.discount,
+      isLiked: Boolean(p.isLiked),
+      color: p.color,
+    })
+  );
 };
 
 interface RawProductDetail extends Omit<ProductDetail, 'fabricComposition'> {

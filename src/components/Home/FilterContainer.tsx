@@ -1,16 +1,20 @@
 // src/components/FilterContainer.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import FilterIcon from '../../assets/FilterIcon.svg';
 import SearchIconSvg from '../../assets/Home/SearchIcon.svg';
-import ReusableModal from '../../components/ReusableModal';
+// import ReusableModal from '../../components/ReusableModal';
 
 interface FilterContainerProps {
   onSearchClick: () => void;
+  onFilterClick: () => void;
 }
 
-const FilterContainer: React.FC<FilterContainerProps> = ({ onSearchClick }) => {
-  const [isFeatureModalOpen, setFeatureModalOpen] = useState(false);
+const FilterContainer: React.FC<FilterContainerProps> = ({
+  onSearchClick,
+  onFilterClick,
+}) => {
+  // const [isFeatureModalOpen, setFeatureModalOpen] = useState(false);
 
   return (
     <Container>
@@ -20,17 +24,9 @@ const FilterContainer: React.FC<FilterContainerProps> = ({ onSearchClick }) => {
       </IconButton>
 
       {/* 필터 아이콘 */}
-      <FilterIconContainer onClick={() => setFeatureModalOpen(true)}>
+      <FilterIconContainer onClick={onFilterClick}>
         <img src={FilterIcon} alt='필터' />
       </FilterIconContainer>
-
-      <ReusableModal
-        isOpen={isFeatureModalOpen}
-        onClose={() => setFeatureModalOpen(false)}
-        title='준비 중입니다'
-      >
-        아직 구현 전인 기능이에요.
-      </ReusableModal>
     </Container>
   );
 };

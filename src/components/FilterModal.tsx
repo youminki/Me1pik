@@ -45,10 +45,14 @@ const colorMap: Record<string, string> = {
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onColorSelect?: (colors: string[]) => void;
 }
 
-const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
-  const [selectedSize, setSelectedSize] = useState<string[]>([]);
+const FilterModal: React.FC<FilterModalProps> = ({
+  isOpen,
+  onClose,
+  onColorSelect,
+}) => {
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -77,7 +81,33 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
     );
   };
 
+  // 색상 선택 핸들러: 상태만 변경
+  const handleColorClick = (color: string) => {
+    toggleSelected(selectedColors, color, setSelectedColors);
+  };
+
+  // 설정 적용 버튼 클릭 시
+  const handleApply = () => {
+    if (onColorSelect) {
+      onColorSelect(selectedColors);
+    }
+    onClose();
+  };
+
   if (!isOpen) return null;
+
+  // contrast color 유틸 함수
+  function getContrastColor(hex: string) {
+    // hex에서 # 제거
+    hex = hex.replace('#', '');
+    // RGB로 변환
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    // 밝기 계산 (YIQ 공식)
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq >= 180 ? '#222' : '#fff';
+  }
 
   return (
     <Overlay onClick={handleClose}>
@@ -98,13 +128,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
             <SectionTitleWithParen text='사이즈 (셋팅 : 없음)' />
             <ButtonRow>
               {sizeData.map((size) => (
-                <FilterButton
-                  key={size}
-                  selected={selectedSize.includes(size)}
-                  onClick={() =>
-                    toggleSelected(selectedSize, size, setSelectedSize)
-                  }
-                >
+                <FilterButton key={size} selected={false} disabled>
                   {size}
                 </FilterButton>
               ))}
@@ -115,17 +139,28 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
           <Section>
             <SectionTitleWithParen text='색상 (셋팅 : 없음)' />
             <ColorButtonGrid>
-              {Object.keys(colorMap).map((color) => (
-                <ColorButton
-                  key={color}
-                  selected={selectedColors.includes(color)}
-                  onClick={() =>
-                    toggleSelected(selectedColors, color, setSelectedColors)
-                  }
-                >
-                  {color}
-                </ColorButton>
-              ))}
+              {Object.keys(colorMap).map((color) => {
+                const bg = colorMap[color];
+                const textColor = getContrastColor(bg);
+                return (
+                  <ColorButton
+                    key={color}
+                    selected={selectedColors.includes(color)}
+                    onClick={() => handleColorClick(color)}
+                    style={{
+                      background: selectedColors.includes(color) ? bg : '#fff',
+                      color: selectedColors.includes(color)
+                        ? textColor
+                        : '#000',
+                      border: selectedColors.includes(color)
+                        ? '3px solid #000'
+                        : '1px solid #000',
+                    }}
+                  >
+                    {color}
+                  </ColorButton>
+                );
+              })}
             </ColorButtonGrid>
           </Section>
           <Divider />
@@ -134,7 +169,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => {
         <FixedFooter>
           <CloseButtonWrapper>
             <NoButton onClick={onClose}>취소</NoButton>
-            <YesButton onClick={onClose}>설정 적용</YesButton>
+            <YesButton onClick={handleApply}>설정 적용</YesButton>
           </CloseButtonWrapper>
         </FixedFooter>
       </Container>
@@ -248,17 +283,21 @@ const SectionTitle = styled.div`
 
 interface FilterButtonProps {
   selected: boolean;
+  disabled?: boolean;
 }
 const FilterButton = styled.button<FilterButtonProps>`
   min-width: 60px;
   height: 36px;
   border-radius: 18px;
   border: 1px solid #000;
-  background: ${({ selected }) => (selected ? '#000' : '#fff')};
-  color: ${({ selected }) => (selected ? '#fff' : '#000')};
+  background: ${({ selected, disabled }) =>
+    disabled ? '#eee' : selected ? '#000' : '#fff'};
+  color: ${({ selected, disabled }) =>
+    disabled ? '#aaa' : selected ? '#fff' : '#000'};
   font-weight: 700;
   font-size: 12px;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${({ disabled }) => (disabled ? 1 : 1)};
 `;
 
 const ButtonRow = styled.div`
