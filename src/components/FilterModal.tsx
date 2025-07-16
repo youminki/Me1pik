@@ -46,14 +46,17 @@ interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onColorSelect?: (colors: string[]) => void;
+  selectedColors: string[];
+  setSelectedColors: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const FilterModal: React.FC<FilterModalProps> = ({
   isOpen,
   onClose,
   onColorSelect,
+  selectedColors,
+  setSelectedColors,
 }) => {
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
@@ -96,19 +99,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
   if (!isOpen) return null;
 
-  // contrast color 유틸 함수
-  function getContrastColor(hex: string) {
-    // hex에서 # 제거
-    hex = hex.replace('#', '');
-    // RGB로 변환
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    // 밝기 계산 (YIQ 공식)
-    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-    return yiq >= 180 ? '#222' : '#fff';
-  }
-
   return (
     <Overlay onClick={handleClose}>
       <Container onClick={(e) => e.stopPropagation()} $isClosing={isClosing}>
@@ -140,22 +130,12 @@ const FilterModal: React.FC<FilterModalProps> = ({
             <SectionTitleWithParen text='색상 (셋팅 : 없음)' />
             <ColorButtonGrid>
               {Object.keys(colorMap).map((color) => {
-                const bg = colorMap[color];
-                const textColor = getContrastColor(bg);
                 return (
                   <ColorButton
                     key={color}
                     selected={selectedColors.includes(color)}
+                    colorName={color}
                     onClick={() => handleColorClick(color)}
-                    style={{
-                      background: selectedColors.includes(color) ? bg : '#fff',
-                      color: selectedColors.includes(color)
-                        ? textColor
-                        : '#000',
-                      border: selectedColors.includes(color)
-                        ? '3px solid #000'
-                        : '1px solid #000',
-                    }}
                   >
                     {color}
                   </ColorButton>
@@ -306,7 +286,34 @@ const ButtonRow = styled.div`
   gap: 12px;
 `;
 
-const ColorButton = styled(FilterButton)``;
+// ColorButton에 colorName prop 추가
+interface ColorButtonPropsStyled extends FilterButtonProps {
+  colorName: string;
+}
+const ColorButton = styled(FilterButton)<ColorButtonPropsStyled>`
+  background: ${({ selected }) => (selected ? '#000' : '#fff')};
+  color: ${({ selected }) => (selected ? '#fff' : '#000')};
+  border: 1px solid #000;
+  &:hover {
+    background: ${({ selected, colorName }) => {
+      if (selected) return '#000';
+      return colorMap[colorName] || '#fff';
+    }};
+    color: ${({ selected, colorName }) => {
+      if (selected) return '#fff';
+      const hex = colorMap[colorName] || '#fff';
+      function getContrastColor(hex: string) {
+        hex = hex.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+        return yiq >= 180 ? '#222' : '#fff';
+      }
+      return getContrastColor(hex);
+    }};
+  }
+`;
 const ColorButtonGrid = styled.div`
   display: flex;
   flex-wrap: wrap;

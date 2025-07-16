@@ -374,6 +374,8 @@ const Home: React.FC = () => {
           setSelectedColors(colors);
           setFilterModalOpen(false);
         }}
+        selectedColors={selectedColors}
+        setSelectedColors={setSelectedColors}
       />
 
       {/* 서브헤더 */}
