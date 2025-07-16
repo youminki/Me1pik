@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider, css } from 'styled-components';
 import Theme from '../../../styles/Theme';
 import StatsSection from '../../../components/StatsSection';
 import InputField from '../../../components/InputField';
 import CustomModal from '../../../components/CustomModal';
+import {
+  getUserPageAdminInfo,
+  setUserPageAccount,
+  addUserPageLink,
+  deleteUserPageLink,
+} from '../../../api/adminUserPage/adminUserPage';
 
 // 링크 리스트 스타일 요소 const로 분리
 const LinkListWrapper = styled.div`
@@ -86,6 +92,13 @@ const LinkDeleteButton = styled.button`
   }
 `;
 
+type UserLink = {
+  id: number;
+  label: string;
+  url: string;
+  title: string;
+};
+
 const SettingMelpik: React.FC = () => {
   const visits = '@styleweex';
   const sales = '4개';
@@ -128,35 +141,41 @@ const SettingMelpik: React.FC = () => {
     return number;
   };
 
-  const [links, setLinks] = useState([
-    {
-      id: 1,
-      label: '링크 1',
-      url: 'https://youtu.be/Kw482drmWqw',
-      title: '밍또의 세상',
-    },
-    {
-      id: 2,
-      label: '링크 2',
-      url: 'https://youtu.be/UfLf_60xa2a',
-      title: '서비스 소개 링크',
-    },
-    {
-      id: 3,
-      label: '링크 3',
-      url: 'https://myteatime.kr/conm',
-      title: '2024 티타임지 인터뷰',
-    },
-    {
-      id: 4,
-      label: '링크 4',
-      url: 'https://myteatime.kr/cont1m',
-      title: '2024 네이버 인터뷰',
-    },
-  ]);
+  const [links, setLinks] = useState<UserLink[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleDelete = (linkId: number) => {
-    setLinks(links.filter((link) => link.id !== linkId));
+  // 정보 불러오기
+  useEffect(() => {
+    setLoading(true);
+    getUserPageAdminInfo()
+      .then((data) => {
+        setLinks(
+          (data.links || []).map(
+            (
+              l: { id: number; linkTitle: string; linkUrl: string },
+              idx: number
+            ) => ({
+              id: l.id,
+              label: `링크 ${idx + 1}`,
+              url: l.linkUrl,
+              title: l.linkTitle,
+            })
+          )
+        );
+        setAccountInfo({
+          bank: data.bankName || '국민은행',
+          accountNumber: data.accountNumber || '',
+          accountOwner: data.accountHolder || '',
+        });
+        // 기타 필요한 정보 세팅
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  // 링크 삭제
+  const handleDelete = async (linkId: number) => {
+    await deleteUserPageLink(linkId);
+    setLinks((prev) => prev.filter((link) => link.id !== linkId));
   };
 
   const handleCopyLink = () => {
@@ -466,11 +485,29 @@ const SettingMelpik: React.FC = () => {
   );
 
   // 모달 확인 시 반영
-  const handleAccountModalConfirm = () => {
+  const handleAccountModalConfirm = async () => {
+    await setUserPageAccount(
+      tempAccountInfo.accountNumber,
+      tempAccountInfo.bank,
+      tempAccountInfo.accountOwner
+    );
     setAccountInfo(tempAccountInfo);
     setAccountModalOpen(false);
   };
-  const handleLinkModalConfirm = () => {
+  const handleLinkModalConfirm = async () => {
+    const res = await addUserPageLink(
+      tempLinkInfo.linkName,
+      tempLinkInfo.linkUrl
+    );
+    setLinks((prev) => [
+      ...prev,
+      {
+        id: res.id,
+        label: `링크 ${prev.length + 1}`,
+        url: res.url,
+        title: res.title,
+      },
+    ]);
     setLinkInfo(tempLinkInfo);
     setLinkModalOpen(false);
   };
@@ -606,19 +643,25 @@ const SettingMelpik: React.FC = () => {
 
         {/* 링크 리스트 */}
         <LinkListWrapper>
-          {links.map((link, idx) => (
-            <LinkRow key={link.id}>
-              <LinkLabel>{`링크 ${idx + 1}`}</LinkLabel>
-              <LinkText>
-                <LinkTitle>{link.title}</LinkTitle>
-                <LinkSeparator>|</LinkSeparator>
-                <LinkUrl>{link.url}</LinkUrl>
-              </LinkText>
-              <LinkDeleteButton onClick={() => handleDelete(link.id)}>
-                ×
-              </LinkDeleteButton>
-            </LinkRow>
-          ))}
+          {loading ? (
+            <div>Loading...</div>
+          ) : links.length === 0 ? (
+            <div>등록된 링크가 없습니다.</div>
+          ) : (
+            links.map((link, idx) => (
+              <LinkRow key={link.id}>
+                <LinkLabel>{`링크 ${idx + 1}`}</LinkLabel>
+                <LinkText>
+                  <LinkTitle>{link.title}</LinkTitle>
+                  <LinkSeparator>|</LinkSeparator>
+                  <LinkUrl>{link.url}</LinkUrl>
+                </LinkText>
+                <LinkDeleteButton onClick={() => handleDelete(link.id)}>
+                  ×
+                </LinkDeleteButton>
+              </LinkRow>
+            ))
+          )}
         </LinkListWrapper>
 
         <CustomModal
