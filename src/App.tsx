@@ -60,13 +60,8 @@ import ProductReview from './pages/LockerRoom/ProductReview/ProductReview';
 import ProductReviewWrite from './pages/LockerRoom/ProductReview/ProductReviewWrite';
 
 import CustomerService from './pages/CustomerService/CustomerService';
-import FrequentlyAskedQuestions from './pages/CustomerService/FrequentlyAskedQuestions/FrequentlyAskedQuestions';
-import Notice from './pages/CustomerService/Notice/Notice';
-import NoticeDetail from './pages/CustomerService/Notice/NoticeDetail';
-import PersonalInformationProcessingPolicy from './pages/CustomerService/PersonalInformationProcessingPolicy/PersonalInformationProcessingPolicy';
-import PersonalInformationProcessingPolicyDetail from './pages/CustomerService/PersonalInformationProcessingPolicy/PersonalInformationProcessingPolicyDetail';
-import TermsAndConditionsOfUse from './pages/CustomerService/TermsAndConditionsOfUse/TermsAndConditionsOfUse';
-import TermsAndConditionsOfUseDetail from './pages/CustomerService/TermsAndConditionsOfUse/TermsAndConditionsOfUseDetail';
+import DocumentList from './pages/CustomerService/documents/DocumentList';
+import DocumentDetail from './pages/CustomerService/documents/DocumentDetail';
 
 import Scedule from './pages/Melpik/Schedule/Scedule';
 import ScheduleConfirmation from './pages/Melpik/Schedule/ScheduleConfirmation';
@@ -288,30 +283,10 @@ const App: React.FC = () => {
 
           {/* CustomerService */}
           <Route path='/customerService' element={<CustomerService />} />
+          <Route path='/customerService/:type' element={<DocumentList />} />
           <Route
-            path='/customerService/FrequentlyAskedQuestions'
-            element={<FrequentlyAskedQuestions />}
-          />
-          <Route path='/customerService/Notice' element={<Notice />} />
-          <Route
-            path='/customerService/NoticeDetail'
-            element={<NoticeDetail />}
-          />
-          <Route
-            path='/customerService/PersonalInformationProcessingPolicy'
-            element={<PersonalInformationProcessingPolicy />}
-          />
-          <Route
-            path='/customerService/PersonalInformationProcessingPolicyDetail'
-            element={<PersonalInformationProcessingPolicyDetail />}
-          />
-          <Route
-            path='/customerService/TermsAndConditionsOfUse'
-            element={<TermsAndConditionsOfUse />}
-          />
-          <Route
-            path='/customerService/TermsAndConditionsOfUseDetail'
-            element={<TermsAndConditionsOfUseDetail />}
+            path='/customerService/:type/:id'
+            element={<DocumentDetail />}
           />
           <Route path='/password-change' element={<PasswordChange />} />
           <Route path='/payment-complete' element={<PaymentComplete />} />

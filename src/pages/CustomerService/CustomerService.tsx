@@ -11,21 +11,21 @@ import PersonalInformationProcessingPolicyBox from '../../assets/CustomerService
 import TermsAndConditionsOfUseBox from '../../assets/CustomerService/TermsAndConditionsOfUse.svg';
 
 const menuItems = [
-  { icon: NoticeBox, label: '공지사항', path: '/CustomerService/Notice' },
+  { icon: NoticeBox, label: '공지사항', path: '/customerService/notice' },
   {
     icon: FrequentlyAskedQuestionsBox,
     label: '자주 묻는 질문',
-    path: '/CustomerService/FrequentlyAskedQuestions',
+    path: '/customerService/faq',
   },
   {
     icon: TermsAndConditionsOfUseBox,
     label: '이용약관',
-    path: '/CustomerService/TermsAndConditionsOfUse',
+    path: '/customerService/terms',
   },
   {
     icon: PersonalInformationProcessingPolicyBox,
     label: '개인정보처리방침',
-    path: '/CustomerService/PersonalInformationProcessingPolicy',
+    path: '/customerService/privacy',
   },
 ];
 
