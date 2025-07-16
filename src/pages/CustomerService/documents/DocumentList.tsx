@@ -9,6 +9,14 @@ import StatsSection from '../../../components/StatsSection';
 import ArrowToggleIcon from '../../../assets/library/ArrowToggleIcon';
 import CustomerServiceIcon from '../../../assets/CustomerServiceIcons.svg';
 
+// 스켈레톤 UI용 styled-components (불필요한 것 삭제)
+const shimmer = `
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+`;
+
+// SkeletonTitle, SkeletonMeta 선언부 완전히 삭제
+
 const typeToTitle: Record<string, string> = {
   notice: '공지사항',
   faq: '자주 묻는 질문',
@@ -64,6 +72,71 @@ interface TermsPolicyItem {
   createdAt: string;
 }
 
+// 스켈레톤 UI 컴포넌트 (실제 리스트 구조와 유사하게 개선)
+const SkeletonList = () => (
+  <ListContainer>
+    {[1, 2, 3, 4].map((i) => (
+      <SkeletonListItem key={i}>
+        <div style={{ flex: 1 }}>
+          <SkeletonQ>Q.</SkeletonQ>
+          <SkeletonTitleBlock />
+          <SkeletonMetaBlock />
+        </div>
+        <SkeletonIcon />
+      </SkeletonListItem>
+    ))}
+  </ListContainer>
+);
+
+const SkeletonListItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 16px 16px;
+  border-bottom: 1px solid #eeeeee;
+  background: #fff;
+`;
+
+const SkeletonQ = styled.div`
+  display: inline-block;
+  width: 22px;
+  height: 18px;
+  border-radius: 4px;
+  background: #f3f3f3;
+  margin-bottom: 8px;
+`;
+
+const SkeletonTitleBlock = styled.div`
+  width: 70%;
+  height: 18px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: #eee;
+  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
+  background-size: 400px 100%;
+  animation: shimmer 1.2s infinite linear;
+  @keyframes shimmer {
+    ${shimmer}
+  }
+`;
+
+const SkeletonMetaBlock = styled.div`
+  width: 40%;
+  height: 14px;
+  border-radius: 6px;
+  background: #eee;
+  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
+  background-size: 400px 100%;
+  animation: shimmer 1.2s infinite linear;
+`;
+
+const SkeletonIcon = styled.div`
+  width: 32px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f3f3f3;
+`;
+
 const DocumentList: React.FC = () => {
   const { type } = useParams<{ type: string }>();
   const [list, setList] = useState<TermsPolicyItem[]>([]);
@@ -100,9 +173,6 @@ const DocumentList: React.FC = () => {
   };
 
   const title = typeToTitle[type || ''] || '문서';
-
-  if (loading) return <ListContainer>로딩 중...</ListContainer>;
-  if (!list.length) return <ListContainer>데이터가 없습니다.</ListContainer>;
 
   return (
     <ResponsiveContainer>
@@ -141,36 +211,42 @@ const DocumentList: React.FC = () => {
           ))}
         </TabSection>
       )}
-      <ListContainer>
-        {list.map((item, idx) => (
-          <div key={item.id}>
-            <ListItem onClick={() => handleClick(item.id)}>
-              <div style={{ flex: 1 }}>
-                <ItemTitle>
-                  <span style={{ fontWeight: 700, color: '#222' }}>Q. </span>
-                  {item.title}
-                </ItemTitle>
-                <ItemMeta>
-                  <CategoryOrange>{item.category}</CategoryOrange>
-                </ItemMeta>
-              </div>
-              <IconRight>
-                <ArrowToggleIcon
-                  direction={openId === item.id ? 'up' : 'down'}
-                />
-              </IconRight>
-            </ListItem>
-            <DetailWrapper
-              isOpen={openId === item.id}
-              isLast={idx === list.length - 1}
-            >
-              <DetailInner isOpen={openId === item.id}>
-                {detail[item.id] || (openId === item.id && '로딩 중...')}
-              </DetailInner>
-            </DetailWrapper>
-          </div>
-        ))}
-      </ListContainer>
+      {loading ? (
+        <SkeletonList />
+      ) : !list.length ? (
+        <EmptyContainer>데이터가 없습니다.</EmptyContainer>
+      ) : (
+        <ListContainer>
+          {list.map((item, idx) => (
+            <div key={item.id}>
+              <ListItem onClick={() => handleClick(item.id)}>
+                <div style={{ flex: 1 }}>
+                  <ItemTitle>
+                    <span style={{ fontWeight: 700, color: '#222' }}>Q. </span>
+                    {item.title}
+                  </ItemTitle>
+                  <ItemMeta>
+                    <CategoryOrange>{item.category}</CategoryOrange>
+                  </ItemMeta>
+                </div>
+                <IconRight>
+                  <ArrowToggleIcon
+                    direction={openId === item.id ? 'up' : 'down'}
+                  />
+                </IconRight>
+              </ListItem>
+              <DetailWrapper
+                isOpen={openId === item.id}
+                isLast={idx === list.length - 1}
+              >
+                <DetailInner isOpen={openId === item.id}>
+                  {detail[item.id] || (openId === item.id && '로딩 중...')}
+                </DetailInner>
+              </DetailWrapper>
+            </div>
+          ))}
+        </ListContainer>
+      )}
     </ResponsiveContainer>
   );
 };
@@ -218,6 +294,14 @@ const ListContainer = styled.div`
   margin-bottom: 24px;
   padding: 0;
   overflow: hidden;
+`;
+
+const EmptyContainer = styled(ListContainer)`
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px 16px 16px;
 `;
 
 const ListItem = styled.div`
