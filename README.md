@@ -102,6 +102,22 @@ window.nativeApp = {
 """)
 ```
 
+## 🧪 테스트 실행 및 CustomModal mock 안내
+
+- `src/pages/Melpik/Setting/__tests__/SettingMelpik.test.tsx`에서는 CustomModal mock에서 '확인' 버튼을 직접 추가합니다.
+- 이는 테스트 환경에서 포털/조건부 렌더링 등으로 인해 실제 children이 노출되지 않는 한계를 보완하기 위함입니다.
+- 실제 서비스 코드에는 영향이 없으며, E2E 테스트에서는 실제 모달 동작까지 검증할 수 있습니다.
+
+### 테스트 실행 방법
+
+```bash
+yarn jest src/pages/Melpik/Setting/__tests__/SettingMelpik.test.tsx --coverage
+```
+
+### E2E 테스트 도입 권장
+
+- 실제 브라우저 환경에서 포털/모달/버튼 동작까지 검증하려면 Cypress, Playwright 등 도구를 활용한 E2E 테스트를 추가하는 것이 좋습니다.
+
 ## 개발 환경 설정
 
 ### 필수 요구사항

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled, { ThemeProvider, css } from 'styled-components';
 import Theme from '../../../styles/Theme';
 import StatsSection from '../../../components/StatsSection';
@@ -107,7 +107,7 @@ const SettingMelpik: React.FC = () => {
   const visitLabel = '인스타 계정';
   const salesLabel = '등록된 링크';
 
-  const [melpickAddress] = useState('styleweex');
+  const [melpickAddress, setMelpickAddress] = useState('');
   const [isSubscriber, setIsSubscriber] = useState(true);
 
   const [accountInfo, setAccountInfo] = useState({
@@ -149,6 +149,7 @@ const SettingMelpik: React.FC = () => {
     setLoading(true);
     getUserPageAdminInfo()
       .then((data) => {
+        setMelpickAddress(data.personalWebpage || '');
         setLinks(
           (data.links || []).map(
             (
@@ -157,8 +158,8 @@ const SettingMelpik: React.FC = () => {
             ) => ({
               id: l.id,
               label: `링크 ${idx + 1}`,
-              url: l.linkUrl,
               title: l.linkTitle,
+              url: l.linkUrl,
             })
           )
         );
@@ -168,6 +169,38 @@ const SettingMelpik: React.FC = () => {
           accountOwner: data.accountHolder || '',
         });
         // 기타 필요한 정보 세팅
+      })
+      .catch(async (err) => {
+        if (err?.response?.status === 404) {
+          try {
+            await import('../../../api/adminUserPage/adminUserPage').then((m) =>
+              m.activateUserPage()
+            );
+            // 활성화 후 재조회
+            const data = await getUserPageAdminInfo();
+            setMelpickAddress(data.personalWebpage || '');
+            setLinks(
+              (data.links || []).map(
+                (
+                  l: { id: number; linkTitle: string; linkUrl: string },
+                  idx: number
+                ) => ({
+                  id: l.id,
+                  label: `링크 ${idx + 1}`,
+                  title: l.linkTitle,
+                  url: l.linkUrl,
+                })
+              )
+            );
+            setAccountInfo({
+              bank: data.bankName || '국민은행',
+              accountNumber: data.accountNumber || '',
+              accountOwner: data.accountHolder || '',
+            });
+          } catch {
+            // 활성화 실패 시 별도 처리(알림 등)
+          }
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -401,7 +434,7 @@ const SettingMelpik: React.FC = () => {
   };
 
   // InputField 최적화를 위한 메모이제이션
-  const memoizedAccountInputs = React.useMemo(
+  const memoizedAccountInputs = useMemo(
     () => (
       <>
         <InputField
@@ -456,7 +489,7 @@ const SettingMelpik: React.FC = () => {
     [tempAccountInfo]
   );
 
-  const memoizedLinkInputs = React.useMemo(
+  const memoizedLinkInputs = useMemo(
     () => (
       <>
         <InputField
@@ -504,8 +537,8 @@ const SettingMelpik: React.FC = () => {
       {
         id: res.id,
         label: `링크 ${prev.length + 1}`,
-        url: res.url,
-        title: res.title,
+        title: res.linkTitle,
+        url: res.linkUrl,
       },
     ]);
     setLinkInfo(tempLinkInfo);
