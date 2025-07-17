@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 declare global {
   interface Window {
-    daum: any;
+    daum: { Postcode: unknown };
   }
 }
 
@@ -82,19 +82,46 @@ const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
       .then(() => {
         if (!containerRef.current) return;
         containerRef.current.innerHTML = '';
-        new window.daum.Postcode({
-          width: '100%',
-          height: '100%',
-          oncomplete: (data: any) => {
-            const addr = data.roadAddress || data.jibunAddress;
-            onSelect(addr, parseFloat(data.y), parseFloat(data.x));
-            onClose();
-          },
-        }).embed(containerRef.current);
+        const Postcode = window.daum.Postcode as
+          | (new (options: {
+              width: string;
+              height: string;
+              oncomplete: (data: {
+                roadAddress?: string;
+                jibunAddress?: string;
+                y?: string;
+                x?: string;
+              }) => void;
+            }) => { embed: (container: HTMLElement) => void })
+          | undefined;
+        if (Postcode) {
+          new Postcode({
+            width: '100%',
+            height: '100%',
+            oncomplete: (data: {
+              roadAddress?: string;
+              jibunAddress?: string;
+              y?: string;
+              x?: string;
+            }) => {
+              const addr = data.roadAddress || data.jibunAddress;
+              const lat =
+                typeof data.y === 'string' ? parseFloat(data.y) : undefined;
+              const lng =
+                typeof data.x === 'string' ? parseFloat(data.x) : undefined;
+              if (typeof addr === 'string') {
+                onSelect(addr, lat, lng);
+              }
+              onClose();
+            },
+          }).embed(containerRef.current);
+        }
       })
       .catch(console.error);
+    // cleanup에서 ref를 지역 변수로 저장
+    const ref = containerRef.current;
     return () => {
-      if (containerRef.current) containerRef.current.innerHTML = '';
+      if (ref) ref.innerHTML = '';
     };
   }, [isOpen, onClose, onSelect]);
 

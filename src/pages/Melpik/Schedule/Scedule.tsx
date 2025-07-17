@@ -28,13 +28,28 @@ const Schedule: React.FC = () => {
       try {
         const data = await getMySaleScheduleSummaries();
         setSchedules(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('스케줄 요약 조회 실패', err);
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            '스케줄 조회 중 오류가 발생했습니다.'
-        );
+        let message = '스케줄 조회 중 오류가 발생했습니다.';
+        if (
+          err &&
+          typeof err === 'object' &&
+          'response' in err &&
+          typeof (err as { response?: unknown }).response === 'object'
+        ) {
+          const response = (
+            err as { response?: { data?: { message?: string } } }
+          ).response;
+          if (response?.data?.message) message = response.data.message;
+        } else if (
+          err &&
+          typeof err === 'object' &&
+          'message' in err &&
+          typeof (err as { message?: unknown }).message === 'string'
+        ) {
+          message = (err as { message: string }).message;
+        }
+        setError(message);
       } finally {
         setLoading(false);
       }

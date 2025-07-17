@@ -30,7 +30,7 @@ export const getProductsByBrand = async (
   brandId: number,
   category?: string
 ): Promise<Product[]> => {
-  const params: Record<string, any> = {};
+  const params: Record<string, string> = {};
   if (category) {
     params.category = category;
   }

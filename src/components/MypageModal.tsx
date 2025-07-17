@@ -41,8 +41,13 @@ const MypageModal: React.FC<MypageModalProps> = ({ isOpen, onClose }) => {
       console.log('로그아웃 시작');
 
       // 인스타그램 방식: 웹뷰 통신 스크립트 호출
-      if ((window as any).handleWebLogout) {
-        (window as any).handleWebLogout();
+      if (
+        typeof (window as unknown as { handleWebLogout?: () => void })
+          .handleWebLogout === 'function'
+      ) {
+        (
+          window as unknown as { handleWebLogout: () => void }
+        ).handleWebLogout();
       }
 
       await logout();

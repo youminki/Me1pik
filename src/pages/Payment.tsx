@@ -18,9 +18,8 @@ import { useAddresses, Address } from '../api/address/address';
 import DeliveryListModal from '../components/DeliveryListModal';
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   interface Window {
-    daum: any;
+    daum: { Postcode: unknown };
   }
 }
 

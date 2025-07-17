@@ -39,7 +39,7 @@ const AddCardPayple: React.FC = () => {
           userName: data.name,
           userEmail: data.email,
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('유저 정보 로딩 실패:', err);
         setError('로그인 정보를 불러오는 데 실패했습니다.');
       }
@@ -86,9 +86,18 @@ const AddCardPayple: React.FC = () => {
         PCD_PAY_GOODS: '카드 등록',
         PCD_PAY_TOTAL: 101,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('카드 등록 오류:', err);
-      setError(`카드 등록 중 오류 발생: ${err.message}`);
+      let message = '카드 등록 중 오류 발생';
+      if (
+        err &&
+        typeof err === 'object' &&
+        'message' in err &&
+        typeof (err as { message?: unknown }).message === 'string'
+      ) {
+        message = `카드 등록 중 오류 발생: ${(err as { message: string }).message}`;
+      }
+      setError(message);
     }
   }, [userInfo]);
 

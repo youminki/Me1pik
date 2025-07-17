@@ -140,8 +140,11 @@ const UpdateProfile: React.FC = () => {
       const msg =
         err instanceof Error &&
         'response' in err &&
-        (err as any).response?.data?.message
-          ? (err as any).response.data.message
+        typeof (err as { response?: unknown }).response === 'object' &&
+        (err as { response?: { data?: { message?: string } } }).response?.data
+          ?.message
+          ? (err as { response: { data: { message: string } } }).response.data
+              .message
           : err instanceof Error
             ? err.message
             : '알 수 없는 오류';

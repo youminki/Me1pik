@@ -1,19 +1,21 @@
 import { Axios } from '../api/Axios.ts';
 
+interface LoginUser {
+  id: string;
+  email: string;
+  [key: string]: unknown;
+}
+
 interface LoginResponse {
   accessToken: string;
   refreshToken?: string;
-  user?: {
-    id: string;
-    email: string;
-    [key: string]: any;
-  };
+  user?: LoginUser;
 }
 
 interface LoginError {
   message: string;
   statusCode?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -33,12 +35,27 @@ export const LoginPost = async (
       password,
     });
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login failed:', error);
+    let message = '알 수 없는 에러가 발생했습니다.';
+    let statusCode: number | undefined = undefined;
+    if (error && typeof error === 'object' && 'response' in error) {
+      const errObj = error as {
+        response?: { data?: { message?: string }; status?: number };
+      };
+      message = errObj.response?.data?.message || message;
+      statusCode = errObj.response?.status;
+    } else if (
+      error &&
+      typeof error === 'object' &&
+      'message' in error &&
+      typeof (error as { message?: unknown }).message === 'string'
+    ) {
+      message = (error as { message: string }).message;
+    }
     const errorMessage: LoginError = {
-      message:
-        error.response?.data?.message || '알 수 없는 에러가 발생했습니다.',
-      statusCode: error.response?.status,
+      message,
+      statusCode,
     };
     throw errorMessage;
   }

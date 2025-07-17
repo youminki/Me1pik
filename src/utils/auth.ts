@@ -199,11 +199,21 @@ const notifyAppLogin = (accessToken: string, refreshToken?: string): void => {
  */
 const notifyAppLogout = (): void => {
   // 네이티브 앱에 로그아웃 알림
-  const messageHandlers = window.webkit?.messageHandlers;
-  if (messageHandlers && 'logoutHandler' in messageHandlers) {
-    (messageHandlers as any).logoutHandler.postMessage({
-      type: 'logout',
-    });
+  const messageHandlers = window.webkit?.messageHandlers as
+    | {
+        loginHandler?: {
+          postMessage: (message: Record<string, unknown>) => void;
+        };
+        logoutHandler?: {
+          postMessage: (message: Record<string, unknown>) => void;
+        };
+      }
+    | undefined;
+  if (
+    messageHandlers &&
+    typeof messageHandlers.logoutHandler?.postMessage === 'function'
+  ) {
+    messageHandlers.logoutHandler.postMessage({ type: 'logout' });
   }
 
   // 커스텀 이벤트로 웹뷰에 알림

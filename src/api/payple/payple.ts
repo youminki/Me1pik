@@ -50,7 +50,7 @@ export const initPayment = async (
       }
     );
     return response.data;
-  } catch (error) {
+  } catch {
     throw new Error('결제 초기화 요청 실패');
   }
 };
@@ -70,7 +70,7 @@ export const recurringPayment = async (
       }
     );
     return response.data;
-  } catch (error) {
+  } catch {
     throw new Error('정기 결제 요청 실패');
   }
 };

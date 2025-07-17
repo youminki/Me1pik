@@ -26,7 +26,24 @@ export const signupUser = async (data: SignupData) => {
     } else {
       throw new Error(response.data?.message || '회원가입에 실패했습니다.');
     }
-  } catch (error: any) {
-    throw error.response?.data || error.message;
+  } catch (error: unknown) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'response' in error &&
+      typeof (error as { response?: unknown }).response === 'object' &&
+      (error as { response?: { data?: unknown } }).response?.data
+    ) {
+      throw (error as { response: { data: unknown } }).response.data;
+    }
+    if (
+      error &&
+      typeof error === 'object' &&
+      'message' in error &&
+      typeof (error as { message?: unknown }).message === 'string'
+    ) {
+      throw (error as { message: string }).message;
+    }
+    throw '회원가입에 실패했습니다.';
   }
 };

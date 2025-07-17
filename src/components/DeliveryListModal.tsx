@@ -51,10 +51,7 @@ const DeliveryListModal: React.FC<Props> = ({
                   </TitleSmall>
                   <ReadOnlyInput value={addr.address} readOnly />
                   <ReadOnlyInput value={addr.addressDetail} readOnly />
-                  <ReadOnlyInput
-                    value={(addr as any).deliveryMessage || ''}
-                    readOnly
-                  />
+                  <ReadOnlyInput value={addr.deliveryMessage || ''} readOnly />
                   <RadioWrapper>
                     <RadioLabel>
                       <input
