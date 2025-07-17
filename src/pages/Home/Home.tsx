@@ -144,6 +144,7 @@ const Home: React.FC = () => {
 
   // 검색/필터된 상품 목록 (useMemo로 연산 최소화)
   const filteredProducts = useMemo(() => {
+    console.time('filteredProducts');
     if (!products) return [];
     const term = searchQuery.trim().toLowerCase();
     // 쉼표로 분리된 여러 검색어 처리
@@ -215,24 +216,25 @@ const Home: React.FC = () => {
 
       return matchesBrandOrDesc && matchesSearchColors && matchesSelectedColors;
     });
-
+    console.timeEnd('filteredProducts');
     return filtered;
   }, [products, searchQuery, selectedColors]);
 
   // UIItem 변환 (모든 상품을 한 번에 불러옴)
-  const uiItems: UIItem[] = useMemo(
-    () =>
-      filteredProducts.map((p) => ({
-        id: p.id.toString(),
-        image: p.image,
-        brand: p.brand,
-        description: p.description,
-        price: p.price,
-        discount: p.discount,
-        isLiked: p.isLiked,
-      })),
-    [filteredProducts]
-  );
+  const uiItems: UIItem[] = useMemo(() => {
+    console.time('uiItems');
+    const result = filteredProducts.map((p) => ({
+      id: p.id.toString(),
+      image: p.image,
+      brand: p.brand,
+      description: p.description,
+      price: p.price,
+      discount: p.discount,
+      isLiked: p.isLiked,
+    }));
+    console.timeEnd('uiItems');
+    return result;
+  }, [filteredProducts]);
 
   // URL 동기화
   useEffect(() => {
@@ -351,6 +353,34 @@ const Home: React.FC = () => {
       setTempSelectedColors(selectedColors);
     }
   }, [isFilterModalOpen, selectedColors]);
+
+  const [visibleCount, setVisibleCount] = useState(40); // 최초 40개로 다시 낮춤
+  const observerRef = useRef<HTMLDivElement | null>(null);
+
+  // 무한스크롤 IntersectionObserver
+  useEffect(() => {
+    if (!observerRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + 40, uiItems.length));
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [uiItems.length]);
+
+  const visibleItems = uiItems.slice(0, visibleCount);
+  console.log(
+    'visibleCount:',
+    visibleCount,
+    'visibleItems:',
+    visibleItems.length,
+    'uiItems:',
+    uiItems.length
+  );
 
   if (isError)
     return <div>상품을 불러오는 데 실패했습니다: {String(error)}</div>;
@@ -499,12 +529,16 @@ const Home: React.FC = () => {
             </OverlayMessage>
           </OverlayWrapper>
         ) : (
-          <ItemList
-            items={uiItems}
-            columns={viewCols}
-            onItemClick={handleOpenModal}
-            isLoading={isLoading}
-          />
+          <>
+            <ItemList
+              items={visibleItems}
+              columns={viewCols}
+              onItemClick={handleOpenModal}
+              isLoading={isLoading}
+              observerRef={observerRef}
+            />
+            <div ref={observerRef} style={{ height: 1 }} />
+          </>
         )}
       </ContentWrapper>
 

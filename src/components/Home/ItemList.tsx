@@ -18,16 +18,18 @@ type ItemListProps = {
   onItemClick?: (id: string) => void;
   onDelete?: (id: string) => void;
   isLoading?: boolean;
+  observerRef?: React.RefObject<HTMLDivElement>;
 };
 
 const SKELETON_COUNT = 8;
 
 const ItemList: React.FC<ItemListProps> = ({
   items,
-  columns = 5,
+  columns = 4,
   onItemClick,
   onDelete,
   isLoading = false,
+  observerRef,
 }) => {
   const handleOpen = onItemClick ?? (() => {});
   const handleDelete = onDelete ?? (() => {});
@@ -57,6 +59,8 @@ const ItemList: React.FC<ItemListProps> = ({
                 onDelete={handleDelete}
               />
             ))}
+        {/* 무한스크롤 observer div를 리스트 마지막에 추가 */}
+        {observerRef && <div ref={observerRef} style={{ height: 1 }} />}
       </ItemsWrapper>
     </ListContainer>
   );
@@ -74,6 +78,5 @@ const ListContainer = styled.div`
 const ItemsWrapper = styled.div<{ columns: number }>`
   display: grid;
   gap: 16px;
-
   grid-template-columns: repeat(${({ columns }) => columns}, minmax(0, 1fr));
 `;

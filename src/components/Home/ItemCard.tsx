@@ -20,7 +20,8 @@ type ItemCardProps = {
 
 type ConfirmAction = 'add' | 'remove' | null;
 
-function ItemCard({
+// 기존 함수형 컴포넌트 → React.memo로 감싸기
+const ItemCard = React.memo(function ItemCard({
   id,
   image,
   brand,
@@ -112,6 +113,9 @@ function ItemCard({
           <Image
             src={image.split('#')[0] || '/default.jpg'}
             alt={brand}
+            loading='eager'
+            width={'100%'}
+            height={'100%'}
             style={{
               display: imgLoaded ? 'block' : 'none',
               opacity: imgLoaded ? 1 : 0,
@@ -150,7 +154,7 @@ function ItemCard({
           </>
         ) : (
           <>
-            <Brand>{brand}</Brand>
+            <Brand data-testid='brand'>{brand}</Brand>
             <Description>{displayDescription}</Description>
             <PriceWrapper>
               <PointBar />
@@ -182,7 +186,7 @@ function ItemCard({
       </ReusableModal>
     </>
   );
-}
+});
 
 export default ItemCard;
 
