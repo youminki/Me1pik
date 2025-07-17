@@ -28,7 +28,6 @@ const LinkRow = styled.div`
 
   min-height: 50px;
   padding: 0 12px;
-  gap: 12px;
 `;
 const LinkLabel = styled.div`
   min-width: 55px;
@@ -36,7 +35,6 @@ const LinkLabel = styled.div`
   font-weight: 900;
   font-size: 13px;
   color: #000;
-  margin-right: 8px;
 `;
 const LinkText = styled.div`
   flex: 1;
@@ -296,7 +294,7 @@ const SettingMelpik: React.FC = () => {
     font-size: 14px;
     font-weight: 800;
     color: #000;
-    margin-right: 8px;
+
     min-width: 94px;
   `;
 
