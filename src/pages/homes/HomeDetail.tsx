@@ -20,6 +20,7 @@ import ReusableModal from '../../components/shared/modals/ReusableModal';
 import BottomBar from '../../components/homes/home-details/BottomBar';
 import ShoppingBasket from '../../assets/homes/home-details/ShoppingBasket.svg';
 import { addCartItem } from '../../api-utils/product-managements/carts/cart';
+import ErrorMessage from '../../components/shared/ErrorMessage';
 
 interface ProductDetail {
   id: number;
@@ -146,7 +147,8 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
   };
 
   if (isLoading) return <HomeDetailSkeleton />;
-  if (isError || !product) return <div>제품을 찾을 수 없습니다.</div>;
+  if (isError || !product)
+    return <ErrorMessage message='제품을 찾을 수 없습니다.' />;
 
   const productInfoItem = {
     brand: product.brand,

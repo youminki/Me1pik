@@ -17,6 +17,15 @@ interface LoginError {
   [key: string]: unknown;
 }
 
+function isLoginError(error: unknown): error is LoginError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
+}
+
 /**
  * ✅ 사용자 로그인 요청 함수
  * @param id - 사용자 ID
@@ -53,29 +62,39 @@ export const LoginPost = async (
     Axios.defaults.headers.Authorization = `Bearer ${response.data.accessToken}`;
 
     return response.data;
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('❌ 로그인 실패:', error);
 
-    const err = error as {
-      response?: { status?: number; data?: { message?: string } };
-    };
-    const errorMessage: LoginError = {
-      message: '로그인 요청에 실패했습니다.',
-      statusCode: err.response?.status,
-    };
-
-    if (err.response) {
-      if (err.response.status === 401) {
-        errorMessage.message = '잘못된 사용자 ID 또는 비밀번호입니다.';
-      } else if (err.response.status === 500) {
-        errorMessage.message =
-          '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-      } else {
-        errorMessage.message =
-          err.response.data?.message || '알 수 없는 오류가 발생했습니다.';
+    let errorMessage: LoginError = { message: '로그인 요청에 실패했습니다.' };
+    if (isLoginError(error)) {
+      errorMessage = error;
+    } else if (
+      error &&
+      typeof error === 'object' &&
+      'response' in error &&
+      typeof (error as { response?: unknown }).response === 'object'
+    ) {
+      const err = error as {
+        response?: { status?: number; data?: { message?: string } };
+      };
+      errorMessage.statusCode = err.response?.status;
+      if (err.response) {
+        if (err.response.status === 401) {
+          errorMessage.message = '잘못된 사용자 ID 또는 비밀번호입니다.';
+        } else if (err.response.status === 500) {
+          errorMessage.message =
+            '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+        } else {
+          errorMessage.message =
+            err.response.data?.message || '알 수 없는 오류가 발생했습니다.';
+        }
       }
     }
-
-    throw errorMessage;
+    throw {
+      ...errorMessage,
+      message: /[가-힣]/.test(errorMessage.message)
+        ? errorMessage.message
+        : '로그인에 실패했습니다. 아이디 또는 비밀번호를 다시 확인해 주세요.',
+    };
   }
 };

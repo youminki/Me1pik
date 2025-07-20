@@ -106,3 +106,43 @@ export const isAuthError = (error: unknown): boolean => {
   const apiError = parseApiError(error);
   return apiError.status === 401 || apiError.status === 403;
 };
+
+/**
+ * 에러가 ApiError 타입인지 확인하는 타입 가드
+ */
+export function isApiError(error: unknown): error is ApiError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
+}
+
+/**
+ * 에러가 PaypleError 타입인지 확인하는 타입 가드
+ */
+export function isPaypleError(error: unknown): error is PaypleError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as Record<string, unknown>).code === 'string'
+  );
+}
+
+/**
+ * 에러를 ApiError로 파싱 (실패 시 기본값 반환)
+ */
+export function toApiError(error: unknown): ApiError {
+  if (isApiError(error)) return error;
+  return { message: '알 수 없는 오류', code: 'UNKNOWN' };
+}
+
+/**
+ * 에러를 PaypleError로 파싱 (실패 시 기본값 반환)
+ */
+export function toPaypleError(error: unknown): PaypleError {
+  if (isPaypleError(error)) return error;
+  return { code: 'UNKNOWN', message: '알 수 없는 페이플 오류', status: 0 };
+}

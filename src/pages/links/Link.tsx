@@ -7,6 +7,7 @@ import phoneMock from '../../assets/links/phone-mock.png';
 import melpikLogo from '../../assets/links/melpik-logo.svg';
 import couponCard from '../../assets/links/couponCard.svg';
 import CheckIcon from '../../assets/links/CheckIcon.svg';
+// import EmptyState from '../../components/shared/EmptyState'; // 사용 예시만 주석으로 남기고 실제 import는 삭제
 
 const Link: React.FC = () => {
   const navigate = useNavigate();
@@ -27,6 +28,11 @@ const Link: React.FC = () => {
       }, 2000);
     });
   };
+
+  // 예시: 검색 결과 없음 등 빈 상태 처리
+  // if (검색결과.length === 0) {
+  //   return <EmptyState message="검색 결과가 없습니다." />;
+  // }
 
   return (
     <Container>

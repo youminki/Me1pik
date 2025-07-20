@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 type ModalProps = {
@@ -22,6 +22,44 @@ const ReusableModal: React.FC<ModalProps> = ({
   height = '360px',
   actions,
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const modal = modalRef.current;
+    if (!modal) return;
+    // 포커스 가능한 요소들
+    const focusable = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length) focusable[0].focus();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') {
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+      // ESC 키로 닫히지 않도록 제거
+      // if (e.key === 'Escape') {
+      //   onClose();
+      // }
+    };
+    modal.addEventListener('keydown', handleKeyDown);
+    return () => {
+      modal.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleConfirmClick = () => {
@@ -33,11 +71,17 @@ const ReusableModal: React.FC<ModalProps> = ({
   };
 
   return (
-    <StyledModal>
+    <StyledModal
+      role='dialog'
+      aria-modal='true'
+      {...(title ? { 'aria-labelledby': 'modal-title' } : {})}
+      ref={modalRef}
+      tabIndex={-1}
+    >
       <ModalContent width={width} height={height}>
         {title && (
           <ModalHeader>
-            <ModalTitle>{title}</ModalTitle>
+            <ModalTitle id='modal-title'>{title}</ModalTitle>
           </ModalHeader>
         )}
         <ModalBody>{children}</ModalBody>

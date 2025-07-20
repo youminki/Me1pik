@@ -77,10 +77,15 @@ const ItemCard = React.memo(function ItemCard({
   };
 
   const showError = (err: unknown) => {
-    let status;
-    if (typeof err === 'object' && err !== null && 'response' in err) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      status = (err as any).response?.status;
+    let status: number | undefined;
+    if (
+      typeof err === 'object' &&
+      err !== null &&
+      'response' in err &&
+      typeof (err as Record<string, unknown>).response === 'object' &&
+      (err as { response?: { status?: number } }).response?.status
+    ) {
+      status = (err as { response: { status: number } }).response.status;
     }
     const msg =
       status === 409

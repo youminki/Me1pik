@@ -51,10 +51,16 @@ const LazyImage: React.FC<LazyImageProps> = ({
           onLoad={handleLoad}
           onError={handleError}
           isLoaded={isLoaded}
+          loading='lazy'
         />
       )}
       {(!shouldLoad || hasError) && (
-        <PlaceholderImage src={placeholder} alt='로딩 중...' isLoaded={false} />
+        <PlaceholderImage
+          src={placeholder}
+          alt='로딩 중...'
+          isLoaded={false}
+          loading='lazy'
+        />
       )}
     </ImageContainer>
   );

@@ -6,24 +6,24 @@ interface UseApiOptions<T> {
   onError?: (error: Error) => void;
 }
 
-interface UseApiResult<T> {
+interface UseApiResult<T, A extends unknown[] = unknown[]> {
   data: T | null;
   loading: boolean;
   error: string | null;
-  execute: (...args: unknown[]) => Promise<void>;
+  execute: (...args: A) => Promise<void>;
   reset: () => void;
 }
 
-export function useApi<T>(
-  apiFunction: (...args: unknown[]) => Promise<T>,
+export function useApi<T, A extends unknown[] = unknown[]>(
+  apiFunction: (...args: A) => Promise<T>,
   options: UseApiOptions<T> = {}
-): UseApiResult<T> {
+): UseApiResult<T, A> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const execute = useCallback(
-    async (...args: unknown[]) => {
+    async (...args: A) => {
       try {
         setLoading(true);
         setError(null);
@@ -63,28 +63,34 @@ export function useGet<T>(url: string, options?: UseApiOptions<T>) {
   return useApi(apiFunction, options);
 }
 
-export function usePost<T>(url: string, options?: UseApiOptions<T>) {
+export function usePost<T, D = unknown>(
+  url: string,
+  options?: UseApiOptions<T>
+) {
   const apiFunction = useCallback(
-    async (data: unknown) => {
+    async (data: D) => {
       const response = await Axios.post<T>(url, data);
       return response.data;
     },
     [url]
   );
 
-  return useApi(apiFunction, options);
+  return useApi<T, [D]>(apiFunction, options);
 }
 
-export function usePut<T>(url: string, options?: UseApiOptions<T>) {
+export function usePut<T, D = unknown>(
+  url: string,
+  options?: UseApiOptions<T>
+) {
   const apiFunction = useCallback(
-    async (data: unknown) => {
+    async (data: D) => {
       const response = await Axios.put<T>(url, data);
       return response.data;
     },
     [url]
   );
 
-  return useApi(apiFunction, options);
+  return useApi<T, [D]>(apiFunction, options);
 }
 
 export function useDelete<T>(url: string, options?: UseApiOptions<T>) {

@@ -7,7 +7,6 @@ import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
 import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
 import PriceIcon from '../../../assets/baskets/PriceIcon.svg';
 import sampleImage from '../../../assets/sample-dress.svg';
-import userHistoryEmptyIcon from '../../../assets/userHistoryEmptyIcon.svg';
 import HomeDetail from '../../homes/HomeDetail';
 import {
   getMyRentalSchedule,
@@ -15,6 +14,7 @@ import {
   RentalScheduleItem,
 } from '../../../api-utils/schedule-managements/rental-schedules/RentalSchedule';
 import CancleIconIcon from '../../../assets/headers/CancleIcon.svg';
+import EmptyState from '../../../components/shared/EmptyState';
 
 // 버튼 확대 애니메이션
 const hoverScale = keyframes`
@@ -178,10 +178,7 @@ const UsageHistory: React.FC = () => {
         />
 
         {filteredItems.length === 0 ? (
-          <EmptyContainer>
-            <EmptyIcon src={userHistoryEmptyIcon} alt='내역 없음' />
-            <EmptyText>이용하신 내역이 없습니다.</EmptyText>
-          </EmptyContainer>
+          <EmptyState message='이용하신 내역이 없습니다.' />
         ) : (
           <ItemList>
             {filteredItems.map((item) => (
@@ -681,27 +678,4 @@ const CancelIcon = styled.img`
   width: 24px;
   height: 24px;
   cursor: pointer;
-`;
-
-const EmptyContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 50px;
-`;
-
-const EmptyIcon = styled.img`
-  width: 80px;
-  height: 80px;
-`;
-
-const EmptyText = styled.div`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  /* identical to box height, or 157% */
-  text-align: center;
-
-  color: #aaaaaa;
-  margin-top: 16px;
 `;

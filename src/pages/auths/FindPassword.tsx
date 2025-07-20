@@ -19,6 +19,8 @@ import { resetPassword } from '../../api-utils/user-managements/users/userApi';
 import Theme from '../../styles/Theme';
 import { ThemeProvider } from 'styled-components';
 import styled from 'styled-components';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import CommonErrorMessage from '../../components/shared/ErrorMessage';
 
 // Validation schema
 const schemaFindPassword = yup.object().shape({
@@ -182,6 +184,14 @@ const FindPassword: React.FC = () => {
   };
 
   const closeModal = () => setIsModalOpen(false);
+
+  // 예시: 로딩/에러 상태 처리
+  if (isSubmitting) {
+    return <LoadingSpinner label='비밀번호 재설정 중...' />;
+  }
+  if (errorMessage) {
+    return <CommonErrorMessage message={errorMessage} />;
+  }
 
   return (
     <ThemeProvider theme={Theme}>

@@ -22,8 +22,10 @@ import ReusableModal from '../../components/shared/modals/ReusableModal';
 import FilterContainer from '../../components/homes/FilterContainer';
 import SearchModal from '../../components/homes/SearchModal';
 import MelpikGuideBanner from '../../components/melpik-guide-banner';
-import SkeletonItemList from '../../components/homes/SkeletonItemList';
 import FilterModal from '../../components/shared/modals/FilterModal';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import ErrorMessage from '../../components/shared/ErrorMessage';
+import EmptyState from '../../components/shared/EmptyState';
 
 /**
  * Home(상품 리스트) 페이지 - 최적화 버전ㄴ
@@ -289,7 +291,6 @@ const Home: React.FC = () => {
   );
 
   // 검색 결과 없음 카운트다운
-  const [noResultCountdown, setNoResultCountdown] = useState(3);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -298,20 +299,12 @@ const Home: React.FC = () => {
       uiItems.length === 0 &&
       (searchQuery || selectedColors.length > 0)
     ) {
-      setNoResultCountdown(3);
       if (countdownRef.current) clearInterval(countdownRef.current);
       countdownRef.current = setInterval(() => {
-        setNoResultCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownRef.current!);
-            setSearchQuery('');
-            setSelectedCategory('All');
-            setSelectedColors([]);
-            setSearchParams({ category: 'All' }, { replace: true });
-            return 3;
-          }
-          return prev - 1;
-        });
+        setSearchQuery('');
+        setSelectedCategory('All');
+        setSelectedColors([]);
+        setSearchParams({ category: 'All' }, { replace: true });
       }, 1000);
     }
     return () => {
@@ -396,8 +389,18 @@ const Home: React.FC = () => {
     uiItems.length
   );
 
-  if (isError)
-    return <div>상품을 불러오는 데 실패했습니다: {String(error)}</div>;
+  // 상품 목록 렌더링 부분에서 상태별 분기 처리
+  if (isLoading) {
+    return <LoadingSpinner label='상품을 불러오는 중입니다...' />;
+  }
+  if (isError) {
+    return (
+      <ErrorMessage message={error?.message || '상품을 불러오지 못했습니다.'} />
+    );
+  }
+  if (!uiItems.length) {
+    return <EmptyState message='조건에 맞는 상품이 없습니다.' />;
+  }
 
   return (
     <MainContainer>
@@ -529,31 +532,16 @@ const Home: React.FC = () => {
 
       {/* 제품 리스트 or 로딩 스피너 */}
       <ContentWrapper>
-        {isLoading ? (
-          <SkeletonItemList columns={viewCols} count={products.length || 8} />
-        ) : uiItems.length === 0 &&
-          (searchQuery || selectedColors.length > 0) ? (
-          <OverlayWrapper>
-            <OverlayMessage>
-              검색 결과가 없습니다
-              <br />
-              <CountdownText>
-                {noResultCountdown}초 후 전체 카테고리로 돌아갑니다
-              </CountdownText>
-            </OverlayMessage>
-          </OverlayWrapper>
-        ) : (
-          <>
-            <ItemList
-              items={visibleItems}
-              columns={viewCols}
-              onItemClick={handleOpenModal}
-              isLoading={isLoading}
-              observerRef={observerRef as React.RefObject<HTMLDivElement>}
-            />
-            <div ref={observerRef} style={{ height: 1 }} />
-          </>
-        )}
+        <>
+          <ItemList
+            items={visibleItems}
+            columns={viewCols}
+            onItemClick={handleOpenModal}
+            isLoading={isLoading}
+            observerRef={observerRef as React.RefObject<HTMLDivElement>}
+          />
+          <div ref={observerRef} style={{ height: 1 }} />
+        </>
       </ContentWrapper>
 
       {/* 푸터 */}
@@ -746,36 +734,4 @@ const RowAlignBox = styled.div`
   align-items: center;
   gap: 10px;
   /* margin-top: 20px; 삭제하여 위로 치우치지 않게 함 */
-`;
-
-// 오버레이 스타일 추가
-const OverlayWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  min-height: 400px;
-`;
-const OverlayMessage = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.85);
-  padding: 40px 32px;
-  border-radius: 18px;
-
-  font-size: 2rem;
-  font-weight: 800;
-  color: #222;
-  text-align: center;
-  z-index: 2;
-`;
-
-// 검색 결과 없음 텍스트
-const CountdownText = styled.div`
-  margin-top: 18px;
-  font-size: 15px;
-  color: #f6ae24;
-  font-weight: 600;
-  width: 100%;
-  text-align: center;
 `;

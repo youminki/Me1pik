@@ -4,6 +4,7 @@ import Theme from '../../styles/Theme';
 import { BrandList } from '../../components/brands/BrandList';
 import { ControlSection } from '../../components/brands/ControlSection';
 import StatsSection from '../../components/brands/StatsSection';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import {
   getBrandList,
   Brand as ApiBrand,
@@ -88,6 +89,11 @@ const Brand: React.FC = () => {
   const toggleSort = () => {
     setSortBy((prev) => (prev === 'group' ? 'category' : 'group'));
   };
+
+  // 로딩 상태 처리
+  if (!apiBrands.length && !brands.length) {
+    return <LoadingSpinner label='브랜드 목록을 불러오는 중입니다...' />;
+  }
 
   return (
     <ThemeProvider theme={Theme}>

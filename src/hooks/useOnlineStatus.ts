@@ -12,12 +12,17 @@ interface NavigatorWithConnection extends Navigator {
   connection?: NetworkConnection;
 }
 
+interface UseOnlineStatusResult {
+  isOnline: boolean;
+  isOffline: boolean;
+}
+
 /**
  * 온라인 상태를 추적하는 훅
  * @returns { isOnline, isOffline }
  */
-export const useOnlineStatus = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+export const useOnlineStatus = (): UseOnlineStatusResult => {
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -38,13 +43,19 @@ export const useOnlineStatus = () => {
   };
 };
 
+interface NetworkStatus {
+  effectiveType: string;
+  downlink: number;
+  rtt: number;
+}
+
 /**
  * 네트워크 상태를 추적하는 훅
  * @returns { effectiveType, downlink, rtt }
  */
-export const useNetworkStatus = () => {
-  const [networkInfo, setNetworkInfo] = useState({
-    effectiveType: 'unknown' as string,
+export const useNetworkStatus = (): NetworkStatus => {
+  const [networkInfo, setNetworkInfo] = useState<NetworkStatus>({
+    effectiveType: 'unknown',
     downlink: 0,
     rtt: 0,
   });

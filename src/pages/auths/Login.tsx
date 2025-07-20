@@ -29,8 +29,8 @@ import {
   InputWrap,
   InputIconBtn,
   StyledInput,
-  ErrorMessage,
 } from '../../auth-utils/AuthCommon';
+import ErrorMessage from '../../components/shared/ErrorMessage';
 
 type LoginFormValues = {
   email: string;
@@ -228,6 +228,29 @@ const Login: React.FC = () => {
   // const [keepLogin, setKeepLogin] = useState(false); // 로그인 상태 유지
   const [isCapsLock, setIsCapsLock] = useState(false);
 
+  useEffect(() => {
+    console.log('isModalOpen', isModalOpen);
+  }, [isModalOpen]);
+  useEffect(() => {
+    console.log('Login 컴포넌트 마운트');
+    return () => {
+      console.log('Login 컴포넌트 언마운트');
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleForceLoginRedirect = () => {
+      navigate('/login', { replace: true });
+    };
+    window.addEventListener('forceLoginRedirect', handleForceLoginRedirect);
+    return () => {
+      window.removeEventListener(
+        'forceLoginRedirect',
+        handleForceLoginRedirect
+      );
+    };
+  }, [navigate]);
+
   const {
     handleSubmit,
     formState: { isValid, isSubmitting, errors },
@@ -351,6 +374,14 @@ const Login: React.FC = () => {
   //   setKeepLogin((prev) => !prev);
   // };
 
+  // 예시: 로딩/에러 상태 처리
+  // if (isSubmitting) {
+  //   return <LoadingSpinner label="로그인 중입니다..." />;
+  // }
+  // if (에러상태) {
+  //   return <CommonErrorMessage message="로그인에 실패했습니다." />;
+  // }
+
   return (
     <ThemeProvider theme={Theme}>
       <NaverLoginBg>
@@ -387,7 +418,7 @@ const Login: React.FC = () => {
                 )}
               </InputWrap>
               {errors.email && (
-                <ErrorMessage>{errors.email.message}</ErrorMessage>
+                <ErrorMessage message={errors.email.message ?? ''} />
               )}
               <InputWrap>
                 <StyledInput
@@ -424,7 +455,7 @@ const Login: React.FC = () => {
                 <CapsLockNotice>Caps Lock이 켜져 있습니다.</CapsLockNotice>
               )}
               {errors.password && (
-                <ErrorMessage>{errors.password.message}</ErrorMessage>
+                <ErrorMessage message={errors.password.message ?? ''} />
               )}
             </InputFieldsContainer>
             {/*

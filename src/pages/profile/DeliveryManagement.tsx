@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import AddressSearchModal from '../../components/shared/modals/AddressSearchModal';
+import EmptyState from '../../components/shared/EmptyState';
 import {
   useAddresses,
   useUpdateAddress,
@@ -138,7 +139,7 @@ const DeliveryManagement: React.FC = () => {
         {isLoading ? (
           <p>주소를 불러오는 중...</p>
         ) : addresses.length === 0 ? (
-          <p>등록된 배송지가 없습니다.</p>
+          <EmptyState message='등록된 배송지가 없습니다.' />
         ) : (
           addresses.map((item: Address, idx: number) => {
             const isEditing = editingId === item.id;

@@ -32,6 +32,25 @@ export interface UpdateAddressRequest {
   deliveryMessage?: string;
 }
 
+export interface ApiError {
+  message: string;
+  code?: string;
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
+}
+
+export function toApiError(error: unknown): ApiError {
+  if (isApiError(error)) return error;
+  return { message: '알 수 없는 오류', code: 'UNKNOWN' };
+}
+
 export const AddressApi = {
   /**
    * 내 주소 목록 조회
@@ -99,10 +118,9 @@ export function useAddresses() {
 export function useCreateAddress() {
   const queryClient = useQueryClient();
 
-  return useMutation<Address, unknown, CreateAddressRequest>({
+  return useMutation<Address, ApiError, CreateAddressRequest>({
     mutationFn: AddressApi.createAddress,
     onSuccess: () => {
-      // 주소 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
     },
   });
@@ -116,12 +134,11 @@ export function useUpdateAddress() {
 
   return useMutation<
     Address,
-    unknown,
+    ApiError,
     { id: number; data: UpdateAddressRequest }
   >({
     mutationFn: ({ id, data }) => AddressApi.updateAddress(id, data),
     onSuccess: () => {
-      // 주소 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
     },
   });
@@ -133,10 +150,9 @@ export function useUpdateAddress() {
 export function useDeleteAddress() {
   const queryClient = useQueryClient();
 
-  return useMutation<void, unknown, number>({
+  return useMutation<void, ApiError, number>({
     mutationFn: AddressApi.deleteAddress,
     onSuccess: () => {
-      // 주소 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
     },
   });
@@ -148,10 +164,9 @@ export function useDeleteAddress() {
 export function useSetDefaultAddress() {
   const queryClient = useQueryClient();
 
-  return useMutation<void, unknown, number>({
+  return useMutation<void, ApiError, number>({
     mutationFn: AddressApi.setDefaultAddress,
     onSuccess: () => {
-      // 주소 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
     },
   });

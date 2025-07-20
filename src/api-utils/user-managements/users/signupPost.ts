@@ -14,6 +14,20 @@ interface SignupData {
   agreeToPrivacyPolicy: boolean;
 }
 
+interface ApiError {
+  message: string;
+  code?: string;
+}
+
+function isApiError(error: unknown): error is ApiError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as Record<string, unknown>).message === 'string'
+  );
+}
+
 export const signupUser = async (data: SignupData) => {
   try {
     const response = await Axios.post('/user', data);
@@ -26,7 +40,8 @@ export const signupUser = async (data: SignupData) => {
     } else {
       throw new Error(response.data?.message || '회원가입에 실패했습니다.');
     }
-  } catch (error: unknown) {
+  } catch (error) {
+    // AxiosError 타입 처리
     if (
       error &&
       typeof error === 'object' &&
@@ -34,16 +49,16 @@ export const signupUser = async (data: SignupData) => {
       typeof (error as { response?: unknown }).response === 'object' &&
       (error as { response?: { data?: unknown } }).response?.data
     ) {
-      throw (error as { response: { data: unknown } }).response.data;
+      const apiError = (error as { response: { data: ApiError } }).response
+        .data;
+      if (isApiError(apiError)) {
+        throw apiError;
+      }
+      throw { message: '회원가입에 실패했습니다.' } as ApiError;
     }
-    if (
-      error &&
-      typeof error === 'object' &&
-      'message' in error &&
-      typeof (error as { message?: unknown }).message === 'string'
-    ) {
-      throw (error as { message: string }).message;
+    if (isApiError(error)) {
+      throw error;
     }
-    throw '회원가입에 실패했습니다.';
+    throw { message: '회원가입에 실패했습니다.' } as ApiError;
   }
 };

@@ -93,7 +93,7 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
   border: 1px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#dadada')};
   font-size: 16px;
   padding: 0 44px 0 15px;
-  background: #fafbfb;
+  background: #fff;
   box-sizing: border-box;
   color: #222;
   border-radius: 0;
@@ -101,13 +101,21 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
     border 0.2s,
     background 0.2s;
   &:focus {
-    border-color: ${({ hasError }) => (hasError ? '#ff4d4f' : '#F6AE24')};
     background: #fff;
-    outline: none;
+    outline: 2px solid #222;
+    outline-offset: 1px;
   }
   &::placeholder {
     color: #b0b8c1;
     font-size: 16px;
+  }
+  &[readonly],
+  &:disabled {
+    background: #f5f5f5;
+    box-shadow: none !important;
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 `;
 export const StyledSelect = styled.select<{ hasError?: boolean }>`
@@ -128,11 +136,19 @@ export const StyledSelect = styled.select<{ hasError?: boolean }>`
   appearance: none;
 
   &:focus {
-    border-color: ${({ hasError }) => (hasError ? '#ff4d4f' : '#F6AE24')};
     background:
       url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
       #fff;
-    outline: none;
+    outline: 2px solid #222;
+    outline-offset: 1px;
+  }
+  &[readonly],
+  &:disabled {
+    background: #f5f5f5;
+    box-shadow: none !important;
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 `;
 export const ErrorMessage = styled.div`

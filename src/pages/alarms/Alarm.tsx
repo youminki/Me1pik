@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import AlarmIcon from '../../assets/AlarmIcon.svg';
 import PeriodSection from '../../components/period-section';
+import EmptyState from '../../components/shared/EmptyState';
 
 const Alarm: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(6);
@@ -36,6 +37,11 @@ const Alarm: React.FC = () => {
         '내일은 서비스 회수일 입니다. 이용은 잘 하셨나요? 혹시 서비스 이용 중 불편한 점이 있으셨다면 저희에게 알려주세요. 그리고 제품 회수 진행 시 서비스 매니저 또는 택배기사 님이 연락 드린 후 방문드리기 때문에...',
     },
   ];
+
+  // 알림이 없을 때 EmptyState 처리
+  if (alarmList.length === 0) {
+    return <EmptyState message='알림이 없습니다.' />;
+  }
 
   return (
     <AlarmContainer>

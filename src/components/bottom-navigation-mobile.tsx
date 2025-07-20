@@ -22,7 +22,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
 }) => (
   <BottomBarContainer>
     <CartButton onClick={cartOnClick}>
-      {imageSrc && <CartImage src={imageSrc} alt='icon' />}
+      {imageSrc && <CartImage src={imageSrc} alt='' aria-hidden='true' />}
     </CartButton>
     <OrderButton onClick={onClick} type={type} disabled={disabled}>
       {buttonText}

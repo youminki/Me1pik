@@ -23,6 +23,8 @@ import { regionDistrictData } from '../../components/signups/regionDistrictData'
 import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
 import SimpleHeader from '../../components/shared/headers/SimpleHeader';
 import type { AxiosError } from 'axios';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import CommonErrorMessage from '../../components/shared/ErrorMessage';
 
 export type SignupFormData = {
   email: string;
@@ -913,7 +915,18 @@ const Signup: React.FC = () => {
                 />
               )}
             </Form>
-            <BlackContainer />
+            <BlackContainer>
+              {isSubmitting && <LoadingSpinner label='회원가입 처리 중...' />}
+              {signupResult && !isSignupSuccess && (
+                <CommonErrorMessage
+                  message={
+                    typeof signupResult === 'string'
+                      ? signupResult
+                      : '회원가입에 실패했습니다.'
+                  }
+                />
+              )}
+            </BlackContainer>
           </Container>
         </FormProvider>
 

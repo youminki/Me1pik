@@ -1,12 +1,14 @@
 // src/pages/Basket.tsx
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import BasketIcon from '../../assets/baskets/BasketIcon.svg';
 import PriceIcon from '../../assets/baskets/PriceIcon.svg';
 import ProductInfoIcon from '../../assets/baskets/ProductInfoIcon.svg';
 import ServiceInfoIcon from '../../assets/baskets/ServiceInfoIcon.svg';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import ReusableModal2 from '../../components/shared/modals/ReusableModalV2';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import EmptyState from '../../components/shared/EmptyState';
 import {
   getCartItems,
   deleteCartItem,
@@ -48,105 +50,6 @@ const getServiceLabel = (type: string) => {
   if (type === 'purchase') return '구매';
   return type;
 };
-
-const shimmer = keyframes`
-  0% { background-position: 0px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
-`;
-
-const SkeletonBox = styled.div<{ width: string; height: string }>`
-  width: ${({ width }) => width};
-  height: ${({ height }) => height};
-  background: #eee;
-  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 20px, #eee 40px);
-  background-size: 80px 100%;
-  background-repeat: no-repeat;
-  animation: ${shimmer} 1.2s infinite linear;
-  border-radius: 4px;
-`;
-
-const SkeletonText = styled(SkeletonBox)``;
-
-const SkeletonButton = styled(SkeletonBox)`
-  border-radius: 8px;
-`;
-
-const SkeletonImage = styled.div`
-  width: 100%;
-  height: 210px;
-  background: #eee;
-  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
-  background-size: 200px 100%;
-  background-repeat: no-repeat;
-  border-radius: 8px;
-  animation: ${shimmer} 1.2s infinite linear;
-`;
-
-const BasketSkeleton: React.FC = () => (
-  <Container>
-    <Header>
-      <SkeletonBox width='20px' height='20px' style={{ marginRight: 8 }} />
-      <SkeletonText width='80px' height='18px' />
-    </Header>
-    {Array.from({ length: 2 }).map((_, idx) => (
-      <Item key={idx}>
-        <ContentWrapper>
-          <ItemDetails>
-            <SkeletonText
-              width='40%'
-              height='14px'
-              style={{ marginBottom: 8 }}
-            />
-            <SkeletonText
-              width='60%'
-              height='16px'
-              style={{ marginBottom: 18 }}
-            />
-            <SkeletonText
-              width='30%'
-              height='13px'
-              style={{ marginBottom: 18 }}
-            />
-            <SkeletonText
-              width='80%'
-              height='13px'
-              style={{ marginBottom: 10 }}
-            />
-            <SkeletonText
-              width='60%'
-              height='13px'
-              style={{ marginBottom: 10 }}
-            />
-            <SkeletonText
-              width='50%'
-              height='13px'
-              style={{ marginBottom: 10 }}
-            />
-          </ItemDetails>
-          <RightSection>
-            <ItemImageContainer>
-              <SkeletonBox
-                width='20px'
-                height='20px'
-                style={{ position: 'absolute', left: 0, top: 0 }}
-              />
-              <SkeletonImage />
-            </ItemImageContainer>
-          </RightSection>
-        </ContentWrapper>
-        <ButtonContainer>
-          <SkeletonButton
-            width='91px'
-            height='46px'
-            style={{ marginRight: 10 }}
-          />
-          <SkeletonButton width='91px' height='46px' />
-        </ButtonContainer>
-      </Item>
-    ))}
-    <SkeletonButton width='100%' height='56px' style={{ marginTop: 20 }} />
-  </Container>
-);
 
 const Basket: React.FC = () => {
   const [items, setItems] = useState<BasketItem[]>([]);
@@ -268,7 +171,10 @@ const Basket: React.FC = () => {
   };
 
   if (loading) {
-    return <BasketSkeleton />;
+    return <LoadingSpinner label='장바구니를 불러오는 중입니다...' />;
+  }
+  if (!items.length) {
+    return <EmptyState message='장바구니에 담긴 상품이 없습니다.' />;
   }
 
   return (

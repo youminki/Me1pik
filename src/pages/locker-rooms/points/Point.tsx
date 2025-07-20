@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import StatsSection from '../../../components/stats-section';
 import PeriodSection from '../../../components/period-section';
+import EmptyState from '../../../components/shared/EmptyState';
 
 const visitLabel = '포인트';
 const salesLabel = '포인트 변동';
@@ -70,6 +71,18 @@ const pointHistory = [
 
 const Point: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(6);
+
+  // 예시: 로딩/에러 상태 처리 (API 연동 시)
+  // if (isLoading) {
+  //   return <LoadingSpinner label="포인트 내역을 불러오는 중..." />;
+  // }
+  // if (에러상태) {
+  //   return <CommonErrorMessage message="포인트 내역을 불러오지 못했습니다." />;
+  // }
+
+  if (!pointHistory || pointHistory.length === 0) {
+    return <EmptyState message='포인트 내역이 없습니다.' />;
+  }
 
   return (
     <PointContainer>

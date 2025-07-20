@@ -241,6 +241,14 @@ const InputWrapper = styled.div<{ $readOnly: boolean }>`
   height: 57px;
   flex: 1;
   background-color: ${({ $readOnly }) => ($readOnly ? '#f5f5f5' : 'white')};
+  ${({ $readOnly }) =>
+    $readOnly &&
+    `
+      box-shadow: none !important;
+      opacity: 0.7;
+      pointer-events: none;
+      cursor: not-allowed;
+    `}
 `;
 
 const ButtonWrapper = styled.div`

@@ -41,7 +41,7 @@ const StyledButton = styled.button<{
 
   /* 색상: white > gray > 기본 */
   color: ${({ $white, $gray }) =>
-    $white ? '#ffffff' : $gray ? '#666666' : '#ffffff'};
+    $white ? '#222222' : $gray ? '#666666' : '#222222'};
   background-color: ${({ $white, $gray }) =>
     $white ? '#ffffff' : $gray ? '#cccccc' : '#f6ae24'};
   border: none;
@@ -68,5 +68,10 @@ const StyledButton = styled.button<{
     color: #aaaaaa;
     cursor: not-allowed;
     transform: none;
+  }
+
+  &:focus {
+    outline: 2px solid #222;
+    outline-offset: 2px;
   }
 `;

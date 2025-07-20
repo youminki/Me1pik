@@ -23,7 +23,9 @@ import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
 import ShareIcon from '../../assets/headers/ShareIcon.svg';
 import HomeIcon from '../../assets/headers/HomeIcon.svg';
 import ArrowIconSvg from '../../assets/ArrowIcon.svg';
-import SkeletonItemList from '../../components/homes/SkeletonItemList';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import ErrorMessage from '../../components/shared/ErrorMessage';
+import EmptyState from '../../components/shared/EmptyState';
 
 interface LocalBrand {
   id: number;
@@ -220,33 +222,19 @@ const BrandDetail: React.FC = () => {
     isLiked: false,
   }));
 
-  // 검색 결과 없음 카운트다운
-  const [noResultCountdown, setNoResultCountdown] = useState(3);
-  const countdownRef = React.useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (!loadingProducts && uiItems.length === 0 && searchTerm) {
-      setNoResultCountdown(3);
-      if (countdownRef.current) clearInterval(countdownRef.current);
-      countdownRef.current = setInterval(() => {
-        setNoResultCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownRef.current!);
-            setSearchParams({ category: 'All' }, { replace: true });
-            setSelectedCategory('All');
-            return 3;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (countdownRef.current) clearInterval(countdownRef.current);
-    };
-    // eslint-disable-next-line
-  }, [loadingProducts, uiItems.length, searchTerm]);
-
   // UI 렌더링
+  if (loadingProducts) {
+    return <LoadingSpinner label='브랜드 상세 정보를 불러오는 중입니다...' />;
+  }
+  if (errorProducts) {
+    return <ErrorMessage message={errorProducts} />;
+  }
+  if (!brand) {
+    return <EmptyState message='해당 브랜드를 찾을 수 없습니다.' />;
+  }
+  if (!uiItems.length) {
+    return <EmptyState message='해당 브랜드의 상품이 없습니다.' />;
+  }
   return (
     <PageWrapper>
       <Container>
@@ -295,30 +283,11 @@ const BrandDetail: React.FC = () => {
         </ControlsContainer>
 
         <MainContent>
-          {loadingProducts ? (
-            <SkeletonItemList
-              columns={viewCols}
-              count={allProducts.length || 8}
-            />
-          ) : errorProducts ? (
-            <StatText>{errorProducts}</StatText>
-          ) : uiItems.length === 0 && searchTerm ? (
-            <OverlayWrapper>
-              <OverlayMessage>
-                검색 결과가 없습니다
-                <br />
-                <CountdownText>
-                  {noResultCountdown}초 후 전체 카테고리로 돌아갑니다
-                </CountdownText>
-              </OverlayMessage>
-            </OverlayWrapper>
-          ) : (
-            <ItemList
-              items={uiItems}
-              columns={viewCols}
-              onItemClick={handleItemClick}
-            />
-          )}
+          <ItemList
+            items={uiItems}
+            columns={viewCols}
+            onItemClick={handleItemClick}
+          />
         </MainContent>
 
         {/* 하단 스크롤 탑 버튼(유지) */}
@@ -434,12 +403,6 @@ const ScrollToTopButton = styled.button`
 
 const ArrowIconImg = styled.img``;
 
-const StatText = styled.div`
-  font-size: 14px;
-  color: #666;
-  padding: 15px 20px;
-`;
-
 const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
@@ -525,33 +488,4 @@ const MainContent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-const CountdownText = styled.div`
-  margin-top: 18px;
-  font-size: 15px;
-  color: #f6ae24;
-  font-weight: 600;
-`;
-
-// 오버레이 스타일 추가
-const OverlayWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  min-height: 400px;
-`;
-const OverlayMessage = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.85);
-  padding: 40px 32px;
-  border-radius: 18px;
-
-  font-size: 2rem;
-  font-weight: 800;
-  color: #222;
-  text-align: center;
-  z-index: 2;
 `;

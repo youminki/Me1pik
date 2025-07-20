@@ -56,8 +56,9 @@ Axios.interceptors.response.use(
           Cookies.remove('accessToken');
           Cookies.remove('refreshToken');
 
-          // 로그인 페이지로 이동 (무신사 스타일)
-          window.location.href = '/login';
+          // 로그인 페이지로 이동 (SPA 방식)
+          const event = new CustomEvent('forceLoginRedirect');
+          window.dispatchEvent(event);
           return Promise.reject(error);
         }
 
@@ -92,8 +93,9 @@ Axios.interceptors.response.use(
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
 
-        // 로그인 페이지로 이동 (무신사 스타일)
-        window.location.href = '/login';
+        // 로그인 페이지로 이동 (SPA 방식)
+        const event = new CustomEvent('forceLoginRedirect');
+        window.dispatchEvent(event);
         return Promise.reject(error);
       }
     }

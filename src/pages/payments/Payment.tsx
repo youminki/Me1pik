@@ -25,6 +25,9 @@ import {
   Address,
 } from '../../api-utils/user-managements/addresses/address';
 import DeliveryListModal from '../../components/shared/modals/DeliveryListModal';
+import EmptyState from '../../components/shared/EmptyState';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import CommonErrorMessage from '../../components/shared/ErrorMessage';
 
 declare global {
   interface Window {
@@ -77,7 +80,7 @@ const PaymentPage: React.FC = () => {
   const [items] = useState<BasketItemForPayment[]>(itemsData);
 
   // react-query로 티켓 조회
-  const { data: tickets = [] } = useUserTickets();
+  const { data: tickets = [], isLoading, error } = useUserTickets();
   const activeTickets = tickets.filter((t) => t.isActive);
 
   // 결제방식 선택: paymentOptions에 '결제방식 선택하기', 티켓 옵션, '이용권 구매하기' 포함
@@ -137,7 +140,11 @@ const PaymentPage: React.FC = () => {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   // react-query로 저장된 배송지 조회
-  const { data: savedAddresses = [] } = useAddresses();
+  const {
+    data: savedAddresses = [],
+    isLoading: loadingAddresses,
+    error: addressError,
+  } = useAddresses();
 
   // deliveryInfo 변경 시, isSameAsDelivery가 true면 returnInfo 동기화
   useEffect(() => {
@@ -316,6 +323,19 @@ const PaymentPage: React.FC = () => {
   const baseTotal = items.reduce((sum, x) => sum + x.price, 0);
   const extra = 0;
   const finalAmount = baseTotal + extra;
+
+  // 결제 내역이 없을 때 EmptyState 처리 (예시)
+  if (!items || items.length === 0) {
+    return <EmptyState message='결제 내역이 없습니다.' />;
+  }
+
+  // 예시: 로딩/에러 상태 처리 (API 연동 시)
+  if (isLoading || loadingAddresses) {
+    return <LoadingSpinner label='결제 정보를 불러오는 중...' />;
+  }
+  if (error || addressError) {
+    return <CommonErrorMessage message='결제 정보를 불러오지 못했습니다.' />;
+  }
 
   return (
     <Container>

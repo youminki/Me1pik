@@ -94,4 +94,9 @@ const StyledButton = styled.button<{
     background-color: #cccccc;
     cursor: not-allowed;
   }
+
+  &:focus {
+    outline: 2px solid #222;
+    outline-offset: 2px;
+  }
 `;

@@ -9,6 +9,7 @@ import { format, addMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useTicketList } from '../../../api-utils/schedule-managements/tickets/ticket';
 import { useMembershipInfo } from '../../../api-utils/user-managements/users/userApi';
+import EmptyState from '../../../components/shared/EmptyState';
 // import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
 
 // 한국 시간 기준 오늘 0시 반환 함수
@@ -91,6 +92,10 @@ const PurchaseOfPasses: React.FC = () => {
     }
     setIsModalOpen(false);
   }, [selectedTemplate, discountedPrice, navigate]);
+
+  if (!templates || templates.length === 0) {
+    return <EmptyState message='구매 가능한 이용권이 없습니다.' />;
+  }
 
   return (
     <Container>

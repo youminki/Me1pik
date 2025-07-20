@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import StatsSection from '../../../components/stats-section';
 import PeriodSection from '../../../components/period-section';
+import EmptyState from '../../../components/shared/EmptyState';
 
 import sampleImage from '../../../assets/sample-dress.svg';
 import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
@@ -66,6 +67,10 @@ const ProductReview: React.FC = () => {
   ]);
 
   const filteredItems = selectedPeriod === 3 ? items.slice(0, 3) : items;
+
+  if (!filteredItems || filteredItems.length === 0) {
+    return <EmptyState message='작성 가능한 리뷰가 없습니다.' />;
+  }
 
   return (
     <ProductReviewContainer>

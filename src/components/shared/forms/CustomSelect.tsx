@@ -23,4 +23,13 @@ export const CustomSelect = styled.select`
       url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
       #fff !important;
   }
+  &[readonly],
+  &:disabled {
+    background: #f5f5f5 !important;
+    color: #888 !important;
+    box-shadow: none !important;
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 `;

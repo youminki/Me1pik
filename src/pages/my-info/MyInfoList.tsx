@@ -9,6 +9,8 @@ import deliveryIcon from '../../assets/my-info/DeliveryAdminIcon.svg';
 import { FaPlus, FaUserCircle, FaLongArrowAltRight } from 'react-icons/fa';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { useNavigate } from 'react-router-dom';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import ErrorMessage from '../../components/shared/ErrorMessage';
 
 // 추가: API import
 import {
@@ -94,6 +96,14 @@ const MyinfoList: React.FC = () => {
     }
   };
 
+  // 프로필 정보 렌더링 분기 처리
+  if (loadingHeader) {
+    return <LoadingSpinner label='내 정보를 불러오는 중입니다...' />;
+  }
+  if (!headerInfo) {
+    return <ErrorMessage message='내 정보를 불러오지 못했습니다.' />;
+  }
+
   return (
     <PageContainer>
       {/* PROFILE */}
@@ -106,22 +116,8 @@ const MyinfoList: React.FC = () => {
         </AvatarWrapper>
         <ProfileBox>
           <ProfileText>
-            {loadingHeader ? (
-              <>
-                <Email>로딩 중...</Email>
-                <Nickname>닉네임 불러오는 중</Nickname>
-              </>
-            ) : headerInfo ? (
-              <>
-                <Email>{headerInfo.email}</Email>
-                <Nickname>닉네임: {headerInfo.nickname}</Nickname>
-              </>
-            ) : (
-              <>
-                <Email>정보를 가져올 수 없습니다.</Email>
-                <Nickname>닉네임: -</Nickname>
-              </>
-            )}
+            <Email>{headerInfo.email}</Email>
+            <Nickname>닉네임: {headerInfo.nickname}</Nickname>
           </ProfileText>
         </ProfileBox>
       </ProfileSection>

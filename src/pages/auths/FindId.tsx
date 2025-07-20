@@ -20,6 +20,8 @@ import {
   MelpikPointText,
 } from '../../auth-utils/AuthCommon';
 import styled from 'styled-components';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import CommonErrorMessage from '../../components/shared/ErrorMessage';
 
 // FormSectionWrapper 스타일 오버라이드
 const TopFormSectionWrapper = styled(FormSectionWrapper)`
@@ -122,6 +124,14 @@ const FindId: React.FC = () => {
   };
 
   const closeModal = () => setIsModalOpen(false);
+
+  // 예시: 로딩/에러 상태 처리
+  if (isSubmitting) {
+    return <LoadingSpinner label='아이디(이메일) 찾기 중...' />;
+  }
+  if (errorMessage) {
+    return <CommonErrorMessage message={errorMessage} />;
+  }
 
   return (
     <ThemeProvider theme={Theme}>
