@@ -2,10 +2,10 @@
 
 import React, { useState, forwardRef, InputHTMLAttributes } from 'react';
 import styled from 'styled-components';
-import Button02 from '../buttons/SecondaryButton';
+import Button02 from '@/components/shared/buttons/SecondaryButton';
 import type { FieldError } from 'react-hook-form';
-import { StyledInput } from '../../../auth-utils/AuthCommon';
-import { CustomSelect } from './CustomSelect';
+import { StyledInput } from '@/auth-utils/AuthCommon';
+import { CustomSelect } from '@/components/shared/forms/CustomSelect';
 
 type InputFieldProps = {
   label?: string;

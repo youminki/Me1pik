@@ -357,12 +357,11 @@ export const checkTokenAndRedirect = (pathname: string): boolean => {
 
   const token = getCurrentToken();
   if (!token) {
-    console.log('보호된 라우트에서 토큰이 없어 로그인 페이지로 이동');
-    window.location.href = '/login';
-    return true; // 이동됨
+    console.log('보호된 라우트에서 토큰이 없음');
+    return true; // 리다이렉트 필요
   }
 
-  return false; // 이동하지 않음
+  return false; // 리다이렉트 불필요
 };
 
 /**

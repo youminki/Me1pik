@@ -1,21 +1,21 @@
 // src/pages/locker-rooms.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import StatsSection from '../../components/locker-rooms/StatsSection';
+import StatsSection from '@/components/locker-rooms/StatsSection';
 
-import LockerRoomIcons from '../../assets/LockerRoomIcons.svg';
-import ClosetIcon from '../../assets/locker-rooms/ClosetIcon.svg';
-import HistoryIcon from '../../assets/locker-rooms/HistoryIcon.svg';
-import PointsIcon from '../../assets/locker-rooms/PointsIcon.svg';
-import TicketIcon from '../../assets/locker-rooms/TicketIcon.svg';
-import PaymentIcon from '../../assets/locker-rooms/PaymentIcon.svg';
-import ReviewIcon from '../../assets/locker-rooms/ReviewIcon.svg';
+import LockerRoomIcons from '@/assets/LockerRoomIcons.svg';
+import ClosetIcon from '@/assets/locker-rooms/ClosetIcon.svg';
+import HistoryIcon from '@/assets/locker-rooms/HistoryIcon.svg';
+import PointsIcon from '@/assets/locker-rooms/PointsIcon.svg';
+import TicketIcon from '@/assets/locker-rooms/TicketIcon.svg';
+import PaymentIcon from '@/assets/locker-rooms/PaymentIcon.svg';
+import ReviewIcon from '@/assets/locker-rooms/ReviewIcon.svg';
 
 import {
   getMembershipInfo,
   MembershipInfo,
-} from '../../api-utils/user-managements/users/userApi';
+} from '@/api-utils/user-managements/users/userApi';
 
 const menuItems = [
   { icon: ClosetIcon, label: '내 옷장', path: '/my-closet', disabled: false },
@@ -55,6 +55,26 @@ const LockerRoom: React.FC = () => {
       });
   }, []);
 
+  const handleMenuClick = useCallback(
+    (path: string, disabled: boolean) => {
+      if (!disabled) {
+        navigate(path);
+      }
+    },
+    [navigate]
+  );
+
+  const statsData = useMemo(
+    () => ({
+      visits: membership?.name ?? '—',
+      sales: '0',
+      dateRange: '요약정보',
+      visitLabel: '그룹',
+      salesLabel: '보유 포인트',
+    }),
+    [membership?.name]
+  );
+
   return (
     <Container>
       <Header>
@@ -63,13 +83,7 @@ const LockerRoom: React.FC = () => {
       </Header>
 
       <StatsRow>
-        <StatsSection
-          visits={membership?.name ?? '—'}
-          sales='0'
-          dateRange='요약정보'
-          visitLabel='그룹'
-          salesLabel='보유 포인트'
-        />
+        <StatsSection {...statsData} />
         <MenuIcon src={LockerRoomIcons} alt='메뉴 이미지' />
       </StatsRow>
 
@@ -80,9 +94,7 @@ const LockerRoom: React.FC = () => {
           <GridItem
             key={idx}
             disabled={item.disabled}
-            onClick={() => {
-              if (!item.disabled) navigate(item.path);
-            }}
+            onClick={() => handleMenuClick(item.path, item.disabled)}
           >
             <IconLabelRow>
               <IconImage src={item.icon} alt={item.label} />

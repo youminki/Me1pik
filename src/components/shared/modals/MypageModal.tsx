@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import MypageBox from '../../../assets/MypageBox.svg';
-import MystyleBox from '../../../assets/MystyleBox.svg';
-import ReusableModal2 from './ReusableModalV2';
-import { logout } from '../../../utils/auth';
+import MypageBox from '@/assets/MypageBox.svg';
+import MystyleBox from '@/assets/MystyleBox.svg';
+import ReusableModal2 from '@/components/shared/modals/ReusableModalV2';
+import { logout } from '@/utils/auth';
 
 type MypageModalProps = {
   isOpen: boolean;

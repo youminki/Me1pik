@@ -13,7 +13,7 @@ import {
 import MelpikLogo from '../../assets/LoginLogo.svg';
 import { schemaLogin } from '../../hooks/useValidationYup';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
-import { isNativeApp, saveNativeLoginInfo } from '../../utils/nativeApp';
+import { isNativeApp } from '../../utils/nativeApp';
 import { saveTokens, forceSaveAppToken } from '../../utils/auth';
 import {
   NaverLoginBg,
@@ -277,18 +277,15 @@ const Login: React.FC = () => {
 
   const handleLoginClick = async (data: LoginFormValues) => {
     try {
-      console.log('로그인 시도:', data.email);
       const response = (await LoginPost(
         data.email,
         data.password
       )) as LoginResponse;
       const { accessToken, refreshToken } = response;
-      console.log('로그인 성공, 토큰 저장');
 
       // 앱에서는 항상 localStorage에 저장 (영구 보관)
       if (isNativeApp()) {
         forceSaveAppToken(accessToken, refreshToken);
-        console.log('앱에 토큰 영구 저장됨');
       } else {
         // 로그인 상태 유지 분기 주석처리
         // if (keepLogin) {
@@ -307,59 +304,8 @@ const Login: React.FC = () => {
         saveTokens(accessToken, refreshToken);
       }
 
-      // 디버깅: 토큰 저장 상태 확인
-      console.log('토큰 저장 상태 확인:');
-      console.log(
-        '- localStorage accessToken:',
-        localStorage.getItem('accessToken') ? '있음' : '없음'
-      );
-      console.log(
-        '- sessionStorage accessToken:',
-        sessionStorage.getItem('accessToken') ? '있음' : '없음'
-      );
-      console.log(
-        '- Cookies accessToken:',
-        document.cookie.includes('accessToken') ? '있음' : '없음'
-      );
-
-      if (isNativeApp()) {
-        console.log('네이티브 앱에 로그인 정보 전달');
-        saveNativeLoginInfo({
-          id: data.email, // 또는 서버에서 받은 user id
-          email: data.email,
-          name: '', // 필요하다면 서버에서 받은 이름
-          token: accessToken,
-          refreshToken: refreshToken,
-          expiresAt: new Date(
-            Date.now() + 1000 * 60 * 60 * 24 * 7
-          ).toISOString(), // 예시: 7일 뒤 만료
-        });
-      }
-
-      // window 타입 확장으로 any 사용 제거
-      interface MelpikWindow extends Window {
-        handleWebLoginSuccess?: (params: {
-          token: string;
-          refreshToken: string;
-          email: string;
-          userId: string;
-          name: string;
-        }) => void;
-      }
-      const melpikWindow = window as MelpikWindow;
-      if (melpikWindow.handleWebLoginSuccess) {
-        melpikWindow.handleWebLoginSuccess({
-          token: accessToken,
-          refreshToken: refreshToken,
-          email: data.email,
-          userId: data.email, // 또는 서버에서 받은 user id
-          name: '', // 필요하다면 서버에서 받은 이름
-        });
-      }
-
       const membership: MembershipInfo = await getMembershipInfo();
-      console.log('홈으로 이동');
-      const redirectTo = location.state?.from || '/';
+      const redirectTo = location.state?.from || '/home';
       navigate(redirectTo, {
         replace: true,
         state: {
@@ -368,7 +314,6 @@ const Login: React.FC = () => {
         },
       });
     } catch (error: unknown) {
-      console.log('로그인 실패:', error);
       setModalMessage(
         error instanceof Error
           ? error.message

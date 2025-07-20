@@ -1,0 +1,262 @@
+/**
+ * 로깅 시스템
+ */
+
+export enum LogLevel {
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR = 3,
+}
+
+interface LogEntry {
+  timestamp: number;
+  level: LogLevel;
+  message: string;
+  data?: unknown;
+  error?: Error;
+  context?: Record<string, unknown>;
+}
+
+class Logger {
+  private logs: LogEntry[] = [];
+  private maxLogs = 1000;
+  private currentLevel = LogLevel.INFO;
+
+  constructor(level: LogLevel = LogLevel.INFO) {
+    this.currentLevel = level;
+  }
+
+  /**
+   * 로그 레벨 설정
+   */
+  setLevel(level: LogLevel): void {
+    this.currentLevel = level;
+  }
+
+  /**
+   * 로그 추가
+   */
+  private addLog(
+    level: LogLevel,
+    message: string,
+    data?: unknown,
+    error?: Error,
+    context?: Record<string, unknown>
+  ): void {
+    if (level < this.currentLevel) return;
+
+    const logEntry: LogEntry = {
+      timestamp: Date.now(),
+      level,
+      message,
+      data,
+      error,
+      context,
+    };
+
+    this.logs.push(logEntry);
+
+    // 최대 로그 개수 제한
+    if (this.logs.length > this.maxLogs) {
+      this.logs = this.logs.slice(-this.maxLogs);
+    }
+
+    // 콘솔 출력
+    this.outputToConsole(logEntry);
+  }
+
+  /**
+   * 콘솔 출력
+   */
+  private outputToConsole(entry: LogEntry): void {
+    const timestamp = new Date(entry.timestamp).toISOString();
+    const levelName = LogLevel[entry.level];
+
+    const logData: Record<string, unknown> = {
+      timestamp,
+      level: levelName,
+      message: entry.message,
+    };
+
+    if (entry.data) {
+      logData.data = entry.data;
+    }
+    if (entry.error) {
+      logData.error = entry.error;
+    }
+    if (entry.context) {
+      logData.context = entry.context;
+    }
+
+    switch (entry.level) {
+      case LogLevel.DEBUG:
+        console.debug(logData);
+        break;
+      case LogLevel.INFO:
+        console.info(logData);
+        break;
+      case LogLevel.WARN:
+        console.warn(logData);
+        break;
+      case LogLevel.ERROR:
+        console.error(logData);
+        break;
+    }
+  }
+
+  /**
+   * 디버그 로그
+   */
+  debug(
+    message: string,
+    data?: unknown,
+    context?: Record<string, unknown>
+  ): void {
+    this.addLog(LogLevel.DEBUG, message, data, undefined, context);
+  }
+
+  /**
+   * 정보 로그
+   */
+  info(
+    message: string,
+    data?: unknown,
+    context?: Record<string, unknown>
+  ): void {
+    this.addLog(LogLevel.INFO, message, data, undefined, context);
+  }
+
+  /**
+   * 경고 로그
+   */
+  warn(
+    message: string,
+    data?: unknown,
+    context?: Record<string, unknown>
+  ): void {
+    this.addLog(LogLevel.WARN, message, data, undefined, context);
+  }
+
+  /**
+   * 에러 로그
+   */
+  error(
+    message: string,
+    error?: Error,
+    data?: unknown,
+    context?: Record<string, unknown>
+  ): void {
+    this.addLog(LogLevel.ERROR, message, data, error, context);
+  }
+
+  /**
+   * 로그 내보내기
+   */
+  exportLogs(): LogEntry[] {
+    return [...this.logs];
+  }
+
+  /**
+   * 로그 초기화
+   */
+  clearLogs(): void {
+    this.logs = [];
+  }
+
+  /**
+   * 로그 필터링
+   */
+  filterLogs(level?: LogLevel, searchTerm?: string): LogEntry[] {
+    return this.logs.filter((log) => {
+      if (level !== undefined && log.level !== level) return false;
+      if (
+        searchTerm &&
+        !log.message.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+        return false;
+      return true;
+    });
+  }
+}
+
+// 전역 로거 인스턴스
+export const logger = new Logger(
+  process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO
+);
+
+/**
+ * 성능 로깅 데코레이터
+ */
+export const logPerformance = <T extends (...args: unknown[]) => unknown>(
+  target: T,
+  name: string
+): T => {
+  return ((...args: unknown[]) => {
+    const start = performance.now();
+    const result = target(...args);
+    const end = performance.now();
+    const executionTime = end - start;
+
+    logger.debug(`${name} 실행 시간`, {
+      executionTime: `${executionTime.toFixed(2)}ms`,
+    });
+
+    return result;
+  }) as T;
+};
+
+/**
+ * 에러 로깅 데코레이터
+ */
+export const logErrorDecorator = <T extends (...args: unknown[]) => unknown>(
+  target: T,
+  name: string
+): T => {
+  return ((...args: unknown[]) => {
+    try {
+      return target(...args);
+    } catch (error) {
+      logger.error(`${name} 실행 중 오류 발생`, error as Error, { args });
+      throw error;
+    }
+  }) as T;
+};
+
+/**
+ * API 호출 로깅
+ */
+export const logApiCall = (url: string, method: string, data?: unknown) => {
+  logger.info('API 호출', {
+    url,
+    method,
+    data,
+    timestamp: new Date().toISOString(),
+  });
+};
+
+/**
+ * 사용자 액션 로깅
+ */
+export const logUserAction = (action: string, data?: unknown) => {
+  logger.info('사용자 액션', {
+    action,
+    data,
+    url: window.location.href,
+    timestamp: new Date().toISOString(),
+  });
+};
+
+/**
+ * 애플리케이션 에러 로깅
+ */
+export const logApplicationError = (
+  error: Error,
+  context?: Record<string, unknown>
+) => {
+  logger.error('애플리케이션 오류', error, undefined, {
+    url: window.location.href,
+    userAgent: navigator.userAgent,
+    ...context,
+  });
+};

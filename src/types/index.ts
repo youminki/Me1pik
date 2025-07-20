@@ -84,7 +84,72 @@ export interface PaginationInfo {
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  children?: React.ReactNode;
+  title?: string;
+  width?: string;
+  height?: string;
+}
+
+export interface ItemCardProps {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  onClick?: () => void;
+  selected?: boolean;
+  disabled?: boolean;
+}
+
+export interface ItemListProps {
+  items: ItemCardProps[];
+  onItemClick?: (item: ItemCardProps) => void;
+  loading?: boolean;
+  emptyMessage?: string;
+}
+
+export interface StatsSectionProps {
+  visits: string;
+  sales: string;
+  dateRange: string;
+  visitLabel: string;
+  salesLabel: string;
+}
+
+export interface CalendarProps {
+  selectedDate?: Date;
+  onDateSelect?: (date: Date) => void;
+  minDate?: Date;
+  maxDate?: Date;
+  disabledDates?: Date[];
+}
+
+export interface BottomBarProps {
+  onConfirm?: () => void;
+  onCancel?: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  disabled?: boolean;
+  loading?: boolean;
+}
+
+export interface InputFieldProps {
+  label?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  error?: string;
+  type?: 'text' | 'password' | 'email' | 'number';
+  required?: boolean;
+  disabled?: boolean;
+}
+
+export interface ButtonProps {
   children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'small' | 'medium' | 'large';
 }
 
 // 폼 관련 타입
@@ -104,3 +169,51 @@ export interface PayCallbackResult {
   message: string;
   data?: unknown;
 }
+
+// 에러 처리 관련 타입들
+export interface ApiError {
+  message: string;
+  status?: number;
+  code?: string;
+}
+
+export interface ErrorResponse {
+  error: string;
+  message: string;
+  statusCode: number;
+}
+
+export interface PaypleError {
+  message: string;
+  code: string;
+  status: number;
+}
+
+// 외부 라이브러리 타입들
+export interface DaumPostcode {
+  Postcode: {
+    new: (options: {
+      oncomplete: (data: {
+        address: string;
+        addressType: string;
+        bname: string;
+        buildingName: string;
+        apartment: string;
+        zonecode: string;
+        postcode: string;
+      }) => void;
+      onclose: () => void;
+    }) => void;
+  };
+}
+
+export interface PaypleWindow extends Window {
+  PaypleCpayAuthCheck?: (data: unknown) => void;
+  PCD_PAY_CALLBACK?: (result: unknown) => void;
+  handleWebLogout?: () => void;
+  saveLoginInfo?: (data: Record<string, unknown>) => void;
+}
+
+// 유틸리티 타입들
+export type ErrorHandler = (error: unknown) => void;
+export type SuccessHandler<T> = (data: T) => void;

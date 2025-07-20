@@ -7,90 +7,88 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import AppLayout from './pages/layouts/AppLayout';
+import AppLayout from '@/pages/layouts/AppLayout';
 
-import Landing from './pages/landings/Landing';
-import Login from './pages/auths/Login';
-import ReadyLogin from './pages/auths/LoginReady';
+import Landing from '@/pages/landings/Landing';
+import Login from '@/pages/auths/Login';
+import ReadyLogin from '@/pages/auths/LoginReady';
 
-import TestLogin from './pages/auths/LoginTest';
-import Signup from './pages/auths/Signup';
-import FindId from './pages/auths/FindId';
-import FindPassword from './pages/auths/FindPassword';
+import TestLogin from '@/pages/auths/LoginTest';
+import Signup from '@/pages/auths/Signup';
+import FindId from '@/pages/auths/FindId';
+import FindPassword from '@/pages/auths/FindPassword';
 
-import MyInfoList from './pages/my-info/MyInfoList';
-import MyStyle from './pages/my-styles/MyStyle';
+import MyInfoList from '@/pages/my-info/MyInfoList';
+import MyStyle from '@/pages/my-styles/MyStyle';
 
-import Basket from './pages/baskets/Basket';
-import Alarm from './pages/alarms/Alarm';
-import Payment from './pages/payments/Payment';
-import PersonalLink from './pages/links/PersonalLink';
+import Basket from '@/pages/baskets/Basket';
+import Alarm from '@/pages/alarms/Alarm';
+import Payment from '@/pages/payments/Payment';
+import PersonalLink from '@/pages/links/PersonalLink';
 
-import Home from './pages/homes/Home';
-import HomeDetail from './pages/homes/HomeDetail';
-import Analysis from './pages/analyses/Analysis';
+import Home from '@/pages/homes/Home';
+import HomeDetail from '@/pages/homes/HomeDetail';
+import Analysis from '@/pages/analyses/Analysis';
 
-import Brand from './pages/brands/Brand';
-import BrandDetail from './pages/brands/BrandDetail';
+import Brand from '@/pages/brands/Brand';
+import BrandDetail from '@/pages/brands/BrandDetail';
 
-import Melpik from './pages/melpiks/Melpik';
-import CreateMelpik from './pages/melpiks/creates/CreateMelpik';
-import ContemporarySettings from './pages/melpiks/creates/ContemporarySettings';
-import Setting from './pages/melpiks/settings/SettingMelpik';
-import SalesSettlement from './pages/melpiks/calculates/SalesSettlement';
-import SalesSettlementDetail from './pages/melpiks/calculates/SalesSettlementDetail';
-import SettlementRequest from './pages/melpiks/calculates/SettlementRequest';
+import Melpik from '@/pages/melpiks/Melpik';
+import CreateMelpik from '@/pages/melpiks/creates/CreateMelpik';
+import ContemporarySettings from '@/pages/melpiks/creates/ContemporarySettings';
+import Setting from '@/pages/melpiks/settings/SettingMelpik';
+import SalesSettlement from '@/pages/melpiks/calculates/SalesSettlement';
+import SalesSettlementDetail from '@/pages/melpiks/calculates/SalesSettlementDetail';
+import SettlementRequest from '@/pages/melpiks/calculates/SettlementRequest';
 
-import LockerRoom from './pages/locker-rooms/LockerRoom';
-import UsageHistory from './pages/locker-rooms/usage-histories/UsageHistory';
-import Point from './pages/locker-rooms/points/Point';
-import MyCloset from './pages/locker-rooms/my-closets/MyCloset';
-import MyTicket from './pages/locker-rooms/my-tickets/MyTicket';
-import PurchaseOfPasses from './pages/locker-rooms/my-tickets/PurchaseOfPasses';
+import LockerRoom from '@/pages/locker-rooms/LockerRoom';
+import UsageHistory from '@/pages/locker-rooms/usage-histories/UsageHistory';
+import Point from '@/pages/locker-rooms/points/Point';
+import MyCloset from '@/pages/locker-rooms/my-closets/MyCloset';
+import MyTicket from '@/pages/locker-rooms/my-tickets/MyTicket';
+import PurchaseOfPasses from '@/pages/locker-rooms/my-tickets/PurchaseOfPasses';
 
-import TicketPayment from './pages/locker-rooms/my-tickets/TicketPayment.tsx';
+import TicketPayment from '@/pages/locker-rooms/my-tickets/TicketPayment.tsx';
 
-// import SubscriptionPass from './pages/locker-rooms/my-tickets/SubscriptionPass';
-// import OnetimePass from './pages/locker-rooms/my-tickets/OnetimePass';
+// import SubscriptionPass from '@/pages/locker-rooms/my-tickets/SubscriptionPass';
+// import OnetimePass from '@/pages/locker-rooms/my-tickets/OnetimePass';
 
-import PaymentMethod from './pages/locker-rooms/payment-methods/PaymentMethod';
-import AddCard from './pages/locker-rooms/payment-methods/AddCard';
+import PaymentMethod from '@/pages/locker-rooms/payment-methods/PaymentMethod';
+import AddCard from '@/pages/locker-rooms/payment-methods/AddCard';
 
-import ProductReview from './pages/locker-rooms/product-reviews/ProductReview';
-import ProductReviewWrite from './pages/locker-rooms/product-reviews/ProductReviewWrite';
+import ProductReview from '@/pages/locker-rooms/product-reviews/ProductReview';
+import ProductReviewWrite from '@/pages/locker-rooms/product-reviews/ProductReviewWrite';
 
-import CustomerService from './pages/customer-services/CustomerService';
-import DocumentList from './pages/customer-services/documents/DocumentList';
-import DocumentDetail from './pages/customer-services/documents/DocumentDetail';
+import CustomerService from '@/pages/customer-services/CustomerService';
+import DocumentList from '@/pages/customer-services/documents/DocumentList';
+import DocumentDetail from '@/pages/customer-services/documents/DocumentDetail';
 
-import Scedule from './pages/melpiks/schedules/Schedule';
-import ScheduleConfirmation from './pages/melpiks/schedules/ScheduleConfirmation';
-import ScheduleReservation1 from './pages/melpiks/schedules/ScheduleReservationStep1';
-import ScheduleReservation2 from './pages/melpiks/schedules/ScheduleReservationStep2';
-import ScheduleReservation3 from './pages/melpiks/schedules/ScheduleReservationStep3';
+import Scedule from '@/pages/melpiks/schedules/Schedule';
+import ScheduleConfirmation from '@/pages/melpiks/schedules/ScheduleConfirmation';
+import ScheduleReservation1 from '@/pages/melpiks/schedules/ScheduleReservationStep1';
+import ScheduleReservation2 from '@/pages/melpiks/schedules/ScheduleReservationStep2';
+import ScheduleReservation3 from '@/pages/melpiks/schedules/ScheduleReservationStep3';
 
-import PaypleTest from './__tests__/development/PaypleTest';
-import AddCardPayple from './__tests__/development/AddCardPayple';
-import PasswordChange from './pages/auths/PasswordChange';
-import PaymentComplete from './pages/payments/PaymentComplete';
-import PaymentFail from './pages/payments/Paymentfail.tsx';
-import TicketDetail from './pages/locker-rooms/my-tickets/TicketDetail';
+import PaypleTest from '@/__tests__/development/PaypleTest';
+import AddCardPayple from '@/__tests__/development/AddCardPayple';
+import PasswordChange from '@/pages/auths/PasswordChange';
+import PaymentComplete from '@/pages/payments/PaymentComplete';
+import PaymentFail from '@/pages/payments/Paymentfail.tsx';
+import TicketDetail from '@/pages/locker-rooms/my-tickets/TicketDetail';
 
-import Link from './pages/links/Link';
-import UpdateProfile from './pages/profile/UpdateProfile';
-import ChangePassword from './pages/profile/ChangePassword';
-import DeliveryManagement from './pages/profile/DeliveryManagement';
-import EditAddress from './pages/profile/EditAddress';
-import NotFound from './pages/errors/NotFound';
+import Link from '@/pages/links/Link';
+import UpdateProfile from '@/pages/profile/UpdateProfile';
+import ChangePassword from '@/pages/profile/ChangePassword';
+import DeliveryManagement from '@/pages/profile/DeliveryManagement';
+import EditAddress from '@/pages/profile/EditAddress';
+import NotFound from '@/pages/errors/NotFound';
 
-import { Axios } from './api-utils/Axios';
-import { isNativeApp } from './utils/nativeApp';
+import { isNativeApp } from '@/utils/nativeApp';
 import {
-  clearTokens,
   saveTokens,
   isProtectedRoute,
   checkTokenAndRedirect,
-} from './utils/auth';
+} from '@/utils/auth';
 
 const AuthGuard: React.FC = () => {
   const location = useLocation();
@@ -100,7 +98,6 @@ const AuthGuard: React.FC = () => {
   // 로그인 페이지로 이동하는 함수
   const redirectToLogin = useCallback(() => {
     if (location.pathname !== '/login') {
-      console.log('인증 실패로 로그인 페이지로 이동');
       navigate('/login', { replace: true });
     }
   }, [location.pathname, navigate]);
@@ -111,60 +108,58 @@ const AuthGuard: React.FC = () => {
       const customEvent = e as CustomEvent;
       const loginInfo = customEvent.detail;
 
-      console.log('네이티브 로그인 정보 수신:', loginInfo);
+      if (loginInfo && loginInfo.token) {
+        // 토큰 저장
+        saveTokens(loginInfo.token, loginInfo.refreshToken || '');
 
-      if (loginInfo.isLoggedIn && loginInfo.userInfo) {
-        // 토큰 저장 (앱에서는 항상 localStorage에 저장)
-        saveTokens(loginInfo.userInfo.token, loginInfo.userInfo.refreshToken);
-        Axios.defaults.headers.Authorization = `Bearer ${loginInfo.userInfo.token}`;
-      } else {
-        // 로그아웃 처리
-        clearTokens();
-        // 로그인 페이지로 이동
-        redirectToLogin();
+        // 홈으로 이동
+        navigate('/home', { replace: true });
       }
     }
 
     // 초기 인증 체크
-    const checkInitialAuth = () => {
-      if (isInitialized) return;
-
-      const isProtected = isProtectedRoute(location.pathname);
-
-      console.log('초기 인증 체크:', {
-        pathname: location.pathname,
-        isProtected,
-        isNative: isNativeApp(),
-      });
-
-      // 보호된 라우트에서 토큰 체크 및 리다이렉트
-      if (checkTokenAndRedirect(location.pathname)) {
+    const checkInitialAuth = async () => {
+      try {
+        const needsRedirect = checkTokenAndRedirect(location.pathname);
+        if (needsRedirect && isProtectedRoute(location.pathname)) {
+          redirectToLogin();
+        }
+      } catch {
+        redirectToLogin();
+      } finally {
         setIsInitialized(true);
-        return;
       }
-
-      setIsInitialized(true);
     };
+
+    // 네이티브 앱 이벤트 리스너 등록
+    if (isNativeApp()) {
+      window.addEventListener('loginInfoReceived', handleLoginInfoReceived);
+    }
 
     checkInitialAuth();
 
-    window.addEventListener('loginInfoReceived', handleLoginInfoReceived);
+    // 클린업
     return () => {
-      window.removeEventListener('loginInfoReceived', handleLoginInfoReceived);
+      if (isNativeApp()) {
+        window.removeEventListener(
+          'loginInfoReceived',
+          handleLoginInfoReceived
+        );
+      }
     };
-  }, [location.pathname, navigate, isInitialized, location, redirectToLogin]);
+  }, [location.pathname, navigate, redirectToLogin]);
 
   // 라우트 변경 시 인증 체크
   useEffect(() => {
     if (!isInitialized) return;
 
     // 보호된 라우트에서 토큰 체크 및 리다이렉트
-    if (checkTokenAndRedirect(location.pathname)) {
-      return; // 이미 리다이렉트됨
+    const needsRedirect = checkTokenAndRedirect(location.pathname);
+    if (needsRedirect) {
+      redirectToLogin();
+      return;
     }
-
-    // 필요 없는 자동로그인 체크 코드 제거
-  }, [location.pathname, isInitialized, navigate, redirectToLogin]);
+  }, [location.pathname, isInitialized, redirectToLogin]);
 
   return null;
 };
