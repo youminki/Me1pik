@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Theme from '../../../styles/Theme';
-import CreateMelpik1 from '../../../assets/Melpik/Inventory1.svg';
-import CreateMelpik2 from '../../../assets/Melpik/Inventory1.svg';
-import SettingIcon from '../../../assets/Melpik/Setting.svg';
+import CreateMelpik1 from '../../../assets/melpiks/Inventory1.svg';
+import CreateMelpik2 from '../../../assets/melpiks/Inventory1.svg';
+import SettingIcon from '../../../assets/melpiks/Setting.svg';
 
 interface ContentItem {
   image: string;

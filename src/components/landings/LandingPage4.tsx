@@ -1,16 +1,16 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
-import ZOOCImage from '../../assets/Landing/Zooc.jpg';
-import SANDROImage from '../../assets/Landing/Sandro.jpg';
-import ITMICHAImage from '../../assets/Landing/ItMichaa.jpg';
-import CC_Collect from '../../assets/Landing/CC_Collect.jpg';
-import DEW_L from '../../assets/Landing/DEW_L.jpg';
-import LINE from '../../assets/Landing/LINE.jpg';
-import MAJE from '../../assets/Landing/MAJE.jpg';
-import MICHAA from '../../assets/Landing/MICHAA.jpg';
-import MOJO from '../../assets/Landing/MOJO.jpg';
-import HangerIcon from '../../assets/Landing/hangerIcon.svg';
+import ZOOCImage from '../../assets/landings/Zooc.jpg';
+import SANDROImage from '../../assets/landings/Sandro.jpg';
+import ITMICHAImage from '../../assets/landings/ItMichaa.jpg';
+import CC_Collect from '../../assets/landings/CC_Collect.jpg';
+import DEW_L from '../../assets/landings/DEW_L.jpg';
+import LINE from '../../assets/landings/LINE.jpg';
+import MAJE from '../../assets/landings/MAJE.jpg';
+import MICHAA from '../../assets/landings/MICHAA.jpg';
+import MOJO from '../../assets/landings/MOJO.jpg';
+import HangerIcon from '../../assets/landings/hangerIcon.svg';
 
 const BRAND_ITEM_WIDTH = 240;
 const BRAND_ITEM_GAP = 20;

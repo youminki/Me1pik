@@ -5,10 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import StatsSection from '../../../components/stats-section';
 import Spinner from '../../../components/spinner';
-import TicketIllustration from '../../../assets/LockerRoom/TicketIllustration.svg';
-import AddTicketIllustration from '../../../assets/LockerRoom/AddTicketIllustration.svg';
-import CardIcon from '../../../assets/LockerRoom/AddTicketIllustrations.svg';
-import BarcodeImg from '../../../assets/LockerRoom/barcodeIcon.svg';
+import TicketIllustration from '../../../assets/locker-rooms/TicketIllustration.svg';
+import AddTicketIllustration from '../../../assets/locker-rooms/AddTicketIllustration.svg';
+import CardIcon from '../../../assets/locker-rooms/AddTicketIllustrations.svg';
+import BarcodeImg from '../../../assets/locker-rooms/barcodeIcon.svg';
 import { useUserTickets } from '../../../api-utils/schedule-managements/tickets/ticket';
 
 const visitLabel = '사용중인 이용권';

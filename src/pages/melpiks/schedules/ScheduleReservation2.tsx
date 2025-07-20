@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { FaTshirt } from 'react-icons/fa'; // 아이콘 import
-import Stepper from '../../../components/melpiks/Schedule/Reservation1/Stepper';
-import BottomBar from '../../../components/melpiks/Schedule/Reservation1/BottomBar';
+import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
+import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
 
 import checkIcon from '../../../assets/checkIcon.svg';
 

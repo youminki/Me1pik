@@ -12,9 +12,9 @@ import {
 import ReusableModal from '../common-components/modals/reusable-modal';
 import ReusableModal2 from '../common-components/modals/reusable-modal-v2';
 import AddressSearchModal from '../common-components/modals/address-search-modal';
-import PriceIcon from '../assets/Basket/PriceIcon.svg';
-import ProductInfoIcon from '../assets/Basket/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../assets/Basket/ServiceInfoIcon.svg';
+import PriceIcon from '../assets/baskets/PriceIcon.svg';
+import ProductInfoIcon from '../assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '../assets/baskets/ServiceInfoIcon.svg';
 import { useUserTickets } from '../api-utils/schedule-managements/tickets/ticket';
 import {
   useCreateRentalOrder,

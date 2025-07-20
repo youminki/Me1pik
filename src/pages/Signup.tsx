@@ -20,7 +20,7 @@ import {
   checkNickname,
 } from '../api-utils/user-managements/users/userApi';
 import { regionDistrictData } from '../components/signups/regionDistrictData';
-import Modal from '../components/melpiks/CreateMelpik/Settings/Modal';
+import Modal from '../components/melpiks/create-melpiks/settings/Modal';
 import SimpleHeader from '../common-components/headers/simple-header';
 import type { AxiosError } from 'axios';
 

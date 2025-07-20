@@ -19,9 +19,9 @@ import {
 } from '../../api-utils/product-managements/products/product';
 
 import HomeDetail from '../homes/HomeDetail';
-import CancleIconIcon from '../../assets/Header/CancleIcon.svg';
-import ShareIcon from '../../assets/Header/ShareIcon.svg';
-import HomeIcon from '../../assets/Header/HomeIcon.svg';
+import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
+import ShareIcon from '../../assets/headers/ShareIcon.svg';
+import HomeIcon from '../../assets/headers/HomeIcon.svg';
 import ArrowIconSvg from '../../assets/ArrowIcon.svg';
 import SkeletonItemList from '../../components/homes/SkeletonItemList';
 

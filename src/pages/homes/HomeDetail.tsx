@@ -7,18 +7,18 @@ import {
   useProductInfo,
   ProductDetail as APIProductDetail,
 } from '../../api-utils/product-managements/uploads/productApi';
-import ImageSlider from '../../components/homes/HomeDetail/ImageSlider';
-import ProductInfo from '../../components/homes/HomeDetail/ProductInfo';
-import ProductOptions from '../../components/homes/HomeDetail/ProductOptions';
-import PaymentMethod from '../../components/homes/HomeDetail/PaymentMethod';
-import SizeInfo from '../../components/homes/HomeDetail/SizeInfo';
-import MaterialInfo from '../../components/homes/HomeDetail/MaterialInfo';
-import ProductDetails from '../../components/homes/HomeDetail/ProductDetails';
-import ServiceSelection from '../../components/homes/HomeDetail/ServiceSelection';
-import RentalOptions from '../../components/homes/HomeDetail/RentalOptions';
+import ImageSlider from '../../components/homes/home-details/ImageSlider';
+import ProductInfo from '../../components/homes/home-details/ProductInfo';
+import ProductOptions from '../../components/homes/home-details/ProductOptions';
+import PaymentMethod from '../../components/homes/home-details/PaymentMethod';
+import SizeInfo from '../../components/homes/home-details/SizeInfo';
+import MaterialInfo from '../../components/homes/home-details/MaterialInfo';
+import ProductDetails from '../../components/homes/home-details/ProductDetails';
+import ServiceSelection from '../../components/homes/home-details/ServiceSelection';
+import RentalOptions from '../../components/homes/home-details/RentalOptions';
 import ReusableModal from '../../common-components/modals/reusable-modal';
-import BottomBar from '../../components/homes/HomeDetail/BottomBar';
-import ShoppingBasket from '../../assets/Home/HomeDetail/ShoppingBasket.svg';
+import BottomBar from '../../components/homes/home-details/BottomBar';
+import ShoppingBasket from '../../assets/homes/home-details/ShoppingBasket.svg';
 import { addCartItem } from '../../api-utils/product-managements/carts/cart';
 
 interface ProductDetail {

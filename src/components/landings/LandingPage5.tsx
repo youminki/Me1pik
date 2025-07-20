@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import CheckButtonIcon from '../../assets/Landing/CheckButton.svg';
-import SampleImage from '../../assets/Landing/SampleImage5.png';
+import CheckButtonIcon from '../../assets/landings/CheckButton.svg';
+import SampleImage from '../../assets/landings/SampleImage5.png';
 
 const LandingPage5: React.FC = () => {
   return (

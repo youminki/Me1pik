@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import sampleImage from '../../../assets/sample-dress.svg';
-import ProductInfoIcon from '../../../assets/Basket/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../../../assets/Basket/ServiceInfoIcon.svg';
+import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
 
-import FilledStarIcon from '../../../assets/Basket/FilledStarIcon.svg'; // 채워진 별
-import EmptyStarIcon from '../../../assets/Basket/EmptyStarIcon.svg'; // 빈 별
+import FilledStarIcon from '../../../assets/baskets/FilledStarIcon.svg'; // 채워진 별
+import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg'; // 빈 별
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
 

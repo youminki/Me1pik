@@ -3,9 +3,9 @@ import styled, { keyframes } from 'styled-components';
 import StatsSection from '../../../components/stats-section';
 import PeriodSection from '../../../components/period-section';
 import Spinner from '../../../components/spinner';
-import ServiceInfoIcon from '../../../assets/Basket/ServiceInfoIcon.svg';
-import ProductInfoIcon from '../../../assets/Basket/ProductInfoIcon.svg';
-import PriceIcon from '../../../assets/Basket/PriceIcon.svg';
+import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
+import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
+import PriceIcon from '../../../assets/baskets/PriceIcon.svg';
 import sampleImage from '../../../assets/sample-dress.svg';
 import userHistoryEmptyIcon from '../../../assets/userHistoryEmptyIcon.svg';
 import HomeDetail from '../../homes/HomeDetail';
@@ -14,7 +14,7 @@ import {
   cancelRentalSchedule,
   RentalScheduleItem,
 } from '../../../api-utils/schedule-managements/rental-schedules/RentalSchedule';
-import CancleIconIcon from '../../../assets/Header/CancleIcon.svg';
+import CancleIconIcon from '../../../assets/headers/CancleIcon.svg';
 
 // 버튼 확대 애니메이션
 const hoverScale = keyframes`

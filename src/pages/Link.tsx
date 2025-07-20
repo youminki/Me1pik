@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import phoneMock from '../assets/Link/phone-mock.png';
-import melpikLogo from '../assets/Link/melpik-logo.svg';
-import couponCard from '../assets/Link/couponCard.svg';
-import CheckIcon from '../assets/Link/CheckIcon.svg';
+import phoneMock from '../assets/links/phone-mock.png';
+import melpikLogo from '../assets/links/melpik-logo.svg';
+import couponCard from '../assets/links/couponCard.svg';
+import CheckIcon from '../assets/links/CheckIcon.svg';
 
 const Link: React.FC = () => {
   const navigate = useNavigate();

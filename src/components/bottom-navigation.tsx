@@ -3,11 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
-import HomeIcon from '../assets/BottomNav/HomeIcon.svg';
-import BrandIcon from '../assets/BottomNav/BrandIcon.svg';
-import CustomerServiceIcon from '../assets/BottomNav/CustomerServiceIcon.svg';
-import LockerRoomIcon from '../assets/BottomNav/LockerRoomIcon.svg';
-import MelpikIcon from '../assets/BottomNav/MelpikIcon.svg';
+import HomeIcon from '../assets/bottom-navigations/HomeIcon.svg';
+import BrandIcon from '../assets/bottom-navigations/BrandIcon.svg';
+import CustomerServiceIcon from '../assets/bottom-navigations/CustomerServiceIcon.svg';
+import LockerRoomIcon from '../assets/bottom-navigations/LockerRoomIcon.svg';
+import MelpikIcon from '../assets/bottom-navigations/MelpikIcon.svg';
 
 interface Tab {
   key: string;

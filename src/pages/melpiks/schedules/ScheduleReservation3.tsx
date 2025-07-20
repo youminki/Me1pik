@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Stepper from '../../../components/melpiks/Schedule/Reservation1/Stepper';
-import BottomBar from '../../../components/melpiks/Schedule/Reservation1/BottomBar';
+import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
+import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
 import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
 import Spinner from '../../../components/spinner';
 import { UIItem } from '../../../components/homes/MyclosetItemList'; // UIItem.id는 string 타입

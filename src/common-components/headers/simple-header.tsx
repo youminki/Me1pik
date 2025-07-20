@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import BackButtonIcon from '../../assets/Header/BackButton.svg';
+import BackButtonIcon from '../../assets/headers/BackButton.svg';
 
 interface SimpleHeaderProps {
   title: string;

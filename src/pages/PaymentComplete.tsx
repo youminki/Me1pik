@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import CompleteIcon from '../assets/Complete/CompleteIcon.svg';
+import CompleteIcon from '../assets/completes/CompleteIcon.svg';
 import FixedBottomBar from '../components/fixed-bottom-bar';
 
 interface PaymentCompleteProps {

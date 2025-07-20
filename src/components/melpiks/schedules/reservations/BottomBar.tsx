@@ -1,4 +1,4 @@
-// src/components/melpiks/Schedule/Reservation1/BottomBar.tsx
+// src/components/melpiks/schedules/reservations/BottomBar.tsx
 
 import React from 'react';
 import styled from 'styled-components';

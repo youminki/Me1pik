@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Cookies from 'js-cookie';
-import userInfoIcon from '../assets/Myinfo/UserInfoChangeIcon.svg';
-import passwordIcon from '../assets/Myinfo/PasswordChangeIcon.svg';
-import deliveryIcon from '../assets/Myinfo/DeliveryAdminIcon.svg';
+import userInfoIcon from '../assets/myinfos/UserInfoChangeIcon.svg';
+import passwordIcon from '../assets/myinfos/PasswordChangeIcon.svg';
+import deliveryIcon from '../assets/myinfos/DeliveryAdminIcon.svg';
 import { FaPlus, FaUserCircle, FaLongArrowAltRight } from 'react-icons/fa';
 import ReusableModal from '../common-components/modals/reusable-modal';
 import { useNavigate } from 'react-router-dom';

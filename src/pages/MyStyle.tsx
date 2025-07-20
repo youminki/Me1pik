@@ -5,7 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaMyStyle } from '../hooks/ValidationYup';
 import InputField from '../common-components/forms/input-field';
 import Theme from '../styles/Theme';
-import Modal from '../components/melpiks/CreateMelpik/Settings/Modal';
+import Modal from '../components/melpiks/create-melpiks/settings/Modal';
 import { CustomSelect } from '../common-components/forms/custom-select';
 import FixedBottomBar from '../components/fixed-bottom-bar';
 import ReusableModal from '../common-components/modals/reusable-modal';

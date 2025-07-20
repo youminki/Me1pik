@@ -13,9 +13,9 @@ import {
   patchSaleSchedule,
 } from '../../../api-utils/schedule-managements/sales/SaleSchedule';
 import Spinner from '../../../components/spinner';
-import Calendar from '../../../components/melpiks/Schedule/Reservation1/Calendar';
-import DateSelection from '../../../components/melpiks/Schedule/Reservation1/DateSelection';
-import Summary from '../../../components/melpiks/Schedule/Reservation1/Summary';
+import Calendar from '../../../components/melpiks/schedules/reservations/Calendar';
+import DateSelection from '../../../components/melpiks/schedules/reservations/DateSelection';
+import Summary from '../../../components/melpiks/schedules/reservations/Summary';
 
 // 내 옷장 API & 타입 import
 import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
@@ -356,8 +356,12 @@ const ScheduleConfirmation: React.FC = () => {
                 <DateSelection
                   year={modalYear}
                   month={modalMonth}
-                  onYearChange={(e) => setModalYear(Number(e.target.value))}
-                  onMonthChange={(e) => setModalMonth(Number(e.target.value))}
+                  onYearChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setModalYear(Number(e.target.value))
+                  }
+                  onMonthChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setModalMonth(Number(e.target.value))
+                  }
                 />
               </DateSelectionSection>
 

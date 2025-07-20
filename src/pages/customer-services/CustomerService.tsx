@@ -5,10 +5,10 @@ import Theme from '../../styles/Theme';
 import StatsSection from '../../components/stats-section';
 
 import CustomerServiceIcon from '../../assets/CustomerServiceIcons.svg';
-import FrequentlyAskedQuestionsBox from '../../assets/CustomerService/FrequentlyAskedQuestions.svg';
-import NoticeBox from '../../assets/CustomerService/Notice.svg';
-import PersonalInformationProcessingPolicyBox from '../../assets/CustomerService/PersonalInformationProcessingPolicy.svg';
-import TermsAndConditionsOfUseBox from '../../assets/CustomerService/TermsAndConditionsOfUse.svg';
+import FrequentlyAskedQuestionsBox from '../../assets/customer-services/FrequentlyAskedQuestions.svg';
+import NoticeBox from '../../assets/customer-services/Notice.svg';
+import PersonalInformationProcessingPolicyBox from '../../assets/customer-services/PersonalInformationProcessingPolicy.svg';
+import TermsAndConditionsOfUseBox from '../../assets/customer-services/TermsAndConditionsOfUse.svg';
 
 const menuItems = [
   { icon: NoticeBox, label: '공지사항', path: '/customerService/notice' },

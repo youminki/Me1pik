@@ -1,10 +1,10 @@
 // src/pages/Basket.tsx
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import BasketIcon from '../assets/Basket/BasketIcon.svg';
-import PriceIcon from '../assets/Basket/PriceIcon.svg';
-import ProductInfoIcon from '../assets/Basket/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../assets/Basket/ServiceInfoIcon.svg';
+import BasketIcon from '../assets/baskets/BasketIcon.svg';
+import PriceIcon from '../assets/baskets/PriceIcon.svg';
+import ProductInfoIcon from '../assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '../assets/baskets/ServiceInfoIcon.svg';
 import FixedBottomBar from '../components/fixed-bottom-bar';
 import ReusableModal2 from '../common-components/modals/reusable-modal-v2';
 import {

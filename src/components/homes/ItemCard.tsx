@@ -1,8 +1,8 @@
 // src/components/ItemCard.tsx
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import PickIconOn from '../../assets/Home/PickIconOn.svg';
-import PickIconOff from '../../assets/Home/PickIconOff.svg';
+import PickIconOn from '../../assets/homes/PickIconOn.svg';
+import PickIconOff from '../../assets/homes/PickIconOff.svg';
 import {
   addToCloset,
   removeFromCloset,

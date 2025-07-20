@@ -12,9 +12,9 @@ import {
   postRecurringPayment,
 } from '../../../api-utils/payments/default/payment';
 
-import PaymentAmountIcon from '../../../assets/LockerRoom/PaymentAmount.svg';
-import TicketPaymentSeaSonIcon from '../../../assets/LockerRoom/TicketPaymentSeaSon.svg';
-import TicketPaymentRightIcon from '../../../assets/LockerRoom/TicketPaymentRightIcon.svg';
+import PaymentAmountIcon from '../../../assets/locker-rooms/PaymentAmount.svg';
+import TicketPaymentSeaSonIcon from '../../../assets/locker-rooms/TicketPaymentSeaSon.svg';
+import TicketPaymentRightIcon from '../../../assets/locker-rooms/TicketPaymentRightIcon.svg';
 
 export interface CardItem {
   cardId: number;

@@ -1,4 +1,4 @@
-// src/components/melpiks/CreateMelpik/Settings/Modal.tsx
+// src/components/melpiks/create-melpiks/settings/Modal.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Theme from '../../../../styles/Theme';

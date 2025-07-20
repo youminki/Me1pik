@@ -4,10 +4,10 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaSignupContemporary } from '../../../hooks/ValidationYup';
 import InputField from '../../../common-components/forms/input-field';
-import AgreementSection from '../../../components/melpiks/CreateMelpik/Settings/AgreementSection';
+import AgreementSection from '../../../components/melpiks/create-melpiks/settings/AgreementSection';
 import Theme from '../../../styles/Theme';
 import BottomBar from '../../../components/bottom-navigation-mobile';
-import Modal from '../../../components/melpiks/CreateMelpik/Settings/Modal';
+import Modal from '../../../components/melpiks/create-melpiks/settings/Modal';
 import { CustomSelect } from '../../../common-components/forms/custom-select';
 
 interface FormData {

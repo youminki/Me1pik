@@ -5,25 +5,25 @@ import { useSearchParams } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import Spinner from '../spinner';
 
-import All from '../../assets/SubHeader/Entire.svg';
-import MiniDress from '../../assets/SubHeader/MiniDress.svg';
-import MidiDress from '../../assets/SubHeader/MidiDress.svg';
-import LongDress from '../../assets/SubHeader/LongDress.svg';
-import JumpSuit from '../../assets/SubHeader/JumpSuit.svg';
-import Blouse from '../../assets/SubHeader/Blouse.svg';
-import KnitTop from '../../assets/SubHeader/KnitTop.svg';
-import ShirtTop from '../../assets/SubHeader/ShirtTop.svg';
-import MiniSkirt from '../../assets/SubHeader/MiniSkirt.svg';
-import MidiSkirt from '../../assets/SubHeader/MidiSkirt.svg';
-import LongSkirt from '../../assets/SubHeader/LongSkirt.svg';
-import Pants from '../../assets/SubHeader/Pants.svg';
-import Jacket from '../../assets/SubHeader/Jacket.svg';
-import Coat from '../../assets/SubHeader/Coat.svg';
-import Top from '../../assets/SubHeader/Top.svg';
-import Tshirt from '../../assets/SubHeader/Tshirt.svg';
-import Cardigan from '../../assets/SubHeader/Cardigan.svg';
-import Best from '../../assets/SubHeader/Best.svg';
-import Padding from '../../assets/SubHeader/Padding.svg';
+import All from '../../assets/sub-headers/Entire.svg';
+import MiniDress from '../../assets/sub-headers/MiniDress.svg';
+import MidiDress from '../../assets/sub-headers/MidiDress.svg';
+import LongDress from '../../assets/sub-headers/LongDress.svg';
+import JumpSuit from '../../assets/sub-headers/JumpSuit.svg';
+import Blouse from '../../assets/sub-headers/Blouse.svg';
+import KnitTop from '../../assets/sub-headers/KnitTop.svg';
+import ShirtTop from '../../assets/sub-headers/ShirtTop.svg';
+import MiniSkirt from '../../assets/sub-headers/MiniSkirt.svg';
+import MidiSkirt from '../../assets/sub-headers/MidiSkirt.svg';
+import LongSkirt from '../../assets/sub-headers/LongSkirt.svg';
+import Pants from '../../assets/sub-headers/Pants.svg';
+import Jacket from '../../assets/sub-headers/Jacket.svg';
+import Coat from '../../assets/sub-headers/Coat.svg';
+import Top from '../../assets/sub-headers/Top.svg';
+import Tshirt from '../../assets/sub-headers/Tshirt.svg';
+import Cardigan from '../../assets/sub-headers/Cardigan.svg';
+import Best from '../../assets/sub-headers/Best.svg';
+import Padding from '../../assets/sub-headers/Padding.svg';
 
 const homeIcons = [
   { src: All, alt: '전체', category: 'All' },

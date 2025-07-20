@@ -5,11 +5,11 @@ import StatsSection from '../../../components/stats-section';
 import PeriodSection from '../../../components/period-section';
 
 import sampleImage from '../../../assets/sample-dress.svg';
-import ProductInfoIcon from '../../../assets/Basket/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../../../assets/Basket/ServiceInfoIcon.svg';
-import EvaluationIcon from '../../../assets/Basket/EvaluationIcon.svg';
-import FilledStarIcon from '../../../assets/Basket/FilledStarIcon.svg';
-import EmptyStarIcon from '../../../assets/Basket/EmptyStarIcon.svg';
+import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
+import EvaluationIcon from '../../../assets/baskets/EvaluationIcon.svg';
+import FilledStarIcon from '../../../assets/baskets/FilledStarIcon.svg';
+import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg';
 
 interface BasketItem {
   id: number;

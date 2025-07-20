@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import StatsSection from '../../components/locker-rooms/StatsSection';
 
 import LockerRoomIcons from '../../assets/LockerRoomIcons.svg';
-import ClosetIcon from '../../assets/LockerRoom/ClosetIcon.svg';
-import HistoryIcon from '../../assets/LockerRoom/HistoryIcon.svg';
-import PointsIcon from '../../assets/LockerRoom/PointsIcon.svg';
-import TicketIcon from '../../assets/LockerRoom/TicketIcon.svg';
-import PaymentIcon from '../../assets/LockerRoom/PaymentIcon.svg';
-import ReviewIcon from '../../assets/LockerRoom/ReviewIcon.svg';
+import ClosetIcon from '../../assets/locker-rooms/ClosetIcon.svg';
+import HistoryIcon from '../../assets/locker-rooms/HistoryIcon.svg';
+import PointsIcon from '../../assets/locker-rooms/PointsIcon.svg';
+import TicketIcon from '../../assets/locker-rooms/TicketIcon.svg';
+import PaymentIcon from '../../assets/locker-rooms/PaymentIcon.svg';
+import ReviewIcon from '../../assets/locker-rooms/ReviewIcon.svg';
 
 import {
   getMembershipInfo,

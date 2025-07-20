@@ -1,4 +1,4 @@
-// src/components/melpiks/Schedule/Reservation1/Calendar.tsx
+// src/components/melpiks/schedules/reservations/Calendar.tsx
 import React from 'react';
 import styled from 'styled-components';
 import { FaPlus, FaMinus } from 'react-icons/fa';

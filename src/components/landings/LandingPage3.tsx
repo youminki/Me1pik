@@ -1,9 +1,9 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
-import Ion1Src from '../../assets/Landing/LandingPage3_ion1.svg';
-import Ion2Src from '../../assets/Landing/LandingPage3_ion2.svg';
-import SampleJacket from '../../assets/Landing/SampleJacket.jpg';
+import Ion1Src from '../../assets/landings/LandingPage3_ion1.svg';
+import Ion2Src from '../../assets/landings/LandingPage3_ion2.svg';
+import SampleJacket from '../../assets/landings/SampleJacket.jpg';
 
 const cycleDuration = '8s';
 

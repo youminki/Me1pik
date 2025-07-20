@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import SearchIconImage from '/src/assets/BottomNav/SearchIcon.svg';
-import GroupButtonIcon from '/src/assets/BottomNav/GroupButtonIcon.svg';
+import SearchIconImage from '/src/assets/bottom-navigations/SearchIcon.svg';
+import GroupButtonIcon from '/src/assets/bottom-navigations/GroupButtonIcon.svg';
 
 interface ControlSectionProps {
   toggleSort: () => void;

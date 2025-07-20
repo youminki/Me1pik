@@ -4,9 +4,9 @@ import styled, { createGlobalStyle } from 'styled-components';
 import Calendar from './Calendar';
 import { isSameDay, isBefore, addDays as _addDays } from 'date-fns';
 import Holidays from 'date-holidays';
-import ReusableModal2 from '../../../components/homes/HomeDetail/HomeDetailModal';
+import ReusableModal2 from '../../../components/homes/home-details/HomeDetailModal';
 import ReusableModal from '../../../common-components/modals/reusable-modal';
-import RentalSelectDateIcon from '../../../assets/Home/HomeDetail/RentalSelectDateIcon.svg';
+import RentalSelectDateIcon from '../../../assets/homes/home-details/RentalSelectDateIcon.svg';
 import { getUnavailableDates } from '../../../api-utils/schedule-managements/schedules/scedule';
 import { CustomSelect } from '../../../common-components/forms/custom-select';
 

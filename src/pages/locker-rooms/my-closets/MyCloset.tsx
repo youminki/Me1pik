@@ -10,7 +10,7 @@ import StatsSection from '../../../components/stats-section';
 import ItemList, { UIItem } from '../../../components/homes/MyclosetItemList';
 import HomeDetail from '../../homes/HomeDetail';
 import Spinner from '../../../components/spinner'; // Spinner import 추가
-import CancleIconIcon from '../../../assets/Header/CancleIcon.svg';
+import CancleIconIcon from '../../../assets/headers/CancleIcon.svg';
 
 const salesLabel = '시즌';
 const sales = '2025 1분기';

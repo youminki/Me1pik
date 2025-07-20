@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import Theme from '../../styles/Theme';
 import StatsSection from '../../components/stats-section';
 
-import MelpikIcon from '../../assets/Melpik/MelpikIcon.svg';
-import MelpikCreateIcon from '../../assets/Melpik/MelpikCreateIcon.svg';
-import MelpikScheduelerIcon from '../../assets/Melpik/MelpikScheduelerIcon.svg';
-import MelpikCalculateIcon from '../../assets/Melpik/MelpikCalculateIcon.svg';
-import MelpikOptionIcon from '../../assets/Melpik/MelpikOptionIcon.svg';
+import MelpikIcon from '../../assets/melpiks/MelpikIcon.svg';
+import MelpikCreateIcon from '../../assets/melpiks/MelpikCreateIcon.svg';
+import MelpikScheduelerIcon from '../../assets/melpiks/MelpikScheduelerIcon.svg';
+import MelpikCalculateIcon from '../../assets/melpiks/MelpikCalculateIcon.svg';
+import MelpikOptionIcon from '../../assets/melpiks/MelpikOptionIcon.svg';
 
 const menuItems = [
   { icon: MelpikCreateIcon, label: '내 옷장', path: '/create-melpik' },

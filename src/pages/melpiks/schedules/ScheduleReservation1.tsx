@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Calendar from '../../../components/melpiks/Schedule/Reservation1/Calendar';
-import Stepper from '../../../components/melpiks/Schedule/Reservation1/Stepper';
-import Summary from '../../../components/melpiks/Schedule/Reservation1/Summary';
-import DateSelection from '../../../components/melpiks/Schedule/Reservation1/DateSelection';
-import BottomBar from '../../../components/melpiks/Schedule/Reservation1/BottomBar';
+import Calendar from '../../../components/melpiks/schedules/reservations/Calendar';
+import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
+import Summary from '../../../components/melpiks/schedules/reservations/Summary';
+import DateSelection from '../../../components/melpiks/schedules/reservations/DateSelection';
+import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
 
 const ScheduleReservation1: React.FC = () => {
   const navigate = useNavigate();

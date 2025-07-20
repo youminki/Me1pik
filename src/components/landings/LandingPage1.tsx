@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import LandingBackground from '../../assets/Landing/LandingBackground.jpg';
-import LeftLabel from '../../assets/Landing/LeftLabel.svg';
+import LandingBackground from '../../assets/landings/LandingBackground.jpg';
+import LeftLabel from '../../assets/landings/LeftLabel.svg';
 
 const LandingPage1: React.FC = () => {
   const navigate = useNavigate();
