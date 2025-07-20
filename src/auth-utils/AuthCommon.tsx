@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { theme } from '@/styles/theme';
 
 export const NaverLoginBg = styled.div`
   min-height: 100vh;
@@ -90,28 +91,29 @@ export const InputIconBtn = styled.button`
 export const StyledInput = styled.input<{ hasError?: boolean }>`
   width: 100%;
   height: 51px;
-  border: 1px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#dadada')};
+  border: 1px solid
+    ${({ hasError }) => (hasError ? theme.colors.error : theme.colors.border)};
   font-size: 16px;
   padding: 0 44px 0 15px;
-  background: #fff;
+  background: ${theme.colors.inputBg};
   box-sizing: border-box;
-  color: #222;
+  color: ${theme.colors.primary};
   border-radius: 0;
   transition:
     border 0.2s,
     background 0.2s;
   &:focus {
-    background: #fff;
-    outline: 2px solid #222;
+    background: ${theme.colors.inputBg};
+    outline: 2px solid ${theme.colors.primary};
     outline-offset: 1px;
   }
   &::placeholder {
-    color: #b0b8c1;
+    color: ${theme.colors.placeholder};
     font-size: 16px;
   }
   &[readonly],
   &:disabled {
-    background: #f5f5f5;
+    background: ${theme.colors.disabledBg};
     box-shadow: none !important;
     opacity: 0.7;
     cursor: not-allowed;
@@ -121,14 +123,15 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
 export const StyledSelect = styled.select<{ hasError?: boolean }>`
   width: 100%;
   height: 51px;
-  border: 1.5px solid ${({ hasError }) => (hasError ? '#ff4d4f' : '#000000')};
+  border: 1.5px solid
+    ${({ hasError }) => (hasError ? theme.colors.error : '#000000')};
   font-size: 16px;
   padding: 0 40px 0 15px;
   background:
     url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
-    #fafbfb;
+    ${theme.colors.inputBg};
   box-sizing: border-box;
-  color: #222;
+  color: ${theme.colors.primary};
   border-radius: 0 !important;
   transition: border 0.2s;
 
@@ -138,13 +141,13 @@ export const StyledSelect = styled.select<{ hasError?: boolean }>`
   &:focus {
     background:
       url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
-      #fff;
-    outline: 2px solid #222;
+      ${theme.colors.inputBg};
+    outline: 2px solid ${theme.colors.primary};
     outline-offset: 1px;
   }
   &[readonly],
   &:disabled {
-    background: #f5f5f5;
+    background: ${theme.colors.disabledBg};
     box-shadow: none !important;
     opacity: 0.7;
     cursor: not-allowed;

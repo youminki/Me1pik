@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Theme from '../../../styles/Theme';
+import { theme } from '../../../styles/theme';
 
 const PaymentMethod: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<string>('12');
@@ -63,8 +63,8 @@ const NowOptionWrapper = styled.div`
 
 const NowOption = styled.div<{ active: boolean }>`
   padding: 0px 20px;
-  background-color: ${Theme.colors.gray3};
-  border: 1px solid ${Theme.colors.gray1};
+  background-color: ${theme.colors.gray3};
+  border: 1px solid ${theme.colors.gray1};
   font-weight: bold;
   text-align: center;
   cursor: pointer;
@@ -78,8 +78,8 @@ const NowOption = styled.div<{ active: boolean }>`
 const OptionContainer = styled.div`
   display: flex;
   flex-grow: 1;
-  background-color: ${Theme.colors.gray3};
-  border: 1px solid ${Theme.colors.gray1};
+  background-color: ${theme.colors.gray3};
+  border: 1px solid ${theme.colors.gray1};
   border-radius: 50px;
   height: 30px;
 `;
@@ -105,7 +105,7 @@ const OptionText = styled.div`
   font-weight: 800;
   font-size: 14px;
   text-align: center;
-  color: ${Theme.colors.black};
+  color: ${theme.colors.black};
   z-index: 1;
 `;
 
@@ -113,7 +113,7 @@ const Circle = styled.div`
   position: absolute;
   width: 40px;
   height: 40px;
-  border: 5px solid ${Theme.colors.yellow};
+  border: 5px solid ${theme.colors.yellow};
   background-color: white;
   border-radius: 50%;
   top: 50%;

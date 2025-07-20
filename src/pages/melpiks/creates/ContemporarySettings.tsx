@@ -5,7 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaSignupContemporary } from '../../../hooks/useValidationYup';
 import InputField from '../../../components/shared/forms/InputField';
 import AgreementSection from '../../../components/melpiks/create-melpiks/settings/AgreementSection';
-import Theme from '../../../styles/Theme';
+import { theme } from '../../../styles/theme';
 import BottomBar from '../../../components/bottom-navigation-mobile';
 import Modal from '../../../components/melpiks/create-melpiks/settings/Modal';
 import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
@@ -49,7 +49,7 @@ const ContemporarySettings: React.FC = () => {
   };
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <AgreementSection />

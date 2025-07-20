@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import Theme from '../../../../styles/Theme';
 
 const Stepper: React.FC<{ currentStep: number }> = ({ currentStep }) => {
   return (
@@ -27,7 +26,7 @@ const Step = styled.div<{ completed: boolean }>`
   height: 32px;
   border-radius: 50%;
   background-color: ${(props) =>
-    props.completed ? Theme.colors.yellow : Theme.colors.gray2};
+    props.completed ? props.theme.colors.yellow : props.theme.colors.gray2};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,6 +38,6 @@ const Step = styled.div<{ completed: boolean }>`
 const StepLine = styled.div`
   width: 30px;
   height: 2px;
-  background-color: ${Theme.colors.gray3};
+  background-color: ${(props) => props.theme.colors.gray3};
   align-self: center;
 `;

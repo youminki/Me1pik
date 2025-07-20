@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import Content from '../../components/analyses/AnalysisContent';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 
 const Analysis = () => {
   return (
@@ -22,7 +22,7 @@ const AnalysisContainer = styled.div`
   height: 100vh;
   background-color: #f5f5f5;
   margin: 0 auto;
-  border: 1px solid ${Theme.colors.gray1};
+  border: 1px solid ${theme.colors.gray1};
   padding: 1rem;
 `;
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
-import Theme from '../../../styles/Theme';
+import { theme } from '../../../styles/theme';
 import AgreementSection from '../../../components/melpiks/settlement/SettlementAgreementSection';
 import InputField from '../../../components/shared/forms/InputField';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
@@ -13,7 +13,7 @@ const SettlementRequest: React.FC = () => {
   const netAmount = preTaxAmount - taxAmount;
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <Container>
         <AgreementSection />
         <InputField

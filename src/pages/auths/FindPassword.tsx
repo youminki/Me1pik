@@ -16,7 +16,7 @@ import {
 } from '../../auth-utils/AuthCommon';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { resetPassword } from '../../api-utils/user-managements/users/userApi';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import { ThemeProvider } from 'styled-components';
 import styled from 'styled-components';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
@@ -194,7 +194,7 @@ const FindPassword: React.FC = () => {
   }
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       {/* <NaverLoginBg> */}
       <TopFormSectionWrapper>
         <FormSection onSubmit={handleSubmit(onSubmit, onError)}>

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import Theme from '../../../styles/Theme';
+import { theme } from '../../../styles/theme';
 import ScheduleIcon from '../../../assets/melpiks/schedule.svg';
 import BletIcon from '../../../assets/melpiks/blet.svg';
 import StatsSection from '../../../components/stats-section';
@@ -258,10 +258,10 @@ const IconWrapper = styled.div<ScheduleItemProps>`
   border-radius: 50%;
   background-color: ${({ scheduleStatus }) =>
     scheduleStatus === 'reserved'
-      ? Theme.colors.gray
+      ? theme.colors.gray
       : scheduleStatus === 'inProgress'
-        ? Theme.colors.yellow
-        : Theme.colors.gray4};
+        ? theme.colors.yellow
+        : theme.colors.gray4};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -271,16 +271,16 @@ const Icon = styled.img`
   height: 24px;
 `;
 const ConnectorLine1 = styled.div`
-  border: 1px solid ${Theme.colors.gray4};
+  border: 1px solid ${theme.colors.gray4};
   margin: 4px 0;
 `;
 const ConnectorLine = styled.div`
-  border: 2px solid ${Theme.colors.gray4};
+  border: 2px solid ${theme.colors.gray4};
   height: 212px;
 `;
 const ScheduleItem = styled.div`
   background-color: white;
-  border: 1px solid ${Theme.colors.gray4};
+  border: 1px solid ${theme.colors.gray4};
   flex-grow: 1;
 `;
 const Details = styled.div`
@@ -305,7 +305,7 @@ const BletIconWrapper = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
-  border: 1px solid ${Theme.colors.gray1};
+  border: 1px solid ${theme.colors.gray1};
   margin-left: 10px;
   border-radius: 4px;
 `;
@@ -319,7 +319,7 @@ const DateWrapper = styled.div`
   justify-content: center;
 `;
 const DateTitle = styled.span`
-  color: ${Theme.colors.gray2};
+  color: ${theme.colors.gray2};
   font-weight: 400;
   font-size: 12px;
   line-height: 13px;

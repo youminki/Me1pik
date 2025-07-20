@@ -1,29 +1,17 @@
 import 'styled-components';
+import { FlattenSimpleInterpolation } from 'styled-components';
 
 declare module 'styled-components' {
   export interface DefaultTheme {
-    fonts: {
-      mainTitle: ReturnType<typeof css>;
-      heading: ReturnType<typeof css>;
-      default: ReturnType<typeof css>;
-      default0: ReturnType<typeof css>;
-      default1: ReturnType<typeof css>;
-      default2: ReturnType<typeof css>;
-      default3: ReturnType<typeof css>;
-      helperText: ReturnType<typeof css>;
-      BigButton: ReturnType<typeof css>;
-      SmallButton: ReturnType<typeof css>;
-      subTitle: ReturnType<typeof css>;
-    };
     colors: {
-      red1: string;
-      red2: string;
-      red3: string;
-      pink1: string;
-      pink2: string;
-      pink3: string;
-      pink4: string;
-      pink5: string;
+      primary: string;
+      error: string;
+      disabledBg: string;
+      inputBg: string;
+      border: string;
+      label: string;
+      placeholder: string;
+      readOnlyText: string;
       gray: string;
       gray0: string;
       gray1: string;
@@ -60,6 +48,27 @@ declare module 'styled-components' {
       PinkBrown4: string;
       PinkBrown5: string;
       Black1: string;
+      red1: string;
+      red2: string;
+      red3: string;
+      pink1: string;
+      pink2: string;
+      pink3: string;
+      pink4: string;
+      pink5: string;
+    };
+    fonts: {
+      mainTitle: FlattenSimpleInterpolation;
+      heading: FlattenSimpleInterpolation;
+      default: FlattenSimpleInterpolation;
+      default0: FlattenSimpleInterpolation;
+      default1: FlattenSimpleInterpolation;
+      default2: FlattenSimpleInterpolation;
+      default3: FlattenSimpleInterpolation;
+      helperText: FlattenSimpleInterpolation;
+      BigButton: FlattenSimpleInterpolation;
+      SmallButton: FlattenSimpleInterpolation;
+      subTitle: FlattenSimpleInterpolation;
     };
     breakpoints: {
       mobile: string;

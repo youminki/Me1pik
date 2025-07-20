@@ -1,7 +1,7 @@
 // src/pages/melpiks/schedules/ScheduleConfirmation.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import Theme from '../../../styles/Theme';
+import { theme } from '../../../styles/theme';
 import BottomBar from '../../../components/bottom-navigation-mobile';
 import DeleteButtonIcon from '../../../assets/DeleteButtonIcon.svg';
 import checkIcon from '../../../assets/checkIcon.svg';
@@ -441,7 +441,7 @@ const ClickableBox = styled(TextBox)`
 const ChangeBtn = styled.button`
   padding: 6px 12px;
   margin-left: 8px;
-  background: ${Theme.colors.yellow};
+  background: ${theme.colors.yellow};
   color: #fff;
 
   border: none;
@@ -460,7 +460,7 @@ const Column = styled.div`
   flex: 1;
 `;
 const ConnectorLine = styled.div`
-  border: 1px solid ${Theme.colors.gray4};
+  border: 1px solid ${theme.colors.gray4};
   margin: 20px 0;
 `;
 const ProductList = styled.div`
@@ -478,7 +478,7 @@ const ProductImage = styled.img`
   width: 140px;
   height: 210px;
   object-fit: cover;
-  border: 1px solid ${Theme.colors.gray4};
+  border: 1px solid ${theme.colors.gray4};
 `;
 const ProductLabel = styled.div`
   font-size: 12px;
@@ -520,7 +520,7 @@ const ImageWrapper = styled.div`
   width: 140px;
   height: 210px;
   cursor: pointer;
-  border: 1px solid ${Theme.colors.gray4};
+  border: 1px solid ${theme.colors.gray4};
 `;
 const Image = styled.img`
   object-fit: cover;
@@ -667,7 +667,7 @@ const CancelBtn = styled.button`
 const ApplyBtn = styled.button`
   flex: 1;
   padding: 14px;
-  background: ${Theme.colors.yellow};
+  background: ${theme.colors.yellow};
   color: #fff;
   border: none;
   border-radius: 8px;

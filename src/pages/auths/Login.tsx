@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import { LoginPost } from '../../api-utils/user-managements/auth/LoginPost';
 import {
   getMembershipInfo,
@@ -383,7 +383,7 @@ const Login: React.FC = () => {
   // }
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <NaverLoginBg>
         <NaverLoginBox>
           <LogoWrap>

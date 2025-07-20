@@ -1,6 +1,11 @@
 // src/components/InputField.tsx
 
-import React, { useState, forwardRef, InputHTMLAttributes } from 'react';
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  InputHTMLAttributes,
+} from 'react';
 import styled from 'styled-components';
 import Button02 from '@/components/shared/buttons/SecondaryButton';
 import type { FieldError } from 'react-hook-form';
@@ -78,10 +83,21 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       options && options.length > 0 ? options[0] : ''
     );
 
+    // value/selectedOption 동기화
+    useEffect(() => {
+      if (options && rest.value !== undefined) {
+        setSelectedOption(rest.value as string);
+      }
+    }, [options, rest.value]);
+
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
       const val = e.target.value;
       setSelectedOption(val);
       onSelectChange?.(val);
+      // select도 onChange가 있으면 외부로 전달
+      if (onChange) {
+        onChange(e);
+      }
     };
 
     const renderPrefixContent = () => {
@@ -101,10 +117,34 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
       return <SuffixContentText>{suffixcontent}</SuffixContentText>;
     };
 
+    // as와 options가 동시에 전달되는 경우 경고
+    if (as && options) {
+      console.warn(
+        'InputField: as와 options를 동시에 사용하지 마세요. 하나만 사용하세요.'
+      );
+      // as와 options가 동시에 오면 as를 무시합니다.
+      // 실제 렌더링은 options가 있으면 select, 없으면 input
+    }
+
+    // 접근성 속성 준비
+    let ariaLabel: string | undefined = undefined;
+    if (label) {
+      ariaLabel = String(label).split('(')[0];
+    } else if (rest.placeholder) {
+      ariaLabel = rest.placeholder as string;
+    } else if (id) {
+      ariaLabel = id as string;
+    }
+    const ariaProps = {
+      'aria-readonly': !!readOnly || undefined,
+      'aria-disabled': !!readOnly || undefined,
+      'aria-label': ariaLabel,
+    };
+
     return (
       <InputContainer>
         <Label htmlFor={id as string} $isEmpty={!label}>
-          {label ? String(label).split('(')[0] : '​'}
+          {label ? String(label).split('(')[0] : '\u200b'}
           {label && label.includes('(') && (
             <GrayText>{`(${String(label).split('(')[1]}`}</GrayText>
           )}
@@ -122,6 +162,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 onChange={handleSelectChange}
                 disabled={readOnly}
                 style={{ borderRadius: 0 }}
+                {...ariaProps}
               >
                 {options.map((option: string) => (
                   <option
@@ -142,6 +183,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 readOnly={readOnly}
                 onChange={onChange}
                 hasError={!!error}
+                {...ariaProps}
                 {...rest}
               />
             )}
@@ -192,10 +234,13 @@ const Label = styled.label<{ $isEmpty: boolean }>`
   margin-bottom: 8px;
   font-size: 12px;
   font-weight: 700;
-  visibility: ${({ $isEmpty }) => ($isEmpty ? 'hidden' : 'visible')};
+  min-height: 18px;
+  color: #222;
+  visibility: visible;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  opacity: ${({ $isEmpty }) => ($isEmpty ? 0 : 1)};
 `;
 
 const GrayText = styled.span`
@@ -238,7 +283,7 @@ const InputWrapper = styled.div<{ $readOnly: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
-  height: 57px;
+  min-height: 57px;
   flex: 1;
   background-color: ${({ $readOnly }) => ($readOnly ? '#f5f5f5' : 'white')};
   ${({ $readOnly }) =>
@@ -268,12 +313,15 @@ const ToggleWrapper = styled.div`
 `;
 
 const ErrorContainer = styled.div`
-  min-height: 10px;
-
-  margin-left: 4px;
+  min-height: 18px;
+  margin: 4px 0 0 4px;
+  display: flex;
+  align-items: flex-start;
 `;
 
 const ErrorMessage = styled.span`
-  color: blue;
-  font-size: 12px;
+  color: #ff4d4f;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
 `;

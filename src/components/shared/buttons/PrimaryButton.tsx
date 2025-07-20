@@ -1,6 +1,7 @@
 // src/components/Button01.tsx
 import React from 'react';
 import styled from 'styled-components';
+import { theme } from '@/styles/theme';
 
 interface Button01Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -32,18 +33,26 @@ const StyledButton = styled.button<{
   padding: 15px;
   margin-top: 20px;
 
-  font-size: 16px;
+  font-size: ${theme.colors.label};
   font-weight: 800;
-  line-height: 17.68px;
+  line-height: 1.2;
   text-align: center;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
 
   /* 색상: white > gray > 기본 */
   color: ${({ $white, $gray }) =>
-    $white ? '#222222' : $gray ? '#666666' : '#222222'};
+    $white
+      ? theme.colors.primary
+      : $gray
+        ? theme.colors.gray2
+        : theme.colors.primary};
   background-color: ${({ $white, $gray }) =>
-    $white ? '#ffffff' : $gray ? '#cccccc' : '#f6ae24'};
+    $white
+      ? theme.colors.white
+      : $gray
+        ? theme.colors.gray1
+        : theme.colors.yellow};
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -53,25 +62,33 @@ const StyledButton = styled.button<{
 
   &:hover {
     background-color: ${({ $white, $gray }) =>
-      $white ? '#f0f0f0' : $gray ? '#dddddd' : '#ffc947'};
+      $white
+        ? theme.colors.gray4
+        : $gray
+          ? theme.colors.gray3
+          : theme.colors.yellow1};
     transform: translateY(-2px);
   }
 
   &:active {
     background-color: ${({ $white, $gray }) =>
-      $white ? '#e0e0e0' : $gray ? '#bbbbbb' : '#d99a1e'};
+      $white
+        ? theme.colors.gray2
+        : $gray
+          ? theme.colors.gray1
+          : theme.colors.yellow0};
     transform: translateY(0);
   }
 
   &:disabled {
-    background-color: #eeeeee;
-    color: #aaaaaa;
+    background-color: ${theme.colors.gray4};
+    color: ${theme.colors.gray2};
     cursor: not-allowed;
     transform: none;
   }
 
   &:focus {
-    outline: 2px solid #222;
+    outline: 2px solid ${theme.colors.primary};
     outline-offset: 2px;
   }
 `;

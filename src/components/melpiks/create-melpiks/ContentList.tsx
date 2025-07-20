@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import Theme from '../../../styles/Theme';
+import { theme } from '../../../styles/theme';
 import CreateMelpik1 from '../../../assets/melpiks/Inventory1.svg';
 import CreateMelpik2 from '../../../assets/melpiks/Inventory1.svg';
 import SettingIcon from '../../../assets/melpiks/Setting.svg';
@@ -214,7 +214,7 @@ const Data = styled.span`
 
 const Separator = styled.span`
   margin: 0 10px;
-  color: ${Theme.colors.gray1};
+  color: ${theme.colors.gray1};
 `;
 
 const DescriptionBox = styled.div`
@@ -228,16 +228,16 @@ const Details = styled.div`
   display: flex;
   flex-direction: column;
   font-size: 12px;
-  border-left: 1px solid ${Theme.colors.gray1};
-  border-right: 1px solid ${Theme.colors.gray1};
-  border-top: 1px solid ${Theme.colors.gray1};
+  border-left: 1px solid ${theme.colors.gray1};
+  border-right: 1px solid ${theme.colors.gray1};
+  border-top: 1px solid ${theme.colors.gray1};
 `;
 
 const Container = styled.div`
   display: flex;
   align-items: center;
   padding: 13px;
-  border-bottom: 1px solid ${Theme.colors.gray1};
+  border-bottom: 1px solid ${theme.colors.gray1};
 `;
 
 const Title = styled.h1`

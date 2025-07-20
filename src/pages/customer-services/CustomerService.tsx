@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import StatsSection from '../../components/stats-section';
 
 import CustomerServiceIcon from '../../assets/CustomerServiceIcons.svg';
@@ -32,7 +32,7 @@ const menuItems = [
 const CustomerService: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <Container>
         <Header>
           <Title>고객센터</Title>

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Theme from '../../../styles/Theme';
+import { theme } from '../../../styles/theme';
 import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
 
 export interface ProductOptionsProps {
@@ -81,12 +81,12 @@ const OptionsWrapper = styled.div`
     width: 100%;
     height: 51px;
 
-    border: 1px solid ${Theme.colors.black};
-    background-color: ${Theme.colors.white};
+    border: 1px solid ${theme.colors.black};
+    background-color: ${theme.colors.white};
     font-size: 14px;
     padding: 0 15px;
     font-weight: 700;
-    color: ${Theme.colors.black};
+    color: ${theme.colors.black};
     margin-right: 8px;
 
     &:last-child {

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import StatsSection from '../../components/stats-section';
 
 import MelpikIcon from '../../assets/melpiks/MelpikIcon.svg';
@@ -27,7 +27,7 @@ const MelpikPage: React.FC = () => {
   const salesLabel = '판매된 제품수';
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <Container>
         <Header>
           <Title>멜픽</Title>

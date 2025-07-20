@@ -4,7 +4,7 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaMyStyle } from '../../hooks/useValidationYup';
 import InputField from '../../components/shared/forms/InputField';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
 import { CustomSelect } from '../../components/shared/forms/CustomSelect';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
@@ -159,7 +159,7 @@ const MyStyle: React.FC = () => {
   );
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <Container>
         <FormWrapper>
           {/* 키, 몸무게 */}

@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { findEmail } from '../../api-utils/user-managements/users/userApi';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import { ThemeProvider } from 'styled-components';
 import {
   FormSectionWrapper,
@@ -134,7 +134,7 @@ const FindId: React.FC = () => {
   }
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <TopFormSectionWrapper>
         <FormSection onSubmit={handleSubmit(handleFindAccount)}>
           <InputLabel style={{ marginBottom: '8px' }}>아이디 찾기</InputLabel>

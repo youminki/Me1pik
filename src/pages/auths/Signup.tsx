@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaSignup } from '../../hooks/useValidationYup';
 import InputField from '../../components/shared/forms/InputField';
 import AgreementSection from '../../components/signups/AgreementSection';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import { useNavigate } from 'react-router-dom';
 import { CustomSelect } from '../../components/shared/forms/CustomSelect';
@@ -524,7 +524,7 @@ const Signup: React.FC = () => {
   return (
     <>
       <SimpleHeader title='회원가입' />
-      <ThemeProvider theme={Theme}>
+      <ThemeProvider theme={theme}>
         <FormProvider {...methods}>
           {/* 폼의 onSubmit은 preventDefault 처리 */}
           <Container onSubmit={(e) => e.preventDefault()}>

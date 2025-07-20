@@ -6,7 +6,7 @@ import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 
 import InputField from '../../components/shared/forms/InputField';
 import { CustomSelect } from '../../components/shared/forms/CustomSelect';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { regionDistrictData } from '../../components/signups/regionDistrictData';
@@ -167,7 +167,7 @@ const UpdateProfile: React.FC = () => {
 
   if (isLoading) {
     return (
-      <ThemeProvider theme={Theme}>
+      <ThemeProvider theme={theme}>
         <Container>
           <div>프로필 정보를 불러오는 중...</div>
         </Container>
@@ -176,7 +176,7 @@ const UpdateProfile: React.FC = () => {
   }
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <FormProvider {...methods}>
         <Container>
           <Form onSubmit={(e) => e.preventDefault()}>

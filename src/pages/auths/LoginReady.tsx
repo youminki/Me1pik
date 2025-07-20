@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoginButton from '../../components/shared/buttons/PrimaryButton';
 import InputField from '../../components/shared/forms/InputField';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import MelpikLogo from '../../assets/LoginLogo.svg';
 import { schemaLogin } from '../../hooks/useValidationYup';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
@@ -39,7 +39,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <Container>
         <LoginContainer>
           <Logo src={MelpikLogo} alt='멜픽 로고' />

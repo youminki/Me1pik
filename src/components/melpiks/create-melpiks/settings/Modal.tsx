@@ -1,7 +1,7 @@
 // src/components/melpiks/create-melpiks/settings/Modal.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import Theme from '../../../../styles/Theme';
+import { theme } from '../../../../styles/theme';
 import ReusableModal2 from '../../../../components/shared/modals/ReusableModalV2';
 
 interface ModalProps {
@@ -151,7 +151,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background-color: ${Theme.colors.white};
+  background-color: ${theme.colors.white};
   padding: 20px;
   width: 100%;
   max-width: 500px;
@@ -174,13 +174,13 @@ const ModalTitle = styled.p`
 `;
 
 const GrayText = styled.span`
-  color: ${Theme.colors.gray1};
+  color: ${theme.colors.gray1};
 `;
 
 const GrayLine = styled.hr`
   border: none;
   width: 100%;
-  border: 1px solid ${Theme.colors.gray0};
+  border: 1px solid ${theme.colors.gray0};
 `;
 
 const ModalBody = styled.div`
@@ -196,13 +196,13 @@ const BrandSelectionGrid = styled.div`
 
 const BrandOption = styled.div<{ selected: boolean }>`
   padding: 10px;
-  background-color: ${Theme.colors.white};
+  background-color: ${theme.colors.white};
   color: ${(props) =>
-    props.selected ? Theme.colors.yellow : Theme.colors.black};
+    props.selected ? theme.colors.yellow : theme.colors.black};
   border: ${(props) =>
     props.selected
-      ? `3px solid ${Theme.colors.yellow}`
-      : `1px solid ${Theme.colors.gray1}`};
+      ? `3px solid ${theme.colors.yellow}`
+      : `1px solid ${theme.colors.gray1}`};
   text-align: center;
   cursor: pointer;
   font-weight: 800;
@@ -223,8 +223,8 @@ const ButtonRow = styled.div`
 const CancelButton = styled.button`
   width: 100%;
   height: 56px;
-  background-color: ${Theme.colors.gray1};
-  color: ${Theme.colors.white};
+  background-color: ${theme.colors.gray1};
+  color: ${theme.colors.white};
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -233,5 +233,5 @@ const CancelButton = styled.button`
 `;
 
 const CompleteButton = styled(CancelButton)`
-  background-color: ${Theme.colors.black};
+  background-color: ${theme.colors.black};
 `;

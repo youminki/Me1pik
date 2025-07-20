@@ -6,7 +6,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 
 import InputField from '../../components/shared/forms/InputField';
-import Theme from '../../styles/Theme';
+import { theme } from '../../styles/theme';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 
@@ -77,7 +77,7 @@ const ChangePassword: React.FC = () => {
   const newPasswordValue = watch('newPassword');
 
   return (
-    <ThemeProvider theme={Theme}>
+    <ThemeProvider theme={theme}>
       <FormProvider {...methods}>
         <Container>
           <Form onSubmit={(e) => e.preventDefault()}>

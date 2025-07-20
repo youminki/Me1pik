@@ -1,7 +1,7 @@
 /* src/components/BottomNav2.tsx */
 import React from 'react';
 import styled from 'styled-components';
-import Theme from '../styles/Theme';
+import { theme } from '../styles/theme';
 
 type BottomBarProps = {
   buttonText?: string;
@@ -36,7 +36,7 @@ const BottomBarContainer = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background-color: ${Theme.colors.gray4};
+  background-color: ${theme.colors.gray4};
   width: 100%;
   position: fixed;
   bottom: 0;
@@ -51,8 +51,8 @@ const BottomBarContainer = styled.div`
 const CartButton = styled.button`
   width: 75px;
   height: 56px;
-  background-color: ${Theme.colors.gray4};
-  border: 1px solid ${Theme.colors.gray};
+  background-color: ${theme.colors.gray4};
+  border: 1px solid ${theme.colors.gray};
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -64,10 +64,10 @@ const CartImage = styled.img``;
 const OrderButton = styled.button`
   width: 100%;
   height: 56px;
-  background-color: ${Theme.colors.black};
+  background-color: ${theme.colors.black};
   border: none;
   border-radius: 6px;
-  color: ${Theme.colors.white};
+  color: ${theme.colors.white};
   font-size: 16px;
   font-weight: 800;
   cursor: pointer;
