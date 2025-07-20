@@ -30,8 +30,8 @@ const StyledButton = styled.button<{
 }>`
   width: 100%;
   height: 56px;
-  padding: 15px;
-  margin-top: 20px;
+  padding: ${theme.spacing.md};
+  margin-top: ${theme.spacing.lg};
 
   font-size: ${theme.colors.label};
   font-weight: 800;
@@ -59,6 +59,8 @@ const StyledButton = styled.button<{
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
+  box-shadow: ${theme.shadow.base};
+  z-index: ${theme.zIndex.header};
 
   &:hover {
     background-color: ${({ $white, $gray }) =>

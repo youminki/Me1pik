@@ -75,5 +75,30 @@ declare module 'styled-components' {
       tablet: string;
       desktop: string;
     };
+    spacing: {
+      xs: string;
+      sm: string;
+      md: string;
+      lg: string;
+      xl: string;
+    };
+    shadow: {
+      base: string;
+      modal: string;
+    };
+    zIndex: {
+      modal: number;
+      dropdown: number;
+      header: number;
+    };
+    radius: {
+      sm: string;
+      md: string;
+      lg: string;
+    };
+    transition: {
+      base: string;
+      fast: string;
+    };
   }
 }

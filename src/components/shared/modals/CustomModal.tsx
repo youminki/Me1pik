@@ -58,15 +58,15 @@ const StyledModal = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 27px;
-  z-index: 9999;
+  padding: ${({ theme }) => theme.spacing.lg};
+  z-index: ${({ theme }) => theme.zIndex.modal};
   width: 100vw;
   height: 100vh;
 `;
 
 const ModalContent = styled.div<{ width: string; height: string }>`
   background-color: #ffffff;
-  padding: 20px;
+  padding: ${({ theme }) => theme.spacing.md};
   width: ${({ width }) => width};
   height: ${({ height }) => height};
   display: flex;
@@ -76,6 +76,7 @@ const ModalContent = styled.div<{ width: string; height: string }>`
   margin: 0 auto;
   box-sizing: border-box;
   max-width: 300px;
+  box-shadow: ${({ theme }) => theme.shadow.modal};
 `;
 
 const ModalHeader = styled.div`

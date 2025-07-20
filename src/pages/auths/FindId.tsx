@@ -4,8 +4,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { findEmail } from '../../api-utils/user-managements/users/userApi';
-import { theme } from '../../styles/theme';
-import { ThemeProvider } from 'styled-components';
 import {
   FormSectionWrapper,
   FormSection,
@@ -134,101 +132,97 @@ const FindId: React.FC = () => {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <TopFormSectionWrapper>
-        <FormSection onSubmit={handleSubmit(handleFindAccount)}>
-          <InputLabel style={{ marginBottom: '8px' }}>아이디 찾기</InputLabel>
-          <InputFieldsContainer>
-            <InputWrap>
-              <StyledInput
-                id='name'
-                type='text'
-                placeholder='이름(한글)'
-                value={name}
-                onChange={handleNameChange}
-                hasError={!!errors.name}
-                autoComplete='off'
-              />
-              {name && (
-                <InputIconBtn type='button' onClick={handleNameClear}>
-                  <svg width='20' height='20' viewBox='0 0 20 20'>
-                    <g fill='none' fillRule='evenodd'>
-                      <circle fill='#000' cx='10' cy='10' r='10' />
-                      <path
-                        stroke='#FFF'
-                        strokeWidth='1.5'
-                        strokeLinecap='round'
-                        d='M7.5 7.5l5 5m0-5l-5 5'
-                      />
-                    </g>
-                  </svg>
-                </InputIconBtn>
-              )}
-            </InputWrap>
-            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-            <InputWrap>
-              <StyledSelect
-                id='birthYear'
-                value={birthYear}
-                onChange={handleBirthYearChange}
-                hasError={!!errors.birthYear}
-              >
-                <option value=''>태어난 해 선택</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </StyledSelect>
-            </InputWrap>
-            {errors.birthYear && (
-              <ErrorMessage>{errors.birthYear.message}</ErrorMessage>
+    <TopFormSectionWrapper>
+      <FormSection onSubmit={handleSubmit(handleFindAccount)}>
+        <InputLabel style={{ marginBottom: '8px' }}>아이디 찾기</InputLabel>
+        <InputFieldsContainer>
+          <InputWrap>
+            <StyledInput
+              id='name'
+              type='text'
+              placeholder='이름(한글)'
+              value={name}
+              onChange={handleNameChange}
+              hasError={!!errors.name}
+              autoComplete='off'
+            />
+            {name && (
+              <InputIconBtn type='button' onClick={handleNameClear}>
+                <svg width='20' height='20' viewBox='0 0 20 20'>
+                  <g fill='none' fillRule='evenodd'>
+                    <circle fill='#000' cx='10' cy='10' r='10' />
+                    <path
+                      stroke='#FFF'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      d='M7.5 7.5l5 5m0-5l-5 5'
+                    />
+                  </g>
+                </svg>
+              </InputIconBtn>
             )}
-            <InputWrap>
-              <StyledInput
-                id='phone'
-                type='text'
-                placeholder='010-1234-5678'
-                value={phone}
-                onChange={handlePhoneChange}
-                hasError={!!errors.phone}
-                autoComplete='off'
-              />
-              {phone && (
-                <InputIconBtn type='button' onClick={handlePhoneClear}>
-                  <svg width='20' height='20' viewBox='0 0 20 20'>
-                    <g fill='none' fillRule='evenodd'>
-                      <circle fill='#000' cx='10' cy='10' r='10' />
-                      <path
-                        stroke='#FFF'
-                        strokeWidth='1.5'
-                        strokeLinecap='round'
-                        d='M7.5 7.5l5 5m0-5l-5 5'
-                      />
-                    </g>
-                  </svg>
-                </InputIconBtn>
-              )}
-            </InputWrap>
-            {errors.phone && (
-              <ErrorMessage>{errors.phone.message}</ErrorMessage>
+          </InputWrap>
+          {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
+          <InputWrap>
+            <StyledSelect
+              id='birthYear'
+              value={birthYear}
+              onChange={handleBirthYearChange}
+              hasError={!!errors.birthYear}
+            >
+              <option value=''>태어난 해 선택</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </StyledSelect>
+          </InputWrap>
+          {errors.birthYear && (
+            <ErrorMessage>{errors.birthYear.message}</ErrorMessage>
+          )}
+          <InputWrap>
+            <StyledInput
+              id='phone'
+              type='text'
+              placeholder='010-1234-5678'
+              value={phone}
+              onChange={handlePhoneChange}
+              hasError={!!errors.phone}
+              autoComplete='off'
+            />
+            {phone && (
+              <InputIconBtn type='button' onClick={handlePhoneClear}>
+                <svg width='20' height='20' viewBox='0 0 20 20'>
+                  <g fill='none' fillRule='evenodd'>
+                    <circle fill='#000' cx='10' cy='10' r='10' />
+                    <path
+                      stroke='#FFF'
+                      strokeWidth='1.5'
+                      strokeLinecap='round'
+                      d='M7.5 7.5l5 5m0-5l-5 5'
+                    />
+                  </g>
+                </svg>
+              </InputIconBtn>
             )}
-            {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-          </InputFieldsContainer>
-          <FindBtn
-            type='submit'
-            disabled={!isValid || isSubmitting}
-            active={isValid && !isSubmitting}
-          >
-            {isSubmitting ? '조회 중...' : '아이디 찾기'}
-          </FindBtn>
-        </FormSection>
-      </TopFormSectionWrapper>
+          </InputWrap>
+          {errors.phone && <ErrorMessage>{errors.phone.message}</ErrorMessage>}
+          {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+        </InputFieldsContainer>
+        <FindBtn
+          type='submit'
+          disabled={!isValid || isSubmitting}
+          active={isValid && !isSubmitting}
+        >
+          {isSubmitting ? '조회 중...' : '아이디 찾기'}
+        </FindBtn>
+      </FormSection>
       <ReusableModal isOpen={isModalOpen} onClose={closeModal} title=' 결과'>
         <p>입력하신 정보로 찾은 이메일은 아래와 같습니다.</p>
         <MelpikPointText>{userEmail}</MelpikPointText>
       </ReusableModal>
-    </ThemeProvider>
+    </TopFormSectionWrapper>
   );
 };
 

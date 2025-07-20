@@ -22,16 +22,12 @@ export const hasValidToken = (): boolean => {
 
     // 토큰이 만료되었는지 확인
     if (payload.exp && payload.exp < currentTime) {
-      console.log('토큰이 만료되었습니다.');
-      // 만료된 토큰 제거
       clearTokens();
       return false;
     }
 
     return true;
-  } catch (error) {
-    console.log('토큰 파싱 오류:', error);
-    // 잘못된 토큰 제거
+  } catch {
     clearTokens();
     return false;
   }
@@ -130,8 +126,6 @@ const setupTokenRefreshTimer = (token: string): void => {
       tokenRefreshTimer = setTimeout(async () => {
         await refreshToken();
       }, refreshTime);
-
-      console.log(`토큰 갱신 타이머 설정: ${refreshTime}ms 후`);
     }
   } catch (error) {
     console.error('토큰 갱신 타이머 설정 실패:', error);
@@ -145,7 +139,6 @@ export const refreshToken = async (): Promise<boolean> => {
   try {
     const refreshToken = getRefreshToken();
     if (!refreshToken) {
-      console.log('리프레시 토큰이 없습니다.');
       return false;
     }
 
@@ -171,7 +164,6 @@ export const refreshToken = async (): Promise<boolean> => {
     // 새 토큰 저장
     saveTokens(accessToken, newRefreshToken);
 
-    console.log('토큰 갱신 성공');
     return true;
   } catch (error) {
     console.error('토큰 갱신 실패:', error);
@@ -341,7 +333,6 @@ export const forceSaveAppToken = (
 export const redirectToLoginIfNoToken = (): boolean => {
   const token = getCurrentToken();
   if (!token) {
-    console.log('토큰이 없어 로그인 페이지로 이동');
     window.location.href = '/login';
     return true; // 이동됨
   }
@@ -357,7 +348,6 @@ export const checkTokenAndRedirect = (pathname: string): boolean => {
 
   const token = getCurrentToken();
   if (!token) {
-    console.log('보호된 라우트에서 토큰이 없음');
     return true; // 리다이렉트 필요
   }
 
@@ -372,8 +362,6 @@ export const handleAppLogin = (loginInfo: {
   refreshToken?: string;
   email?: string;
 }): void => {
-  console.log('앱에서 로그인 정보 수신:', loginInfo);
-
   // 토큰 저장
   saveTokens(loginInfo.token, loginInfo.refreshToken);
 
@@ -387,6 +375,5 @@ export const handleAppLogin = (loginInfo: {
  * 앱에서 받은 로그아웃 처리 (인스타그램 방식)
  */
 export const handleAppLogout = (): void => {
-  console.log('앱에서 로그아웃 요청 수신');
   logout();
 };

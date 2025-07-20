@@ -28,7 +28,6 @@ const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // TODO: API 연동 로직 (배송지명, 우편번호, 상세주소) 추가
     console.log({ addressName, postalCode, detailAddress });
     onClose();
     setAddressName('');

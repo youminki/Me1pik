@@ -4,17 +4,17 @@ import styled from 'styled-components';
 import { format, addMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
-import InputField from '../../../components/shared/forms/InputField';
-import FixedBottomBar from '../../../components/fixed-bottom-bar';
+import InputField from '@/components/shared/forms/InputField';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
 import {
   postInitPayment,
   getMyCards,
   postRecurringPayment,
-} from '../../../api-utils/payments/default/payment';
+} from '@/api-utils/payments/default/payment';
 
-import PaymentAmountIcon from '../../../assets/locker-rooms/PaymentAmount.svg';
-import TicketPaymentSeaSonIcon from '../../../assets/locker-rooms/TicketPaymentSeaSon.svg';
-import TicketPaymentRightIcon from '../../../assets/locker-rooms/TicketPaymentRightIcon.svg';
+import PaymentAmountIcon from '@/assets/locker-rooms/PaymentAmount.svg';
+import TicketPaymentSeaSonIcon from '@/assets/locker-rooms/TicketPaymentSeaSon.svg';
+import TicketPaymentRightIcon from '@/assets/locker-rooms/TicketPaymentRightIcon.svg';
 
 export interface CardItem {
   cardId: number;

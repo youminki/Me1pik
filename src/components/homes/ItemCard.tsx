@@ -203,7 +203,7 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  margin-bottom: 12px;
+  margin-bottom: ${({ theme }) => theme.spacing.md};
 `;
 
 const ImageWrapper = styled.div`
@@ -211,8 +211,8 @@ const ImageWrapper = styled.div`
   width: 100%;
   aspect-ratio: 2/3;
   min-height: 240px;
-  background: #f5f5f5;
-  border: 1px solid #ccc;
+  background: ${({ theme }) => theme.colors.gray0};
+  border: 1px solid ${({ theme }) => theme.colors.gray1};
 
   overflow: hidden;
   @supports not (aspect-ratio: 2/3) {
@@ -228,9 +228,9 @@ const Image = styled.img`
   aspect-ratio: 2/3;
   object-fit: cover;
   display: block;
-  background: #f5f5f5;
+  background: ${({ theme }) => theme.colors.gray0};
   opacity: 0;
-  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity ${({ theme }) => theme.transition.base};
 `;
 
 const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
@@ -243,14 +243,14 @@ const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1px solid #ccc;
+  border: 1px solid ${({ theme }) => theme.colors.gray1};
   border-right: none;
   border-bottom: none;
-
-  background: ${({ $isLiked }) => ($isLiked ? '#F6AE24' : '#fff')};
+  background: ${({ $isLiked, theme }) =>
+    $isLiked ? theme.colors.yellow : theme.colors.white};
   transition:
-    background 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background ${({ theme }) => theme.transition.base},
+    border-color ${({ theme }) => theme.transition.base},
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   padding: 0;
@@ -259,8 +259,8 @@ const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
   overflow: hidden;
   transform: ${({ $animating }) => ($animating ? 'scale(1.18)' : 'scale(1)')};
   opacity: ${({ $animating }) => ($animating ? 0.8 : 1)};
-  box-shadow: ${({ $animating }) =>
-    $animating ? '0 0 12px #f6ae2444' : 'none'};
+  box-shadow: ${({ $animating, theme }) =>
+    $animating ? `0 0 12px ${theme.colors.yellow}44` : 'none'};
   img {
     width: 20px;
     height: 16px;
@@ -278,14 +278,16 @@ const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
     border-style: solid;
     border-width: 0 0 10px 10px;
     border-color: transparent transparent
-      ${({ $isLiked }) => ($isLiked ? '#fff' : '#F6AE24')} transparent;
+      ${({ $isLiked, theme }) =>
+        $isLiked ? theme.colors.white : theme.colors.yellow}
+      transparent;
     background: none;
     z-index: 3;
   }
 `;
 
 const Brand = styled.h3`
-  margin: 10px 0 0 0;
+  margin: ${({ theme }) => theme.spacing.sm} 0 0 0;
   font-weight: 900;
   font-size: 10px;
   line-height: 11px;
@@ -297,7 +299,7 @@ const Brand = styled.h3`
 const Description = styled.p`
   margin: 5px 0 0 0;
   font-size: 12px;
-  color: #999;
+  color: ${({ theme }) => theme.colors.gray2};
   font-weight: 700;
   margin-bottom: 4px;
   overflow: hidden;
@@ -323,7 +325,7 @@ const PointBar = styled.div`
   display: block;
   width: 2px;
   height: 16px;
-  background: #f6ae24;
+  background: ${({ theme }) => theme.colors.yellow};
   border-radius: 2px;
   margin-right: 5px;
 `;
@@ -346,7 +348,7 @@ const NowLabel = styled.span`
 const DiscountLabel = styled.span`
   font-weight: 800;
   font-size: 11px;
-  color: #f6ae24;
+  color: ${({ theme }) => theme.colors.yellow};
 `;
 
 // Skeleton UI 스타일 추가
@@ -361,11 +363,16 @@ const skeletonShimmer = keyframes`
 const SkeletonImage = styled.div`
   width: 100%;
   height: 240px;
-  background: #eee;
-  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
+  background: ${({ theme }) => theme.colors.gray3};
+  background-image: linear-gradient(
+    90deg,
+    ${({ theme }) => theme.colors.gray3} 0px,
+    ${({ theme }) => theme.colors.gray0} 40px,
+    ${({ theme }) => theme.colors.gray3} 80px
+  );
   background-size: 200px 100%;
   background-repeat: no-repeat;
-  border-radius: 8px;
+  border-radius: ${({ theme }) => theme.radius.md};
   animation: ${skeletonShimmer} 1.2s infinite linear;
   position: absolute;
   top: 0;
@@ -374,11 +381,16 @@ const SkeletonImage = styled.div`
 const SkeletonText = styled.div<{ width: string; height: string }>`
   width: ${({ width }) => width};
   height: ${({ height }) => height};
-  background: #eee;
-  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
+  background: ${({ theme }) => theme.colors.gray3};
+  background-image: linear-gradient(
+    90deg,
+    ${({ theme }) => theme.colors.gray3} 0px,
+    ${({ theme }) => theme.colors.gray0} 40px,
+    ${({ theme }) => theme.colors.gray3} 80px
+  );
   background-size: 200px 100%;
   background-repeat: no-repeat;
-  border-radius: 4px;
+  border-radius: ${({ theme }) => theme.radius.sm};
   animation: ${skeletonShimmer} 1.2s infinite linear;
   margin-bottom: 6px;
 `;

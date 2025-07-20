@@ -4,12 +4,12 @@ import React, { useEffect, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 
-import InputField from '../../components/shared/forms/InputField';
-import { CustomSelect } from '../../components/shared/forms/CustomSelect';
-import { theme } from '../../styles/theme';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-import { regionDistrictData } from '../../components/signups/regionDistrictData';
+import InputField from '@/components/shared/forms/InputField';
+import { CustomSelect } from '@/components/shared/forms/CustomSelect';
+import { theme } from '@/styles/theme';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { regionDistrictData } from '@/components/signups/regionDistrictData';
 
 // userApi에서 가져올 함수들
 import {

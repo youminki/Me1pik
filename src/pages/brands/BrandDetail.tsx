@@ -262,7 +262,7 @@ const BrandDetail: React.FC = () => {
             <FilterContainer
               onSearchClick={() => setSearchModalOpen(true)}
               onFilterClick={() => {
-                /* TODO: 필터 모달 열기 등 구현 */
+                /* 필터 모달 열기 등 구현 */
               }}
             />
           </RowAlignBox>

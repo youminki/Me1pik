@@ -12,7 +12,6 @@ import {
 } from '../../api-utils/user-managements/users/userApi';
 import MelpikLogo from '../../assets/LoginLogo.svg';
 import { schemaLogin } from '../../hooks/useValidationYup';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { isNativeApp } from '../../utils/nativeApp';
 import { saveTokens, forceSaveAppToken } from '../../utils/auth';
 import {
@@ -31,6 +30,7 @@ import {
   StyledInput,
 } from '../../auth-utils/AuthCommon';
 import ErrorMessage from '../../components/shared/ErrorMessage';
+import { ErrorMessage as InputErrorMessage } from '../../auth-utils/AuthCommon';
 
 type LoginFormValues = {
   email: string;
@@ -220,23 +220,15 @@ const CapsLockNotice = styled.div`
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   // const [keepLogin, setKeepLogin] = useState(false); // 로그인 상태 유지
   const [isCapsLock, setIsCapsLock] = useState(false);
 
-  useEffect(() => {
-    console.log('isModalOpen', isModalOpen);
-  }, [isModalOpen]);
-  useEffect(() => {
-    console.log('Login 컴포넌트 마운트');
-    return () => {
-      console.log('Login 컴포넌트 언마운트');
-    };
-  }, []);
+  useEffect(() => {}, [errorMessage]);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     const handleForceLoginRedirect = () => {
@@ -285,8 +277,6 @@ const Login: React.FC = () => {
       );
     };
   }, []);
-
-  const handleModalClose = () => setIsModalOpen(false);
 
   // Caps Lock 감지
   const handlePwKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -337,12 +327,11 @@ const Login: React.FC = () => {
         },
       });
     } catch (error: unknown) {
-      setModalMessage(
+      setErrorMessage(
         error instanceof Error
           ? error.message
           : '로그인 실패. 다시 시도해주세요.'
       );
-      setIsModalOpen(true);
     }
   };
 
@@ -382,6 +371,7 @@ const Login: React.FC = () => {
   //   return <CommonErrorMessage message="로그인에 실패했습니다." />;
   // }
 
+  // 에러 메시지는 인풋 필드 아래에서만 노출
   return (
     <ThemeProvider theme={theme}>
       <NaverLoginBg>
@@ -455,7 +445,11 @@ const Login: React.FC = () => {
                 <CapsLockNotice>Caps Lock이 켜져 있습니다.</CapsLockNotice>
               )}
               {errors.password && (
-                <ErrorMessage message={errors.password.message ?? ''} />
+                <InputErrorMessage>{errors.password.message}</InputErrorMessage>
+              )}
+              {/* 서버 에러 메시지(로그인 실패 등)는 인풋 아래에 노출 */}
+              {errorMessage && !errors.password && (
+                <InputErrorMessage>{errorMessage}</InputErrorMessage>
               )}
             </InputFieldsContainer>
             {/*
@@ -505,13 +499,6 @@ const Login: React.FC = () => {
             </LinksRight>
           </LinksRow>
         </FormSectionWrapper>
-        <ReusableModal
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          title='로그인 실패'
-        >
-          {modalMessage}
-        </ReusableModal>
       </NaverLoginBg>
     </ThemeProvider>
   );

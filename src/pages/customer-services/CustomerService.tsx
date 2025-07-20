@@ -1,10 +1,10 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { theme } from '../../styles/theme';
+import { theme } from '@/styles/theme';
 import StatsSection from '../../components/stats-section';
 
-import CustomerServiceIcon from '../../assets/CustomerServiceIcons.svg';
+import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
 import FrequentlyAskedQuestionsBox from '../../assets/customer-services/FrequentlyAskedQuestions.svg';
 import NoticeBox from '../../assets/customer-services/Notice.svg';
 import PersonalInformationProcessingPolicyBox from '../../assets/customer-services/PersonalInformationProcessingPolicy.svg';
@@ -136,7 +136,6 @@ const GridMenu = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   width: 100%;
-  /* 데스크탑: 3열, 셀 높이는 콘텐츠 기준으로 늘어남 */
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -146,14 +145,11 @@ const GridItem = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
   padding: 1rem;
   box-sizing: border-box;
   border: 1px solid #ddd;
   background: #fff;
   cursor: pointer;
-
-  /* 셀을 꽉 채우기 위해 높이를 자동으로 늘림 */
   width: 100%;
   height: 100%;
 `;
@@ -172,7 +168,6 @@ const IconImage = styled.img`
 const Label = styled.div`
   font-weight: 700;
   font-size: 14px;
-
   color: #000;
   @media (min-width: 1024px) {
     font-size: 18px;

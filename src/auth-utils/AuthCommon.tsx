@@ -94,7 +94,7 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
   border: 1px solid
     ${({ hasError }) => (hasError ? theme.colors.error : theme.colors.border)};
   font-size: 16px;
-  padding: 0 44px 0 15px;
+  padding: 0 ${theme.spacing.lg} 0 ${theme.spacing.md};
   background: ${theme.colors.inputBg};
   box-sizing: border-box;
   color: ${theme.colors.primary};
@@ -102,6 +102,8 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
   transition:
     border 0.2s,
     background 0.2s;
+  box-shadow: ${theme.shadow.base};
+  z-index: ${theme.zIndex.header};
   &:focus {
     background: ${theme.colors.inputBg};
     outline: 2px solid ${theme.colors.primary};
@@ -126,7 +128,7 @@ export const StyledSelect = styled.select<{ hasError?: boolean }>`
   border: 1.5px solid
     ${({ hasError }) => (hasError ? theme.colors.error : '#000000')};
   font-size: 16px;
-  padding: 0 40px 0 15px;
+  padding: 0 ${theme.spacing.lg} 0 ${theme.spacing.md};
   background:
     url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
     ${theme.colors.inputBg};
@@ -137,6 +139,8 @@ export const StyledSelect = styled.select<{ hasError?: boolean }>`
 
   margin-bottom: 0;
   appearance: none;
+  box-shadow: ${theme.shadow.base};
+  z-index: ${theme.zIndex.header};
 
   &:focus {
     background:

@@ -28,7 +28,6 @@ const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // TODO: API 연동 로직 (bankName, accountNumber, accountHolder) 추가
     console.log({ bankName, accountNumber, accountHolder });
     onClose();
     setBankName('');

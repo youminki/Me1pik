@@ -1,12 +1,11 @@
 // Signup.tsx
 import React, { useState, useRef, useEffect } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
+import styled from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaSignup } from '../../hooks/useValidationYup';
 import InputField from '../../components/shared/forms/InputField';
 import AgreementSection from '../../components/signups/AgreementSection';
-import { theme } from '../../styles/theme';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import { useNavigate } from 'react-router-dom';
 import { CustomSelect } from '../../components/shared/forms/CustomSelect';
@@ -524,431 +523,425 @@ const Signup: React.FC = () => {
   return (
     <>
       <SimpleHeader title='회원가입' />
-      <ThemeProvider theme={theme}>
-        <FormProvider {...methods}>
-          {/* 폼의 onSubmit은 preventDefault 처리 */}
-          <Container onSubmit={(e) => e.preventDefault()}>
-            <Form>
-              <AgreementSection />
+      <FormProvider {...methods}>
+        {/* 폼의 onSubmit은 preventDefault 처리 */}
+        <Container onSubmit={(e) => e.preventDefault()}>
+          <Form>
+            <AgreementSection />
+            <InputField
+              label='계정*(이메일)'
+              id='email'
+              type='text'
+              error={emailApiError ? { message: emailApiError } : errors.email}
+              placeholder='계정을 입력하세요'
+              buttonLabel={emailButtonText}
+              buttonColor={emailButtonColor}
+              {...register('email')}
+              onChange={(e) => handleInputChange('email')(e)}
+              required
+              maxLength={50}
+              onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                handleEmailCheck();
+              }}
+            />
+            <InputField
+              label='비밀번호*(숫자, 문자를 조합하여 8자리 이상 입력하세요)'
+              id='password'
+              type='password'
+              placeholder='비밀번호를 입력하세요'
+              error={errors.password}
+              {...register('password')}
+              required
+              maxLength={20}
+              autoComplete='current-password'
+            />
+            <InputField
+              label='비밀번호 확인*'
+              id='passwordConfirm'
+              type='password'
+              placeholder='비밀번호를 한번 더 입력하세요'
+              error={errors.passwordConfirm}
+              {...register('passwordConfirm')}
+              required
+              maxLength={20}
+            />
+            <InputField
+              label='닉네임*(8글자 이내)'
+              id='nickname'
+              type='text'
+              placeholder='닉네임을 입력하세요'
+              error={
+                nicknameApiError
+                  ? { message: nicknameApiError }
+                  : errors.nickname
+              }
+              {...register('nickname')}
+              onChange={(e) => handleInputChange('nickname')(e)}
+              required
+              maxLength={8}
+              buttonLabel={nicknameButtonText}
+              buttonColor={nicknameButtonColor}
+              onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                handleNicknameCheck();
+              }}
+            />
+            <RowLabel>
               <InputField
-                label='계정*(이메일)'
-                id='email'
+                label='이름*'
+                id='name'
                 type='text'
-                error={
-                  emailApiError ? { message: emailApiError } : errors.email
-                }
-                placeholder='계정을 입력하세요'
-                buttonLabel={emailButtonText}
-                buttonColor={emailButtonColor}
-                {...register('email')}
-                onChange={(e) => handleInputChange('email')(e)}
+                placeholder='이름을 입력하세요'
+                error={errors.name}
+                {...register('name')}
                 required
-                maxLength={50}
-                onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  e.preventDefault();
-                  handleEmailCheck();
-                }}
+                maxLength={5}
               />
               <InputField
-                label='비밀번호*(숫자, 문자를 조합하여 8자리 이상 입력하세요)'
-                id='password'
-                type='password'
-                placeholder='비밀번호를 입력하세요'
-                error={errors.password}
-                {...register('password')}
+                label='태어난 해*'
+                id='birthYear'
+                as={CustomSelect}
+                error={errors.birthYear}
                 required
-                maxLength={20}
-                autoComplete='current-password'
-              />
-              <InputField
-                label='비밀번호 확인*'
-                id='passwordConfirm'
-                type='password'
-                placeholder='비밀번호를 한번 더 입력하세요'
-                error={errors.passwordConfirm}
-                {...register('passwordConfirm')}
-                required
-                maxLength={20}
-              />
-              <InputField
-                label='닉네임*(8글자 이내)'
-                id='nickname'
-                type='text'
-                placeholder='닉네임을 입력하세요'
-                error={
-                  nicknameApiError
-                    ? { message: nicknameApiError }
-                    : errors.nickname
-                }
-                {...register('nickname')}
-                onChange={(e) => handleInputChange('nickname')(e)}
-                required
-                maxLength={8}
-                buttonLabel={nicknameButtonText}
-                buttonColor={nicknameButtonColor}
-                onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  e.preventDefault();
-                  handleNicknameCheck();
-                }}
-              />
-              <RowLabel>
-                <InputField
-                  label='이름*'
-                  id='name'
-                  type='text'
-                  placeholder='이름을 입력하세요'
-                  error={errors.name}
-                  {...register('name')}
-                  required
-                  maxLength={5}
-                />
-                <InputField
-                  label='태어난 해*'
-                  id='birthYear'
-                  as={CustomSelect}
-                  error={errors.birthYear}
-                  required
-                  {...register('birthYear')}
-                >
-                  <option value='' disabled>
-                    태어난 해를 선택하세요
+                {...register('birthYear')}
+              >
+                <option value='' disabled>
+                  태어난 해를 선택하세요
+                </option>
+                {Array.from({ length: 100 }, (_, i) => 2023 - i).map((year) => (
+                  <option key={year} value={year}>
+                    {year}년
                   </option>
-                  {Array.from({ length: 100 }, (_, i) => 2023 - i).map(
-                    (year) => (
-                      <option key={year} value={year}>
-                        {year}년
-                      </option>
-                    )
-                  )}
-                </InputField>
-              </RowLabel>
-              <GenderField>
-                <InputFieldLabel>성별*</InputFieldLabel>
-                <GenderRow>
-                  <GenderButton
-                    type='button'
-                    selected={gender === '여성'}
-                    onClick={() => handleGenderChange('여성')}
-                    $isSelected={selectedGenderButton === '여성'}
-                  >
-                    여성
-                  </GenderButton>
-                  <GenderButton
-                    type='button'
-                    selected={gender === '남성'}
-                    onClick={() => handleGenderChange('남성')}
-                    $isSelected={selectedGenderButton === '남성'}
-                  >
-                    남성
-                  </GenderButton>
-                </GenderRow>
-              </GenderField>
-              <PhoneField>
+                ))}
+              </InputField>
+            </RowLabel>
+            <GenderField>
+              <InputFieldLabel>성별*</InputFieldLabel>
+              <GenderRow>
+                <GenderButton
+                  type='button'
+                  selected={gender === '여성'}
+                  onClick={() => handleGenderChange('여성')}
+                  $isSelected={selectedGenderButton === '여성'}
+                >
+                  여성
+                </GenderButton>
+                <GenderButton
+                  type='button'
+                  selected={gender === '남성'}
+                  onClick={() => handleGenderChange('남성')}
+                  $isSelected={selectedGenderButton === '남성'}
+                >
+                  남성
+                </GenderButton>
+              </GenderRow>
+            </GenderField>
+            <PhoneField>
+              <InputField
+                label='본인인증*(11자를 입력하세요)'
+                id='phoneNumber'
+                type='text'
+                placeholder='전화번호를 입력하세요'
+                error={
+                  phoneApiError
+                    ? { message: phoneApiError }
+                    : errors.phoneNumber
+                }
+                {...register('phoneNumber')}
+                required
+                maxLength={11}
+                onInput={handlePhoneNumberChange}
+                buttonLabel='본인인증'
+                buttonColor={phoneVerificationButtonColor}
+                onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.preventDefault();
+                  handleSendVerification();
+                }}
+              />
+            </PhoneField>
+            {isPhoneVerificationSent && !isPhoneVerified && (
+              <VerificationWrapper>
                 <InputField
-                  label='본인인증*(11자를 입력하세요)'
-                  id='phoneNumber'
+                  label='인증번호 입력'
+                  id='verificationCode'
                   type='text'
-                  placeholder='전화번호를 입력하세요'
-                  error={
-                    phoneApiError
-                      ? { message: phoneApiError }
-                      : errors.phoneNumber
-                  }
-                  {...register('phoneNumber')}
-                  required
-                  maxLength={11}
-                  onInput={handlePhoneNumberChange}
-                  buttonLabel='본인인증'
+                  placeholder='인증번호를 입력하세요'
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  buttonLabel={phoneVerificationButtonText}
                   buttonColor={phoneVerificationButtonColor}
                   onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.preventDefault();
-                    handleSendVerification();
+                    handleVerifyCode();
                   }}
                 />
-              </PhoneField>
-              {isPhoneVerificationSent && !isPhoneVerified && (
-                <VerificationWrapper>
-                  <InputField
-                    label='인증번호 입력'
-                    id='verificationCode'
-                    type='text'
-                    placeholder='인증번호를 입력하세요'
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    buttonLabel={phoneVerificationButtonText}
-                    buttonColor={phoneVerificationButtonColor}
-                    onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      e.preventDefault();
-                      handleVerifyCode();
-                    }}
-                  />
-                  <TimerDisplay>{formatTime(timer)}</TimerDisplay>
-                </VerificationWrapper>
-              )}
-              <RowLabel>
-                <InputField
-                  label='서비스 지역*'
-                  id='region'
-                  as={CustomSelect}
-                  error={errors.region}
-                  required
-                  {...register('region')}
-                >
-                  <option value='' disabled>
-                    지역을 선택하세요
+                <TimerDisplay>{formatTime(timer)}</TimerDisplay>
+              </VerificationWrapper>
+            )}
+            <RowLabel>
+              <InputField
+                label='서비스 지역*'
+                id='region'
+                as={CustomSelect}
+                error={errors.region}
+                required
+                {...register('region')}
+              >
+                <option value='' disabled>
+                  지역을 선택하세요
+                </option>
+                {Object.keys(regionDistrictData).map((region) => (
+                  <option key={region} value={region}>
+                    {region}
                   </option>
-                  {Object.keys(regionDistrictData).map((region) => (
-                    <option key={region} value={region}>
-                      {region}
-                    </option>
-                  ))}
-                </InputField>
-                <InputField
-                  label=''
-                  id='district'
-                  as={CustomSelect}
-                  error={errors.district}
-                  required
-                  {...register('district')}
-                >
-                  <option value='' disabled>
-                    구를 선택하세요
-                  </option>
-                  {watch('region') && regionDistrictData[watch('region')] ? (
-                    regionDistrictData[watch('region')].map(
-                      (district: string) => (
-                        <option key={district} value={district}>
-                          {district}
-                        </option>
-                      )
+                ))}
+              </InputField>
+              <InputField
+                label=''
+                id='district'
+                as={CustomSelect}
+                error={errors.district}
+                required
+                {...register('district')}
+              >
+                <option value='' disabled>
+                  구를 선택하세요
+                </option>
+                {watch('region') && regionDistrictData[watch('region')] ? (
+                  regionDistrictData[watch('region')].map(
+                    (district: string) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
                     )
-                  ) : (
-                    <option value=''>지역을 먼저 선택하세요</option>
-                  )}
-                </InputField>
-              </RowLabel>
+                  )
+                ) : (
+                  <option value=''>지역을 먼저 선택하세요</option>
+                )}
+              </InputField>
+            </RowLabel>
+            <InputField
+              label='인스타 아이디*'
+              id='instar'
+              type='text'
+              placeholder='인스타 아이디를 입력하세요'
+              required
+              maxLength={50}
+              {...register('instar')}
+              prefix='instagram.com/'
+            />
+            <InputField
+              label='멜픽 주소설정*(멜픽에서 제공되는 개인페이지)'
+              id='melpickAddress'
+              type='text'
+              placeholder='멜픽 주소를 입력하세요'
+              error={
+                melpickApiError
+                  ? { message: melpickApiError }
+                  : errors.melpickAddress
+              }
+              {...register('melpickAddress')}
+              onChange={(e) => handleInputChange('melpickAddress')(e)}
+              buttonLabel={melpickAddressButtonText}
+              buttonColor={melpickAddressButtonColor}
+              required
+              maxLength={12}
+              onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                handleMelpickAddressCheck();
+              }}
+              prefix='melpick.com/'
+            />
+            <RowLabel>
               <InputField
-                label='인스타 아이디*'
-                id='instar'
-                type='text'
-                placeholder='인스타 아이디를 입력하세요'
-                required
-                maxLength={50}
-                {...register('instar')}
-                prefix='instagram.com/'
-              />
+                label='기본정보*'
+                id='height'
+                as={CustomSelect}
+                error={errors.height}
+                {...register('height', { required: true })}
+              >
+                <option value='' disabled hidden>
+                  키 선택
+                </option>
+                {[...Array(200 - 130 + 1)].map((_, i) => (
+                  <option key={i + 130} value={i + 130}>
+                    {i + 130} cm
+                  </option>
+                ))}
+              </InputField>
               <InputField
-                label='멜픽 주소설정*(멜픽에서 제공되는 개인페이지)'
-                id='melpickAddress'
+                label=''
+                id='size'
+                as={CustomSelect}
+                error={errors.size}
+                {...register('size', { required: true })}
+              >
+                <option value='' disabled hidden>
+                  몸무게 선택
+                </option>
+                {Array.from({ length: 90 - 30 + 1 }, (_, i) => (
+                  <option key={i + 30} value={i + 30}>
+                    {i + 30} kg
+                  </option>
+                ))}
+              </InputField>
+            </RowLabel>
+            <RowLabel>
+              <InputField
+                label='사이즈*(원피스,상의,하의)'
+                id='dress'
+                as={CustomSelect}
+                error={errors.dress}
+                {...register('dress', { required: true })}
+              >
+                <option value='' disabled hidden>
+                  원피스
+                </option>
+                <option value='44'>44 (XS)</option>
+                <option value='55'>55 (S)</option>
+                <option value='66'>66 (M)</option>
+                <option value='77'>77 (L)</option>
+              </InputField>
+              <InputField
+                label=''
+                id='top'
+                as={CustomSelect}
+                error={errors.top}
+                {...register('top', { required: true })}
+              >
+                <option value='' disabled hidden>
+                  상의
+                </option>
+                <option value='44'>44 (XS)</option>
+                <option value='55'>55 (S)</option>
+                <option value='66'>66 (M)</option>
+                <option value='77'>77 (L)</option>
+              </InputField>
+              <InputField
+                label=''
+                id='bottom'
+                as={CustomSelect}
+                error={errors.bottom}
+                {...register('bottom', { required: true })}
+              >
+                <option value='' disabled hidden>
+                  하의
+                </option>
+                <option value='44'>44 (XS)</option>
+                <option value='55'>55 (S)</option>
+                <option value='66'>66 (M)</option>
+                <option value='77'>77 (L)</option>
+              </InputField>
+            </RowLabel>
+            <RowLabel>
+              <InputField
+                label='선호 브랜드 선택*(최대 3가지)'
+                id='brand'
                 type='text'
-                placeholder='멜픽 주소를 입력하세요'
-                error={
-                  melpickApiError
-                    ? { message: melpickApiError }
-                    : errors.melpickAddress
-                }
-                {...register('melpickAddress')}
-                onChange={(e) => handleInputChange('melpickAddress')(e)}
-                buttonLabel={melpickAddressButtonText}
-                buttonColor={melpickAddressButtonColor}
-                required
-                maxLength={12}
+                placeholder='브랜드 3가지를 선택하세요'
+                error={errors.brand}
+                {...register('brand')}
+                buttonLabel={brandButtonLabel}
+                buttonColor={brandButtonColor}
                 onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                   e.preventDefault();
-                  handleMelpickAddressCheck();
+                  openModal();
                 }}
-                prefix='melpick.com/'
               />
-              <RowLabel>
-                <InputField
-                  label='기본정보*'
-                  id='height'
-                  as={CustomSelect}
-                  error={errors.height}
-                  {...register('height', { required: true })}
-                >
-                  <option value='' disabled hidden>
-                    키 선택
-                  </option>
-                  {[...Array(200 - 130 + 1)].map((_, i) => (
-                    <option key={i + 130} value={i + 130}>
-                      {i + 130} cm
-                    </option>
-                  ))}
-                </InputField>
-                <InputField
-                  label=''
-                  id='size'
-                  as={CustomSelect}
-                  error={errors.size}
-                  {...register('size', { required: true })}
-                >
-                  <option value='' disabled hidden>
-                    몸무게 선택
-                  </option>
-                  {Array.from({ length: 90 - 30 + 1 }, (_, i) => (
-                    <option key={i + 30} value={i + 30}>
-                      {i + 30} kg
-                    </option>
-                  ))}
-                </InputField>
-              </RowLabel>
-              <RowLabel>
-                <InputField
-                  label='사이즈*(원피스,상의,하의)'
-                  id='dress'
-                  as={CustomSelect}
-                  error={errors.dress}
-                  {...register('dress', { required: true })}
-                >
-                  <option value='' disabled hidden>
-                    원피스
-                  </option>
-                  <option value='44'>44 (XS)</option>
-                  <option value='55'>55 (S)</option>
-                  <option value='66'>66 (M)</option>
-                  <option value='77'>77 (L)</option>
-                </InputField>
-                <InputField
-                  label=''
-                  id='top'
-                  as={CustomSelect}
-                  error={errors.top}
-                  {...register('top', { required: true })}
-                >
-                  <option value='' disabled hidden>
-                    상의
-                  </option>
-                  <option value='44'>44 (XS)</option>
-                  <option value='55'>55 (S)</option>
-                  <option value='66'>66 (M)</option>
-                  <option value='77'>77 (L)</option>
-                </InputField>
-                <InputField
-                  label=''
-                  id='bottom'
-                  as={CustomSelect}
-                  error={errors.bottom}
-                  {...register('bottom', { required: true })}
-                >
-                  <option value='' disabled hidden>
-                    하의
-                  </option>
-                  <option value='44'>44 (XS)</option>
-                  <option value='55'>55 (S)</option>
-                  <option value='66'>66 (M)</option>
-                  <option value='77'>77 (L)</option>
-                </InputField>
-              </RowLabel>
-              <RowLabel>
-                <InputField
-                  label='선호 브랜드 선택*(최대 3가지)'
-                  id='brand'
-                  type='text'
-                  placeholder='브랜드 3가지를 선택하세요'
-                  error={errors.brand}
-                  {...register('brand')}
-                  buttonLabel={brandButtonLabel}
-                  buttonColor={brandButtonColor}
-                  onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.preventDefault();
-                    openModal();
-                  }}
-                />
-              </RowLabel>
-              <Divider />
-              <RowLabel>
-                <InputField
-                  label='어깨너비 cm (선택)'
-                  id='shoulder'
-                  type='text'
-                  placeholder='어깨너비를 입력하세요'
-                  error={errors.shoulder}
-                  {...register('shoulder')}
-                />
-                <InputField
-                  label='가슴둘레 cm (선택)'
-                  id='chest'
-                  type='text'
-                  placeholder='가슴둘레를 입력하세요'
-                  error={errors.chest}
-                  {...register('chest')}
-                />
-              </RowLabel>
-              <RowLabel>
-                <InputField
-                  label='허리둘레 cm (선택)'
-                  id='waist'
-                  type='text'
-                  placeholder='허리둘레를 입력하세요'
-                  error={errors.waist}
-                  {...register('waist')}
-                />
-                <InputField
-                  label='소매길이 cm (선택)'
-                  id='sleeve'
-                  type='text'
-                  placeholder='소매길이를 입력하세요'
-                  error={errors.sleeve}
-                  {...register('sleeve')}
-                />
-              </RowLabel>
+            </RowLabel>
+            <Divider />
+            <RowLabel>
               <InputField
-                label='맴버십 코드 (선택)'
-                id='mebershipCode'
-                type='mebershipCode'
-                placeholder='맴버쉽 코드를 입력하세요'
-                error={errors.mebershipCode}
-                {...register('mebershipCode')}
-                required
-                maxLength={20}
-                autoComplete='current-mebershipCode'
+                label='어깨너비 cm (선택)'
+                id='shoulder'
+                type='text'
+                placeholder='어깨너비를 입력하세요'
+                error={errors.shoulder}
+                {...register('shoulder')}
               />
+              <InputField
+                label='가슴둘레 cm (선택)'
+                id='chest'
+                type='text'
+                placeholder='가슴둘레를 입력하세요'
+                error={errors.chest}
+                {...register('chest')}
+              />
+            </RowLabel>
+            <RowLabel>
+              <InputField
+                label='허리둘레 cm (선택)'
+                id='waist'
+                type='text'
+                placeholder='허리둘레를 입력하세요'
+                error={errors.waist}
+                {...register('waist')}
+              />
+              <InputField
+                label='소매길이 cm (선택)'
+                id='sleeve'
+                type='text'
+                placeholder='소매길이를 입력하세요'
+                error={errors.sleeve}
+                {...register('sleeve')}
+              />
+            </RowLabel>
+            <InputField
+              label='맴버십 코드 (선택)'
+              id='mebershipCode'
+              type='mebershipCode'
+              placeholder='맴버쉽 코드를 입력하세요'
+              error={errors.mebershipCode}
+              {...register('mebershipCode')}
+              required
+              maxLength={20}
+              autoComplete='current-mebershipCode'
+            />
 
-              {!isKeyboardOpen && (
-                <FixedBottomBar
-                  type='button'
-                  text={isSubmitting ? '가입 중...' : '회원가입'}
-                  color='black'
-                  onClick={onSignupButtonClick}
-                  disabled={isSubmitting}
-                />
-              )}
-            </Form>
-            <BlackContainer>
-              {isSubmitting && <LoadingSpinner label='회원가입 처리 중...' />}
-              {signupResult && !isSignupSuccess && (
-                <CommonErrorMessage
-                  message={
-                    typeof signupResult === 'string'
-                      ? signupResult
-                      : '회원가입에 실패했습니다.'
-                  }
-                />
-              )}
-            </BlackContainer>
-          </Container>
-        </FormProvider>
+            {!isKeyboardOpen && (
+              <FixedBottomBar
+                type='button'
+                text={isSubmitting ? '가입 중...' : '회원가입'}
+                color='black'
+                onClick={onSignupButtonClick}
+                disabled={isSubmitting}
+              />
+            )}
+          </Form>
+          <BlackContainer>
+            {isSubmitting && <LoadingSpinner label='회원가입 처리 중...' />}
+            {signupResult && !isSignupSuccess && (
+              <CommonErrorMessage
+                message={
+                  typeof signupResult === 'string'
+                    ? signupResult
+                    : '회원가입에 실패했습니다.'
+                }
+              />
+            )}
+          </BlackContainer>
+        </Container>
+      </FormProvider>
 
-        {showSignupResultModal && (
-          <ReusableModal
-            isOpen={showSignupResultModal}
-            onClose={handleSignupResultModalClose}
-            title='회원가입 결과'
-          >
-            {signupResult}
-          </ReusableModal>
-        )}
+      {showSignupResultModal && (
+        <ReusableModal
+          isOpen={showSignupResultModal}
+          onClose={handleSignupResultModalClose}
+          title='회원가입 결과'
+        >
+          {signupResult}
+        </ReusableModal>
+      )}
 
-        {isModalOpen && (
-          <Modal
-            isOpen={isModalOpen}
-            onClose={closeModal}
-            onSelect={handleBrandSelect}
-            selectedBrands={selectedBrands}
-          />
-        )}
-      </ThemeProvider>
+      {isModalOpen && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onSelect={handleBrandSelect}
+          selectedBrands={selectedBrands}
+        />
+      )}
     </>
   );
 };

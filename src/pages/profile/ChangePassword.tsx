@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 
-import InputField from '../../components/shared/forms/InputField';
-import { theme } from '../../styles/theme';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
+import InputField from '@/components/shared/forms/InputField';
+import { theme } from '@/styles/theme';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
-import { changePassword } from '../../api-utils/user-managements/users/userApi';
+import { changePassword } from '@/api-utils/user-managements/users/userApi';
 
 export interface ChangePasswordFormData {
   currentPassword: string;
@@ -33,6 +33,7 @@ const ChangePassword: React.FC = () => {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors, isValid, isSubmitting },
   } = methods;
 
@@ -62,8 +63,7 @@ const ChangePassword: React.FC = () => {
           : err instanceof Error
             ? err.message
             : '알 수 없는 오류';
-      setModalMessage(`❌ 비밀번호 변경 중 오류가 발생했습니다: ${msg}`);
-      setShowModal(true);
+      setError('currentPassword', { message: msg });
     }
   };
 

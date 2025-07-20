@@ -39,11 +39,14 @@ const StyledButton = styled.button<{
   font-size: 12px;
   line-height: 13px;
   text-align: center;
-  margin-right: 11px;
+  margin-right: ${({ theme }) => theme.spacing.sm};
   cursor: pointer;
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  box-shadow: ${({ theme }) => theme.shadow.base};
+  z-index: ${({ theme }) => theme.zIndex.header};
 
   ${({ color }) =>
     color === 'yellow'

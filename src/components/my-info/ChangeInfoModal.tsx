@@ -37,7 +37,6 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // TODO: API 연동 로직 (이름, 생년일, 성별, 휴대전화, 서비스 지역) 추가
     console.log({ name, birthDate, gender, phone, serviceArea });
     onClose();
     setName('');

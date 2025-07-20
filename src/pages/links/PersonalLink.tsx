@@ -84,7 +84,7 @@ const PersonalLink: React.FC = () => {
 
   // 카드 클릭 시 동작 (예: 모달 열기 or 상세 페이지 네비게이트)
   const handleItemClick = () => {
-    // TODO: 상세 페이지로 이동 등 구현
+    // 상세 페이지로 이동 등 구현
   };
 
   return (

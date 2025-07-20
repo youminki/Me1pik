@@ -40,7 +40,7 @@ jest.mock('s../../components/CustomModal', () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-import SettingMelpik from '../SettingMelpik';
+import SettingMelpik from '@/pages/melpiks/settings/SettingMelpik';
 
 /**
  * ⚠️ 테스트 환경에서는 CustomModal의 children이 실제로 렌더링되지 않거나,

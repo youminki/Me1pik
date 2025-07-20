@@ -6,7 +6,8 @@ export const CustomSelect = styled.select`
   border-radius: 0;
   height: 51px;
   width: 100%;
-  padding: 0 40px 0 16px;
+  padding: 0 ${({ theme }) => theme.spacing.lg} 0
+    ${({ theme }) => theme.spacing.md};
   font-weight: 800;
   font-size: 13px;
   line-height: 14px;
@@ -16,6 +17,8 @@ export const CustomSelect = styled.select`
     url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
     #fff !important;
   transition: border 0.2s;
+  box-shadow: ${({ theme }) => theme.shadow.base};
+  z-index: ${({ theme }) => theme.zIndex.header};
   &:focus {
     outline: none;
     border-color: #000000;

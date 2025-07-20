@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled, { ThemeProvider } from 'styled-components';
+import styled from 'styled-components';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import LoginButton from '../../components/shared/buttons/PrimaryButton';
 import InputField from '../../components/shared/forms/InputField';
-import { theme } from '../../styles/theme';
 import { LoginPost } from '../../api-utils/user-managements/auth/LoginPost';
 import {
   getMembershipInfo,
@@ -76,68 +75,66 @@ const Login: React.FC = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <LoginContainer>
-          <Logo src={MelpikLogo} alt='멜픽 로고' />
+    <Container>
+      <LoginContainer>
+        <Logo src={MelpikLogo} alt='멜픽 로고' />
 
-          {/* ... 로고 아래 설명 영역 생략 ... */}
+        {/* ... 로고 아래 설명 영역 생략 ... */}
 
-          <LoginForm onSubmit={handleSubmit(handleLoginClick)}>
-            <InputFieldRow>
-              <Controller
-                control={control}
-                name='email'
-                render={({ field, fieldState: { error } }) => (
-                  <InputField
-                    label='사용자 이메일'
-                    type='text'
-                    placeholder='이메일을 입력하세요'
-                    error={error}
-                    {...field}
-                  />
-                )}
-              />
-            </InputFieldRow>
-            <InputFieldRow>
-              <Controller
-                control={control}
-                name='password'
-                render={({ field, fieldState: { error } }) => (
-                  <InputField
-                    label='비밀번호'
-                    type='password'
-                    placeholder='비밀번호를 입력하세요'
-                    error={error}
-                    {...field}
-                  />
-                )}
-              />
-            </InputFieldRow>
+        <LoginForm onSubmit={handleSubmit(handleLoginClick)}>
+          <InputFieldRow>
+            <Controller
+              control={control}
+              name='email'
+              render={({ field, fieldState: { error } }) => (
+                <InputField
+                  label='사용자 이메일'
+                  type='text'
+                  placeholder='이메일을 입력하세요'
+                  error={error}
+                  {...field}
+                />
+              )}
+            />
+          </InputFieldRow>
+          <InputFieldRow>
+            <Controller
+              control={control}
+              name='password'
+              render={({ field, fieldState: { error } }) => (
+                <InputField
+                  label='비밀번호'
+                  type='password'
+                  placeholder='비밀번호를 입력하세요'
+                  error={error}
+                  {...field}
+                />
+              )}
+            />
+          </InputFieldRow>
 
-            <LoginButton type='submit' disabled={!isValid || isSubmitting}>
-              {isSubmitting ? '로그인 중...' : '로그인'}
-            </LoginButton>
-          </LoginForm>
+          <LoginButton type='submit' disabled={!isValid || isSubmitting}>
+            {isSubmitting ? '로그인 중...' : '로그인'}
+          </LoginButton>
+        </LoginForm>
 
-          <ExtraLinks>
-            <Link onClick={() => navigate('/findid')}>아이디 찾기</Link>
-            <LinkSeparator>|</LinkSeparator>
-            <Link onClick={() => navigate('/findpassword')}>비밀번호 찾기</Link>
-            <LinkSeparator>|</LinkSeparator>
-            <Link onClick={() => navigate('/signup')}>회원가입</Link>
-          </ExtraLinks>
-        </LoginContainer>
+        <ExtraLinks>
+          <Link onClick={() => navigate('/findid')}>아이디 찾기</Link>
+          <LinkSeparator>|</LinkSeparator>
+          <Link onClick={() => navigate('/findpassword')}>비밀번호 찾기</Link>
+          <LinkSeparator>|</LinkSeparator>
+          <Link onClick={() => navigate('/signup')}>회원가입</Link>
+        </ExtraLinks>
+      </LoginContainer>
 
-        <ReusableModal
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          title='로그인 실패'
-        >
-          {modalMessage}
-        </ReusableModal>
-      </Container>
-    </ThemeProvider>
+      <ReusableModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        title='로그인 실패'
+      >
+        {modalMessage}
+      </ReusableModal>
+    </Container>
   );
 };
 

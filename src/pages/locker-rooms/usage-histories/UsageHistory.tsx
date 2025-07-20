@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import StatsSection from '../../../components/stats-section';
-import PeriodSection from '../../../components/period-section';
-import Spinner from '../../../components/spinner';
-import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
-import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
-import PriceIcon from '../../../assets/baskets/PriceIcon.svg';
-import sampleImage from '../../../assets/sample-dress.svg';
-import HomeDetail from '../../homes/HomeDetail';
+import StatsSection from '@/components/stats-section';
+import PeriodSection from '@/components/period-section';
+import Spinner from '@/components/spinner';
+import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
+import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
+import PriceIcon from '@/assets/baskets/PriceIcon.svg';
+import sampleImage from '@/assets/sample-dress.svg';
+import HomeDetail from '@/pages/homes/HomeDetail';
 import {
   getMyRentalSchedule,
   cancelRentalSchedule,
   RentalScheduleItem,
-} from '../../../api-utils/schedule-managements/rental-schedules/RentalSchedule';
-import CancleIconIcon from '../../../assets/headers/CancleIcon.svg';
-import EmptyState from '../../../components/shared/EmptyState';
+} from '@/api-utils/schedule-managements/rental-schedules/RentalSchedule';
+import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
+import EmptyState from '@/components/shared/EmptyState';
 
 // 버튼 확대 애니메이션
 const hoverScale = keyframes`

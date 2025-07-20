@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import styled, { ThemeProvider, css } from 'styled-components';
-import { theme } from '../../../styles/theme';
+import { theme } from '@/styles/theme';
 import StatsSection from '../../../components/stats-section';
 import InputField from '../../../components/shared/forms/InputField';
 import CustomModal from '../../../components/shared/modals/CustomModal';

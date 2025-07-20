@@ -105,15 +105,15 @@ const StyledModal = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 27px;
-  z-index: 9999;
+  padding: ${({ theme }) => theme.spacing.lg};
+  z-index: ${({ theme }) => theme.zIndex.modal};
   width: 100vw;
   height: 100vh;
 `;
 
 const ModalContent = styled.div<{ width: string; height: string }>`
-  background-color: #ffffff;
-  padding: 1rem;
+  background-color: ${({ theme }) => theme.colors.white};
+  padding: ${({ theme }) => theme.spacing.md};
   width: ${({ width }) => width};
   height: ${({ height }) => height};
   display: flex;
@@ -121,6 +121,9 @@ const ModalContent = styled.div<{ width: string; height: string }>`
   justify-content: space-between;
   max-width: 300px;
   margin: 0 auto;
+  box-shadow: ${({ theme }) => theme.shadow.modal};
+  border-radius: ${({ theme }) => theme.radius.md};
+  transition: ${({ theme }) => theme.transition.base};
 `;
 
 const ModalHeader = styled.div`
@@ -140,7 +143,7 @@ const ModalBody = styled.div`
   max-height: 70%;
   flex: 1;
   overflow-y: auto;
-  padding: 10px;
+  padding: ${({ theme }) => theme.spacing.sm};
   border-top: 2px solid #e0e0e0;
   border-bottom: 2px solid #e0e0e0;
 `;
@@ -154,13 +157,14 @@ const CloseButtonWrapper = styled.div`
 const CloseButton = styled.button`
   width: 100%;
   height: 50px;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: ${({ theme }) => theme.colors.black};
+  color: ${({ theme }) => theme.colors.white};
   border: none;
-  border-radius: 6px;
+  border-radius: ${({ theme }) => theme.radius.md};
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
+  transition: ${({ theme }) => theme.transition.base};
 `;
 
 const ModalActions = styled.div`

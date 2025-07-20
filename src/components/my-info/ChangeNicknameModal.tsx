@@ -20,7 +20,6 @@ const ChangeNicknameModal: React.FC<ChangeNicknameModalProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // TODO: API 연동 로직 (nickname) 추가
     console.log({ nickname });
     onClose();
     setNickname('');

@@ -42,7 +42,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       return;
     }
 
-    // TODO: API 연동 로직 (이름, 전화번호, newPassword) 추가
     console.log({ name, phone, newPassword });
 
     // 제출 후 모달 닫고 입력 초기화

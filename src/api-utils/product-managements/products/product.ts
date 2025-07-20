@@ -15,7 +15,6 @@ export interface Product {
   price?: number;
   discount?: number;
   image?: string;
-  // TODO: 실제 API 응답 필드에 맞춰 추가 필드 정의
 }
 
 /**

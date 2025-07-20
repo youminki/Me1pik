@@ -10,117 +10,48 @@
 - **네이티브 앱 연동**: 안드로이드/iOS 앱과의 원활한 연동
 - **반응형 디자인**: 모바일 최적화된 UI/UX
 
-## 네이티브 앱 로그인 연동
+## 프로젝트 구조 및 개발 정책
 
-### 기능 개요
+### 절대경로 import alias
 
-- 웹뷰 환경에서 네이티브 앱의 로그인 상태를 자동으로 감지
-- 로그인 토큰이 없을 때 네이티브 앱에 로그인 요청
-- 네이티브 앱에서 로그인 완료 시 웹뷰로 로그인 정보 전달
+- 모든 import 경로는 `@/` alias(`@ = /src`)로 통일되어 있습니다.
+- 예시: `import Button from '@/components/shared/buttons/PrimaryButton';`
+- Vite/tsconfig에서 alias가 설정되어 있습니다.
 
-### 지원 플랫폼
+### 디자인 시스템 theme
 
-- **Android**: React Native WebView
-- **iOS**: WKWebView
-- **웹**: 일반 브라우저 환경
+- `src/styles/theme.ts`에서 색상, 폰트, spacing, shadow, zIndex, radius, transition 등 일원화
+- 모든 스타일은 theme 기반으로 작성 (styled-components)
+- 타입 정의는 `src/styles/styled.d.ts`에서 일치 관리
 
-### 구현된 기능
+### 테스트 정책
 
-#### 1. 네이티브 앱 환경 감지
+- 공통 컴포넌트/커스텀 훅 단위 테스트를 Jest + Testing Library로 작성
+- 예시: `PrimaryButton`, `InputField`, `useHeaderConfig`, `useDebounce`, `useCache` 등
+- 테스트 커버리지 1차 확보, 추가 커버리지 지속 보강
 
-```typescript
-import { isNativeApp } from './utils/nativeApp';
+### 코드 품질 정책
 
-// 네이티브 앱 환경인지 확인
-if (isNativeApp()) {
-  // 네이티브 앱 전용 로직
-}
+- ESLint, TypeScript strict 모드 적용
+- 불필요한 콘솔로그, TODO, any, @ts-ignore 등 위험 요소 제거
+- dead code(사용하지 않는 파일/컴포넌트) 주기적 정리
+- 스타일/타입/테마 정의 중복 없이 일원화
+
+### 폴더 구조
+
 ```
-
-#### 2. 로그인 요청 전송
-
-```typescript
-import { requestNativeLogin } from './utils/nativeApp';
-
-// 네이티브 앱에 로그인 요청
-requestNativeLogin();
+src/
+├── api-utils/      # API 통신 및 비즈니스 로직
+├── assets/         # 이미지, 아이콘 등 정적 파일
+├── components/     # 재사용 가능한 컴포넌트
+├── hooks/          # 커스텀 훅
+├── pages/          # 페이지 컴포넌트
+├── styles/         # 스타일 및 theme
+├── utils/          # 유틸리티 함수
+└── App.tsx         # 메인 앱 컴포넌트
 ```
-
-#### 3. 로그인 정보 저장
-
-```typescript
-import { saveNativeLoginInfo } from './utils/nativeApp';
-
-// 네이티브 앱에 로그인 정보 저장
-saveNativeLoginInfo({
-  id: 'user@example.com',
-  email: 'user@example.com',
-  token: 'access_token',
-  refreshToken: 'refresh_token',
-  expiresAt: '2024-12-31T23:59:59.999Z',
-});
-```
-
-### 네이티브 앱에서 구현해야 할 기능
-
-#### Android (React Native)
-
-```javascript
-// WebView에 주입할 함수들
-window.nativeApp = {
-  requestLogin: () => {
-    // 네이티브 로그인 화면으로 이동
-    NativeModules.AuthModule.showLogin();
-  },
-  saveLoginInfo: (data) => {
-    // 로그인 정보를 네이티브에 저장
-    NativeModules.AuthModule.saveLoginInfo(data);
-  },
-};
-```
-
-#### iOS (Swift)
-
-```swift
-// WKWebView에 주입할 함수들
-webView.evaluateJavaScript("""
-window.nativeApp = {
-  requestLogin: function() {
-    // 네이티브 로그인 화면으로 이동
-    window.webkit.messageHandlers.loginHandler.postMessage({
-      type: 'REQUEST_LOGIN'
-    });
-  },
-  saveLoginInfo: function(data) {
-    // 로그인 정보를 네이티브에 저장
-    window.webkit.messageHandlers.loginHandler.postMessage({
-      type: 'SAVE_LOGIN_INFO',
-      data: data
-    });
-  }
-};
-""")
-```
-
-## 🧪 테스트 실행 및 CustomModal mock 안내
-
-- `src/pages/Melpik/Setting/__tests__/SettingMelpik.test.tsx`에서는 CustomModal mock에서 '확인' 버튼을 직접 추가합니다.
-- 이는 테스트 환경에서 포털/조건부 렌더링 등으로 인해 실제 children이 노출되지 않는 한계를 보완하기 위함입니다.
-- 실제 서비스 코드에는 영향이 없으며, E2E 테스트에서는 실제 모달 동작까지 검증할 수 있습니다.
-
-### 테스트 실행 방법
-
-```bash
-yarn jest src/pages/Melpik/Setting/__tests__/SettingMelpik.test.tsx --coverage
-```
-
-### E2E 테스트 도입 권장
-
-- 실제 브라우저 환경에서 포털/모달/버튼 동작까지 검증하려면 Cypress, Playwright 등 도구를 활용한 E2E 테스트를 추가하는 것이 좋습니다.
 
 ## 개발 환경 설정
-
-### 필수 요구사항
 
 - Node.js 18.0.0 이상
 - Yarn 또는 npm
@@ -130,93 +61,35 @@ yarn jest src/pages/Melpik/Setting/__tests__/SettingMelpik.test.tsx --coverage
 ```bash
 # 의존성 설치
 yarn install
-
 # 개발 서버 실행
 yarn dev
-
 # 빌드
 yarn build
-
 # 린트 검사
 yarn lint
+# 테스트 실행
+yarn test
 ```
 
-## 프로젝트 구조
+## 네이티브 앱 로그인 연동
 
-```
-src/
-├── api/           # API 통신 관련
-├── assets/        # 이미지, 아이콘 등 정적 파일
-├── components/    # 재사용 가능한 컴포넌트
-├── hooks/         # 커스텀 훅
-├── pages/         # 페이지 컴포넌트
-├── styles/        # 스타일 관련
-├── utils/         # 유틸리티 함수
-└── App.tsx        # 메인 앱 컴포넌트
-```
+(생략: 기존 설명과 동일)
+
+## 테스트 실행 및 E2E 권장
+
+- `yarn test`로 단위 테스트 실행
+- E2E 테스트는 Cypress, Playwright 등 도구로 추가 권장
 
 ## 기술 스택
 
 - **Frontend**: React 18, TypeScript, Vite
-- **Styling**: Styled Components
+- **Styling**: Styled Components (theme 기반)
 - **State Management**: React Hook Form, React Query
 - **HTTP Client**: Axios
 - **Build Tool**: Vite
 - **Linting**: ESLint, TypeScript ESLint
+- **Testing**: Jest, React Testing Library
 
 ## 라이센스
 
 이 프로젝트는 MIT 라이센스 하에 배포됩니다.
-
----
-
-## 기존 Vite 설정 정보
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react';
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-});
-```

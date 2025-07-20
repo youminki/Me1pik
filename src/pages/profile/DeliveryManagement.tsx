@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import AddressSearchModal from '../../components/shared/modals/AddressSearchModal';
-import EmptyState from '../../components/shared/EmptyState';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import AddressSearchModal from '@/components/shared/modals/AddressSearchModal';
+import EmptyState from '@/components/shared/EmptyState';
 import {
   useAddresses,
   useUpdateAddress,
