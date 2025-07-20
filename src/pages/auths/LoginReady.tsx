@@ -3,26 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import LoginButton from '../../common-components/buttons/primary-button';
-import InputField from '../../common-components/forms/input-field';
+import LoginButton from '../../components/shared/buttons/PrimaryButton';
+import InputField from '../../components/shared/forms/InputField';
 import Theme from '../../styles/Theme';
-import { LoginPost } from '../../api-utils/user-managements/auth/LoginPost';
-import {
-  getMembershipInfo,
-  MembershipInfo,
-} from '../../api-utils/user-managements/users/userApi';
 import MelpikLogo from '../../assets/LoginLogo.svg';
-import { schemaLogin } from '../../hooks/ValidationYup';
-import ReusableModal from '../../common-components/modals/reusable-modal';
+import { schemaLogin } from '../../hooks/useValidationYup';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 
 type LoginFormValues = {
   email: string;
   password: string;
-};
-
-type LoginResponse = {
-  accessToken: string;
-  refreshToken: string;
 };
 
 const Login: React.FC = () => {
@@ -42,37 +32,10 @@ const Login: React.FC = () => {
 
   const handleModalClose = () => setIsModalOpen(false);
 
-  const handleLoginClick = async (data: LoginFormValues) => {
-    try {
-      // 1) 로그인 요청
-      const response = (await LoginPost(
-        data.email,
-        data.password
-      )) as LoginResponse;
-      const { accessToken, refreshToken } = response;
-
-      // 2) 토큰 로컬 저장
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-
-      // 3) 멤버십 정보 조회
-      const membership: MembershipInfo = await getMembershipInfo();
-
-      navigate('/home', {
-        replace: true,
-        state: {
-          showNotice: true,
-          membership,
-        },
-      });
-    } catch (error: unknown) {
-      const errorMessage =
-        error && typeof error === 'object' && 'message' in error
-          ? (error as { message: string }).message
-          : '로그인 실패. 다시 시도해주세요.';
-      setModalMessage(errorMessage);
-      setIsModalOpen(true);
-    }
+  // 로그인 대신 점검중 메시지 표시
+  const handleLoginClick = () => {
+    setModalMessage('지금은 점검중입니다.');
+    setIsModalOpen(true);
   };
 
   return (
@@ -81,9 +44,7 @@ const Login: React.FC = () => {
         <LoginContainer>
           <Logo src={MelpikLogo} alt='멜픽 로고' />
 
-          {/* ... 로고 아래 설명 영역 생략 ... */}
-
-          <LoginForm onSubmit={handleSubmit(handleLoginClick)}>
+          <LoginForm onSubmit={handleSubmit(() => handleLoginClick())}>
             <InputFieldRow>
               <Controller
                 control={control}
@@ -132,7 +93,7 @@ const Login: React.FC = () => {
         <ReusableModal
           isOpen={isModalOpen}
           onClose={handleModalClose}
-          title='로그인 실패'
+          title='알림'
         >
           {modalMessage}
         </ReusableModal>

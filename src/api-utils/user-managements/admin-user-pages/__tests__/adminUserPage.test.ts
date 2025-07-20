@@ -5,7 +5,7 @@ import {
   deleteUserPageLink,
   setUserPageAccount,
   getUserPageAdminInfo,
-} from '../adminUserPage';
+} from '../AdminUserPage';
 import { Axios } from '../../../Axios';
 
 jest.mock('../../Axios');

@@ -9,7 +9,7 @@ import { getMyCloset } from '../../../api-utils/product-managements/closets/clos
 import Spinner from '../../../components/spinner';
 import { UIItem } from '../../../components/homes/MyclosetItemList'; // UIItem.id는 string 타입
 import { createSaleSchedule } from '../../../api-utils/schedule-managements/sales/SaleSchedule'; // API 호출 함수
-import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
+import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
 
 interface ItemCardProps {
   id: string;

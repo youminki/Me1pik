@@ -11,15 +11,15 @@ import AppLayout from './pages/layouts/AppLayout';
 
 import Landing from './pages/landings/Landing';
 import Login from './pages/auths/Login';
-import ReadyLogin from './pages/auths/ReadyLogin';
+import ReadyLogin from './pages/auths/LoginReady';
 
-import TestLogin from './pages/auths/TestLogin';
+import TestLogin from './pages/auths/LoginTest';
 import Signup from './pages/auths/Signup';
 import FindId from './pages/auths/FindId';
 import FindPassword from './pages/auths/FindPassword';
 
-import MyinfoList from './pages/myinfos/MyinfoList';
-import MyStyle from './pages/mystyles/MyStyle';
+import MyInfoList from './pages/my-info/MyInfoList';
+import MyStyle from './pages/my-styles/MyStyle';
 
 import Basket from './pages/baskets/Basket';
 import Alarm from './pages/alarms/Alarm';
@@ -63,14 +63,14 @@ import CustomerService from './pages/customer-services/CustomerService';
 import DocumentList from './pages/customer-services/documents/DocumentList';
 import DocumentDetail from './pages/customer-services/documents/DocumentDetail';
 
-import Scedule from './pages/melpiks/schedules/Scedule';
+import Scedule from './pages/melpiks/schedules/Schedule';
 import ScheduleConfirmation from './pages/melpiks/schedules/ScheduleConfirmation';
-import ScheduleReservation1 from './pages/melpiks/schedules/ScheduleReservation1';
-import ScheduleReservation2 from './pages/melpiks/schedules/ScheduleReservation2';
-import ScheduleReservation3 from './pages/melpiks/schedules/ScheduleReservation3';
+import ScheduleReservation1 from './pages/melpiks/schedules/ScheduleReservationStep1';
+import ScheduleReservation2 from './pages/melpiks/schedules/ScheduleReservationStep2';
+import ScheduleReservation3 from './pages/melpiks/schedules/ScheduleReservationStep3';
 
-import PaypleTest from './tests/PaypleTest';
-import AddCardPayple from './tests/AddCardPayple';
+import PaypleTest from './__tests__/development/PaypleTest';
+import AddCardPayple from './__tests__/development/AddCardPayple';
 import PasswordChange from './pages/auths/PasswordChange';
 import PaymentComplete from './pages/payments/PaymentComplete';
 import PaymentFail from './pages/payments/Paymentfail.tsx';
@@ -194,7 +194,7 @@ const App: React.FC = () => {
           <Route path='/DeliveryManagement' element={<DeliveryManagement />} />
           <Route path='/EditAddress' element={<EditAddress />} />
           {/* User Pages */}
-          <Route path='/MyinfoList' element={<MyinfoList />} />
+          <Route path='/MyinfoList' element={<MyInfoList />} />
           <Route path='/MyStyle' element={<MyStyle />} />
 
           {/* Main */}

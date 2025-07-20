@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaSignupContemporary } from '../../../hooks/ValidationYup';
-import InputField from '../../../common-components/forms/input-field';
+import { schemaSignupContemporary } from '../../../hooks/useValidationYup';
+import InputField from '../../../components/shared/forms/InputField';
 import AgreementSection from '../../../components/melpiks/create-melpiks/settings/AgreementSection';
 import Theme from '../../../styles/Theme';
 import BottomBar from '../../../components/bottom-navigation-mobile';
 import Modal from '../../../components/melpiks/create-melpiks/settings/Modal';
-import { CustomSelect } from '../../../common-components/forms/custom-select';
+import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
 
 interface FormData {
   height: string;

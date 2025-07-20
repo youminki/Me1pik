@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { format, addMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
-import InputField from '../../../common-components/forms/input-field';
+import InputField from '../../../components/shared/forms/InputField';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import {
   postInitPayment,

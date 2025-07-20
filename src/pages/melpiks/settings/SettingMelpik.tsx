@@ -2,14 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import styled, { ThemeProvider, css } from 'styled-components';
 import Theme from '../../../styles/Theme';
 import StatsSection from '../../../components/stats-section';
-import InputField from '../../../common-components/forms/input-field';
-import CustomModal from '../../../common-components/modals/custom-modal';
+import InputField from '../../../components/shared/forms/InputField';
+import CustomModal from '../../../components/shared/modals/CustomModal';
 import {
   getUserPageAdminInfo,
   setUserPageAccount,
   addUserPageLink,
   deleteUserPageLink,
-} from '../../../api-utils/user-managements/admin-user-pages/adminUserPage';
+} from '../../../api-utils/user-managements/admin-user-pages/AdminUserPage';
 
 // 링크 리스트 스타일 요소 const로 분리
 const LinkListWrapper = styled.div`
@@ -180,7 +180,7 @@ const SettingMelpik: React.FC = () => {
         if (err?.response?.status === 404) {
           try {
             await import(
-              '../../../api-utils/user-managements/admin-user-pages/adminUserPage'
+              '../../../api-utils/user-managements/admin-user-pages/AdminUserPage'
             ).then((m) => m.activateUserPage());
             // 활성화 후 재조회
             const data = await getUserPageAdminInfo();

@@ -2,9 +2,9 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { CustomSelect } from '../../../common-components/forms/custom-select';
+import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
-import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
+import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
 import { format, addMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useTicketList } from '../../../api-utils/schedule-managements/tickets/ticket';

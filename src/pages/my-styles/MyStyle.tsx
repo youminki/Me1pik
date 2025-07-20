@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaMyStyle } from '../../hooks/ValidationYup';
-import InputField from '../../common-components/forms/input-field';
+import { schemaMyStyle } from '../../hooks/useValidationYup';
+import InputField from '../../components/shared/forms/InputField';
 import Theme from '../../styles/Theme';
 import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
-import { CustomSelect } from '../../common-components/forms/custom-select';
+import { CustomSelect } from '../../components/shared/forms/CustomSelect';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
-import ReusableModal from '../../common-components/modals/reusable-modal';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 import {
   useUserStyle,
   updateUserStyle,

@@ -5,10 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 
-import InputField from '../../common-components/forms/input-field';
+import InputField from '../../components/shared/forms/InputField';
 import Theme from '../../styles/Theme';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
-import ReusableModal from '../../common-components/modals/reusable-modal';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 
 import { changePassword } from '../../api-utils/user-managements/users/userApi';
 

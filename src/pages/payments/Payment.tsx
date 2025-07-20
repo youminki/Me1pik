@@ -4,14 +4,14 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
-import InputField from '../../common-components/forms/input-field';
+import InputField from '../../components/shared/forms/InputField';
 import {
   YellowButton,
   BlackButton,
-} from '../../common-components/buttons/button-wrapper';
-import ReusableModal from '../../common-components/modals/reusable-modal';
-import ReusableModal2 from '../../common-components/modals/reusable-modal-v2';
-import AddressSearchModal from '../../common-components/modals/address-search-modal';
+} from '../../components/shared/buttons/ButtonWrapper';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
+import ReusableModal2 from '../../components/shared/modals/ReusableModalV2';
+import AddressSearchModal from '../../components/shared/modals/AddressSearchModal';
 import PriceIcon from '../../assets/baskets/PriceIcon.svg';
 import ProductInfoIcon from '../../assets/baskets/ProductInfoIcon.svg';
 import ServiceInfoIcon from '../../assets/baskets/ServiceInfoIcon.svg';
@@ -24,7 +24,7 @@ import {
   useAddresses,
   Address,
 } from '../../api-utils/user-managements/addresses/address';
-import DeliveryListModal from '../../common-components/modals/delivery-list-modal';
+import DeliveryListModal from '../../components/shared/modals/DeliveryListModal';
 
 declare global {
   interface Window {

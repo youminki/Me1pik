@@ -3,7 +3,7 @@ import React from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 
-import UnifiedHeader from '../../common-components/headers/unified-header';
+import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
 import BottomNav from '../../components/bottom-navigation';
 import useHeaderConfig from '../../hooks/useHeaderConfig';
 

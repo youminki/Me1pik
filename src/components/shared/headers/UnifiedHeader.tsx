@@ -6,19 +6,19 @@ import styled from 'styled-components';
 import Cookies from 'js-cookie';
 import { BiTime } from 'react-icons/bi';
 import { FaUserCircle } from 'react-icons/fa';
-import { useHeaderInfo } from '../../api-utils/user-managements/users/userApi';
+import { useHeaderInfo } from '../../../api-utils/user-managements/users/userApi';
 
-import AlarmIcon from '../../assets/headers/AlarmIcon.svg';
-import BasketIcon from '../../assets/headers/BasketIcon.svg';
-import MypageIcon from '../../assets/headers/MypageIcon.svg';
-import Logo from '../../assets/Logo.svg';
-import BackButtonIcon from '../../assets/headers/BackButton.svg';
-import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
-import ShareIcon from '../../assets/headers/ShareIcon.svg';
-import HomeIcon from '../../assets/headers/HomeIcon.svg';
+import AlarmIcon from '../../../assets/headers/AlarmIcon.svg';
+import BasketIcon from '../../../assets/headers/BasketIcon.svg';
+import MypageIcon from '../../../assets/headers/MypageIcon.svg';
+import Logo from '../../../assets/Logo.svg';
+import BackButtonIcon from '../../../assets/headers/BackButton.svg';
+import CancleIconIcon from '../../../assets/headers/CancleIcon.svg';
+import ShareIcon from '../../../assets/headers/ShareIcon.svg';
+import HomeIcon from '../../../assets/headers/HomeIcon.svg';
 
-import MypageModal from '../modals/mypage-modal';
-import ReusableModal from '../modals/reusable-modal';
+import MypageModal from '../modals/MypageModal';
+import ReusableModal from '../modals/ReusableModal';
 
 interface HeaderContainerProps {
   variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';

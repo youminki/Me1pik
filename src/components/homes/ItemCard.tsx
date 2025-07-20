@@ -7,7 +7,7 @@ import {
   addToCloset,
   removeFromCloset,
 } from '../../api-utils/product-managements/closets/closetApi';
-import ReusableModal from '../../common-components/modals/reusable-modal-v2';
+import ReusableModal from '../../components/shared/modals/ReusableModalV2';
 
 type ItemCardProps = {
   id: string;

@@ -11,8 +11,8 @@ import {
   MembershipInfo,
 } from '../../api-utils/user-managements/users/userApi';
 import MelpikLogo from '../../assets/LoginLogo.svg';
-import { schemaLogin } from '../../hooks/ValidationYup';
-import ReusableModal from '../../common-components/modals/reusable-modal';
+import { schemaLogin } from '../../hooks/useValidationYup';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { isNativeApp, saveNativeLoginInfo } from '../../utils/nativeApp';
 import { saveTokens, forceSaveAppToken } from '../../utils/auth';
 import {

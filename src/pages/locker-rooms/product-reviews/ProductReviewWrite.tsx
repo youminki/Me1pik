@@ -9,7 +9,7 @@ import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
 import FilledStarIcon from '../../../assets/baskets/FilledStarIcon.svg'; // 채워진 별
 import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg'; // 빈 별
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
-import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
+import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
 
 interface BasketItem {
   id: number;

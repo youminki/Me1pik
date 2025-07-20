@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaCardRegistration } from '../../../hooks/ValidationYup';
+import { schemaCardRegistration } from '../../../hooks/useValidationYup';
 
-import InputField from '../../../common-components/forms/input-field';
-import ReusableModal from '../../../common-components/modals/reusable-modal';
-import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
+import InputField from '../../../components/shared/forms/InputField';
+import ReusableModal from '../../../components/shared/modals/ReusableModal';
+import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
 
 interface CardFormValues {

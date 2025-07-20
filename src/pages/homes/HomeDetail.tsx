@@ -16,7 +16,7 @@ import MaterialInfo from '../../components/homes/home-details/MaterialInfo';
 import ProductDetails from '../../components/homes/home-details/ProductDetails';
 import ServiceSelection from '../../components/homes/home-details/ServiceSelection';
 import RentalOptions from '../../components/homes/home-details/RentalOptions';
-import ReusableModal from '../../common-components/modals/reusable-modal';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 import BottomBar from '../../components/homes/home-details/BottomBar';
 import ShoppingBasket from '../../assets/homes/home-details/ShoppingBasket.svg';
 import { addCartItem } from '../../api-utils/product-managements/carts/cart';

@@ -3,14 +3,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaSignup } from '../../hooks/ValidationYup';
-import InputField from '../../common-components/forms/input-field';
+import { schemaSignup } from '../../hooks/useValidationYup';
+import InputField from '../../components/shared/forms/InputField';
 import AgreementSection from '../../components/signups/AgreementSection';
 import Theme from '../../styles/Theme';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import { useNavigate } from 'react-router-dom';
-import { CustomSelect } from '../../common-components/forms/custom-select';
-import ReusableModal from '../../common-components/modals/reusable-modal';
+import { CustomSelect } from '../../components/shared/forms/CustomSelect';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 import {
   signUpUser,
   checkEmail,
@@ -21,7 +21,7 @@ import {
 } from '../../api-utils/user-managements/users/userApi';
 import { regionDistrictData } from '../../components/signups/regionDistrictData';
 import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
-import SimpleHeader from '../../common-components/headers/simple-header';
+import SimpleHeader from '../../components/shared/headers/SimpleHeader';
 import type { AxiosError } from 'axios';
 
 export type SignupFormData = {

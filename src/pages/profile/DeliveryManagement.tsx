@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
-import AddressSearchModal from '../../common-components/modals/address-search-modal';
+import AddressSearchModal from '../../components/shared/modals/AddressSearchModal';
 import {
   useAddresses,
   useUpdateAddress,

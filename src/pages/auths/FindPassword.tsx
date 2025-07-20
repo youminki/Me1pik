@@ -14,7 +14,7 @@ import {
   FindBtn,
   MelpikPointText,
 } from '../../auth-utils/AuthCommon';
-import ReusableModal from '../../common-components/modals/reusable-modal';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { resetPassword } from '../../api-utils/user-managements/users/userApi';
 import Theme from '../../styles/Theme';
 import { ThemeProvider } from 'styled-components';

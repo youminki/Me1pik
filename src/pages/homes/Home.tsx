@@ -18,12 +18,12 @@ import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
 import ShareIcon from '../../assets/headers/ShareIcon.svg';
 import HomeIcon from '../../assets/headers/HomeIcon.svg';
 import ArrowIconSvg from '../../assets/ArrowIcon.svg';
-import ReusableModal from '../../common-components/modals/reusable-modal';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 import FilterContainer from '../../components/homes/FilterContainer';
 import SearchModal from '../../components/homes/SearchModal';
 import MelpikGuideBanner from '../../components/melpik-guide-banner';
 import SkeletonItemList from '../../components/homes/SkeletonItemList';
-import FilterModal from '../../common-components/modals/filter-modal';
+import FilterModal from '../../components/shared/modals/FilterModal';
 
 /**
  * Home(상품 리스트) 페이지 - 최적화 버전ㄴ

@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import Theme from '../../../styles/Theme';
 import AgreementSection from '../../../components/melpiks/settlement/SettlementAgreementSection';
-import InputField from '../../../common-components/forms/input-field';
+import InputField from '../../../components/shared/forms/InputField';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
 
 const SettlementRequest: React.FC = () => {

@@ -5,10 +5,10 @@ import Calendar from './Calendar';
 import { isSameDay, isBefore, addDays as _addDays } from 'date-fns';
 import Holidays from 'date-holidays';
 import ReusableModal2 from '../../../components/homes/home-details/HomeDetailModal';
-import ReusableModal from '../../../common-components/modals/reusable-modal';
+import ReusableModal from '../../../components/shared/modals/ReusableModal';
 import RentalSelectDateIcon from '../../../assets/homes/home-details/RentalSelectDateIcon.svg';
-import { getUnavailableDates } from '../../../api-utils/schedule-managements/schedules/scedule';
-import { CustomSelect } from '../../../common-components/forms/custom-select';
+import { getUnavailableDates } from '../../../api-utils/schedule-managements/schedules/schedule';
+import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
 
 const hd = new Holidays('KR');
 
