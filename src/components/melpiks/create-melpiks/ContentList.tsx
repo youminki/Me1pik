@@ -83,36 +83,35 @@ const Content: React.FC<{ item: ContentItem }> = ({ item }) => {
 };
 
 const ContentList: React.FC = () => {
-  const data: ContentItem[] = [
-    {
-      image: CreateMelpik1,
-      imgtitle: '컨템포러리',
-      title: '컨템포러리 ',
-      dressSize: 'M (55)',
-      topSize: 'M (55)',
-      bottomSize: 'M (55)',
-      brand: 'MICHA, MAJE, SANDRO',
-      exposure: 6,
-      period: '2',
-    },
-    {
-      image: CreateMelpik2,
-      imgtitle: '골프웨어',
-      title: '골프웨어 ',
-      dressSize: 'M (55)',
-      topSize: 'M (55)',
-      bottomSize: 'M (55)',
-      brand: 'MICHA, MAJE, SANDRO',
-      exposure: 6,
-      period: '2',
-    },
-  ];
-
-  const renderedItems = useMemo(() => {
+  const result = useMemo(() => {
+    const data: ContentItem[] = [
+      {
+        image: CreateMelpik1,
+        imgtitle: '컨템포러리',
+        title: '컨템포러리 ',
+        dressSize: 'M (55)',
+        topSize: 'M (55)',
+        bottomSize: 'M (55)',
+        brand: 'MICHA, MAJE, SANDRO',
+        exposure: 6,
+        period: '2',
+      },
+      {
+        image: CreateMelpik2,
+        imgtitle: '골프웨어',
+        title: '골프웨어 ',
+        dressSize: 'M (55)',
+        topSize: 'M (55)',
+        bottomSize: 'M (55)',
+        brand: 'MICHA, MAJE, SANDRO',
+        exposure: 6,
+        period: '2',
+      },
+    ];
     return data.map((item, index) => <Content key={index} item={item} />);
-  }, [data]);
+  }, []);
 
-  return <ScrollableContent>{renderedItems}</ScrollableContent>;
+  return <ScrollableContent>{result}</ScrollableContent>;
 };
 
 export default ContentList;

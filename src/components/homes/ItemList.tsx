@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import ItemCard from './ItemCard';
@@ -33,18 +33,15 @@ const ItemList: React.FC<ItemListProps> = ({
   observerRef,
   visibleCount = 40,
 }) => {
-  const handleOpen = useCallback(onItemClick ?? (() => {}), [onItemClick]);
-  const handleDelete = useCallback(onDelete ?? (() => {}), [onDelete]);
-
-  // 아이템별로 준비된 것부터 바로 렌더링, 나머지는 스켈레톤 (isLoading일 때만)
   const renderedItems = useMemo(() => {
+    const handleOpen = onItemClick ?? (() => {});
+    const handleDelete = onDelete ?? (() => {});
+
     if (isLoading) {
-      // 로딩 중일 때만 스켈레톤을 visibleCount만큼 렌더링
       return Array.from({ length: visibleCount }, (_, i) => (
         <SkeletonItemCard key={`skeleton-${i}`} />
       ));
     }
-    // 로딩이 아니면 실제 아이템만 렌더링
     return items.map((item) => (
       <ItemCard
         key={item.id}
@@ -53,7 +50,7 @@ const ItemList: React.FC<ItemListProps> = ({
         onDelete={handleDelete}
       />
     ));
-  }, [isLoading, items, visibleCount, columns, handleOpen, handleDelete]);
+  }, [isLoading, items, visibleCount, onItemClick, onDelete]);
 
   return (
     <ListContainer>

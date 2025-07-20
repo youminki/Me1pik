@@ -147,7 +147,7 @@ const UpdateProfile: React.FC = () => {
         setShowResultModal(true);
       }
     },
-    [updateMyInfo]
+    []
   );
 
   // 시/도 & 구/군 옵션 useMemo로 최적화

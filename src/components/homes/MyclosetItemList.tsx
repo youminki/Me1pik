@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 import ItemCard from './ItemCard';
@@ -27,10 +27,9 @@ const MyclosetItemList: React.FC<MyclosetItemListProps> = ({
   onItemClick,
   onDelete,
 }) => {
-  const handleOpen = useCallback(onItemClick ?? (() => {}), [onItemClick]);
-  const handleDelete = useCallback(onDelete ?? (() => {}), [onDelete]);
-
   const renderedItems = useMemo(() => {
+    const handleOpen = onItemClick ?? (() => {});
+    const handleDelete = onDelete ?? (() => {});
     return items.map((item) => (
       <ItemCard
         key={item.id}
@@ -39,7 +38,7 @@ const MyclosetItemList: React.FC<MyclosetItemListProps> = ({
         onDelete={handleDelete}
       />
     ));
-  }, [items, handleOpen, handleDelete]);
+  }, [items, onItemClick, onDelete]);
 
   return (
     <ListContainer>

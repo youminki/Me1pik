@@ -1,7 +1,6 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
-
 // @ts-expect-error: 절대경로 import에 대한 타입스크립트 모듈 해석 문제로 인한 무시
 import * as adminUserPageApi from 'src/api/adminUserPage/adminUserPage';
 

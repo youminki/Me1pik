@@ -17,8 +17,6 @@ import { UIItem } from '../../../components/homes/MyclosetItemList';
 import Calendar from '../../../components/melpiks/schedules/reservations/Calendar';
 import DateSelection from '../../../components/melpiks/schedules/reservations/DateSelection';
 import Summary from '../../../components/melpiks/schedules/reservations/Summary';
-
-// 내 옷장 API & 타입 import
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import { theme } from '../../../styles/theme';
 
