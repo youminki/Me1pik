@@ -35,7 +35,7 @@ jest.mock('src/api/adminUserPage/adminUserPage', () => ({
   activateUserPage: jest.fn().mockResolvedValue({}),
 }));
 
-jest.mock('src/components/CustomModal', () => ({
+jest.mock('s../../components/CustomModal', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));

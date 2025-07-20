@@ -9,6 +9,7 @@ import { format, addMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useTicketList } from '../../../api-utils/schedule-managements/tickets/ticket';
 import { useMembershipInfo } from '../../../api-utils/user-managements/users/userApi';
+// import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
 
 // 한국 시간 기준 오늘 0시 반환 함수
 function getKoreanToday() {

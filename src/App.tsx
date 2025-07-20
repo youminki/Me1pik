@@ -7,28 +7,28 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import AppLayout from './pages/AppLayout';
+import AppLayout from './pages/layouts/AppLayout';
 
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import ReadyLogin from './pages/ReadyLogin';
+import Landing from './pages/landings/Landing';
+import Login from './pages/auths/Login';
+import ReadyLogin from './pages/auths/ReadyLogin';
 
-import TestLogin from './pages/TestLogin';
-import Signup from './pages/Signup';
-import FindId from './pages/FindId';
-import FindPassword from './pages/FindPassword';
+import TestLogin from './pages/auths/TestLogin';
+import Signup from './pages/auths/Signup';
+import FindId from './pages/auths/FindId';
+import FindPassword from './pages/auths/FindPassword';
 
-import MyinfoList from './pages/MyinfoList';
-import MyStyle from './pages/MyStyle';
+import MyinfoList from './pages/myinfos/MyinfoList';
+import MyStyle from './pages/mystyles/MyStyle';
 
-import Basket from './pages/Basket';
-import Alarm from './pages/Alarm';
-import Payment from './pages/Payment';
-import PersonalLink from './pages/PersonalLink';
+import Basket from './pages/baskets/Basket';
+import Alarm from './pages/alarms/Alarm';
+import Payment from './pages/payments/Payment';
+import PersonalLink from './pages/links/PersonalLink';
 
 import Home from './pages/homes/Home';
 import HomeDetail from './pages/homes/HomeDetail';
-import Analysis from './pages/Analysis';
+import Analysis from './pages/analyses/Analysis';
 
 import Brand from './pages/brands/Brand';
 import BrandDetail from './pages/brands/BrandDetail';
@@ -71,17 +71,17 @@ import ScheduleReservation3 from './pages/melpiks/schedules/ScheduleReservation3
 
 import PaypleTest from './tests/PaypleTest';
 import AddCardPayple from './tests/AddCardPayple';
-import PasswordChange from './pages/PasswordChange';
-import PaymentComplete from './pages/PaymentComplete';
-import PaymentFail from './pages/Paymentfail.tsx';
+import PasswordChange from './pages/auths/PasswordChange';
+import PaymentComplete from './pages/payments/PaymentComplete';
+import PaymentFail from './pages/payments/Paymentfail.tsx';
 import TicketDetail from './pages/locker-rooms/my-tickets/TicketDetail';
 
-import Link from './pages/Link';
+import Link from './pages/links/Link';
 import UpdateProfile from './pages/profile/UpdateProfile';
 import ChangePassword from './pages/profile/ChangePassword';
 import DeliveryManagement from './pages/profile/DeliveryManagement';
 import EditAddress from './pages/profile/EditAddress';
-import NotFound from './pages/NotFound';
+import NotFound from './pages/errors/NotFound';
 
 import { Axios } from './api-utils/Axios';
 import { isNativeApp } from './utils/nativeApp';
