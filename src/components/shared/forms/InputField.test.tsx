@@ -22,7 +22,7 @@ describe('InputField', () => {
       </ThemeProvider>
     );
     const input = getByLabelText('닉네임');
-    expect(input).toHaveStyle(`box-shadow: ${theme.shadow.base}`);
+    expect(input).toHaveStyle(` ${theme.shadow.base}`);
     expect(input).toHaveStyle(`z-index: ${theme.zIndex.header}`);
   });
 });

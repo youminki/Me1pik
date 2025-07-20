@@ -563,7 +563,7 @@ const DeleteButton = styled.button`
 
   &:hover {
     animation: ${hoverScale} 0.2s forwards alternate;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   @media (max-width: 600px) {
@@ -588,7 +588,7 @@ const PurchaseButton = styled.button`
 
   &:hover:not(:disabled) {
     animation: ${hoverScale} 0.2s forwards alternate;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+     0 4px 8px rgba(0, 0, 0, 0.2);
   }
 
   &:disabled {

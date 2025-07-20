@@ -45,7 +45,7 @@ const StyledButton = styled.button<{
     background-color 0.3s ease,
     transform 0.2s ease;
   padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
-  box-shadow: ${({ theme }) => theme.shadow.base};
+  ${({ theme }) => theme.shadow.base};
   z-index: ${({ theme }) => theme.zIndex.header};
 
   ${({ color }) =>

@@ -121,7 +121,7 @@ const ModalContent = styled.div<{ width: string; height: string }>`
   justify-content: space-between;
   max-width: 300px;
   margin: 0 auto;
-  box-shadow: ${({ theme }) => theme.shadow.modal};
+  ${({ theme }) => theme.shadow.modal};
   border-radius: ${({ theme }) => theme.radius.md};
   transition: ${({ theme }) => theme.transition.base};
 `;

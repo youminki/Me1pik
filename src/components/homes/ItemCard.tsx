@@ -298,7 +298,7 @@ const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
   overflow: hidden;
   transform: ${({ $animating }) => ($animating ? 'scale(1.18)' : 'scale(1)')};
   opacity: ${({ $animating }) => ($animating ? 0.8 : 1)};
-  box-shadow: ${({ $animating, theme }) =>
+  ${({ $animating, theme }) =>
     $animating ? `0 0 12px ${theme.colors.yellow}44` : 'none'};
   img {
     width: 20px;

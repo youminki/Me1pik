@@ -165,7 +165,7 @@ const Bubble = styled.div`
   background: #ffffff;
   border-radius: 10px;
   font-size: 0.875rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+   0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const HeroText = styled.div`
@@ -380,7 +380,7 @@ const CodeInput = styled.input`
 
   &:focus {
     border-color: #f6ac36;
-    box-shadow: 0 0 0 2px rgba(246, 172, 54, 0.2);
+     0 0 0 2px rgba(246, 172, 54, 0.2);
   }
 
   @media (max-width: 600px) {

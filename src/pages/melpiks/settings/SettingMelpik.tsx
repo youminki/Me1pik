@@ -250,7 +250,7 @@ const SettingMelpik: React.FC = () => {
     position: absolute;
     top: 1px;
     left: ${({ $on }) => ($on ? '31px' : '1px')};
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+     0 1px 4px rgba(0, 0, 0, 0.08);
     transition: left 0.2s;
   `;
   const ToggleText = styled.span<{ $on: boolean }>`

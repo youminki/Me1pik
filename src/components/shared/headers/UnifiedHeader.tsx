@@ -76,7 +76,7 @@ const SearchBox = styled.div<{ open: boolean }>`
   border-radius: 18px;
   padding: 4px;
   padding-right: 0px;
-  box-shadow: ${({ open }) => (open ? '0 2px 8px rgba(0,0,0,0.15)' : 'none')};
+  ${({ open }) => (open ? '0 2px 8px rgba(0,0,0,0.15)' : 'none')};
   transition:
     width 0.3s ease,
     box-shadow 0.25s ease,
@@ -106,7 +106,7 @@ const Dropdown = styled.ul`
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   0 4px 8px rgba(0, 0, 0, 0.1);
   list-style: none;
   margin: 4px 0 0;
   padding: 0;

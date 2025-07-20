@@ -60,7 +60,7 @@ const StyledButton = styled.button<{
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
-  box-shadow: ${theme.shadow.base};
+  ${theme.shadow.base};
   z-index: ${theme.zIndex.header};
 
   &:hover {

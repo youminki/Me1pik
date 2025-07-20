@@ -210,7 +210,7 @@ const MonthContainer = styled.div`
   background: #fff;
   border-radius: 0;
   border: 1px solid #000;
-  box-shadow: none;
+   none;
   padding: 32px 24px 28px 24px;
   margin-bottom: 8px;
   width: 100%;

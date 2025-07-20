@@ -191,7 +191,7 @@ const TicketCard = styled.div`
 
   &:hover {
     transform: scale(1.03);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+     0 8px 16px rgba(0, 0, 0, 0.12);
   }
 
   &::before,
@@ -229,7 +229,7 @@ const TicketCardAdd = styled(TicketCard)`
   cursor: pointer;
   &:hover {
     transform: scale(1.02);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+     0 6px 12px rgba(0, 0, 0, 0.1);
   }
 `;
 

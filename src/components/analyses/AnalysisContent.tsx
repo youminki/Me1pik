@@ -15,7 +15,7 @@ const ContentContainer = styled.div`
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 560px;
   margin: 0 auto;

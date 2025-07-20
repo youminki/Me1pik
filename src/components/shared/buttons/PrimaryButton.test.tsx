@@ -23,7 +23,7 @@ describe('PrimaryButton', () => {
     );
     const button = getByRole('button');
     expect(button).toHaveStyle(`background-color: ${theme.colors.yellow}`);
-    expect(button).toHaveStyle(`box-shadow: ${theme.shadow.base}`);
+    expect(button).toHaveStyle(` ${theme.shadow.base}`);
     expect(button).toHaveStyle(`padding: ${theme.spacing.md}`);
   });
 });

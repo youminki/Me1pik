@@ -123,7 +123,7 @@ const ModalWrapper = styled.div`
   background: #fff;
 
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+   0 2px 10px rgba(0, 0, 0, 0.2);
 `;
 
 const Header = styled.div`

@@ -294,7 +294,7 @@ const InputWrapper = styled.div<{ $readOnly: boolean }>`
   ${({ $readOnly }) =>
     $readOnly &&
     `
-      box-shadow: none !important;
+       none !important;
       opacity: 0.7;
       pointer-events: none;
       cursor: not-allowed;

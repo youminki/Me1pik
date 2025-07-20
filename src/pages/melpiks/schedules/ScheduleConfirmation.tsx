@@ -587,7 +587,7 @@ const ModalContent = styled.div`
   max-height: 90vh;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+   0 10px 25px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
 `;

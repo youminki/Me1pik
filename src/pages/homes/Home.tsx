@@ -847,7 +847,7 @@ const ScrollToTopButton = styled.button`
   border: none;
   cursor: pointer;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+   0 4px 12px rgba(0, 0, 0, 0.3);
   background: #555555;
   border-radius: 6px;
   transition:
@@ -964,5 +964,5 @@ const NoResultMessage = styled.div`
   justify-content: center;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+   0 2px 8px rgba(0, 0, 0, 0.04);
 `;

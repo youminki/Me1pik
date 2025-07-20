@@ -76,7 +76,7 @@ const ModalContent = styled.div<{ width: string; height: string }>`
   margin: 0 auto;
   box-sizing: border-box;
   max-width: 300px;
-  box-shadow: ${({ theme }) => theme.shadow.modal};
+  ${({ theme }) => theme.shadow.modal};
 `;
 
 const ModalHeader = styled.div`

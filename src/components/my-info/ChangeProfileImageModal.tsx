@@ -147,7 +147,7 @@ const ModalWrapper = styled.div`
   max-width: 320px;
   background: #fff;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+   0 2px 10px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
 `;
 
