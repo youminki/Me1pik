@@ -13,7 +13,7 @@ import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
 import sampleImage from '@/assets/sample-dress.svg';
 import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
-import Spinner from '@/components/spinner';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
@@ -145,7 +145,7 @@ const UsageHistory: React.FC = () => {
   if (loading)
     return (
       <UsageHistoryContainer>
-        <Spinner />
+        <LoadingSpinner label='로딩 중...' />
       </UsageHistoryContainer>
     );
   if (error)

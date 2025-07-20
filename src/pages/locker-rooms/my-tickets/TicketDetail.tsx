@@ -7,7 +7,7 @@ import {
   getUserTickets,
   TicketItem,
 } from '@/api-utils/schedule-managements/tickets/ticket';
-import Spinner from '@/components/spinner';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 const TicketDetail: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
@@ -36,11 +36,7 @@ const TicketDetail: React.FC = () => {
   const formatTime = (iso: string) => new Date(iso).toTimeString().slice(0, 8);
 
   if (loading) {
-    return (
-      <SpinnerWrapper>
-        <Spinner />
-      </SpinnerWrapper>
-    );
+    return <LoadingSpinner label='로딩 중...' />;
   }
 
   if (!ticket) {
@@ -148,13 +144,6 @@ const TicketDetail: React.FC = () => {
 export default TicketDetail;
 
 // ─── Styled Components ─────────────────────────────────────────────
-
-const SpinnerWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 300px; /* 스피너 위치 조정용 높이 */
-`;
 
 const Container = styled.div`
   display: flex;

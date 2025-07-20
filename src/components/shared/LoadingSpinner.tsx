@@ -2,17 +2,17 @@ import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
 interface LoadingSpinnerProps {
-  size?: number;
   color?: string;
   className?: string;
   label?: string;
+  size?: number;
 }
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 40,
   color = '#f7c600',
   className,
   label,
+  size = 40,
 }) => {
   return (
     <CenterWrapper
@@ -21,7 +21,11 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       aria-live='polite'
       aria-label={label || '로딩 중'}
     >
-      <Spinner size={size} color={color} />
+      <BounceSpinner>
+        <Dot delay='0s' color={color} size={size * 0.3} />
+        <Dot delay='0.15s' color={color} size={size * 0.3} />
+        <Dot delay='0.3s' color={color} size={size * 0.3} />
+      </BounceSpinner>
       {label && <Label>{label}</Label>}
     </CenterWrapper>
   );
@@ -29,9 +33,10 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
 export default LoadingSpinner;
 
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+const bounce = keyframes`
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-12px); }
+  100% { transform: translateY(0); }
 `;
 
 const CenterWrapper = styled.div`
@@ -48,18 +53,20 @@ const CenterWrapper = styled.div`
   z-index: 9999;
 `;
 
-const Spinner = styled.div<{ size: number; color: string }>`
+const BounceSpinner = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin: 10px 0 10px 0;
+`;
+
+const Dot = styled.div<{ delay: string; color: string; size: number }>`
   width: ${({ size }) => size}px;
   height: ${({ size }) => size}px;
-  border: ${({ size }) => Math.max(2, Math.floor(size * 0.12))}px solid
-    rgba(0, 0, 0, 0.07);
-  border-top: ${({ size }) => Math.max(2, Math.floor(size * 0.12))}px solid
-    ${({ color }) => color};
+  background-color: ${({ color }) => color};
   border-radius: 50%;
-  animation: ${spin} 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  background: transparent;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  margin: 0 6px;
+  animation: ${bounce} 0.6s ${({ delay }) => delay} infinite ease-in-out;
 `;
 
 const Label = styled.div`

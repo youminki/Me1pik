@@ -23,7 +23,7 @@ import Pants from '../../assets/sub-headers/Pants.svg';
 import ShirtTop from '../../assets/sub-headers/ShirtTop.svg';
 import Top from '../../assets/sub-headers/Top.svg';
 import Tshirt from '../../assets/sub-headers/Tshirt.svg';
-import Spinner from '../spinner';
+import LoadingSpinner from '../shared/LoadingSpinner';
 
 const homeIcons = [
   { src: All, alt: '전체', category: 'All' },
@@ -112,7 +112,7 @@ const SubHeader: React.FC<SubHeaderProps> = ({
     <SubHeaderWrapper>
       <ContentWrapper>
         {loading ? (
-          <Spinner />
+          <LoadingSpinner label='로딩 중...' />
         ) : (
           <>
             <ArrowButtonWrapper onClick={() => scroll('left')}>

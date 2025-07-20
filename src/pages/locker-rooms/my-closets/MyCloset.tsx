@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { useMyCloset } from '@/api-utils/product-managements/closets/closetApi';
 import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
 import ItemList, { UIItem } from '@/components/homes/MyclosetItemList';
-import Spinner from '@/components/spinner'; // Spinner import 추가
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
@@ -76,7 +76,7 @@ const MyCloset: React.FC = () => {
 
       <Content>
         {isLoading ? (
-          <Spinner /> // 로딩 중 스피너 표시
+          <LoadingSpinner label='로딩 중...' />
         ) : items.length === 0 ? (
           <EmptyState>
             <EmptyMessage>내옷장에 보관한 옷이 없습니다.</EmptyMessage>

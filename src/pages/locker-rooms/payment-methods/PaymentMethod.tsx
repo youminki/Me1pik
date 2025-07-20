@@ -5,7 +5,7 @@ import styled, { keyframes } from 'styled-components';
 
 import { useMyCards } from '../../../api-utils/payments/default/payment';
 import { CardItem } from '../../../api-utils/payments/default/payment';
-import Spinner from '../../../components/spinner';
+import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import StatsSection from '../../../components/stats-section';
 
 import { getCurrentToken } from '@/utils/auth';
@@ -136,9 +136,7 @@ const PaymentMethod: React.FC = () => {
       <Divider />
 
       {isLoading ? (
-        <SpinnerWrapper>
-          <Spinner />
-        </SpinnerWrapper>
+        <LoadingSpinner label='로딩 중...' />
       ) : (
         <>
           <CardsList>
@@ -220,13 +218,6 @@ const CardsList = styled.div`
   justify-content: center;
   width: 100%;
   max-width: 800px;
-`;
-
-const SpinnerWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 60px 0;
-  animation: ${fadeIn} 0.5s ease-out;
 `;
 
 const CardItemBox = styled.div`

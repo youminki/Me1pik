@@ -10,7 +10,7 @@ import checkIcon from '../../../assets/checkIcon.svg';
 import { UIItem } from '../../../components/homes/MyclosetItemList';
 import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
 import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
-import Spinner from '../../../components/spinner';
+import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 
 const MAX_SELECTION = 6;
 
@@ -208,7 +208,7 @@ const ScheduleReservation2: React.FC = () => {
 
       <Content>
         {loadingCloset ? (
-          <Spinner />
+          <LoadingSpinner label='로딩 중...' />
         ) : closetItems.length === 0 ? (
           <EmptyState>
             <EmptyMessage>내 옷장에 보관한 옷이 없습니다.</EmptyMessage>

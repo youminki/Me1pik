@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import LoadingSpinner from './LoadingSpinner';
+
 import { useLazyLoad } from '@/hooks/useIntersectionObserver';
 
 interface LazyImageProps {
@@ -17,7 +19,7 @@ interface LazyImageProps {
 const LazyImage: React.FC<LazyImageProps> = ({
   src,
   alt,
-  placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjZGRkZGIi8+CjxwYXRoIGQ9Ik01MCAyNUMyOC4wNyAyNSA5IDQ0LjA3IDkgNjVDOSA4NS45MyAyOC4wNyAxMDUgNTAgMTA1QzcxLjkzIDEwNSA5MSA4NS45MyA5MSA2NUM5MSA0NC4wNyA3MS45MyAyNSA1MCAyNVoiIGZpbGw9IiNGRkZGRkYiLz4KPC9zdmc+',
+  placeholder = '',
   className,
   width,
   height,
@@ -45,23 +47,29 @@ const LazyImage: React.FC<LazyImageProps> = ({
       width={width}
       height={height}
     >
-      {shouldLoad && !hasError && (
-        <StyledImage
-          src={src}
-          alt={alt}
-          onLoad={handleLoad}
-          onError={handleError}
-          isLoaded={isLoaded}
-          loading='lazy'
-        />
-      )}
-      {(!shouldLoad || hasError) && (
-        <PlaceholderImage
-          src={placeholder}
-          alt='로딩 중...'
-          isLoaded={false}
-          loading='lazy'
-        />
+      {shouldLoad && !hasError ? (
+        <>
+          {!isLoaded && (
+            <SpinnerWrapper>
+              <LoadingSpinner size={28} color='#f7c600' label={undefined} />
+            </SpinnerWrapper>
+          )}
+          <StyledImage
+            src={src}
+            alt={alt}
+            onLoad={handleLoad}
+            onError={handleError}
+            isLoaded={isLoaded}
+            loading='lazy'
+            style={{ position: 'absolute', top: 0, left: 0 }}
+          />
+        </>
+      ) : hasError && placeholder ? (
+        <FallbackImage src={placeholder} alt={alt} />
+      ) : (
+        <SpinnerWrapper>
+          <LoadingSpinner size={28} color='#f7c600' label={undefined} />
+        </SpinnerWrapper>
       )}
     </ImageContainer>
   );
@@ -83,12 +91,21 @@ const StyledImage = styled.img<{ isLoaded: boolean }>`
   object-fit: cover;
   opacity: ${({ isLoaded }) => (isLoaded ? 1 : 0)};
   transition: opacity 0.3s ease-in-out;
+  position: absolute;
+  top: 0;
+  left: 0;
 `;
 
-const PlaceholderImage = styled.img<{ isLoaded: boolean }>`
+const SpinnerWrapper = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+`;
+
+const FallbackImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: ${({ isLoaded }) => (isLoaded ? 0 : 1)};
-  transition: opacity 0.3s ease-in-out;
 `;

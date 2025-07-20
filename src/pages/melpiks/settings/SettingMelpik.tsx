@@ -11,6 +11,7 @@ import InputField from '../../../components/shared/forms/InputField';
 import CustomModal from '../../../components/shared/modals/CustomModal';
 import StatsSection from '../../../components/stats-section';
 
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { theme } from '@/styles/theme';
 
 // 링크 리스트 스타일 요소 const로 분리
@@ -685,7 +686,7 @@ const SettingMelpik: React.FC = () => {
         {/* 링크 리스트 */}
         <LinkListWrapper>
           {loading ? (
-            <div>Loading...</div>
+            <LoadingSpinner label='설정 정보를 불러오는 중입니다...' />
           ) : links.length === 0 ? (
             <div>등록된 링크가 없습니다.</div>
           ) : (

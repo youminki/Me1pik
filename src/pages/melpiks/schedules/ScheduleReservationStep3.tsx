@@ -9,8 +9,8 @@ import { createSaleSchedule } from '../../../api-utils/schedule-managements/sale
 import { UIItem } from '../../../components/homes/MyclosetItemList'; // UIItem.id는 string 타입
 import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
 import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
+import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
-import Spinner from '../../../components/spinner';
 
 interface ItemCardProps {
   id: string;
@@ -275,7 +275,7 @@ const ScheduleReservation3: React.FC = () => {
 
       <Content>
         {loadingCloset ? (
-          <Spinner />
+          <LoadingSpinner label='로딩 중...' />
         ) : (
           <ItemList
             HeaderContainer={ItemContainer}

@@ -3,6 +3,8 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+
 // 타입 정의
 interface Sale {
   product: string;
@@ -76,7 +78,12 @@ const SalesSettlementDetail: React.FC = () => {
   const { id = '' } = useParams<{ id: string }>();
   const { data: settlement, isLoading } = useSettlementDetail(id);
 
-  if (isLoading) return <Container>로딩 중...</Container>;
+  if (isLoading)
+    return (
+      <Container>
+        <LoadingSpinner label='정산 상세 정보를 불러오는 중입니다...' />
+      </Container>
+    );
   if (!settlement) {
     return <Container>정산 내역을 찾을 수 없습니다.</Container>;
   }

@@ -154,7 +154,16 @@ const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <Router>
         <AuthGuard />
-        <Suspense fallback={<LoadingSpinner label='페이지를 불러오는 중...' />}>
+        {/* 전체 페이지 라우트 로딩에는 원형 스피너, 명확한 안내 문구 */}
+        <Suspense
+          fallback={
+            <LoadingSpinner
+              label='페이지를 불러오는 중입니다...'
+              size={48}
+              color='#f7c600'
+            />
+          }
+        >
           <Routes>
             {/* Landing & Auth */}
             <Route path='/landing' element={<Landing />} />

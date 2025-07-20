@@ -19,7 +19,7 @@ import DateSelection from '../../../components/melpiks/schedules/reservations/Da
 import Summary from '../../../components/melpiks/schedules/reservations/Summary';
 
 // 내 옷장 API & 타입 import
-import Spinner from '../../../components/spinner';
+import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import { theme } from '../../../styles/theme';
 
 const MAX_SELECTION = 6;
@@ -253,7 +253,7 @@ const ScheduleConfirmation: React.FC = () => {
   if (loading)
     return (
       <Container>
-        <Spinner />
+        <LoadingSpinner label='로딩 중...' />
       </Container>
     );
   if (error || !detail)
@@ -315,7 +315,7 @@ const ScheduleConfirmation: React.FC = () => {
 
         <Label>내 옷장 제품목록</Label>
         {loadingCloset ? (
-          <Spinner />
+          <LoadingSpinner label='로딩 중...' />
         ) : (
           <ListContainer>
             <ItemsWrapper>

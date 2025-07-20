@@ -7,6 +7,8 @@ import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import PeriodSection from '../../../components/period-section';
 import StatsSection from '../../../components/stats-section';
 
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+
 // 정산 내역 타입
 export interface Settlement {
   id: number;
@@ -133,7 +135,7 @@ const SalesSettlement: React.FC = () => {
 
         <SettlementList>
           {isLoading ? (
-            <div>로딩 중...</div>
+            <LoadingSpinner label='정산 내역을 불러오는 중입니다...' />
           ) : (
             filteredSettlements.map((settlement) => (
               <SettlementItem

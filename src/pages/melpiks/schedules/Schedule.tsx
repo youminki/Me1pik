@@ -13,6 +13,8 @@ import ScheduleIcon from '../../../assets/melpiks/schedule.svg';
 import StatsSection from '../../../components/stats-section';
 import { theme } from '../../../styles/theme';
 
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+
 const Schedule: React.FC = () => {
   const navigate = useNavigate();
 
@@ -99,7 +101,7 @@ const Schedule: React.FC = () => {
       </Header>
 
       {loading ? (
-        <LoadingMessage>로딩 중...</LoadingMessage>
+        <LoadingSpinner label='일정 정보를 불러오는 중입니다...' />
       ) : error ? (
         <ErrorMessage>{error}</ErrorMessage>
       ) : (
@@ -211,10 +213,6 @@ const Subtitle = styled.p`
   font-size: 12px;
   font-weight: 400;
   color: #ccc;
-`;
-const LoadingMessage = styled.div`
-  padding: 20px;
-  text-align: center;
 `;
 const ErrorMessage = styled.div`
   padding: 20px;
