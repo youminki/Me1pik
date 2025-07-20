@@ -12,7 +12,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   color = '#f7c600',
   className,
   label,
-  size = 40,
+  size = 64,
 }) => {
   return (
     <CenterWrapper
@@ -21,11 +21,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       aria-live='polite'
       aria-label={label || '로딩 중'}
     >
-      <BounceSpinner>
-        <Dot delay='0s' color={color} size={size * 0.3} />
-        <Dot delay='0.15s' color={color} size={size * 0.3} />
-        <Dot delay='0.3s' color={color} size={size * 0.3} />
-      </BounceSpinner>
+      <DonutSpinner size={size} color={color} />
       {label && <Label>{label}</Label>}
     </CenterWrapper>
   );
@@ -33,10 +29,8 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
 export default LoadingSpinner;
 
-const bounce = keyframes`
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-12px); }
-  100% { transform: translateY(0); }
+const spin = keyframes`
+  100% { transform: rotate(360deg); }
 `;
 
 const CenterWrapper = styled.div`
@@ -53,26 +47,21 @@ const CenterWrapper = styled.div`
   z-index: 9999;
 `;
 
-const BounceSpinner = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  margin: 10px 0 10px 0;
-`;
-
-const Dot = styled.div<{ delay: string; color: string; size: number }>`
+const DonutSpinner = styled.div<{ size: number; color: string }>`
   width: ${({ size }) => size}px;
   height: ${({ size }) => size}px;
-  background-color: ${({ color }) => color};
+  border: ${({ size }) => Math.max(4, size * 0.12)}px solid #eee;
+  border-top: ${({ size }) => Math.max(4, size * 0.12)}px solid
+    ${({ color }) => color};
   border-radius: 50%;
-  margin: 0 6px;
-  animation: ${bounce} 0.6s ${({ delay }) => delay} infinite ease-in-out;
+  animation: ${spin} 0.9s linear infinite;
+  box-sizing: border-box;
 `;
 
 const Label = styled.div`
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   color: #222;
-  margin-top: 6px;
+  margin-top: 10px;
   letter-spacing: 0.01em;
   font-weight: 500;
 `;
