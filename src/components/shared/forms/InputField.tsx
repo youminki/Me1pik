@@ -6,13 +6,26 @@ import React, {
   forwardRef,
   InputHTMLAttributes,
 } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import type { FieldError } from 'react-hook-form';
 
-import { StyledInput } from '@/auth-utils/AuthCommon';
+import { StyledInput as BaseStyledInput } from '@/auth-utils/AuthCommon';
 import Button02 from '@/components/shared/buttons/SecondaryButton';
 import { CustomSelect } from '@/components/shared/forms/CustomSelect';
+
+// 공통 readonly 스타일 믹스인
+const readonlyStyle = css`
+  background-color: #eeeeee !important;
+  color: #888 !important;
+  opacity: 0.7 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+`;
+
+const StyledInput = styled(BaseStyledInput)`
+  ${({ readOnly, disabled }) => (readOnly || disabled) && readonlyStyle}
+`;
 
 type InputFieldProps = {
   label?: string;
@@ -290,15 +303,6 @@ const InputWrapper = styled.div<{ $readOnly: boolean }>`
   align-items: center;
   min-height: 57px;
   flex: 1;
-  background-color: ${({ $readOnly }) => ($readOnly ? '#f5f5f5' : 'white')};
-  ${({ $readOnly }) =>
-    $readOnly &&
-    `
-       none !important;
-      opacity: 0.7;
-      pointer-events: none;
-      cursor: not-allowed;
-    `}
 `;
 
 const ButtonWrapper = styled.div`

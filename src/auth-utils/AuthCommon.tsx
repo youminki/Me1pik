@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 export const NaverLoginBg = styled.div`
   min-height: 100vh;
@@ -103,7 +103,7 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
   transition:
     border 0.2s,
     background 0.2s;
-   ${theme.shadow.base};
+  ${theme.shadow.base};
   z-index: ${theme.zIndex.header};
   &:focus {
     background: ${theme.colors.inputBg};
@@ -117,7 +117,6 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
   &[readonly],
   &:disabled {
     background: ${theme.colors.disabledBg};
-     none !important;
     opacity: 0.7;
     cursor: not-allowed;
     pointer-events: none;
@@ -140,7 +139,7 @@ export const StyledSelect = styled.select<{ hasError?: boolean }>`
 
   margin-bottom: 0;
   appearance: none;
-   ${theme.shadow.base};
+  ${theme.shadow.base};
   z-index: ${theme.zIndex.header};
 
   &:focus {
@@ -153,7 +152,6 @@ export const StyledSelect = styled.select<{ hasError?: boolean }>`
   &[readonly],
   &:disabled {
     background: ${theme.colors.disabledBg};
-     none !important;
     opacity: 0.7;
     cursor: not-allowed;
     pointer-events: none;

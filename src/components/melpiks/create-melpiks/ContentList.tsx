@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import CreateMelpik1 from '../../../assets/melpiks/Inventory1.svg';
 import CreateMelpik2 from '../../../assets/melpiks/Inventory1.svg';
 import SettingIcon from '../../../assets/melpiks/Setting.svg';
-import { theme } from '../../../styles/theme';
+import { theme } from '../../../styles/Theme';
 
 interface ContentItem {
   image: string;

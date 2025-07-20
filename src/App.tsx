@@ -67,7 +67,7 @@ import ChangePassword from '@/pages/profile/ChangePassword';
 import DeliveryManagement from '@/pages/profile/DeliveryManagement';
 import EditAddress from '@/pages/profile/EditAddress';
 import UpdateProfile from '@/pages/profile/UpdateProfile';
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 import {
   checkTokenAndRedirect,
   isProtectedRoute,

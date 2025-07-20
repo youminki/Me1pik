@@ -29,7 +29,7 @@ import {
 import { ErrorMessage as InputErrorMessage } from '../../auth-utils/AuthCommon';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import { schemaLogin } from '../../hooks/useValidationYup';
-import { theme } from '../../styles/theme';
+import { theme } from '../../styles/Theme';
 import { saveTokens, forceSaveAppToken } from '../../utils/auth';
 import { isNativeApp } from '../../utils/nativeApp';
 

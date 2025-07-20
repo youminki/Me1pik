@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import ReusableModal2 from '../../../../components/shared/modals/ReusableModalV2';
-import { theme } from '../../../../styles/theme';
+import { theme } from '../../../../styles/Theme';
 
 interface ModalProps {
   isOpen: boolean;

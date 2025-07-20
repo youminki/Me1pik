@@ -12,7 +12,7 @@ import CustomModal from '../../../components/shared/modals/CustomModal';
 import StatsSection from '../../../components/stats-section';
 
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 // 링크 리스트 스타일 요소 const로 분리
 const LinkListWrapper = styled.div`
@@ -250,7 +250,7 @@ const SettingMelpik: React.FC = () => {
     position: absolute;
     top: 1px;
     left: ${({ $on }) => ($on ? '31px' : '1px')};
-     0 1px 4px rgba(0, 0, 0, 0.08);
+
     transition: left 0.2s;
   `;
   const ToggleText = styled.span<{ $on: boolean }>`

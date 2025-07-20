@@ -11,7 +11,7 @@ import {
 import BletIcon from '../../../assets/melpiks/blet.svg';
 import ScheduleIcon from '../../../assets/melpiks/schedule.svg';
 import StatsSection from '../../../components/stats-section';
-import { theme } from '../../../styles/theme';
+import { theme } from '../../../styles/Theme';
 
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 

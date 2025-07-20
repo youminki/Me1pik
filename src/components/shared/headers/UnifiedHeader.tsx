@@ -106,7 +106,7 @@ const Dropdown = styled.ul`
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 8px;
-   0 4px 8px rgba(0, 0, 0, 0.1);
+
   list-style: none;
   margin: 4px 0 0;
   padding: 0;

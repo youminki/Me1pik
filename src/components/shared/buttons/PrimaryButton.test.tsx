@@ -3,7 +3,7 @@ import { ThemeProvider } from 'styled-components';
 
 import PrimaryButton from './PrimaryButton';
 
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 describe('PrimaryButton', () => {
   it('renders with theme styles', () => {

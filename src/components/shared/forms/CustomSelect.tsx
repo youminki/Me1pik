@@ -17,7 +17,7 @@ export const CustomSelect = styled.select`
     url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
     #fff !important;
   transition: border 0.2s;
-   ${({ theme }) => theme.shadow.base};
+  ${({ theme }) => theme.shadow.base};
   z-index: ${({ theme }) => theme.zIndex.header};
   &:focus {
     outline: none;
@@ -28,9 +28,8 @@ export const CustomSelect = styled.select`
   }
   &[readonly],
   &:disabled {
-    background: #f5f5f5 !important;
+    background: #ddd !important;
     color: #888 !important;
-     none !important;
     opacity: 0.7;
     cursor: not-allowed;
     pointer-events: none;

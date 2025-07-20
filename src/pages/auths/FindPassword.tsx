@@ -21,7 +21,7 @@ import {
 import CommonErrorMessage from '../../components/shared/ErrorMessage';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
-import { theme } from '../../styles/theme';
+import { theme } from '../../styles/Theme';
 
 // Validation schema
 const schemaFindPassword = yup.object().shape({

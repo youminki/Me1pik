@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 interface Button01Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;

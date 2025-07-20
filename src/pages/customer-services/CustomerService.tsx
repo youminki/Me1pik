@@ -9,7 +9,7 @@ import TermsAndConditionsOfUseBox from '../../assets/customer-services/TermsAndC
 import StatsSection from '../../components/stats-section';
 
 import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 const menuItems = [
   { icon: NoticeBox, label: '공지사항', path: '/customerService/notice' },

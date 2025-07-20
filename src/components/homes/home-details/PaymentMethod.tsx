@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { theme } from '../../../styles/theme';
+import { theme } from '../../../styles/Theme';
 
 const PaymentMethod: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<string>('12');

@@ -9,7 +9,7 @@ import { BrandList } from '../../components/brands/BrandList';
 import { ControlSection } from '../../components/brands/ControlSection';
 import StatsSection from '../../components/brands/StatsSection';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import { theme } from '../../styles/theme';
+import { theme } from '../../styles/Theme';
 
 interface LocalBrand {
   id: number;

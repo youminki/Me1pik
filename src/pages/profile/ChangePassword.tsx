@@ -9,7 +9,7 @@ import { changePassword } from '@/api-utils/user-managements/users/userApi';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import InputField from '@/components/shared/forms/InputField';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 export interface ChangePasswordFormData {
   currentPassword: string;

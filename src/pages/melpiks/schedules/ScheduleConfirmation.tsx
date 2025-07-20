@@ -18,7 +18,7 @@ import Calendar from '../../../components/melpiks/schedules/reservations/Calenda
 import DateSelection from '../../../components/melpiks/schedules/reservations/DateSelection';
 import Summary from '../../../components/melpiks/schedules/reservations/Summary';
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
-import { theme } from '../../../styles/theme';
+import { theme } from '../../../styles/Theme';
 
 const MAX_SELECTION = 6;
 
@@ -587,7 +587,7 @@ const ModalContent = styled.div`
   max-height: 90vh;
   border-radius: 12px;
   overflow: hidden;
-   0 10px 25px rgba(0, 0, 0, 0.2);
+
   display: flex;
   flex-direction: column;
 `;

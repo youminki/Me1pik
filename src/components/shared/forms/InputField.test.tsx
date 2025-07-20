@@ -3,7 +3,7 @@ import { ThemeProvider } from 'styled-components';
 
 import InputField from './InputField';
 
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 describe('InputField', () => {
   it('renders with theme styles', () => {

@@ -10,7 +10,7 @@ import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
 import InputField from '../../../components/shared/forms/InputField';
 import { schemaSignupContemporary } from '../../../hooks/useValidationYup';
 
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 interface FormData {
   height: string;

@@ -14,7 +14,7 @@ import { CustomSelect } from '@/components/shared/forms/CustomSelect';
 import InputField from '@/components/shared/forms/InputField';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { regionDistrictData } from '@/components/signups/regionDistrictData';
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 import { getErrorMessage } from '@/utils/auth';
 
 // userApi에서 가져올 함수들

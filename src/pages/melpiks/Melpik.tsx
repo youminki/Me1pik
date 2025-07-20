@@ -8,7 +8,7 @@ import MelpikIcon from '@/assets/melpiks/MelpikIcon.svg';
 import MelpikOptionIcon from '@/assets/melpiks/MelpikOptionIcon.svg';
 import MelpikScheduelerIcon from '@/assets/melpiks/MelpikScheduelerIcon.svg';
 import StatsSection from '@/components/stats-section';
-import { theme } from '@/styles/theme';
+import { theme } from '@/styles/Theme';
 
 const menuItems = [
   { icon: MelpikCreateIcon, label: '내 옷장', path: '/create-melpik' },
