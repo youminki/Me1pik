@@ -118,17 +118,14 @@ const ItemCard = React.memo(function ItemCard({
     <>
       <Card onClick={handleCardClick}>
         <ImageWrapper>
-          {!imgLoaded && <SkeletonImage data-testid='skeleton-image' />}
+          <SkeletonImage data-testid='skeleton-image' loaded={imgLoaded} />
           <Image
             src={image.split('#')[0] || '/default.jpg'}
             alt={brand}
-            loading='eager'
+            loading='lazy'
             width={'100%'}
             height={'100%'}
-            style={{
-              display: imgLoaded ? 'block' : 'none',
-              opacity: imgLoaded ? 1 : 0,
-            }}
+            loaded={imgLoaded}
             onLoad={() => setImgLoaded(true)}
           />
           <HookButton
@@ -199,6 +196,16 @@ const ItemCard = React.memo(function ItemCard({
 
 export default ItemCard;
 
+// styled-components 선언부를 렌더링 코드보다 위로 이동
+const skeletonShimmer = keyframes`
+  0% {
+    background-position: 0px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+`;
+
 const Card = styled.div`
   position: relative;
   display: flex;
@@ -208,13 +215,15 @@ const Card = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-  position: relative;
   width: 100%;
   aspect-ratio: 2/3;
   min-height: 240px;
+  height: auto;
+  display: flex;
+  align-items: stretch;
+  position: relative;
   background: ${({ theme }) => theme.colors.gray0};
   border: 1px solid ${({ theme }) => theme.colors.gray1};
-
   overflow: hidden;
   @supports not (aspect-ratio: 2/3) {
     min-height: 240px;
@@ -222,7 +231,32 @@ const ImageWrapper = styled.div`
   }
 `;
 
-const Image = styled.img`
+const SkeletonImage = styled.div<{ loaded: boolean }>`
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  aspect-ratio: 2/3;
+  background: ${({ theme }) => theme.colors.gray3};
+  background-image: linear-gradient(
+    90deg,
+    ${({ theme }) => theme.colors.gray3} 0px,
+    ${({ theme }) => theme.colors.gray0} 40px,
+    ${({ theme }) => theme.colors.gray3} 80px
+  );
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+  border-radius: ${({ theme }) => theme.radius.md};
+  animation: ${skeletonShimmer} 0.5s infinite linear;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: ${({ loaded }) => (loaded ? 0 : 1)};
+  transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+  pointer-events: none;
+`;
+
+const Image = styled.img<{ loaded: boolean }>`
   width: 100%;
   height: 100%;
   min-height: 240px;
@@ -230,8 +264,12 @@ const Image = styled.img`
   object-fit: cover;
   display: block;
   background: ${({ theme }) => theme.colors.gray0};
-  opacity: 0;
-  transition: opacity ${({ theme }) => theme.transition.base};
+  opacity: ${({ loaded }) => (loaded ? 1 : 0)};
+  /* no transition: instant switch */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
 `;
 
 const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
@@ -285,6 +323,23 @@ const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`
     background: none;
     z-index: 3;
   }
+`;
+
+const SkeletonText = styled.div<{ width: string; height: string }>`
+  width: ${({ width }) => width};
+  height: ${({ height }) => height};
+  background: ${({ theme }) => theme.colors.gray3};
+  background-image: linear-gradient(
+    90deg,
+    ${({ theme }) => theme.colors.gray3} 0px,
+    ${({ theme }) => theme.colors.gray0} 40px,
+    ${({ theme }) => theme.colors.gray3} 80px
+  );
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+  border-radius: ${({ theme }) => theme.radius.sm};
+  animation: ${skeletonShimmer} 1.2s infinite linear;
+  margin-bottom: 6px;
 `;
 
 const Brand = styled.h3`
@@ -350,48 +405,4 @@ const DiscountLabel = styled.span`
   font-weight: 800;
   font-size: 11px;
   color: ${({ theme }) => theme.colors.yellow};
-`;
-
-// Skeleton UI 스타일 추가
-const skeletonShimmer = keyframes`
-  0% {
-    background-position: 0px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
-`;
-const SkeletonImage = styled.div`
-  width: 100%;
-  height: 240px;
-  background: ${({ theme }) => theme.colors.gray3};
-  background-image: linear-gradient(
-    90deg,
-    ${({ theme }) => theme.colors.gray3} 0px,
-    ${({ theme }) => theme.colors.gray0} 40px,
-    ${({ theme }) => theme.colors.gray3} 80px
-  );
-  background-size: 200px 100%;
-  background-repeat: no-repeat;
-  border-radius: ${({ theme }) => theme.radius.md};
-  animation: ${skeletonShimmer} 1.2s infinite linear;
-  position: absolute;
-  top: 0;
-  left: 0;
-`;
-const SkeletonText = styled.div<{ width: string; height: string }>`
-  width: ${({ width }) => width};
-  height: ${({ height }) => height};
-  background: ${({ theme }) => theme.colors.gray3};
-  background-image: linear-gradient(
-    90deg,
-    ${({ theme }) => theme.colors.gray3} 0px,
-    ${({ theme }) => theme.colors.gray0} 40px,
-    ${({ theme }) => theme.colors.gray3} 80px
-  );
-  background-size: 200px 100%;
-  background-repeat: no-repeat;
-  border-radius: ${({ theme }) => theme.radius.sm};
-  animation: ${skeletonShimmer} 1.2s infinite linear;
-  margin-bottom: 6px;
 `;

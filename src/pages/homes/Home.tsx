@@ -19,10 +19,8 @@ import FilterContainer from '../../components/homes/FilterContainer';
 import Footer from '../../components/homes/Footer';
 import ItemList, { UIItem } from '../../components/homes/ItemList';
 import SearchModal from '../../components/homes/SearchModal';
-import SkeletonItemList from '../../components/homes/SkeletonItemList';
 import SubHeader from '../../components/homes/SubHeader';
 import MelpikGuideBanner from '../../components/melpik-guide-banner';
-import EmptyState from '../../components/shared/EmptyState';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import FilterModal from '../../components/shared/modals/FilterModal';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
@@ -391,16 +389,43 @@ const Home: React.FC = () => {
     uiItems.length
   );
 
-  // 상품 목록 렌더링 부분에서 상태별 분기 처리
-  if (
-    isLoading ||
-    (!isLoading &&
-      uiItems.length === 0 &&
-      (searchQuery || selectedColors.length > 0))
-  ) {
+  // 검색/필터 결과 없음일 때 3초 후 전체로 돌아가는 타이머
+  const [countdown, setCountdown] = useState(3);
+  // 안내 문구 딜레이 상태
+  const [showNoResult, setShowNoResult] = useState(false);
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (!isLoading && uiItems.length === 0) {
+      timer = setTimeout(() => setShowNoResult(true), 300);
+    } else {
+      setShowNoResult(false);
+      if (timer) clearTimeout(timer);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isLoading, uiItems]);
+
+  // countdown이 0보다 크고 showNoResult가 true일 때만 interval 실행
+  useEffect(() => {
+    if (!showNoResult || countdown === 0) return;
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [showNoResult, countdown]);
+
+  // 에러 처리
+  if (isError) {
+    return (
+      <ErrorMessage message={error?.message || '상품을 불러오지 못했습니다.'} />
+    );
+  }
+
+  // 로딩 중에는 스켈레톤만 렌더링
+  if (isLoading) {
     return (
       <MainContainer>
-        {/* 서브헤더, 배너, 필터 등 상단 UI는 그대로 */}
         <MelpikGuideBanner />
         <SubHeader
           selectedCategory={selectedCategory}
@@ -482,7 +507,7 @@ const Home: React.FC = () => {
           />
         </ControlsContainer>
         <ContentWrapper>
-          <SkeletonItemList columns={viewCols} />
+          <ItemList items={[]} columns={viewCols} isLoading={true} />
         </ContentWrapper>
         <Footer />
         <ScrollToTopButton onClick={scrollToTop}>
@@ -491,13 +516,102 @@ const Home: React.FC = () => {
       </MainContainer>
     );
   }
-  if (isError) {
+  if (showNoResult) {
     return (
-      <ErrorMessage message={error?.message || '상품을 불러오지 못했습니다.'} />
+      <MainContainer>
+        <MelpikGuideBanner />
+        <SubHeader
+          selectedCategory={selectedCategory}
+          setSelectedCategory={(cat) => {
+            setSearchQuery('');
+            setSearchParams({ category: cat }, { replace: true });
+          }}
+          onCategoryClick={() => setSearchQuery('')}
+        />
+        <ControlsContainer>
+          <ChipList>
+            {searchQuery.trim() &&
+              searchQuery.split(',').map((kw, idx) => (
+                <Chip key={kw + idx}>
+                  {kw.trim()}
+                  <ChipClose
+                    aria-label='검색어 삭제'
+                    onClick={() => {
+                      const terms = searchQuery
+                        .split(',')
+                        .map((t) => t.trim())
+                        .filter(Boolean);
+                      const newTerms = terms.filter((_, i) => i !== idx);
+                      setSearchQuery(newTerms.join(', '));
+                      setSearchParams(
+                        (prev) => {
+                          const params = Object.fromEntries(prev.entries());
+                          if (newTerms.length > 0) {
+                            params.search = newTerms.join(', ');
+                          } else {
+                            delete params.search;
+                          }
+                          return params;
+                        },
+                        { replace: true }
+                      );
+                    }}
+                  >
+                    ×
+                  </ChipClose>
+                </Chip>
+              ))}
+            {selectedColors.map((color, idx) => (
+              <Chip key={color + idx}>
+                {color}
+                <ChipClose
+                  aria-label='색상 삭제'
+                  onClick={() => {
+                    const newColors = selectedColors.filter(
+                      (_, i) => i !== idx
+                    );
+                    setSelectedColors(newColors);
+                  }}
+                >
+                  ×
+                </ChipClose>
+              </Chip>
+            ))}
+          </ChipList>
+          <RowAlignBox>
+            <FilterContainer
+              onSearchClick={() => setSearchModalOpen(true)}
+              onFilterClick={() => setFilterModalOpen(true)}
+            />
+          </RowAlignBox>
+          <SearchModal
+            isOpen={isSearchModalOpen}
+            onClose={() => setSearchModalOpen(false)}
+            onSearch={(searchTerm) => {
+              setSearchQuery(searchTerm);
+              setSelectedCategory('All');
+              setSearchParams(
+                { category: 'All', search: searchTerm },
+                { replace: true }
+              );
+            }}
+            historyKey='searchHistory'
+            initialValue={searchQuery}
+          />
+        </ControlsContainer>
+        <ContentWrapper>
+          <NoResultMessage>
+            조건에 맞는 상품이 없습니다.
+            <br />
+            {countdown}초 후 전체 상품으로 돌아갑니다.
+          </NoResultMessage>
+        </ContentWrapper>
+        <Footer />
+        <ScrollToTopButton onClick={scrollToTop}>
+          <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
+        </ScrollToTopButton>
+      </MainContainer>
     );
-  }
-  if (!uiItems.length) {
-    return <EmptyState message='조건에 맞는 상품이 없습니다.' />;
   }
 
   return (
@@ -832,4 +946,23 @@ const RowAlignBox = styled.div`
   align-items: center;
   gap: 10px;
   /* margin-top: 20px; 삭제하여 위로 치우치지 않게 함 */
+`;
+
+// 안내 문구 스타일
+const NoResultMessage = styled.div`
+  min-width: 220px;
+  max-width: 90vw;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 18px;
+  color: #888;
+  font-weight: 600;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 `;

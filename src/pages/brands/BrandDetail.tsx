@@ -21,9 +21,7 @@ import FilterContainer from '../../components/homes/FilterContainer';
 import ItemList, { UIItem } from '../../components/homes/ItemList';
 import SearchModal from '../../components/homes/SearchModal';
 import SubHeader from '../../components/homes/SubHeader';
-import EmptyState from '../../components/shared/EmptyState';
 import ErrorMessage from '../../components/shared/ErrorMessage';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import HomeDetail from '../homes/HomeDetail';
 
 interface LocalBrand {
@@ -221,19 +219,221 @@ const BrandDetail: React.FC = () => {
     isLiked: false,
   }));
 
-  // UI 렌더링
-  if (loadingProducts) {
-    return <LoadingSpinner label='브랜드 상세 정보를 불러오는 중입니다...' />;
-  }
+  // 아이템이 없을 때 3초 후 전체(All)로 자동 복귀 (검색어도 초기화)
+  useEffect(() => {
+    if (
+      filteredProducts.length === 0 &&
+      (selectedCategory !== 'All' || searchTerm)
+    ) {
+      const timer = setTimeout(() => {
+        setSelectedCategory('All');
+        const params = new URLSearchParams(searchParams);
+        params.set('category', 'All');
+        params.delete('search');
+        setSearchParams(params, { replace: true });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [
+    filteredProducts,
+    selectedCategory,
+    searchTerm,
+    setSelectedCategory,
+    setSearchParams,
+    searchParams,
+  ]);
+
+  // 안내 문구 딜레이 상태
+  const [showNoResult, setShowNoResult] = useState(false);
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (!loadingProducts && filteredProducts.length === 0) {
+      timer = setTimeout(() => setShowNoResult(true), 300);
+    } else {
+      setShowNoResult(false);
+      if (timer) clearTimeout(timer);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [loadingProducts, filteredProducts]);
+
   if (errorProducts) {
     return <ErrorMessage message={errorProducts} />;
   }
-  if (!brand) {
-    return <EmptyState message='해당 브랜드를 찾을 수 없습니다.' />;
+
+  // 로딩 중에는 스켈레톤만 렌더링
+  if (loadingProducts) {
+    return (
+      <PageWrapper>
+        <Container>
+          <Header>
+            <Title>{brand?.name}</Title>
+            <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
+          </Header>
+          <StatsSection
+            brandCount={1}
+            productCount={brand?.productCount || 0}
+          />
+          <Divider />
+          <SubHeader
+            selectedCategory={selectedCategory}
+            setSelectedCategory={(cat) => {
+              setSelectedCategory(cat);
+              scrollToTop();
+            }}
+            onCategoryClick={scrollToTop}
+          />
+          <ControlsContainer>
+            <RowAlignBox>
+              <FilterContainer
+                onSearchClick={() => setSearchModalOpen(true)}
+                onFilterClick={() => {
+                  /* 필터 모달 열기 등 구현 */
+                }}
+              />
+            </RowAlignBox>
+            <SearchModal
+              isOpen={isSearchModalOpen}
+              onClose={() => setSearchModalOpen(false)}
+              onSearch={(searchTerm) => {
+                setSearchParams(
+                  { category: 'All', search: searchTerm },
+                  { replace: true }
+                );
+                setSelectedCategory('All');
+              }}
+              historyKey='brandSearchHistory'
+              initialValue={searchTerm}
+            />
+          </ControlsContainer>
+          <MainContent>
+            <ItemList items={[]} columns={viewCols} isLoading={true} />
+          </MainContent>
+          <ScrollToTopButton onClick={scrollToTop}>
+            <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
+          </ScrollToTopButton>
+        </Container>
+      </PageWrapper>
+    );
   }
-  if (!uiItems.length) {
-    return <EmptyState message='해당 브랜드의 상품이 없습니다.' />;
+
+  // 로딩이 끝났고 데이터가 없을 때: 300ms 동안은 스켈레톤, 그 후 안내 문구
+  if (!loadingProducts && filteredProducts.length === 0 && !showNoResult) {
+    return (
+      <PageWrapper>
+        <Container>
+          <Header>
+            <Title>{brand?.name}</Title>
+            <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
+          </Header>
+          <StatsSection
+            brandCount={1}
+            productCount={brand?.productCount || 0}
+          />
+          <Divider />
+          <SubHeader
+            selectedCategory={selectedCategory}
+            setSelectedCategory={(cat) => {
+              setSelectedCategory(cat);
+              scrollToTop();
+            }}
+            onCategoryClick={scrollToTop}
+          />
+          <ControlsContainer>
+            <RowAlignBox>
+              <FilterContainer
+                onSearchClick={() => setSearchModalOpen(true)}
+                onFilterClick={() => {
+                  /* 필터 모달 열기 등 구현 */
+                }}
+              />
+            </RowAlignBox>
+            <SearchModal
+              isOpen={isSearchModalOpen}
+              onClose={() => setSearchModalOpen(false)}
+              onSearch={(searchTerm) => {
+                setSearchParams(
+                  { category: 'All', search: searchTerm },
+                  { replace: true }
+                );
+                setSelectedCategory('All');
+              }}
+              historyKey='brandSearchHistory'
+              initialValue={searchTerm}
+            />
+          </ControlsContainer>
+          <MainContent>
+            <ItemList items={[]} columns={viewCols} isLoading={true} />
+          </MainContent>
+          <ScrollToTopButton onClick={scrollToTop}>
+            <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
+          </ScrollToTopButton>
+        </Container>
+      </PageWrapper>
+    );
   }
+
+  // 안내 문구만 렌더링
+  if (showNoResult) {
+    return (
+      <PageWrapper>
+        <Container>
+          <Header>
+            <Title>{brand?.name}</Title>
+            <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
+          </Header>
+          <StatsSection
+            brandCount={1}
+            productCount={brand?.productCount || 0}
+          />
+          <Divider />
+          <SubHeader
+            selectedCategory={selectedCategory}
+            setSelectedCategory={(cat) => {
+              setSelectedCategory(cat);
+              scrollToTop();
+            }}
+            onCategoryClick={scrollToTop}
+          />
+          <ControlsContainer>
+            <RowAlignBox>
+              <FilterContainer
+                onSearchClick={() => setSearchModalOpen(true)}
+                onFilterClick={() => {
+                  /* 필터 모달 열기 등 구현 */
+                }}
+              />
+            </RowAlignBox>
+            <SearchModal
+              isOpen={isSearchModalOpen}
+              onClose={() => setSearchModalOpen(false)}
+              onSearch={(searchTerm) => {
+                setSearchParams(
+                  { category: 'All', search: searchTerm },
+                  { replace: true }
+                );
+                setSelectedCategory('All');
+              }}
+              historyKey='brandSearchHistory'
+              initialValue={searchTerm}
+            />
+          </ControlsContainer>
+          <ContentWrapper>
+            <NoResultMessage>
+              조건에 맞는 상품이 없습니다.
+              <br />
+              3초 후 전체 상품으로 돌아갑니다.
+            </NoResultMessage>
+          </ContentWrapper>
+          <ScrollToTopButton onClick={scrollToTop}>
+            <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
+          </ScrollToTopButton>
+        </Container>
+      </PageWrapper>
+    );
+  }
+
   return (
     <PageWrapper>
       <Container>
@@ -286,6 +486,7 @@ const BrandDetail: React.FC = () => {
             items={uiItems}
             columns={viewCols}
             onItemClick={handleItemClick}
+            isLoading={loadingProducts}
           />
         </MainContent>
 
@@ -487,4 +688,31 @@ const MainContent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+`;
+
+// styled-components: Home.tsx에서 ContentWrapper, NoResultMessage 복사
+const ContentWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const NoResultMessage = styled.div`
+  min-width: 220px;
+  max-width: 90vw;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 18px;
+  color: #888;
+  font-weight: 600;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 `;

@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 import Best from '../../assets/sub-headers/Best.svg';
 import Blouse from '../../assets/sub-headers/Blouse.svg';
@@ -50,15 +50,40 @@ interface SubHeaderProps {
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
   onCategoryClick: () => void;
+  isLoading?: boolean;
 }
 
 const ICON_WIDTH = 80;
 const INDICATOR_WIDTH = 50;
 
+// shimmer keyframes
+const skeletonShimmer = keyframes`
+  0% { background-position: 0px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+`;
+
+// 스켈레톤 컴포넌트
+const SubHeaderSkeleton: React.FC<{ count?: number }> = ({ count = 10 }) => (
+  <SubHeaderWrapper>
+    <ContentWrapper>
+      <IconsWrapper>
+        {Array.from({ length: count }).map((_, idx) => (
+          <SkeletonIconContainer key={idx}>
+            <SkeletonIcon />
+            <SkeletonText />
+          </SkeletonIconContainer>
+        ))}
+      </IconsWrapper>
+    </ContentWrapper>
+    <Divider />
+  </SubHeaderWrapper>
+);
+
 const SubHeader: React.FC<SubHeaderProps> = ({
   selectedCategory,
   setSelectedCategory,
   onCategoryClick,
+  isLoading = false,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const iconsRef = useRef<HTMLDivElement>(null);
@@ -102,6 +127,7 @@ const SubHeader: React.FC<SubHeaderProps> = ({
     });
   };
 
+  if (isLoading) return <SubHeaderSkeleton />;
   return (
     <SubHeaderWrapper>
       <ContentWrapper>
@@ -202,4 +228,35 @@ const Indicator = styled.div<{ position: number }>`
 const Divider = styled.div`
   width: 100%;
   border-bottom: 1px solid #d9d9d9;
+`;
+
+// 스켈레톤 스타일
+const SkeletonIconContainer = styled.div`
+  flex: 0 0 auto;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+`;
+const SkeletonIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eee;
+  margin-bottom: 5px;
+  animation: ${skeletonShimmer} 1.2s infinite linear;
+  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+`;
+const SkeletonText = styled.div`
+  width: 36px;
+  height: 10px;
+  border-radius: 4px;
+  background: #eee;
+  animation: ${skeletonShimmer} 1.2s infinite linear;
+  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
 `;

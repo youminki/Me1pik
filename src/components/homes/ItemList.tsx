@@ -2,7 +2,7 @@ import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 
 import ItemCard from './ItemCard';
-import SkeletonItemList from './SkeletonItemList';
+import SkeletonItemCard from './SkeletonItemList';
 
 export interface UIItem {
   id: string;
@@ -29,34 +29,31 @@ const ItemList: React.FC<ItemListProps> = ({
   columns = 4,
   onItemClick,
   onDelete,
+  isLoading = false,
   observerRef,
   visibleCount = 40,
 }) => {
   const handleOpen = useCallback(onItemClick ?? (() => {}), [onItemClick]);
   const handleDelete = useCallback(onDelete ?? (() => {}), [onDelete]);
 
-  // 아이템별로 준비된 것부터 바로 렌더링, 나머지는 스켈레톤
+  // 아이템별로 준비된 것부터 바로 렌더링, 나머지는 스켈레톤 (isLoading일 때만)
   const renderedItems = useMemo(() => {
-    const cards = [];
-    for (let i = 0; i < visibleCount; i++) {
-      if (items[i]) {
-        cards.push(
-          <ItemCard
-            key={items[i].id}
-            {...items[i]}
-            onOpenModal={handleOpen}
-            onDelete={handleDelete}
-          />
-        );
-      } else {
-        // 스켈레톤 카드: SkeletonItemList의 내부 스켈레톤 카드 스타일을 그대로 사용
-        cards.push(
-          <SkeletonItemList key={`skeleton-${i}`} columns={columns} count={1} />
-        );
-      }
+    if (isLoading) {
+      // 로딩 중일 때만 스켈레톤을 visibleCount만큼 렌더링
+      return Array.from({ length: visibleCount }, (_, i) => (
+        <SkeletonItemCard key={`skeleton-${i}`} />
+      ));
     }
-    return cards;
-  }, [items, visibleCount, columns, handleOpen, handleDelete]);
+    // 로딩이 아니면 실제 아이템만 렌더링
+    return items.map((item) => (
+      <ItemCard
+        key={item.id}
+        {...item}
+        onOpenModal={handleOpen}
+        onDelete={handleDelete}
+      />
+    ));
+  }, [isLoading, items, visibleCount, columns, handleOpen, handleDelete]);
 
   return (
     <ListContainer>
