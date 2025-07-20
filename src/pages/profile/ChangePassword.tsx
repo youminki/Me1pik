@@ -7,7 +7,7 @@ import styled, { ThemeProvider } from 'styled-components';
 
 import { changePassword } from '@/api-utils/user-managements/users/userApi';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
-import InputField from '@/components/shared/forms/InputField';
+import CommonField from '@/components/shared/forms/CommonField';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { theme } from '@/styles/Theme';
 
@@ -81,24 +81,24 @@ const ChangePassword: React.FC = () => {
         <Container>
           <Form onSubmit={(e) => e.preventDefault()}>
             {/* 현재 비밀번호 */}
-            <InputField
+            <CommonField
               label='현재 비밀번호*'
               id='currentPassword'
               type='password'
               placeholder='현재 비밀번호를 입력하세요'
-              error={errors.currentPassword}
+              error={errors.currentPassword?.message}
               {...register('currentPassword', {
                 required: '현재 비밀번호를 입력하세요.',
               })}
             />
 
             {/* 새 비밀번호 (8자리 이상) */}
-            <InputField
+            <CommonField
               label='새 비밀번호* (영문, 숫자, 특수문자 조합 8자리 이상)'
               id='newPassword'
               type='password'
               placeholder='새 비밀번호를 입력하세요'
-              error={errors.newPassword}
+              error={errors.newPassword?.message}
               {...register('newPassword', {
                 required: '새 비밀번호를 입력하세요.',
                 minLength: { value: 8, message: '8자리 이상 입력하세요.' },
@@ -115,12 +115,12 @@ const ChangePassword: React.FC = () => {
             />
 
             {/* 새 비밀번호 확인 */}
-            <InputField
+            <CommonField
               label='새 비밀번호 확인*'
               id='confirmPassword'
               type='password'
               placeholder='새 비밀번호를 다시 입력하세요'
-              error={errors.confirmPassword}
+              error={errors.confirmPassword?.message}
               {...register('confirmPassword', {
                 required: '비밀번호 확인을 입력하세요.',
                 validate: (value) =>

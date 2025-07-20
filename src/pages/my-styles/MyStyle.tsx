@@ -10,8 +10,7 @@ import {
 } from '../../api-utils/user-managements/users/userApi';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
-import { CustomSelect } from '../../components/shared/forms/CustomSelect';
-import InputField from '../../components/shared/forms/InputField';
+import CommonField from '../../components/shared/forms/CommonField';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { schemaMyStyle } from '../../hooks/useValidationYup';
 import { theme } from '../../styles/Theme';
@@ -165,11 +164,10 @@ const MyStyle: React.FC = () => {
         <FormWrapper>
           {/* 키, 몸무게 */}
           <Row>
-            <InputField
+            <CommonField
               label='키'
               id='height'
-              as={CustomSelect}
-              error={errors.height}
+              error={errors.height?.message}
               {...register('height')}
             >
               <option value='' disabled hidden>
@@ -179,13 +177,12 @@ const MyStyle: React.FC = () => {
                 !HEIGHT_OPTIONS.includes(watched.height) &&
                 renderSelectOption(watched.height, `${watched.height} cm`)}
               {HEIGHT_OPTIONS.map((h) => renderSelectOption(h, `${h} cm`))}
-            </InputField>
+            </CommonField>
 
-            <InputField
+            <CommonField
               label='몸무게'
               id='size'
-              as={CustomSelect}
-              error={errors.size}
+              error={errors.size?.message}
               {...register('size')}
             >
               <option value='' disabled hidden>
@@ -195,7 +192,7 @@ const MyStyle: React.FC = () => {
                 !WEIGHT_RANGE.includes(watched.size) &&
                 renderSelectOption(watched.size, `${watched.size} kg`)}
               {WEIGHT_RANGE.map((w) => renderSelectOption(w, `${w} kg`))}
-            </InputField>
+            </CommonField>
           </Row>
 
           <Divider />
@@ -215,11 +212,10 @@ const MyStyle: React.FC = () => {
                   control={control}
                   defaultValue=''
                   render={({ field: { value, onChange } }) => (
-                    <InputField
+                    <CommonField
                       label={labels[field]}
                       id={field}
-                      as={CustomSelect}
-                      error={errors[field]}
+                      error={errors[field]?.message}
                       value={value}
                       onChange={(e) => onChange(e.target.value)}
                     >
@@ -231,7 +227,7 @@ const MyStyle: React.FC = () => {
                           {`${s} (${SIZE_LABELS[s]})`}
                         </option>
                       ))}
-                    </InputField>
+                    </CommonField>
                   )}
                 />
               );
@@ -242,12 +238,12 @@ const MyStyle: React.FC = () => {
 
           {/* 선호 브랜드 */}
           <Row>
-            <InputField
+            <CommonField
               label='선호 브랜드 선택 (최대 3가지)'
               id='brand'
               type='text'
               placeholder='브랜드 3가지를 선택하세요'
-              error={errors.brand}
+              error={errors.brand?.message}
               {...register('brand')}
               value={selectedBrands.join(', ')}
               buttonLabel='선택하기'
@@ -263,11 +259,11 @@ const MyStyle: React.FC = () => {
               name='shoulder'
               control={control}
               render={({ field }) => (
-                <InputField
+                <CommonField
                   label='어깨너비 (선택)'
                   id='shoulder'
                   placeholder='선택해주세요'
-                  error={errors.shoulder}
+                  error={errors.shoulder?.message}
                   {...field}
                   onChange={(e) => {
                     const num = e.target.value.replace(/\D/g, '');
@@ -280,11 +276,11 @@ const MyStyle: React.FC = () => {
               name='chest'
               control={control}
               render={({ field }) => (
-                <InputField
+                <CommonField
                   label='가슴둘레 (선택)'
                   id='chest'
                   placeholder='선택해주세요'
-                  error={errors.chest}
+                  error={errors.chest?.message}
                   {...field}
                   onChange={(e) => {
                     const num = e.target.value.replace(/\D/g, '');
@@ -299,11 +295,11 @@ const MyStyle: React.FC = () => {
               name='waist'
               control={control}
               render={({ field }) => (
-                <InputField
+                <CommonField
                   label='허리둘레 (선택)'
                   id='waist'
                   placeholder='선택해주세요'
-                  error={errors.waist}
+                  error={errors.waist?.message}
                   {...field}
                   onChange={(e) => {
                     const num = e.target.value.replace(/\D/g, '');
@@ -316,11 +312,11 @@ const MyStyle: React.FC = () => {
               name='sleeve'
               control={control}
               render={({ field }) => (
-                <InputField
+                <CommonField
                   label='소매길이 (선택)'
                   id='sleeve'
                   placeholder='선택해주세요'
-                  error={errors.sleeve}
+                  error={errors.sleeve?.message}
                   {...field}
                   onChange={(e) => {
                     const num = e.target.value.replace(/\D/g, '');

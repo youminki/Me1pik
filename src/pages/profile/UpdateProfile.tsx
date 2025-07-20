@@ -10,8 +10,7 @@ import {
 } from '../../api-utils/user-managements/users/userApi';
 
 import FixedBottomBar from '@/components/fixed-bottom-bar';
-import { CustomSelect } from '@/components/shared/forms/CustomSelect';
-import InputField from '@/components/shared/forms/InputField';
+import CommonField from '@/components/shared/forms/CommonField';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { regionDistrictData } from '@/components/signups/regionDistrictData';
 import { theme } from '@/styles/Theme';
@@ -208,7 +207,7 @@ const UpdateProfile: React.FC = () => {
           <Form onSubmit={(e) => e.preventDefault()}>
             {/* 이메일 아이디 (읽기 전용) */}
             <RowLabel>
-              <InputField
+              <CommonField
                 label='이메일 아이디'
                 id='emailId'
                 type='text'
@@ -216,7 +215,7 @@ const UpdateProfile: React.FC = () => {
                 {...register('emailId')}
               />
               <span>@</span>
-              <InputField
+              <CommonField
                 label='이메일 도메인'
                 id='emailDomain'
                 type='text'
@@ -226,7 +225,7 @@ const UpdateProfile: React.FC = () => {
             </RowLabel>
 
             {/* 닉네임 (편집 가능) */}
-            <InputField
+            <CommonField
               label='닉네임'
               id='nickname'
               type='text'
@@ -237,7 +236,7 @@ const UpdateProfile: React.FC = () => {
 
             {/* 이름 & 태어난 해 (읽기 전용) */}
             <RowLabel>
-              <InputField
+              <CommonField
                 label='이름'
                 id='name'
                 type='text'
@@ -245,7 +244,7 @@ const UpdateProfile: React.FC = () => {
                 {...register('name')}
               />
 
-              <InputField
+              <CommonField
                 label='태어난 해'
                 id='birthYear'
                 type='text'
@@ -255,7 +254,7 @@ const UpdateProfile: React.FC = () => {
             </RowLabel>
 
             {/* 전화번호 (읽기 전용) */}
-            <InputField
+            <CommonField
               label='전화번호'
               id='phoneNumber'
               type='text'
@@ -264,38 +263,38 @@ const UpdateProfile: React.FC = () => {
             />
 
             {/* 성별 (읽기 전용) */}
-            <InputField
+            <CommonField
               label='성별'
               id='gender'
-              as={CustomSelect}
+              as='select'
               readOnly
               {...register('gender')}
             >
               <option value='여성'>여성</option>
               <option value='남성'>남성</option>
-            </InputField>
+            </CommonField>
 
             {/* 시/도 & 구/군 */}
             <RowLabel>
-              <InputField
+              <CommonField
                 label='시/도'
                 id='region'
-                as={CustomSelect}
+                as='select'
                 {...register('region', { required: '시/도를 선택하세요' })}
               >
                 <option value=''>시/도를 선택하세요</option>
                 {regionOptions}
-              </InputField>
+              </CommonField>
 
-              <InputField
+              <CommonField
                 label='구/군'
                 id='district'
-                as={CustomSelect}
+                as='select'
                 {...register('district', { required: '구/군을 선택하세요' })}
                 disabled={!watch('region')}
               >
                 {districtOptions}
-              </InputField>
+              </CommonField>
             </RowLabel>
 
             {errors.region && (
