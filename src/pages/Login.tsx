@@ -5,11 +5,11 @@ import styled, { ThemeProvider } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Theme from '../styles/Theme';
-import { LoginPost } from '../api-utils/user-management/auth/LoginPost';
+import { LoginPost } from '../api-utils/user-managements/auth/LoginPost';
 import {
   getMembershipInfo,
   MembershipInfo,
-} from '../api-utils/user-management/user/userApi';
+} from '../api-utils/user-managements/users/userApi';
 import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
 import ReusableModal from '../common-components/modals/reusable-modal';

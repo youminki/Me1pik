@@ -26,55 +26,55 @@ import Alarm from './pages/Alarm';
 import Payment from './pages/Payment';
 import PersonalLink from './pages/PersonalLink';
 
-import Home from './pages/Home/Home';
-import HomeDetail from './pages/Home/HomeDetail';
+import Home from './pages/homes/Home';
+import HomeDetail from './pages/homes/HomeDetail';
 import Analysis from './pages/Analysis';
 
-import Brand from './pages/Brand/Brand';
-import BrandDetail from './pages/Brand/BrandDetail';
+import Brand from './pages/brands/Brand';
+import BrandDetail from './pages/brands/BrandDetail';
 
-import Melpik from './pages/Melpik/Melpik';
-import CreateMelpik from './pages/Melpik/Create/CreateMelpik';
-import ContemporarySettings from './pages/Melpik/Create/ContemporarySettings';
-import Setting from './pages/Melpik/Setting/SettingMelpik';
-import SalesSettlement from './pages/Melpik/Calculate/SalesSettlement';
-import SalesSettlementDetail from './pages/Melpik/Calculate/SalesSettlementDetail';
-import SettlementRequest from './pages/Melpik/Calculate/SettlementRequest';
+import Melpik from './pages/melpiks/Melpik';
+import CreateMelpik from './pages/melpiks/creates/CreateMelpik';
+import ContemporarySettings from './pages/melpiks/creates/ContemporarySettings';
+import Setting from './pages/melpiks/settings/SettingMelpik';
+import SalesSettlement from './pages/melpiks/calculates/SalesSettlement';
+import SalesSettlementDetail from './pages/melpiks/calculates/SalesSettlementDetail';
+import SettlementRequest from './pages/melpiks/calculates/SettlementRequest';
 
-import LockerRoom from './pages/LockerRoom/LockerRoom';
-import UsageHistory from './pages/LockerRoom/UsageHistory/UsageHistory';
-import Point from './pages/LockerRoom/Point/Point';
-import MyCloset from './pages/LockerRoom/MyCloset/MyCloset';
-import MyTicket from './pages/LockerRoom/MyTicket/MyTicket';
-import PurchaseOfPasses from './pages/LockerRoom/MyTicket/PurchaseOfPasses';
+import LockerRoom from './pages/locker-rooms/LockerRoom';
+import UsageHistory from './pages/locker-rooms/usage-histories/UsageHistory';
+import Point from './pages/locker-rooms/points/Point';
+import MyCloset from './pages/locker-rooms/my-closets/MyCloset';
+import MyTicket from './pages/locker-rooms/my-tickets/MyTicket';
+import PurchaseOfPasses from './pages/locker-rooms/my-tickets/PurchaseOfPasses';
 
-import TicketPayment from './pages/LockerRoom/MyTicket/TicketPayment.tsx';
+import TicketPayment from './pages/locker-rooms/my-tickets/TicketPayment.tsx';
 
-// import SubscriptionPass from './pages/LockerRoom/MyTicket/SubscriptionPass';
-// import OnetimePass from './pages/LockerRoom/MyTicket/OnetimePass';
+// import SubscriptionPass from './pages/locker-rooms/my-tickets/SubscriptionPass';
+// import OnetimePass from './pages/locker-rooms/my-tickets/OnetimePass';
 
-import PaymentMethod from './pages/LockerRoom/PaymentMethod/PaymentMethod';
-import AddCard from './pages/LockerRoom/PaymentMethod/AddCard';
+import PaymentMethod from './pages/locker-rooms/payment-methods/PaymentMethod';
+import AddCard from './pages/locker-rooms/payment-methods/AddCard';
 
-import ProductReview from './pages/LockerRoom/ProductReview/ProductReview';
-import ProductReviewWrite from './pages/LockerRoom/ProductReview/ProductReviewWrite';
+import ProductReview from './pages/locker-rooms/product-reviews/ProductReview';
+import ProductReviewWrite from './pages/locker-rooms/product-reviews/ProductReviewWrite';
 
-import CustomerService from './pages/CustomerService/CustomerService';
-import DocumentList from './pages/CustomerService/documents/DocumentList';
-import DocumentDetail from './pages/CustomerService/documents/DocumentDetail';
+import CustomerService from './pages/customer-services/CustomerService';
+import DocumentList from './pages/customer-services/documents/DocumentList';
+import DocumentDetail from './pages/customer-services/documents/DocumentDetail';
 
-import Scedule from './pages/Melpik/Schedule/Scedule';
-import ScheduleConfirmation from './pages/Melpik/Schedule/ScheduleConfirmation';
-import ScheduleReservation1 from './pages/Melpik/Schedule/ScheduleReservation1';
-import ScheduleReservation2 from './pages/Melpik/Schedule/ScheduleReservation2';
-import ScheduleReservation3 from './pages/Melpik/Schedule/ScheduleReservation3';
+import Scedule from './pages/melpiks/schedules/Scedule';
+import ScheduleConfirmation from './pages/melpiks/schedules/ScheduleConfirmation';
+import ScheduleReservation1 from './pages/melpiks/schedules/ScheduleReservation1';
+import ScheduleReservation2 from './pages/melpiks/schedules/ScheduleReservation2';
+import ScheduleReservation3 from './pages/melpiks/schedules/ScheduleReservation3';
 
 import PaypleTest from './tests/PaypleTest';
 import AddCardPayple from './tests/AddCardPayple';
 import PasswordChange from './pages/PasswordChange';
 import PaymentComplete from './pages/PaymentComplete';
 import PaymentFail from './pages/Paymentfail.tsx';
-import TicketDetail from './pages/LockerRoom/MyTicket/TicketDetail';
+import TicketDetail from './pages/locker-rooms/my-tickets/TicketDetail';
 
 import Link from './pages/Link';
 import UpdateProfile from './pages/profile/UpdateProfile';

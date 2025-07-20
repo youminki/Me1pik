@@ -15,15 +15,15 @@ import AddressSearchModal from '../common-components/modals/address-search-modal
 import PriceIcon from '../assets/Basket/PriceIcon.svg';
 import ProductInfoIcon from '../assets/Basket/ProductInfoIcon.svg';
 import ServiceInfoIcon from '../assets/Basket/ServiceInfoIcon.svg';
-import { useUserTickets } from '../api-utils/schedule-management/ticket/ticket';
+import { useUserTickets } from '../api-utils/schedule-managements/tickets/ticket';
 import {
   useCreateRentalOrder,
   RentalOrderRequest,
-} from '../api-utils/schedule-management/rental/rental';
+} from '../api-utils/schedule-managements/rentals/rental';
 import {
   useAddresses,
   Address,
-} from '../api-utils/user-management/address/address';
+} from '../api-utils/user-managements/addresses/address';
 import DeliveryListModal from '../common-components/modals/delivery-list-modal';
 
 declare global {

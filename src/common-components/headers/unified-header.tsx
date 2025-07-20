@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import Cookies from 'js-cookie';
 import { BiTime } from 'react-icons/bi';
 import { FaUserCircle } from 'react-icons/fa';
-import { useHeaderInfo } from '../../api-utils/user-management/user/userApi';
+import { useHeaderInfo } from '../../api-utils/user-managements/users/userApi';
 
 import AlarmIcon from '../../assets/Header/AlarmIcon.svg';
 import BasketIcon from '../../assets/Header/BasketIcon.svg';

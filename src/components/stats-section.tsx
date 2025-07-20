@@ -1,4 +1,4 @@
-// src/components/LockerRoom/StatsSection.tsx
+// src/components/locker-rooms/StatsSection.tsx
 import React from 'react';
 import styled from 'styled-components';
 

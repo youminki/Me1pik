@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Content from '../components/Analysis/AnalysisContent';
+import Content from '../components/analyses/AnalysisContent';
 import Theme from '../styles/Theme';
 
 const Analysis = () => {

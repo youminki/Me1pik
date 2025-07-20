@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   getHeaderInfo,
   HeaderInfoResponse,
-} from '../api-utils/user-management/user/userApi';
+} from '../api-utils/user-managements/users/userApi';
 
 const MENU_ITEMS = [
   {

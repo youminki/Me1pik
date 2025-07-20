@@ -10,7 +10,7 @@ import ReusableModal2 from '../common-components/modals/reusable-modal-v2';
 import {
   getCartItems,
   deleteCartItem,
-} from '../api-utils/product-management/cart/cart';
+} from '../api-utils/product-managements/carts/cart';
 import { useNavigate } from 'react-router-dom';
 
 interface BasketItemForPayment {

@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import Header from '../components/Landing/Header';
-import LandingPage1 from '../components/Landing/LandingPage1';
-import LandingPage2 from '../components/Landing/LandingPage2';
-import LandingPage3 from '../components/Landing/LandingPage3';
-import LandingPage4 from '../components/Landing/LandingPage4';
-import LandingPage5 from '../components/Landing/LandingPage5';
-import LandingPage6 from '../components/Landing/LandingPage6';
-import LandingPage7 from '../components/Landing/LandingPage7';
+import Header from '../components/landings/Header';
+import LandingPage1 from '../components/landings/LandingPage1';
+import LandingPage2 from '../components/landings/LandingPage2';
+import LandingPage3 from '../components/landings/LandingPage3';
+import LandingPage4 from '../components/landings/LandingPage4';
+import LandingPage5 from '../components/landings/LandingPage5';
+import LandingPage6 from '../components/landings/LandingPage6';
+import LandingPage7 from '../components/landings/LandingPage7';
 
-import Footer from '../components/Landing/Footer';
+import Footer from '../components/landings/Footer';
 
 interface ScrollFadeInProps {
   children: React.ReactNode;

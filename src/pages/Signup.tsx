@@ -5,7 +5,7 @@ import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaSignup } from '../hooks/ValidationYup';
 import InputField from '../common-components/forms/input-field';
-import AgreementSection from '../components/Signup/AgreementSection';
+import AgreementSection from '../components/signups/AgreementSection';
 import Theme from '../styles/Theme';
 import FixedBottomBar from '../components/fixed-bottom-bar';
 import { useNavigate } from 'react-router-dom';
@@ -18,9 +18,9 @@ import {
   verifyCode,
   checkWebpage,
   checkNickname,
-} from '../api-utils/user-management/user/userApi';
-import { regionDistrictData } from '../components/Signup/regionDistrictData';
-import Modal from '../components/Melpik/CreateMelpik/Settings/Modal';
+} from '../api-utils/user-managements/users/userApi';
+import { regionDistrictData } from '../components/signups/regionDistrictData';
+import Modal from '../components/melpiks/CreateMelpik/Settings/Modal';
 import SimpleHeader from '../common-components/headers/simple-header';
 import type { AxiosError } from 'axios';
 

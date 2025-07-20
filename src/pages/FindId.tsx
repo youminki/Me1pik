@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import ReusableModal from '../common-components/modals/reusable-modal';
-import { findEmail } from '../api-utils/user-management/user/userApi';
+import { findEmail } from '../api-utils/user-managements/users/userApi';
 import Theme from '../styles/Theme';
 import { ThemeProvider } from 'styled-components';
 import {

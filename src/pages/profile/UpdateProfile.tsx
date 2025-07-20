@@ -9,13 +9,13 @@ import { CustomSelect } from '../../common-components/forms/custom-select';
 import Theme from '../../styles/Theme';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import ReusableModal from '../../common-components/modals/reusable-modal';
-import { regionDistrictData } from '../../components/Signup/regionDistrictData';
+import { regionDistrictData } from '../../components/signups/regionDistrictData';
 
 // userApi에서 가져올 함수들
 import {
   useMyInfo,
   updateMyInfo,
-} from '../../api-utils/user-management/user/userApi';
+} from '../../api-utils/user-managements/users/userApi';
 
 export type UpdateProfileFormData = {
   emailId: string;

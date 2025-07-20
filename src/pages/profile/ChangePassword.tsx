@@ -10,7 +10,7 @@ import Theme from '../../styles/Theme';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import ReusableModal from '../../common-components/modals/reusable-modal';
 
-import { changePassword } from '../../api-utils/user-management/user/userApi';
+import { changePassword } from '../../api-utils/user-managements/users/userApi';
 
 export interface ChangePasswordFormData {
   currentPassword: string;

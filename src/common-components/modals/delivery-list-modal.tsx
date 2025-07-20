@@ -1,7 +1,7 @@
 // src/components/DeliveryListModal.tsx
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { Address } from '../../api-utils/user-management/address/address';
+import { Address } from '../../api-utils/user-managements/addresses/address';
 
 interface Props {
   isOpen: boolean;

@@ -10,7 +10,7 @@ import {
   useSetDefaultAddress,
   Address,
   UpdateAddressRequest,
-} from '../../api-utils/user-management/address/address';
+} from '../../api-utils/user-managements/addresses/address';
 
 const DeliveryManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -140,7 +140,7 @@ const DeliveryManagement: React.FC = () => {
         ) : addresses.length === 0 ? (
           <p>등록된 배송지가 없습니다.</p>
         ) : (
-          addresses.map((item: any, idx: number) => {
+          addresses.map((item: Address, idx: number) => {
             const isEditing = editingId === item.id;
             return (
               <Block key={item.id}>
