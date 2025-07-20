@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
+
 import ItemCard from './ItemCard';
 
 export interface UIItem {
@@ -31,34 +32,39 @@ const ItemList: React.FC<ItemListProps> = ({
   isLoading = false,
   observerRef,
 }) => {
-  const handleOpen = onItemClick ?? (() => {});
-  const handleDelete = onDelete ?? (() => {});
+  const handleOpen = useCallback(onItemClick ?? (() => {}), [onItemClick]);
+  const handleDelete = useCallback(onDelete ?? (() => {}), [onDelete]);
+
+  const renderedItems = useMemo(() => {
+    if (isLoading) {
+      return Array.from({ length: SKELETON_COUNT }).map((_, idx) => (
+        <ItemCard
+          key={`skeleton-${idx}`}
+          id={'' + idx}
+          image={''}
+          brand={''}
+          description={''}
+          price={0}
+          discount={0}
+          isLiked={false}
+          onOpenModal={() => {}}
+        />
+      ));
+    }
+    return items.map((item) => (
+      <ItemCard
+        key={item.id}
+        {...item}
+        onOpenModal={handleOpen}
+        onDelete={handleDelete}
+      />
+    ));
+  }, [isLoading, items, handleOpen, handleDelete]);
 
   return (
     <ListContainer>
       <ItemsWrapper columns={columns}>
-        {isLoading
-          ? Array.from({ length: SKELETON_COUNT }).map((_, idx) => (
-              <ItemCard
-                key={`skeleton-${idx}`}
-                id={'' + idx}
-                image={''}
-                brand={''}
-                description={''}
-                price={0}
-                discount={0}
-                isLiked={false}
-                onOpenModal={() => {}}
-              />
-            ))
-          : items.map((item) => (
-              <ItemCard
-                key={item.id}
-                {...item}
-                onOpenModal={handleOpen}
-                onDelete={handleDelete}
-              />
-            ))}
+        {renderedItems}
         {/* 무한스크롤 observer div를 리스트 마지막에 추가 */}
         {observerRef && <div ref={observerRef} style={{ height: 1 }} />}
       </ItemsWrapper>

@@ -1,15 +1,16 @@
 // src/pages/melpiks/schedules/ScheduleReservation3.tsx
 
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
-import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
+import styled from 'styled-components';
+
 import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
-import Spinner from '../../../components/spinner';
-import { UIItem } from '../../../components/homes/MyclosetItemList'; // UIItem.id는 string 타입
 import { createSaleSchedule } from '../../../api-utils/schedule-managements/sales/SaleSchedule'; // API 호출 함수
+import { UIItem } from '../../../components/homes/MyclosetItemList'; // UIItem.id는 string 타입
+import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
+import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
 import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
+import Spinner from '../../../components/spinner';
 
 interface ItemCardProps {
   id: string;

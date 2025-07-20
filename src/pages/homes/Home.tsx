@@ -9,23 +9,25 @@ import React, {
 } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import ItemList, { UIItem } from '../../components/homes/ItemList';
-import Footer from '../../components/homes/Footer';
-import SubHeader from '../../components/homes/SubHeader';
+
 import { useProducts } from '../../api-utils/product-managements/uploads/productApi';
-import HomeDetail from './HomeDetail';
-import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
-import ShareIcon from '../../assets/headers/ShareIcon.svg';
-import HomeIcon from '../../assets/headers/HomeIcon.svg';
 import ArrowIconSvg from '../../assets/ArrowIcon.svg';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
+import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
+import HomeIcon from '../../assets/headers/HomeIcon.svg';
+import ShareIcon from '../../assets/headers/ShareIcon.svg';
 import FilterContainer from '../../components/homes/FilterContainer';
+import Footer from '../../components/homes/Footer';
+import ItemList, { UIItem } from '../../components/homes/ItemList';
 import SearchModal from '../../components/homes/SearchModal';
+import SubHeader from '../../components/homes/SubHeader';
 import MelpikGuideBanner from '../../components/melpik-guide-banner';
-import FilterModal from '../../components/shared/modals/FilterModal';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ErrorMessage from '../../components/shared/ErrorMessage';
 import EmptyState from '../../components/shared/EmptyState';
+import ErrorMessage from '../../components/shared/ErrorMessage';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import FilterModal from '../../components/shared/modals/FilterModal';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
+
+import HomeDetail from './HomeDetail';
 
 /**
  * Home(상품 리스트) 페이지 - 최적화 버전ㄴ

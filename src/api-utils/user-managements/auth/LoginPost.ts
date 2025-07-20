@@ -1,5 +1,6 @@
-import { Axios } from '../../Axios';
 import Cookies from 'js-cookie';
+
+import { Axios } from '../../Axios';
 
 interface LoginResponse {
   accessToken: string;

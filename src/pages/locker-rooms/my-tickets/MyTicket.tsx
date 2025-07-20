@@ -1,17 +1,18 @@
 // src/pages/locker-rooms/my-tickets.tsx
 
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import StatsSection from '@/components/stats-section';
-import TicketIllustration from '@/assets/locker-rooms/TicketIllustration.svg';
+import styled, { keyframes } from 'styled-components';
+
+import { useUserTickets } from '@/api-utils/schedule-managements/tickets/ticket';
 import AddTicketIllustration from '@/assets/locker-rooms/AddTicketIllustration.svg';
 import CardIcon from '@/assets/locker-rooms/AddTicketIllustrations.svg';
 import BarcodeImg from '@/assets/locker-rooms/barcodeIcon.svg';
-import { useUserTickets } from '@/api-utils/schedule-managements/tickets/ticket';
+import TicketIllustration from '@/assets/locker-rooms/TicketIllustration.svg';
 import EmptyState from '@/components/shared/EmptyState';
-import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import CommonErrorMessage from '@/components/shared/ErrorMessage';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import StatsSection from '@/components/stats-section';
 
 const visitLabel = '사용중인 이용권';
 const salesLabel = '시즌';

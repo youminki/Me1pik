@@ -1,14 +1,15 @@
 import React from 'react';
-import styled, { ThemeProvider } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { theme } from '@/styles/theme';
-import StatsSection from '../../components/stats-section';
+import styled, { ThemeProvider } from 'styled-components';
 
-import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
 import FrequentlyAskedQuestionsBox from '../../assets/customer-services/FrequentlyAskedQuestions.svg';
 import NoticeBox from '../../assets/customer-services/Notice.svg';
 import PersonalInformationProcessingPolicyBox from '../../assets/customer-services/PersonalInformationProcessingPolicy.svg';
 import TermsAndConditionsOfUseBox from '../../assets/customer-services/TermsAndConditionsOfUse.svg';
+import StatsSection from '../../components/stats-section';
+
+import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
+import { theme } from '@/styles/theme';
 
 const menuItems = [
   { icon: NoticeBox, label: '공지사항', path: '/customerService/notice' },

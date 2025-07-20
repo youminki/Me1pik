@@ -1,24 +1,24 @@
 // src/components/UnifiedHeader.tsx
 
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
-import Cookies from 'js-cookie';
 import { BiTime } from 'react-icons/bi';
 import { FaUserCircle } from 'react-icons/fa';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import styled from 'styled-components';
+
 import { useHeaderInfo } from '../../../api-utils/user-managements/users/userApi';
-
 import AlarmIcon from '../../../assets/headers/AlarmIcon.svg';
-import BasketIcon from '../../../assets/headers/BasketIcon.svg';
-import MypageIcon from '../../../assets/headers/MypageIcon.svg';
-import Logo from '../../../assets/Logo.svg';
 import BackButtonIcon from '../../../assets/headers/BackButton.svg';
+import BasketIcon from '../../../assets/headers/BasketIcon.svg';
 import CancleIconIcon from '../../../assets/headers/CancleIcon.svg';
-import ShareIcon from '../../../assets/headers/ShareIcon.svg';
 import HomeIcon from '../../../assets/headers/HomeIcon.svg';
-
+import MypageIcon from '../../../assets/headers/MypageIcon.svg';
+import ShareIcon from '../../../assets/headers/ShareIcon.svg';
+import Logo from '../../../assets/Logo.svg';
 import MypageModal from '../modals/MypageModal';
 import ReusableModal from '../modals/ReusableModal';
+
+import { getCurrentToken } from '@/utils/auth';
 
 interface HeaderContainerProps {
   variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
@@ -217,11 +217,11 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
   // 헤더 정보 조회 (로그인/닉네임 등)
   useEffect(() => {
     if (variant === 'default' || variant === 'oneDepth') {
-      const token = Cookies.get('accessToken');
+      const token = getCurrentToken();
       const isTokenValid = !!token;
       setIsLoggedIn(isTokenValid);
 
-      const imgFromCookie = Cookies.get('profileImageUrl');
+      const imgFromCookie = localStorage.getItem('profileImageUrl');
       setProfileImageUrl(imgFromCookie || null);
 
       // 토큰이 있고 헤더 정보가 성공적으로 로드된 경우에만 닉네임 설정

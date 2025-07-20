@@ -1,7 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
 
 // 타입 정의
 interface Sale {

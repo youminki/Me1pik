@@ -1,5 +1,6 @@
-import { signupUser } from './signupPost';
 import { Axios } from '../../Axios';
+
+import { signupUser } from './signupPost';
 
 jest.mock('../../Axios');
 const mockedAxios = Axios as jest.Mocked<typeof Axios>;

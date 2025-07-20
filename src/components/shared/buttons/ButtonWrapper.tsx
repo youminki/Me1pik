@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Button02 from './SecondaryButton';
 
 type ButtonPropsWithoutColor = Omit<

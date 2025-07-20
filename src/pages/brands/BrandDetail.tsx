@@ -4,11 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import StatsSection from '../../components/brands/StatsSection';
-import SubHeader from '../../components/homes/SubHeader';
-import ItemList, { UIItem } from '../../components/homes/ItemList';
-import FilterContainer from '../../components/homes/FilterContainer';
-import SearchModal from '../../components/homes/SearchModal';
 import {
   getBrandList,
   Brand as ApiBrand,
@@ -17,15 +12,19 @@ import {
   getProductsByBrand,
   Product as ApiProduct,
 } from '../../api-utils/product-managements/products/product';
-
-import HomeDetail from '../homes/HomeDetail';
-import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
-import ShareIcon from '../../assets/headers/ShareIcon.svg';
-import HomeIcon from '../../assets/headers/HomeIcon.svg';
 import ArrowIconSvg from '../../assets/ArrowIcon.svg';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ErrorMessage from '../../components/shared/ErrorMessage';
+import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
+import HomeIcon from '../../assets/headers/HomeIcon.svg';
+import ShareIcon from '../../assets/headers/ShareIcon.svg';
+import StatsSection from '../../components/brands/StatsSection';
+import FilterContainer from '../../components/homes/FilterContainer';
+import ItemList, { UIItem } from '../../components/homes/ItemList';
+import SearchModal from '../../components/homes/SearchModal';
+import SubHeader from '../../components/homes/SubHeader';
 import EmptyState from '../../components/shared/EmptyState';
+import ErrorMessage from '../../components/shared/ErrorMessage';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import HomeDetail from '../homes/HomeDetail';
 
 interface LocalBrand {
   id: number;

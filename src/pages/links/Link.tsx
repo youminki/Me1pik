@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import phoneMock from '../../assets/links/phone-mock.png';
-import melpikLogo from '../../assets/links/melpik-logo.svg';
-import couponCard from '../../assets/links/couponCard.svg';
 import CheckIcon from '../../assets/links/CheckIcon.svg';
+import couponCard from '../../assets/links/couponCard.svg';
+import melpikLogo from '../../assets/links/melpik-logo.svg';
+import phoneMock from '../../assets/links/phone-mock.png';
 // import EmptyState from '../../components/shared/EmptyState'; // 사용 예시만 주석으로 남기고 실제 import는 삭제
 
 const Link: React.FC = () => {

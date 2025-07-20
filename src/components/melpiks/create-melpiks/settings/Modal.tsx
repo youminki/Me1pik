@@ -1,8 +1,9 @@
 // src/components/melpiks/create-melpiks/settings/Modal.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { theme } from '../../../../styles/theme';
+
 import ReusableModal2 from '../../../../components/shared/modals/ReusableModalV2';
+import { theme } from '../../../../styles/theme';
 
 interface ModalProps {
   isOpen: boolean;

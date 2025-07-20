@@ -1,22 +1,24 @@
 // src/pages/MyinfoList.tsx
 
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import Cookies from 'js-cookie';
-import userInfoIcon from '../../assets/my-info/UserInfoChangeIcon.svg';
-import passwordIcon from '../../assets/my-info/PasswordChangeIcon.svg';
-import deliveryIcon from '../../assets/my-info/DeliveryAdminIcon.svg';
 import { FaPlus, FaUserCircle, FaLongArrowAltRight } from 'react-icons/fa';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { useNavigate } from 'react-router-dom';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ErrorMessage from '../../components/shared/ErrorMessage';
+import styled from 'styled-components';
 
-// 추가: API import
 import {
   getHeaderInfo,
   HeaderInfoResponse,
 } from '../../api-utils/user-managements/users/userApi';
+import deliveryIcon from '../../assets/my-info/DeliveryAdminIcon.svg';
+import passwordIcon from '../../assets/my-info/PasswordChangeIcon.svg';
+import userInfoIcon from '../../assets/my-info/UserInfoChangeIcon.svg';
+import ErrorMessage from '../../components/shared/ErrorMessage';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
+
+// 추가: API import
+
+import { getCurrentToken } from '@/utils/auth';
 
 const MENU_ITEMS = [
   {
@@ -77,7 +79,7 @@ const MyinfoList: React.FC = () => {
     };
 
     // 토큰이 있는 경우에만 API 호출
-    const token = Cookies.get('accessToken');
+    const token = getCurrentToken();
     if (token && token.trim() !== '') {
       fetchHeader();
     } else {

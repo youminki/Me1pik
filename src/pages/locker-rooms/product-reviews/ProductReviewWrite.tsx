@@ -1,13 +1,13 @@
 // ProductReview.tsx
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import sampleImage from '../../../assets/sample-dress.svg';
+import styled from 'styled-components';
+
+import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg'; // 빈 별
+import FilledStarIcon from '../../../assets/baskets/FilledStarIcon.svg'; // 채워진 별
 import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
 import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
-
-import FilledStarIcon from '../../../assets/baskets/FilledStarIcon.svg'; // 채워진 별
-import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg'; // 빈 별
+import sampleImage from '../../../assets/sample-dress.svg';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
 

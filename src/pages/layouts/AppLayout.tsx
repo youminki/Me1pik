@@ -3,8 +3,8 @@ import React from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 
-import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
 import BottomNav from '../../components/bottom-navigation';
+import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
 import useHeaderConfig from '../../hooks/useHeaderConfig';
 
 const AppLayout: React.FC = () => {

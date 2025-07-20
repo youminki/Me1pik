@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+
 import {
   getTermsPolicyList,
   getTermsPolicyDetail,
 } from '../../../api-utils/user-managements/terms/termsApi';
-import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
-import StatsSection from '../../../components/stats-section';
-import ArrowToggleIcon from '../../../assets/library/ArrowToggleIcon';
 import CustomerServiceIcon from '../../../assets/CustomerServiceIcons.svg';
+import ArrowToggleIcon from '../../../assets/library/ArrowToggleIcon';
+import StatsSection from '../../../components/stats-section';
 
 // 스켈레톤 UI용 styled-components (불필요한 것 삭제)
 const shimmer = `

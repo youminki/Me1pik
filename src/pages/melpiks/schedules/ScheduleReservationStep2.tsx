@@ -1,18 +1,16 @@
 // src/pages/melpiks/schedules/ScheduleReservation2.tsx
 
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useNavigate, useLocation } from 'react-router-dom';
-
 import { FaTshirt } from 'react-icons/fa'; // 아이콘 import
-import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
-import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
-
-import checkIcon from '../../../assets/checkIcon.svg';
+import { useNavigate, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 
 import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
-import Spinner from '../../../components/spinner';
+import checkIcon from '../../../assets/checkIcon.svg';
 import { UIItem } from '../../../components/homes/MyclosetItemList';
+import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
+import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
+import Spinner from '../../../components/spinner';
 
 const MAX_SELECTION = 6;
 

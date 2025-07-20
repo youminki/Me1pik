@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import ReusableModal from '../components/shared/modals/ReusableModal';
+
 import HomeserviceIcon from '../assets/homes/HomeserviceIcon.svg';
+import ReusableModal from '../components/shared/modals/ReusableModal';
 
 const BannerWrapper = styled.div`
   width: 100%;

@@ -3,9 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
-import HomeIcon from '../assets/bottom-navigations/HomeIcon.svg';
 import BrandIcon from '../assets/bottom-navigations/BrandIcon.svg';
 import CustomerServiceIcon from '../assets/bottom-navigations/CustomerServiceIcon.svg';
+import HomeIcon from '../assets/bottom-navigations/HomeIcon.svg';
 import LockerRoomIcon from '../assets/bottom-navigations/LockerRoomIcon.svg';
 import MelpikIcon from '../assets/bottom-navigations/MelpikIcon.svg';
 

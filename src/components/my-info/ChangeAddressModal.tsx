@@ -1,7 +1,7 @@
 // src/components/ChangeAddressModal.tsx
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import styled from 'styled-components';
 import { FaTimes } from 'react-icons/fa';
+import styled from 'styled-components';
 
 interface ChangeAddressModalProps {
   isOpen: boolean;

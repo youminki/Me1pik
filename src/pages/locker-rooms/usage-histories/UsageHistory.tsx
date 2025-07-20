@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import StatsSection from '@/components/stats-section';
-import PeriodSection from '@/components/period-section';
-import Spinner from '@/components/spinner';
-import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
-import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
-import PriceIcon from '@/assets/baskets/PriceIcon.svg';
-import sampleImage from '@/assets/sample-dress.svg';
-import HomeDetail from '@/pages/homes/HomeDetail';
+
 import {
   getMyRentalSchedule,
   cancelRentalSchedule,
   RentalScheduleItem,
 } from '@/api-utils/schedule-managements/rental-schedules/RentalSchedule';
+import PriceIcon from '@/assets/baskets/PriceIcon.svg';
+import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
 import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
+import sampleImage from '@/assets/sample-dress.svg';
+import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
+import Spinner from '@/components/spinner';
+import StatsSection from '@/components/stats-section';
+import HomeDetail from '@/pages/homes/HomeDetail';
 
 // 버튼 확대 애니메이션
 const hoverScale = keyframes`

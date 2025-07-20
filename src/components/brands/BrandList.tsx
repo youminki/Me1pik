@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+
 import BrandItem, { Brand as BrandType } from './BrandItem';
 
 interface BrandListProps {

@@ -1,5 +1,6 @@
-import { AddressApi } from './address';
 import { Axios } from '../../Axios';
+
+import { AddressApi } from './address';
 
 jest.mock('../../Axios');
 const mockedAxios = Axios as jest.Mocked<typeof Axios>;

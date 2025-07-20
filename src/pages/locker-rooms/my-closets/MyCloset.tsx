@@ -1,16 +1,16 @@
 // src/pages/locker-rooms/my-closets/MyCloset.tsx
 
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 import { FaTshirt } from 'react-icons/fa';
-import { useMyCloset } from '@/api-utils/product-managements/closets/closetApi';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
-import StatsSection from '@/components/stats-section';
-import ItemList, { UIItem } from '@/components/homes/MyclosetItemList';
-import HomeDetail from '@/pages/homes/HomeDetail';
-import Spinner from '@/components/spinner'; // Spinner import 추가
+import { useMyCloset } from '@/api-utils/product-managements/closets/closetApi';
 import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
+import ItemList, { UIItem } from '@/components/homes/MyclosetItemList';
+import Spinner from '@/components/spinner'; // Spinner import 추가
+import StatsSection from '@/components/stats-section';
+import HomeDetail from '@/pages/homes/HomeDetail';
 
 const salesLabel = '시즌';
 const sales = '2025 1분기';

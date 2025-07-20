@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
 
+import { Axios } from '@/api-utils/Axios';
+
 // 인스타그램 방식 토큰 갱신 타이머
 let tokenRefreshTimer: NodeJS.Timeout | null = null;
 
@@ -34,25 +36,67 @@ export const hasValidToken = (): boolean => {
 };
 
 /**
- * 모든 토큰을 제거합니다
+ * access/refresh 토큰을 여러 저장소(localStorage, sessionStorage, Cookies)에 저장
  */
-export const clearTokens = (): void => {
+export function setToken(accessToken: string, refreshToken?: string) {
+  localStorage.setItem('accessToken', accessToken);
+  sessionStorage.setItem('accessToken', accessToken);
+  Cookies.set('accessToken', accessToken, { path: '/' });
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+    sessionStorage.setItem('refreshToken', refreshToken);
+    Cookies.set('refreshToken', refreshToken, { path: '/' });
+  }
+}
+
+/**
+ * access/refresh 토큰을 여러 저장소에서 삭제
+ */
+export function removeToken() {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
   sessionStorage.removeItem('accessToken');
   sessionStorage.removeItem('refreshToken');
   Cookies.remove('accessToken');
   Cookies.remove('refreshToken');
+}
 
-  // 토큰 갱신 타이머 정리
-  if (tokenRefreshTimer) {
-    clearTimeout(tokenRefreshTimer);
-    tokenRefreshTimer = null;
+/**
+ * 앱-웹뷰에 토큰 동기화(로그인/로그아웃 이벤트 전달)
+ */
+export function syncTokenWithApp(accessToken?: string, refreshToken?: string) {
+  if (accessToken) {
+    // 로그인 이벤트
+    if (window.webkit?.messageHandlers?.loginHandler) {
+      window.webkit.messageHandlers.loginHandler.postMessage({
+        type: 'login',
+        token: accessToken,
+        refreshToken: refreshToken,
+      });
+    }
+    window.dispatchEvent(
+      new CustomEvent('webLoginSuccess', {
+        detail: { token: accessToken, refreshToken },
+      })
+    );
+  } else {
+    // 로그아웃 이벤트
+    const messageHandlers = window.webkit?.messageHandlers as
+      | {
+          logoutHandler?: {
+            postMessage: (msg: Record<string, unknown>) => void;
+          };
+        }
+      | undefined;
+    if (
+      messageHandlers &&
+      typeof messageHandlers.logoutHandler?.postMessage === 'function'
+    ) {
+      messageHandlers.logoutHandler.postMessage({ type: 'logout' });
+    }
+    window.dispatchEvent(new CustomEvent('webLogout'));
   }
-
-  // 앱에 로그아웃 이벤트 전달
-  notifyAppLogout();
-};
+}
 
 /**
  * 토큰을 저장합니다 (인스타그램 방식)
@@ -61,22 +105,9 @@ export const saveTokens = (
   accessToken: string,
   refreshToken?: string
 ): void => {
-  // 다중 저장소에 토큰 저장
-  localStorage.setItem('accessToken', accessToken);
-  sessionStorage.setItem('accessToken', accessToken);
-  Cookies.set('accessToken', accessToken, { path: '/' });
-
-  if (refreshToken) {
-    localStorage.setItem('refreshToken', refreshToken);
-    sessionStorage.setItem('refreshToken', refreshToken);
-    Cookies.set('refreshToken', refreshToken, { path: '/' });
-  }
-
-  // 토큰 갱신 타이머 설정
+  setToken(accessToken, refreshToken);
   setupTokenRefreshTimer(accessToken);
-
-  // 앱에 로그인 이벤트 전달
-  notifyAppLogin(accessToken, refreshToken);
+  syncTokenWithApp(accessToken, refreshToken);
 };
 
 /**
@@ -143,23 +174,8 @@ export const refreshToken = async (): Promise<boolean> => {
     }
 
     // 토큰 갱신 API 호출
-    // Axios import 제거 - 사용하지 않음
-    const response = await fetch('/auth/refresh', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        refreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const { accessToken, refreshToken: newRefreshToken } = data;
+    const response = await Axios.post('/auth/refresh', { refreshToken });
+    const { accessToken, refreshToken: newRefreshToken } = response.data;
 
     // 새 토큰 저장
     saveTokens(accessToken, newRefreshToken);
@@ -174,53 +190,15 @@ export const refreshToken = async (): Promise<boolean> => {
 };
 
 /**
- * 앱에 로그인 이벤트 전달
+ * 모든 토큰을 제거합니다
  */
-const notifyAppLogin = (accessToken: string, refreshToken?: string): void => {
-  // 네이티브 앱에 로그인 정보 전달
-  if (window.webkit?.messageHandlers?.loginHandler) {
-    window.webkit.messageHandlers.loginHandler.postMessage({
-      type: 'login',
-      token: accessToken,
-      refreshToken: refreshToken,
-    });
+export const clearTokens = (): void => {
+  removeToken();
+  if (tokenRefreshTimer) {
+    clearTimeout(tokenRefreshTimer);
+    tokenRefreshTimer = null;
   }
-
-  // 커스텀 이벤트로 웹뷰에 알림
-  window.dispatchEvent(
-    new CustomEvent('webLoginSuccess', {
-      detail: {
-        token: accessToken,
-        refreshToken: refreshToken,
-      },
-    })
-  );
-};
-
-/**
- * 앱에 로그아웃 이벤트 전달
- */
-const notifyAppLogout = (): void => {
-  // 네이티브 앱에 로그아웃 알림
-  const messageHandlers = window.webkit?.messageHandlers as
-    | {
-        loginHandler?: {
-          postMessage: (message: Record<string, unknown>) => void;
-        };
-        logoutHandler?: {
-          postMessage: (message: Record<string, unknown>) => void;
-        };
-      }
-    | undefined;
-  if (
-    messageHandlers &&
-    typeof messageHandlers.logoutHandler?.postMessage === 'function'
-  ) {
-    messageHandlers.logoutHandler.postMessage({ type: 'logout' });
-  }
-
-  // 커스텀 이벤트로 웹뷰에 알림
-  window.dispatchEvent(new CustomEvent('webLogout'));
+  syncTokenWithApp(); // 로그아웃 이벤트
 };
 
 /**
@@ -255,22 +233,7 @@ export const logout = async (): Promise<void> => {
     const email = getEmailFromToken();
     if (email) {
       // logoutUser API 호출 (에러가 나도 무시)
-      try {
-        // Axios import 제거 - 사용하지 않음
-        const response = await fetch('/user/logout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      } catch (error) {
-        console.log('서버 로그아웃 실패 (무시됨):', error);
-      }
+      await Axios.post('/user/logout', { email });
     }
   } catch (error) {
     console.log('로그아웃 처리 중 오류:', error);
@@ -309,21 +272,9 @@ export const forceSaveAppToken = (
   accessToken: string,
   refreshToken?: string
 ): void => {
-  // 앱에서는 항상 localStorage에 저장 (영구 보관)
-  localStorage.setItem('accessToken', accessToken);
-  if (refreshToken) {
-    localStorage.setItem('refreshToken', refreshToken);
-  }
-
-  // Cookies에도 저장 (웹뷰 호환성)
-  Cookies.set('accessToken', accessToken, { path: '/' });
-  if (refreshToken) {
-    Cookies.set('refreshToken', refreshToken, { path: '/' });
-  }
-
-  // 토큰 갱신 타이머 설정
+  setToken(accessToken, refreshToken);
   setupTokenRefreshTimer(accessToken);
-
+  // 앱-웹뷰 동기화는 필요시 호출자가 직접 syncTokenWithApp 사용
   console.log('앱에 토큰 강제 저장 완료');
 };
 
@@ -377,3 +328,22 @@ export const handleAppLogin = (loginInfo: {
 export const handleAppLogout = (): void => {
   logout();
 };
+
+/**
+ * 에러 객체에서 사용자 친화적인 메시지를 추출하는 유틸 함수
+ */
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ('response' in error && typeof (error as any).response === 'object') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = (error as any).response?.data;
+      if (data && typeof data.message === 'string') {
+        return data.message;
+      }
+    }
+    return error.message;
+  }
+  if (typeof error === 'string') return error;
+  return '알 수 없는 오류';
+}

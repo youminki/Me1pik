@@ -1,6 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+
 import FailIcon from '../../assets/completes/FailIcon.svg';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 

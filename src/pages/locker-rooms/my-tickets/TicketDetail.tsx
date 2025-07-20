@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import Spinner from '@/components/spinner';
+
 import {
   getUserTickets,
   TicketItem,
 } from '@/api-utils/schedule-managements/tickets/ticket';
+import Spinner from '@/components/spinner';
 
 const TicketDetail: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();

@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { theme } from '../../../styles/theme';
+
 import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
+import { theme } from '../../../styles/theme';
 
 export interface ProductOptionsProps {
   selectedSize: string;

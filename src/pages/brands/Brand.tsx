@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
-import { theme } from '../../styles/theme';
-import { BrandList } from '../../components/brands/BrandList';
-import { ControlSection } from '../../components/brands/ControlSection';
-import StatsSection from '../../components/brands/StatsSection';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
+
 import {
   getBrandList,
   Brand as ApiBrand,
 } from '../../api-utils/product-managements/brands/brandApi';
+import { BrandList } from '../../components/brands/BrandList';
+import { ControlSection } from '../../components/brands/ControlSection';
+import StatsSection from '../../components/brands/StatsSection';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import { theme } from '../../styles/theme';
 
 interface LocalBrand {
   id: number;

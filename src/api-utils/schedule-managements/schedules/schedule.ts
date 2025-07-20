@@ -1,4 +1,4 @@
-// src/api/scedule/scedule.ts
+// src/api/schedule/schedule.ts
 import { Axios } from '../../Axios';
 
 // 예약 스케줄 생성 요청 타입

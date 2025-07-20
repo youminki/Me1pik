@@ -3,24 +3,25 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { keyframes } from 'styled-components';
+
+import { addCartItem } from '../../api-utils/product-managements/carts/cart';
 import {
   useProductInfo,
   ProductDetail as APIProductDetail,
 } from '../../api-utils/product-managements/uploads/productApi';
+import ShoppingBasket from '../../assets/homes/home-details/ShoppingBasket.svg';
+import BottomBar from '../../components/homes/home-details/BottomBar';
 import ImageSlider from '../../components/homes/home-details/ImageSlider';
+import MaterialInfo from '../../components/homes/home-details/MaterialInfo';
+import PaymentMethod from '../../components/homes/home-details/PaymentMethod';
+import ProductDetails from '../../components/homes/home-details/ProductDetails';
 import ProductInfo from '../../components/homes/home-details/ProductInfo';
 import ProductOptions from '../../components/homes/home-details/ProductOptions';
-import PaymentMethod from '../../components/homes/home-details/PaymentMethod';
-import SizeInfo from '../../components/homes/home-details/SizeInfo';
-import MaterialInfo from '../../components/homes/home-details/MaterialInfo';
-import ProductDetails from '../../components/homes/home-details/ProductDetails';
-import ServiceSelection from '../../components/homes/home-details/ServiceSelection';
 import RentalOptions from '../../components/homes/home-details/RentalOptions';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-import BottomBar from '../../components/homes/home-details/BottomBar';
-import ShoppingBasket from '../../assets/homes/home-details/ShoppingBasket.svg';
-import { addCartItem } from '../../api-utils/product-managements/carts/cart';
+import ServiceSelection from '../../components/homes/home-details/ServiceSelection';
+import SizeInfo from '../../components/homes/home-details/SizeInfo';
 import ErrorMessage from '../../components/shared/ErrorMessage';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 
 interface ProductDetail {
   id: number;

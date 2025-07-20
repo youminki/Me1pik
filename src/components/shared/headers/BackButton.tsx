@@ -1,6 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+
 import BackButtonIcon from '../assets/BackButton.svg';
 
 interface BackButtonProps {
@@ -21,7 +22,7 @@ const BackButton: React.FC<BackButtonProps> = ({ onClick }) => {
   return (
     <Container>
       <IconButton onClick={handleClick}>
-        <Icon src={BackButtonIcon} alt="뒤로 가기" />
+        <Icon src={BackButtonIcon} alt='뒤로 가기' />
       </IconButton>
     </Container>
   );

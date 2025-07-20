@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaMyStyle } from '../../hooks/useValidationYup';
-import InputField from '../../components/shared/forms/InputField';
-import { theme } from '../../styles/theme';
-import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
-import { CustomSelect } from '../../components/shared/forms/CustomSelect';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
+import React, { useState, useEffect } from 'react';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import styled, { ThemeProvider } from 'styled-components';
+
 import {
   useUserStyle,
   updateUserStyle,
   UserStyle,
 } from '../../api-utils/user-managements/users/userApi';
+import FixedBottomBar from '../../components/fixed-bottom-bar';
+import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
+import { CustomSelect } from '../../components/shared/forms/CustomSelect';
+import InputField from '../../components/shared/forms/InputField';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
+import { schemaMyStyle } from '../../hooks/useValidationYup';
+import { theme } from '../../styles/theme';
 
 interface FormData {
   height: string;

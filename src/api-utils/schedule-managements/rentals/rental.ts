@@ -1,5 +1,6 @@
-import { Axios } from '../../Axios';
 import { useMutation } from '@tanstack/react-query';
+
+import { Axios } from '../../Axios';
 
 // --- Types ---
 /**

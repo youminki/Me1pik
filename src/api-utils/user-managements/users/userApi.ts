@@ -1,6 +1,8 @@
-import { Axios } from '../../Axios';
 import { useQuery } from '@tanstack/react-query';
-import Cookies from 'js-cookie';
+
+import { Axios } from '../../Axios';
+
+import { getCurrentToken } from '@/utils/auth';
 
 export interface SignupRequest {
   email: string;
@@ -398,7 +400,7 @@ export function useMyInfo() {
  * 헤더 정보(닉네임, 이메일)를 react-query로 가져오는 커스텀 훅
  */
 export function useHeaderInfo() {
-  const token = Cookies.get('accessToken');
+  const token = getCurrentToken();
 
   return useQuery<HeaderInfoResponse>({
     queryKey: ['headerInfo', token], // 토큰을 쿼리 키에 포함하여 토큰 변경 시 쿼리 무효화

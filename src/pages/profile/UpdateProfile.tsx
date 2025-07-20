@@ -1,21 +1,23 @@
 // src/pages/Profile/UpdateProfile.tsx
 
-import React, { useEffect, useState } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
+import styled, { ThemeProvider } from 'styled-components';
 
-import InputField from '@/components/shared/forms/InputField';
-import { CustomSelect } from '@/components/shared/forms/CustomSelect';
-import { theme } from '@/styles/theme';
-import FixedBottomBar from '@/components/fixed-bottom-bar';
-import ReusableModal from '@/components/shared/modals/ReusableModal';
-import { regionDistrictData } from '@/components/signups/regionDistrictData';
-
-// userApi에서 가져올 함수들
 import {
   useMyInfo,
   updateMyInfo,
 } from '../../api-utils/user-managements/users/userApi';
+
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import { CustomSelect } from '@/components/shared/forms/CustomSelect';
+import InputField from '@/components/shared/forms/InputField';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { regionDistrictData } from '@/components/signups/regionDistrictData';
+import { theme } from '@/styles/theme';
+import { getErrorMessage } from '@/utils/auth';
+
+// userApi에서 가져올 함수들
 
 export type UpdateProfileFormData = {
   emailId: string;
@@ -128,42 +130,66 @@ const UpdateProfile: React.FC = () => {
   const [signupResult, setSignupResult] = useState<React.ReactNode>('');
   const [showResultModal, setShowResultModal] = useState<boolean>(false);
 
-  const onSubmit: SubmitHandler<UpdateProfileFormData> = async (data) => {
-    try {
-      // PATCH /user/my-info 에 요청: nickname, address(시/도 + " " + 구/군)
-      const payload = {
-        nickname: data.nickname,
-        address: `${data.region} ${data.district}`,
-      };
-      await updateMyInfo(payload);
-      setSignupResult('✅ 회원정보가 성공적으로 업데이트되었습니다.');
-      setShowResultModal(true);
-    } catch (err: unknown) {
-      console.error('회원정보 수정 오류:', err);
-      const msg =
-        err instanceof Error &&
-        'response' in err &&
-        typeof (err as { response?: unknown }).response === 'object' &&
-        (err as { response?: { data?: { message?: string } } }).response?.data
-          ?.message
-          ? (err as { response: { data: { message: string } } }).response.data
-              .message
-          : err instanceof Error
-            ? err.message
-            : '알 수 없는 오류';
-      setSignupResult(`❌ 업데이트 중 오류가 발생했습니다: ${msg}`);
-      setShowResultModal(true);
-    }
-  };
+  const onSubmit = useCallback<SubmitHandler<UpdateProfileFormData>>(
+    async (data) => {
+      try {
+        const payload = {
+          nickname: data.nickname,
+          address: `${data.region} ${data.district}`,
+        };
+        await updateMyInfo(payload);
+        setSignupResult('✅ 회원정보가 성공적으로 업데이트되었습니다.');
+        setShowResultModal(true);
+      } catch (err: unknown) {
+        console.error('회원정보 수정 오류:', err);
+        const msg = getErrorMessage(err);
+        setSignupResult(`❌ 업데이트 중 오류가 발생했습니다: ${msg}`);
+        setShowResultModal(true);
+      }
+    },
+    [updateMyInfo]
+  );
 
-  const onSaveClick = () => {
+  // 시/도 & 구/군 옵션 useMemo로 최적화
+  const regionOptions = useMemo(
+    () =>
+      Object.keys(regionDistrictData).map((region) => (
+        <option key={region} value={region}>
+          {region}
+        </option>
+      )),
+    []
+  );
+  const region = watch('region');
+  const districtOptions = useMemo(() => {
+    if (!region)
+      return [
+        <option key='' value=''>
+          구/군을 선택하세요
+        </option>,
+      ];
+    const districts =
+      regionDistrictData[region as keyof typeof regionDistrictData] || [];
+    return [
+      <option key='' value=''>
+        구/군을 선택하세요
+      </option>,
+      ...districts.map((district) => (
+        <option key={district} value={district}>
+          {district}
+        </option>
+      )),
+    ];
+  }, [region]);
+
+  const onSaveClick = useCallback(() => {
     handleSubmit(onSubmit)();
-  };
+  }, [handleSubmit, onSubmit]);
 
-  const handleResultModalClose = () => {
+  const handleResultModalClose = useCallback(() => {
     setShowResultModal(false);
     // 필요 시, 성공 후 다른 동작(ex: 뒤로 이동 등)을 이곳에 추가 가능
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -258,11 +284,7 @@ const UpdateProfile: React.FC = () => {
                 {...register('region', { required: '시/도를 선택하세요' })}
               >
                 <option value=''>시/도를 선택하세요</option>
-                {Object.keys(regionDistrictData).map((region) => (
-                  <option key={region} value={region}>
-                    {region}
-                  </option>
-                ))}
+                {regionOptions}
               </InputField>
 
               <InputField
@@ -272,15 +294,7 @@ const UpdateProfile: React.FC = () => {
                 {...register('district', { required: '구/군을 선택하세요' })}
                 disabled={!watch('region')}
               >
-                <option value=''>구/군을 선택하세요</option>
-                {watch('region') &&
-                  regionDistrictData[
-                    watch('region') as keyof typeof regionDistrictData
-                  ]?.map((district) => (
-                    <option key={district} value={district}>
-                      {district}
-                    </option>
-                  ))}
+                {districtOptions}
               </InputField>
             </RowLabel>
 

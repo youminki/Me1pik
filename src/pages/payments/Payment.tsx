@@ -1,33 +1,34 @@
 // src/pages/PaymentPage.tsx
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { useLocation, useNavigate } from 'react-router-dom';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import InputField from '../../components/shared/forms/InputField';
-import {
-  YellowButton,
-  BlackButton,
-} from '../../components/shared/buttons/ButtonWrapper';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-import ReusableModal2 from '../../components/shared/modals/ReusableModalV2';
-import AddressSearchModal from '../../components/shared/modals/AddressSearchModal';
-import PriceIcon from '../../assets/baskets/PriceIcon.svg';
-import ProductInfoIcon from '../../assets/baskets/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../../assets/baskets/ServiceInfoIcon.svg';
-import { useUserTickets } from '../../api-utils/schedule-managements/tickets/ticket';
+
 import {
   useCreateRentalOrder,
   RentalOrderRequest,
 } from '../../api-utils/schedule-managements/rentals/rental';
+import { useUserTickets } from '../../api-utils/schedule-managements/tickets/ticket';
 import {
   useAddresses,
   Address,
 } from '../../api-utils/user-managements/addresses/address';
-import DeliveryListModal from '../../components/shared/modals/DeliveryListModal';
+import PriceIcon from '../../assets/baskets/PriceIcon.svg';
+import ProductInfoIcon from '../../assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '../../assets/baskets/ServiceInfoIcon.svg';
+import FixedBottomBar from '../../components/fixed-bottom-bar';
+import {
+  YellowButton,
+  BlackButton,
+} from '../../components/shared/buttons/ButtonWrapper';
 import EmptyState from '../../components/shared/EmptyState';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import CommonErrorMessage from '../../components/shared/ErrorMessage';
+import InputField from '../../components/shared/forms/InputField';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import AddressSearchModal from '../../components/shared/modals/AddressSearchModal';
+import DeliveryListModal from '../../components/shared/modals/DeliveryListModal';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
+import ReusableModal2 from '../../components/shared/modals/ReusableModalV2';
 
 declare global {
   interface Window {

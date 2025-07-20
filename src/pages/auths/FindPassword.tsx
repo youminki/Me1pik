@@ -1,7 +1,11 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { ThemeProvider } from 'styled-components';
+import styled from 'styled-components';
 import * as yup from 'yup';
+
+import { resetPassword } from '../../api-utils/user-managements/users/userApi';
 import {
   FormSectionWrapper,
   FormSection,
@@ -14,13 +18,10 @@ import {
   FindBtn,
   MelpikPointText,
 } from '../../auth-utils/AuthCommon';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-import { resetPassword } from '../../api-utils/user-managements/users/userApi';
-import { theme } from '../../styles/theme';
-import { ThemeProvider } from 'styled-components';
-import styled from 'styled-components';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import CommonErrorMessage from '../../components/shared/ErrorMessage';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
+import { theme } from '../../styles/theme';
 
 // Validation schema
 const schemaFindPassword = yup.object().shape({

@@ -7,9 +7,11 @@ import React, {
   InputHTMLAttributes,
 } from 'react';
 import styled from 'styled-components';
-import Button02 from '@/components/shared/buttons/SecondaryButton';
+
 import type { FieldError } from 'react-hook-form';
+
 import { StyledInput } from '@/auth-utils/AuthCommon';
+import Button02 from '@/components/shared/buttons/SecondaryButton';
 import { CustomSelect } from '@/components/shared/forms/CustomSelect';
 
 type InputFieldProps = {
@@ -55,7 +57,7 @@ function parsePrefixContent(content: string) {
   });
 }
 
-const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
+const InputFieldBase = forwardRef<HTMLInputElement, InputFieldProps>(
   (
     {
       label,
@@ -219,6 +221,9 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     );
   }
 );
+
+InputFieldBase.displayName = 'InputField';
+const InputField = React.memo(InputFieldBase);
 
 export default InputField;
 

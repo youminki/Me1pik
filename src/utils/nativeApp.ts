@@ -1,4 +1,4 @@
-import Cookies from 'js-cookie';
+import { setToken, syncTokenWithApp } from './auth';
 
 // 네이티브 앱 타입 선언
 declare global {
@@ -66,31 +66,16 @@ export const saveNativeLoginInfo = (loginInfo: {
   expiresAt: string;
 }): void => {
   try {
-    // 앱에서는 항상 localStorage에 저장 (영구 보관)
-    localStorage.setItem('accessToken', loginInfo.token);
-    localStorage.setItem('refreshToken', loginInfo.refreshToken);
+    setToken(loginInfo.token, loginInfo.refreshToken);
     localStorage.setItem('userId', loginInfo.id);
     localStorage.setItem('userEmail', loginInfo.email);
     localStorage.setItem('userName', loginInfo.name);
     localStorage.setItem('tokenExpiresAt', loginInfo.expiresAt);
-
-    // Cookies에도 저장 (웹뷰 호환성)
-    Cookies.set('accessToken', loginInfo.token, { path: '/' });
-    Cookies.set('refreshToken', loginInfo.refreshToken, { path: '/' });
-
+    syncTokenWithApp(loginInfo.token, loginInfo.refreshToken);
     console.log('네이티브 앱에 로그인 정보 영구 저장 완료');
   } catch (error) {
     console.error('네이티브 앱 로그인 정보 저장 실패:', error);
   }
-};
-
-import { isProtectedRoute as checkProtectedRoute } from './auth';
-
-/**
- * 인증이 필요한 페이지인지 확인
- */
-export const isProtectedRoute = (pathname: string): boolean => {
-  return checkProtectedRoute(pathname);
 };
 
 /**

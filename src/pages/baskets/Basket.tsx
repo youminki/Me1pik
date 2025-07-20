@@ -1,19 +1,20 @@
 // src/pages/Basket.tsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+
+import {
+  getCartItems,
+  deleteCartItem,
+} from '../../api-utils/product-managements/carts/cart';
 import BasketIcon from '../../assets/baskets/BasketIcon.svg';
 import PriceIcon from '../../assets/baskets/PriceIcon.svg';
 import ProductInfoIcon from '../../assets/baskets/ProductInfoIcon.svg';
 import ServiceInfoIcon from '../../assets/baskets/ServiceInfoIcon.svg';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
-import ReusableModal2 from '../../components/shared/modals/ReusableModalV2';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import EmptyState from '../../components/shared/EmptyState';
-import {
-  getCartItems,
-  deleteCartItem,
-} from '../../api-utils/product-managements/carts/cart';
-import { useNavigate } from 'react-router-dom';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import ReusableModal2 from '../../components/shared/modals/ReusableModalV2';
 
 interface BasketItemForPayment {
   id: number;

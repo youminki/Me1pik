@@ -1,14 +1,14 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaCardRegistration } from '../../../hooks/useValidationYup';
 
+import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import InputField from '../../../components/shared/forms/InputField';
 import ReusableModal from '../../../components/shared/modals/ReusableModal';
 import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
-import FixedBottomBar from '../../../components/fixed-bottom-bar';
+import { schemaCardRegistration } from '../../../hooks/useValidationYup';
 
 interface CardFormValues {
   cardNumber: string;

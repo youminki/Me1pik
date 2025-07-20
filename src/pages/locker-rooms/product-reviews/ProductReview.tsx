@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import StatsSection from '@/components/stats-section';
-import PeriodSection from '@/components/period-section';
-import EmptyState from '@/components/shared/EmptyState';
+import styled from 'styled-components';
 
-import sampleImage from '@/assets/sample-dress.svg';
-import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
+import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg';
 import EvaluationIcon from '../../../assets/baskets/EvaluationIcon.svg';
 import FilledStarIcon from '../../../assets/baskets/FilledStarIcon.svg';
-import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg';
+import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
+
+import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
+import sampleImage from '@/assets/sample-dress.svg';
+import PeriodSection from '@/components/period-section';
+import EmptyState from '@/components/shared/EmptyState';
+import StatsSection from '@/components/stats-section';
 
 interface BasketItem {
   id: number;

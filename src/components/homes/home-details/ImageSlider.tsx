@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useSwipeable, SwipeableHandlers } from 'react-swipeable';
 import styled from 'styled-components';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 export interface ImageSliderProps {
   images: string[];

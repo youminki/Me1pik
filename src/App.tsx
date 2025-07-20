@@ -1,97 +1,79 @@
-import React, { useEffect, useState, useCallback, Suspense } from 'react';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
-  Routes,
-  Route,
   Navigate,
+  Route,
+  Routes,
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import AppLayout from '@/pages/layouts/AppLayout';
+import { ThemeProvider } from 'styled-components';
 
-import Landing from '@/pages/landings/Landing';
-import Login from '@/pages/auths/Login';
-import ReadyLogin from '@/pages/auths/LoginReady';
-
-import TestLogin from '@/pages/auths/LoginTest';
-import Signup from '@/pages/auths/Signup';
+import AddCardPayple from '@/__tests__/development/AddCardPayple';
+import PaypleTest from '@/__tests__/development/PaypleTest';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import Alarm from '@/pages/alarms/Alarm';
+import Analysis from '@/pages/analyses/Analysis';
 import FindId from '@/pages/auths/FindId';
 import FindPassword from '@/pages/auths/FindPassword';
-
-import MyInfoList from '@/pages/my-info/MyInfoList';
-import MyStyle from '@/pages/my-styles/MyStyle';
-
+import Login from '@/pages/auths/Login';
+import ReadyLogin from '@/pages/auths/LoginReady';
+import TestLogin from '@/pages/auths/LoginTest';
+import PasswordChange from '@/pages/auths/PasswordChange';
+import Signup from '@/pages/auths/Signup';
 import Basket from '@/pages/baskets/Basket';
-import Alarm from '@/pages/alarms/Alarm';
-import Payment from '@/pages/payments/Payment';
-import PersonalLink from '@/pages/links/PersonalLink';
-
-import Home from '@/pages/homes/Home';
-import HomeDetail from '@/pages/homes/HomeDetail';
-import Analysis from '@/pages/analyses/Analysis';
-
 import Brand from '@/pages/brands/Brand';
 import BrandDetail from '@/pages/brands/BrandDetail';
-
-import Melpik from '@/pages/melpiks/Melpik';
-import CreateMelpik from '@/pages/melpiks/creates/CreateMelpik';
-import ContemporarySettings from '@/pages/melpiks/creates/ContemporarySettings';
-import Setting from '@/pages/melpiks/settings/SettingMelpik';
-import SalesSettlement from '@/pages/melpiks/calculates/SalesSettlement';
-import SalesSettlementDetail from '@/pages/melpiks/calculates/SalesSettlementDetail';
-import SettlementRequest from '@/pages/melpiks/calculates/SettlementRequest';
-
+import CustomerService from '@/pages/customer-services/CustomerService';
+import DocumentDetail from '@/pages/customer-services/documents/DocumentDetail';
+import DocumentList from '@/pages/customer-services/documents/DocumentList';
+import NotFound from '@/pages/errors/NotFound';
+import Home from '@/pages/homes/Home';
+import HomeDetail from '@/pages/homes/HomeDetail';
+import Landing from '@/pages/landings/Landing';
+import AppLayout from '@/pages/layouts/AppLayout';
+import Link from '@/pages/links/Link';
+import PersonalLink from '@/pages/links/PersonalLink';
 import LockerRoom from '@/pages/locker-rooms/LockerRoom';
-import UsageHistory from '@/pages/locker-rooms/usage-histories/UsageHistory';
-import Point from '@/pages/locker-rooms/points/Point';
 import MyCloset from '@/pages/locker-rooms/my-closets/MyCloset';
 import MyTicket from '@/pages/locker-rooms/my-tickets/MyTicket';
 import PurchaseOfPasses from '@/pages/locker-rooms/my-tickets/PurchaseOfPasses';
-
+import TicketDetail from '@/pages/locker-rooms/my-tickets/TicketDetail';
 import TicketPayment from '@/pages/locker-rooms/my-tickets/TicketPayment.tsx';
-
-// import SubscriptionPass from '@/pages/locker-rooms/my-tickets/SubscriptionPass';
-// import OnetimePass from '@/pages/locker-rooms/my-tickets/OnetimePass';
-
-import PaymentMethod from '@/pages/locker-rooms/payment-methods/PaymentMethod';
 import AddCard from '@/pages/locker-rooms/payment-methods/AddCard';
-
+import PaymentMethod from '@/pages/locker-rooms/payment-methods/PaymentMethod';
+import Point from '@/pages/locker-rooms/points/Point';
 import ProductReview from '@/pages/locker-rooms/product-reviews/ProductReview';
 import ProductReviewWrite from '@/pages/locker-rooms/product-reviews/ProductReviewWrite';
-
-import CustomerService from '@/pages/customer-services/CustomerService';
-import DocumentList from '@/pages/customer-services/documents/DocumentList';
-import DocumentDetail from '@/pages/customer-services/documents/DocumentDetail';
-
-import Scedule from '@/pages/melpiks/schedules/Schedule';
+import UsageHistory from '@/pages/locker-rooms/usage-histories/UsageHistory';
+import SalesSettlement from '@/pages/melpiks/calculates/SalesSettlement';
+import SalesSettlementDetail from '@/pages/melpiks/calculates/SalesSettlementDetail';
+import SettlementRequest from '@/pages/melpiks/calculates/SettlementRequest';
+import ContemporarySettings from '@/pages/melpiks/creates/ContemporarySettings';
+import CreateMelpik from '@/pages/melpiks/creates/CreateMelpik';
+import Melpik from '@/pages/melpiks/Melpik';
+import Schedule from '@/pages/melpiks/schedules/Schedule';
 import ScheduleConfirmation from '@/pages/melpiks/schedules/ScheduleConfirmation';
 import ScheduleReservation1 from '@/pages/melpiks/schedules/ScheduleReservationStep1';
 import ScheduleReservation2 from '@/pages/melpiks/schedules/ScheduleReservationStep2';
 import ScheduleReservation3 from '@/pages/melpiks/schedules/ScheduleReservationStep3';
-
-import PaypleTest from '@/__tests__/development/PaypleTest';
-import AddCardPayple from '@/__tests__/development/AddCardPayple';
-import PasswordChange from '@/pages/auths/PasswordChange';
+import Setting from '@/pages/melpiks/settings/SettingMelpik';
+import MyInfoList from '@/pages/my-info/MyInfoList';
+import MyStyle from '@/pages/my-styles/MyStyle';
+import Payment from '@/pages/payments/Payment';
 import PaymentComplete from '@/pages/payments/PaymentComplete';
 import PaymentFail from '@/pages/payments/Paymentfail';
-import TicketDetail from '@/pages/locker-rooms/my-tickets/TicketDetail';
-
-import Link from '@/pages/links/Link';
-import UpdateProfile from '@/pages/profile/UpdateProfile';
 import ChangePassword from '@/pages/profile/ChangePassword';
 import DeliveryManagement from '@/pages/profile/DeliveryManagement';
 import EditAddress from '@/pages/profile/EditAddress';
-import NotFound from '@/pages/errors/NotFound';
-
-import { isNativeApp } from '@/utils/nativeApp';
-import {
-  saveTokens,
-  isProtectedRoute,
-  checkTokenAndRedirect,
-} from '@/utils/auth';
-import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import { ThemeProvider } from 'styled-components';
+import UpdateProfile from '@/pages/profile/UpdateProfile';
 import { theme } from '@/styles/theme';
+import {
+  checkTokenAndRedirect,
+  isProtectedRoute,
+  saveTokens,
+} from '@/utils/auth';
+import { isNativeApp } from '@/utils/nativeApp';
 
 const AuthGuard: React.FC = () => {
   const location = useLocation();
@@ -236,7 +218,7 @@ const App: React.FC = () => {
               />
 
               {/* Schedule */}
-              <Route path='/sales-schedule' element={<Scedule />} />
+              <Route path='/sales-schedule' element={<Schedule />} />
               <Route
                 path='/schedule/confirmation/:scheduleId'
                 element={<ScheduleConfirmation />}

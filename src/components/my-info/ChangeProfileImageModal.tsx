@@ -6,8 +6,8 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import styled from 'styled-components';
 import { FaTimes, FaUserCircle } from 'react-icons/fa';
+import styled from 'styled-components';
 
 interface ChangeProfileImageModalProps {
   isOpen: boolean;

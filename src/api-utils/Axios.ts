@@ -1,6 +1,8 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+import { getCurrentToken } from '@/utils/auth';
+
 export const Axios = axios.create({
   baseURL: 'https://api.stylewh.com',
   withCredentials: true,
@@ -13,14 +15,10 @@ export const Axios = axios.create({
 // 요청 인터셉터: 매 요청마다 최신 토큰을 헤더에 추가
 Axios.interceptors.request.use(
   (config) => {
-    const localToken = localStorage.getItem('accessToken');
-    const sessionToken = sessionStorage.getItem('accessToken');
-    const cookieToken = Cookies.get('accessToken');
-    const accessToken =
-      localToken?.trim() || sessionToken?.trim() || cookieToken?.trim();
+    const token = getCurrentToken();
 
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

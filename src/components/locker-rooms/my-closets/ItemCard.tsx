@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+
+import DeleteButton from '../../../assets/locker-rooms/DeleteButton.svg';
 import SampleMyCloset1 from '../../../assets/locker-rooms/SampleMyCloset1.svg';
 import SampleMyCloset2 from '../../../assets/locker-rooms/SampleMyCloset2.svg';
 import SampleMyCloset3 from '../../../assets/locker-rooms/SampleMyCloset3.svg';
 import SampleMyCloset4 from '../../../assets/locker-rooms/SampleMyCloset4.svg';
-import DeleteButton from '../../../assets/locker-rooms/DeleteButton.svg';
 import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
 
 const sampleImages = [
@@ -93,7 +94,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
   );
 };
 
-export default ItemCard;
+export default React.memo(ItemCard);
 
 const CardContainer = styled.div`
   position: relative;

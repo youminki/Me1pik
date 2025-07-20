@@ -1,5 +1,6 @@
-import { Axios } from '../../Axios';
 import { useQuery } from '@tanstack/react-query';
+
+import { Axios } from '../../Axios';
 
 export interface ClosetItem {
   productId: number;

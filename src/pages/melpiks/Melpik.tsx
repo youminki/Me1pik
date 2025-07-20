@@ -1,14 +1,14 @@
 import React from 'react';
-import styled, { ThemeProvider } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { theme } from '@/styles/theme';
-import StatsSection from '@/components/stats-section';
+import styled, { ThemeProvider } from 'styled-components';
 
-import MelpikIcon from '@/assets/melpiks/MelpikIcon.svg';
-import MelpikCreateIcon from '@/assets/melpiks/MelpikCreateIcon.svg';
-import MelpikScheduelerIcon from '@/assets/melpiks/MelpikScheduelerIcon.svg';
 import MelpikCalculateIcon from '@/assets/melpiks/MelpikCalculateIcon.svg';
+import MelpikCreateIcon from '@/assets/melpiks/MelpikCreateIcon.svg';
+import MelpikIcon from '@/assets/melpiks/MelpikIcon.svg';
 import MelpikOptionIcon from '@/assets/melpiks/MelpikOptionIcon.svg';
+import MelpikScheduelerIcon from '@/assets/melpiks/MelpikScheduelerIcon.svg';
+import StatsSection from '@/components/stats-section';
+import { theme } from '@/styles/theme';
 
 const menuItems = [
   { icon: MelpikCreateIcon, label: '내 옷장', path: '/create-melpik' },

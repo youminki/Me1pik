@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
-import StatsSection from '../../../components/stats-section';
-import Spinner from '../../../components/spinner';
+
 import { useMyCards } from '../../../api-utils/payments/default/payment';
 import { CardItem } from '../../../api-utils/payments/default/payment';
+import Spinner from '../../../components/spinner';
+import StatsSection from '../../../components/stats-section';
+
+import { getCurrentToken } from '@/utils/auth';
 
 interface UserInfo {
   userId: string;
@@ -61,7 +64,7 @@ const PaymentMethod: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const token = localStorage.getItem('accessToken');
+        const token = getCurrentToken();
         if (!token) throw new Error('로그인 필요');
         const res = await fetch('https://api.stylewh.com/user/me', {
           headers: { Authorization: `Bearer ${token}` },

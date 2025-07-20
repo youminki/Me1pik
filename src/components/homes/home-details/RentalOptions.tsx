@@ -1,14 +1,16 @@
 // src/page/RentalOptions.tsx
-import React, { useState, useEffect } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
-import Calendar from './Calendar';
 import { isSameDay, isBefore, addDays as _addDays } from 'date-fns';
 import Holidays from 'date-holidays';
-import ReusableModal2 from '../../../components/homes/home-details/HomeDetailModal';
-import ReusableModal from '../../../components/shared/modals/ReusableModal';
-import RentalSelectDateIcon from '../../../assets/homes/home-details/RentalSelectDateIcon.svg';
+import React, { useState, useEffect } from 'react';
+import styled, { createGlobalStyle } from 'styled-components';
+
 import { getUnavailableDates } from '../../../api-utils/schedule-managements/schedules/schedule';
+import RentalSelectDateIcon from '../../../assets/homes/home-details/RentalSelectDateIcon.svg';
+import ReusableModal2 from '../../../components/homes/home-details/HomeDetailModal';
 import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
+import ReusableModal from '../../../components/shared/modals/ReusableModal';
+
+import Calendar from './Calendar';
 
 const hd = new Holidays('KR');
 

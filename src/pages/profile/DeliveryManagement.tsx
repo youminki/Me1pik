@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import FixedBottomBar from '@/components/fixed-bottom-bar';
-import AddressSearchModal from '@/components/shared/modals/AddressSearchModal';
-import EmptyState from '@/components/shared/EmptyState';
+import styled, { css } from 'styled-components';
+
 import {
   useAddresses,
   useUpdateAddress,
@@ -12,6 +10,10 @@ import {
   Address,
   UpdateAddressRequest,
 } from '../../api-utils/user-managements/addresses/address';
+
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import EmptyState from '@/components/shared/EmptyState';
+import AddressSearchModal from '@/components/shared/modals/AddressSearchModal';
 
 const DeliveryManagement: React.FC = () => {
   const navigate = useNavigate();

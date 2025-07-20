@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+
 import AlarmIcon from '../../assets/AlarmIcon.svg';
 import PeriodSection from '../../components/period-section';
 import EmptyState from '../../components/shared/EmptyState';

@@ -1,21 +1,20 @@
 // src/pages/locker-rooms.tsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import StatsSection from '@/components/locker-rooms/StatsSection';
-
-import LockerRoomIcons from '@/assets/LockerRoomIcons.svg';
-import ClosetIcon from '@/assets/locker-rooms/ClosetIcon.svg';
-import HistoryIcon from '@/assets/locker-rooms/HistoryIcon.svg';
-import PointsIcon from '@/assets/locker-rooms/PointsIcon.svg';
-import TicketIcon from '@/assets/locker-rooms/TicketIcon.svg';
-import PaymentIcon from '@/assets/locker-rooms/PaymentIcon.svg';
-import ReviewIcon from '@/assets/locker-rooms/ReviewIcon.svg';
+import styled from 'styled-components';
 
 import {
   getMembershipInfo,
   MembershipInfo,
 } from '@/api-utils/user-managements/users/userApi';
+import ClosetIcon from '@/assets/locker-rooms/ClosetIcon.svg';
+import HistoryIcon from '@/assets/locker-rooms/HistoryIcon.svg';
+import PaymentIcon from '@/assets/locker-rooms/PaymentIcon.svg';
+import PointsIcon from '@/assets/locker-rooms/PointsIcon.svg';
+import ReviewIcon from '@/assets/locker-rooms/ReviewIcon.svg';
+import TicketIcon from '@/assets/locker-rooms/TicketIcon.svg';
+import LockerRoomIcons from '@/assets/LockerRoomIcons.svg';
+import StatsSection from '@/components/locker-rooms/StatsSection';
 
 const menuItems = [
   { icon: ClosetIcon, label: '내 옷장', path: '/my-closet', disabled: false },

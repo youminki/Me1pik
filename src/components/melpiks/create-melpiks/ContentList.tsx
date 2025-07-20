@@ -1,10 +1,11 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { theme } from '../../../styles/theme';
+import styled from 'styled-components';
+
 import CreateMelpik1 from '../../../assets/melpiks/Inventory1.svg';
 import CreateMelpik2 from '../../../assets/melpiks/Inventory1.svg';
 import SettingIcon from '../../../assets/melpiks/Setting.svg';
+import { theme } from '../../../styles/theme';
 
 interface ContentItem {
   image: string;
@@ -107,13 +108,11 @@ const ContentList: React.FC = () => {
     },
   ];
 
-  return (
-    <ScrollableContent>
-      {data.map((item, index) => (
-        <Content key={index} item={item} />
-      ))}
-    </ScrollableContent>
-  );
+  const renderedItems = useMemo(() => {
+    return data.map((item, index) => <Content key={index} item={item} />);
+  }, [data]);
+
+  return <ScrollableContent>{renderedItems}</ScrollableContent>;
 };
 
 export default ContentList;

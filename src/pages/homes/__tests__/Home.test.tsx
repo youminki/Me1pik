@@ -11,16 +11,21 @@ jest.mock('date-holidays', () => {
   };
 });
 
+import { TextEncoder, TextDecoder } from 'util';
+
 if (typeof global.TextEncoder === 'undefined') {
-  global.TextEncoder = require('util').TextEncoder;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  global.TextEncoder = TextEncoder as any;
 }
 if (typeof global.TextDecoder === 'undefined') {
-  global.TextDecoder = require('util').TextDecoder;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  global.TextDecoder = TextDecoder as any;
 }
 
 import { render, screen } from '@testing-library/react';
-import Home from '../Home';
 import { MemoryRouter } from 'react-router-dom';
+
+import Home from '../Home';
 
 // 대량 mock 데이터 생성
 const mockProducts = Array.from({ length: 500 }, (_, i) => ({
@@ -62,7 +67,7 @@ describe('Home 렌더링 성능 테스트', () => {
     const brandSpans = screen.getAllByTestId('brand');
     expect(brandSpans.length).toBeGreaterThan(400);
     // 렌더링 시간 출력
-    // eslint-disable-next-line no-console
+
     console.log('Home 렌더링 소요(ms):', end - start);
   });
 });

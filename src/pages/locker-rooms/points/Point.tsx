@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import StatsSection from '@/components/stats-section';
+
 import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
+import StatsSection from '@/components/stats-section';
 
 const visitLabel = '포인트';
 const salesLabel = '포인트 변동';

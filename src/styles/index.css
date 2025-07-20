@@ -1,13 +1,13 @@
 /* Variable Font (woff2 & woff) */
 @font-face {
   font-family: 'NanumSquareNeoVariable';
-  src: url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('font-woff2'),
-       url('/fonts/woff/NanumSquareNeo-Variable.woff') format('woff');
+  src:
+    url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('font-woff2'),
+    url('/fonts/woff/NanumSquareNeo-Variable.woff') format('woff');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
-
 
 /* Static TTF Fonts (굵기별로 정의) */
 @font-face {

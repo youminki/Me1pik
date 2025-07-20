@@ -1,6 +1,7 @@
-import { generateDocs, exportDocumentation } from '@/utils/documentation';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
+
+import { generateDocs, exportDocumentation } from '@/utils/documentation';
 
 /**
  * 문서 생성 스크립트

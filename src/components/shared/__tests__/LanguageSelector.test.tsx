@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@/utils/testUtils';
 import LanguageSelector from '@/components/shared/LanguageSelector';
+import { render, screen, fireEvent } from '@/utils/testUtils';
 
 // i18n 모킹
 const mockUseLanguageSelector = jest.fn();

@@ -1,19 +1,16 @@
 // src/page/Login.tsx
+import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { theme } from '../../styles/theme';
+
 import { LoginPost } from '../../api-utils/user-managements/auth/LoginPost';
 import {
   getMembershipInfo,
   MembershipInfo,
 } from '../../api-utils/user-managements/users/userApi';
 import MelpikLogo from '../../assets/LoginLogo.svg';
-import { schemaLogin } from '../../hooks/useValidationYup';
-import { isNativeApp } from '../../utils/nativeApp';
-import { saveTokens, forceSaveAppToken } from '../../utils/auth';
 import {
   NaverLoginBg,
   NaverLoginBox,
@@ -29,8 +26,12 @@ import {
   InputIconBtn,
   StyledInput,
 } from '../../auth-utils/AuthCommon';
-import ErrorMessage from '../../components/shared/ErrorMessage';
 import { ErrorMessage as InputErrorMessage } from '../../auth-utils/AuthCommon';
+import ErrorMessage from '../../components/shared/ErrorMessage';
+import { schemaLogin } from '../../hooks/useValidationYup';
+import { theme } from '../../styles/theme';
+import { saveTokens, forceSaveAppToken } from '../../utils/auth';
+import { isNativeApp } from '../../utils/nativeApp';
 
 type LoginFormValues = {
   email: string;

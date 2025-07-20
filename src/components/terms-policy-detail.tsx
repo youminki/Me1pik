@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+
 import { getTermsPolicyDetail } from '../api-utils/user-managements/terms/termsApi';
 
 interface TermsPolicyDetailProps {

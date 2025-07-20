@@ -1,15 +1,10 @@
 // Signup.tsx
-import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaSignup } from '../../hooks/useValidationYup';
-import InputField from '../../components/shared/forms/InputField';
-import AgreementSection from '../../components/signups/AgreementSection';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
+import React, { useState, useRef, useEffect } from 'react';
+import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { CustomSelect } from '../../components/shared/forms/CustomSelect';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
+import styled from 'styled-components';
+
 import {
   signUpUser,
   checkEmail,
@@ -18,12 +13,19 @@ import {
   checkWebpage,
   checkNickname,
 } from '../../api-utils/user-managements/users/userApi';
-import { regionDistrictData } from '../../components/signups/regionDistrictData';
+import FixedBottomBar from '../../components/fixed-bottom-bar';
 import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
-import SimpleHeader from '../../components/shared/headers/SimpleHeader';
-import type { AxiosError } from 'axios';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import CommonErrorMessage from '../../components/shared/ErrorMessage';
+import { CustomSelect } from '../../components/shared/forms/CustomSelect';
+import InputField from '../../components/shared/forms/InputField';
+import SimpleHeader from '../../components/shared/headers/SimpleHeader';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
+import AgreementSection from '../../components/signups/AgreementSection';
+import { regionDistrictData } from '../../components/signups/regionDistrictData';
+import { schemaSignup } from '../../hooks/useValidationYup';
+
+import type { AxiosError } from 'axios';
 
 export type SignupFormData = {
   email: string;

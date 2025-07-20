@@ -15,18 +15,15 @@
 ## 접근성(A11y) 가이드
 
 - **버튼/링크**:
-
   - 반드시 시맨틱 요소(`<button>`, `<a>`) 사용
   - aria-label 등으로 의미 명확히 전달
   - 포커스 outline(2px solid #222) 적용
 
 - **입력/셀렉트**:
-
   - 포커스 outline(2px solid #222) 적용
   - label과 id 연결 필수
 
 - **아이콘/이미지**:
-
   - 의미 전달: alt/aria-label/role="img" 적용
   - 장식용: alt="" 또는 aria-hidden="true"
 

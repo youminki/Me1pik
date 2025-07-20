@@ -1,16 +1,15 @@
 // src/pages/Profile/ChangePassword.tsx
 
 import React, { useState } from 'react';
+import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
-import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
-
-import InputField from '@/components/shared/forms/InputField';
-import { theme } from '@/styles/theme';
-import FixedBottomBar from '@/components/fixed-bottom-bar';
-import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 import { changePassword } from '@/api-utils/user-managements/users/userApi';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import InputField from '@/components/shared/forms/InputField';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { theme } from '@/styles/theme';
 
 export interface ChangePasswordFormData {
   currentPassword: string;

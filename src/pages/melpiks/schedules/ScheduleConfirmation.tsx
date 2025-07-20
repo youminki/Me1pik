@@ -1,25 +1,26 @@
 // src/pages/melpiks/schedules/ScheduleConfirmation.tsx
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { theme } from '../../../styles/theme';
-import BottomBar from '../../../components/bottom-navigation-mobile';
-import DeleteButtonIcon from '../../../assets/DeleteButtonIcon.svg';
-import checkIcon from '../../../assets/checkIcon.svg';
 import { useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
+
+import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
 import {
   getSaleScheduleDetail,
   SaleScheduleDetailResponse,
   deleteSaleSchedule,
   patchSaleSchedule,
 } from '../../../api-utils/schedule-managements/sales/SaleSchedule';
-import Spinner from '../../../components/spinner';
+import checkIcon from '../../../assets/checkIcon.svg';
+import DeleteButtonIcon from '../../../assets/DeleteButtonIcon.svg';
+import BottomBar from '../../../components/bottom-navigation-mobile';
+import { UIItem } from '../../../components/homes/MyclosetItemList';
 import Calendar from '../../../components/melpiks/schedules/reservations/Calendar';
 import DateSelection from '../../../components/melpiks/schedules/reservations/DateSelection';
 import Summary from '../../../components/melpiks/schedules/reservations/Summary';
 
 // 내 옷장 API & 타입 import
-import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
-import { UIItem } from '../../../components/homes/MyclosetItemList';
+import Spinner from '../../../components/spinner';
+import { theme } from '../../../styles/theme';
 
 const MAX_SELECTION = 6;
 

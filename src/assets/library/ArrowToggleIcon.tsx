@@ -1,6 +1,7 @@
 import React from 'react';
-import UpIcon from '../UpIcon.svg';
+
 import DownIcon from '../DownIcon.svg';
+import UpIcon from '../UpIcon.svg';
 
 interface ArrowToggleIconProps {
   direction: 'up' | 'down';

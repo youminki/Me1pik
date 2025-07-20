@@ -1,8 +1,8 @@
 // src/components/brands/BrandItem.tsx
 
 import React from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 /**
  * BrandType: BrandList에서 내려주는 로컬 브랜드 타입

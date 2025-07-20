@@ -1,5 +1,6 @@
-import { Axios } from '../../Axios';
 import { useQuery } from '@tanstack/react-query';
+
+import { Axios } from '../../Axios';
 
 // 요청 바디 타입: 판매 스케줄 생성
 export interface CreateSaleScheduleRequest {

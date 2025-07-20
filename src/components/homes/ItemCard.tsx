@@ -1,12 +1,13 @@
 // src/components/ItemCard.tsx
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import PickIconOn from '../../assets/homes/PickIconOn.svg';
-import PickIconOff from '../../assets/homes/PickIconOff.svg';
+
 import {
   addToCloset,
   removeFromCloset,
 } from '../../api-utils/product-managements/closets/closetApi';
+import PickIconOff from '../../assets/homes/PickIconOff.svg';
+import PickIconOn from '../../assets/homes/PickIconOn.svg';
 import ReusableModal from '../../components/shared/modals/ReusableModalV2';
 
 type ItemCardProps = {

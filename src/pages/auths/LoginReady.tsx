@@ -1,13 +1,14 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+
+import MelpikLogo from '../../assets/LoginLogo.svg';
 import LoginButton from '../../components/shared/buttons/PrimaryButton';
 import InputField from '../../components/shared/forms/InputField';
-import MelpikLogo from '../../assets/LoginLogo.svg';
-import { schemaLogin } from '../../hooks/useValidationYup';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
+import { schemaLogin } from '../../hooks/useValidationYup';
 
 type LoginFormValues = {
   email: string;

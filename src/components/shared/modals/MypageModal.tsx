@@ -1,8 +1,9 @@
 // src/components/MypageModal.tsx
 
 import React, { useEffect, useState } from 'react';
-import styled, { keyframes, css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled, { keyframes, css } from 'styled-components';
+
 import MypageBox from '@/assets/MypageBox.svg';
 import MystyleBox from '@/assets/MystyleBox.svg';
 import ReusableModal2 from '@/components/shared/modals/ReusableModalV2';

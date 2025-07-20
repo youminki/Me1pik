@@ -1,13 +1,14 @@
 // src/pages/PasswordChange.tsx
 
-import { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaPassword } from '../../hooks/useValidationYup'; // 비밀번호 검증 스키마
-import InputField from '../../components/shared/forms/InputField';
-import BottomBar from '../../components/bottom-navigation-mobile';
+import { useState, useEffect } from 'react';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import styled from 'styled-components';
+
 import ResetButtonIcon from '../../assets/ResetButton.png';
+import BottomBar from '../../components/bottom-navigation-mobile';
+import InputField from '../../components/shared/forms/InputField';
+import { schemaPassword } from '../../hooks/useValidationYup'; // 비밀번호 검증 스키마
 
 type FormData = {
   currentPassword: string;

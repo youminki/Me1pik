@@ -1,6 +1,7 @@
 /* src/components/BottomNav2.tsx */
 import React from 'react';
 import styled from 'styled-components';
+
 import { theme } from '../styles/theme';
 
 type BottomBarProps = {

@@ -1,7 +1,9 @@
 import { render } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
-import { theme } from '@/styles/theme';
+
 import InputField from './InputField';
+
+import { theme } from '@/styles/theme';
 
 describe('InputField', () => {
   it('renders with theme styles', () => {

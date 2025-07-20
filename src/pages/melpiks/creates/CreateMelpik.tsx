@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import StatsSection from '../../../components/stats-section';
+
 import ContentList from '../../../components/melpiks/create-melpiks/ContentList';
+import StatsSection from '../../../components/stats-section';
 
 const visitLabel = '인스타 계정';
 const salesLabel = '현재 등록수  ';

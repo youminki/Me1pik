@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
+
 import ItemCard from './ItemCard';
 
 export interface UIItem {
@@ -26,21 +27,23 @@ const MyclosetItemList: React.FC<MyclosetItemListProps> = ({
   onItemClick,
   onDelete,
 }) => {
-  const handleOpen = onItemClick ?? (() => {});
-  const handleDelete = onDelete ?? (() => {});
+  const handleOpen = useCallback(onItemClick ?? (() => {}), [onItemClick]);
+  const handleDelete = useCallback(onDelete ?? (() => {}), [onDelete]);
+
+  const renderedItems = useMemo(() => {
+    return items.map((item) => (
+      <ItemCard
+        key={item.id}
+        {...item}
+        onOpenModal={handleOpen}
+        onDelete={handleDelete}
+      />
+    ));
+  }, [items, handleOpen, handleDelete]);
 
   return (
     <ListContainer>
-      <ItemsWrapper columns={columns}>
-        {items.map((item) => (
-          <ItemCard
-            key={item.id}
-            {...item}
-            onOpenModal={handleOpen}
-            onDelete={handleDelete}
-          />
-        ))}
-      </ItemsWrapper>
+      <ItemsWrapper columns={columns}>{renderedItems}</ItemsWrapper>
     </ListContainer>
   );
 };

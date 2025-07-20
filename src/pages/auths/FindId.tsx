@@ -1,8 +1,9 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import styled from 'styled-components';
 import * as yup from 'yup';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
+
 import { findEmail } from '../../api-utils/user-managements/users/userApi';
 import {
   FormSectionWrapper,
@@ -17,9 +18,9 @@ import {
   FindBtn,
   MelpikPointText,
 } from '../../auth-utils/AuthCommon';
-import styled from 'styled-components';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import CommonErrorMessage from '../../components/shared/ErrorMessage';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 
 // FormSectionWrapper 스타일 오버라이드
 const TopFormSectionWrapper = styled(FormSectionWrapper)`

@@ -1,15 +1,16 @@
 // src/pages/my-ticket/PurchaseOfPasses.tsx
+import { format, addMonths } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { CustomSelect } from '@/components/shared/forms/CustomSelect';
-import FixedBottomBar from '@/components/fixed-bottom-bar';
-import ReusableModal2 from '@/components/shared/modals/ReusableModalV2';
-import { format, addMonths } from 'date-fns';
-import { ko } from 'date-fns/locale';
+
 import { useTicketList } from '@/api-utils/schedule-managements/tickets/ticket';
 import { useMembershipInfo } from '@/api-utils/user-managements/users/userApi';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
 import EmptyState from '@/components/shared/EmptyState';
+import { CustomSelect } from '@/components/shared/forms/CustomSelect';
+import ReusableModal2 from '@/components/shared/modals/ReusableModalV2';
 // import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
 
 // 한국 시간 기준 오늘 0시 반환 함수

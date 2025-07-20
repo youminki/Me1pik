@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
+
 import ItemCard from './ItemCard';
 
 type Item = {
@@ -23,26 +24,31 @@ const ItemList: React.FC<ItemListProps> = ({ items, onDelete }) => {
     setItemList(items);
   }, [items]);
 
-  const handleDelete = (id: string) => {
-    onDelete(id);
-  };
+  const handleDelete = useCallback(
+    (id: string) => {
+      onDelete(id);
+    },
+    [onDelete]
+  );
+
+  const renderedItems = useMemo(() => {
+    return itemList.map((item) => (
+      <ItemCard
+        key={item.id}
+        id={item.id}
+        image={item.image}
+        brand={item.brand}
+        description={item.description}
+        price={item.price}
+        discount={item.discount}
+        onDelete={handleDelete}
+      />
+    ));
+  }, [itemList, handleDelete]);
 
   return (
     <ListContainer>
-      <ItemsWrapper>
-        {itemList.map((item) => (
-          <ItemCard
-            key={item.id}
-            id={item.id}
-            image={item.image}
-            brand={item.brand}
-            description={item.description}
-            price={item.price}
-            discount={item.discount}
-            onDelete={handleDelete}
-          />
-        ))}
-      </ItemsWrapper>
+      <ItemsWrapper>{renderedItems}</ItemsWrapper>
     </ListContainer>
   );
 };

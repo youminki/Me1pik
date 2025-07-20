@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+
 import SearchIcon from '../assets/customer-services/SearchIcon.svg';
 
 type PeriodSectionProps = {

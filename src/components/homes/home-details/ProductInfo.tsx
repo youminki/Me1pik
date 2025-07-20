@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import AddTekImage from '../../../assets/locker-rooms/ClosetIcon.svg';
+
 import { addToCloset } from '../../../api-utils/product-managements/closets/closetApi';
+import AddTekImage from '../../../assets/locker-rooms/ClosetIcon.svg';
 import ReusableModal from '../../../components/shared/modals/ReusableModal';
 
 export interface ProductInfoProps {

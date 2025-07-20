@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 const START_DATE = new Date('2025-03-25T00:00:00');
 

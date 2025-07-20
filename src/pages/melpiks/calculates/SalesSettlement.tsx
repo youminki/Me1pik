@@ -1,10 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import StatsSection from '../../../components/stats-section';
+import styled from 'styled-components';
+
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import PeriodSection from '../../../components/period-section';
-import { useQuery } from '@tanstack/react-query';
+import StatsSection from '../../../components/stats-section';
 
 // 정산 내역 타입
 export interface Settlement {
