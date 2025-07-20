@@ -23,7 +23,6 @@ import Pants from '../../assets/sub-headers/Pants.svg';
 import ShirtTop from '../../assets/sub-headers/ShirtTop.svg';
 import Top from '../../assets/sub-headers/Top.svg';
 import Tshirt from '../../assets/sub-headers/Tshirt.svg';
-import LoadingSpinner from '../shared/LoadingSpinner';
 
 const homeIcons = [
   { src: All, alt: '전체', category: 'All' },
@@ -65,11 +64,6 @@ const SubHeader: React.FC<SubHeaderProps> = ({
   const iconsRef = useRef<HTMLDivElement>(null);
   const initialPos = (ICON_WIDTH - INDICATOR_WIDTH) / 2;
   const [indicatorPos, setIndicatorPos] = useState(initialPos);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(false);
-  }, []);
 
   useEffect(() => {
     if (!iconsRef.current) return;
@@ -111,37 +105,31 @@ const SubHeader: React.FC<SubHeaderProps> = ({
   return (
     <SubHeaderWrapper>
       <ContentWrapper>
-        {loading ? (
-          <LoadingSpinner label='로딩 중...' />
-        ) : (
-          <>
-            <ArrowButtonWrapper onClick={() => scroll('left')}>
-              <FiChevronLeft size={24} />
-            </ArrowButtonWrapper>
+        <ArrowButtonWrapper onClick={() => scroll('left')}>
+          <FiChevronLeft size={24} />
+        </ArrowButtonWrapper>
 
-            <IconsWrapper ref={iconsRef}>
-              {homeIcons.map((icon, idx) => {
-                const isSelected = icon.category === selectedCategory;
-                return (
-                  <IconContainer
-                    key={idx}
-                    data-category={icon.category}
-                    selected={isSelected}
-                    onClick={() => handleClick(icon.category)}
-                  >
-                    <Icon src={icon.src} alt={icon.alt} />
-                    <IconText selected={isSelected}>{icon.alt}</IconText>
-                  </IconContainer>
-                );
-              })}
-              <Indicator position={indicatorPos} />
-            </IconsWrapper>
+        <IconsWrapper ref={iconsRef}>
+          {homeIcons.map((icon, idx) => {
+            const isSelected = icon.category === selectedCategory;
+            return (
+              <IconContainer
+                key={idx}
+                data-category={icon.category}
+                selected={isSelected}
+                onClick={() => handleClick(icon.category)}
+              >
+                <Icon src={icon.src} alt={icon.alt} />
+                <IconText selected={isSelected}>{icon.alt}</IconText>
+              </IconContainer>
+            );
+          })}
+          <Indicator position={indicatorPos} />
+        </IconsWrapper>
 
-            <ArrowButtonWrapper onClick={() => scroll('right')}>
-              <FiChevronRight size={24} />
-            </ArrowButtonWrapper>
-          </>
-        )}
+        <ArrowButtonWrapper onClick={() => scroll('right')}>
+          <FiChevronRight size={24} />
+        </ArrowButtonWrapper>
       </ContentWrapper>
       <Divider />
     </SubHeaderWrapper>

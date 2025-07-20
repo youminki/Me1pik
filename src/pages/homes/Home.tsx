@@ -19,11 +19,11 @@ import FilterContainer from '../../components/homes/FilterContainer';
 import Footer from '../../components/homes/Footer';
 import ItemList, { UIItem } from '../../components/homes/ItemList';
 import SearchModal from '../../components/homes/SearchModal';
+import SkeletonItemList from '../../components/homes/SkeletonItemList';
 import SubHeader from '../../components/homes/SubHeader';
 import MelpikGuideBanner from '../../components/melpik-guide-banner';
 import EmptyState from '../../components/shared/EmptyState';
 import ErrorMessage from '../../components/shared/ErrorMessage';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import FilterModal from '../../components/shared/modals/FilterModal';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 
@@ -392,8 +392,104 @@ const Home: React.FC = () => {
   );
 
   // 상품 목록 렌더링 부분에서 상태별 분기 처리
-  if (isLoading) {
-    return <LoadingSpinner label='상품을 불러오는 중입니다...' />;
+  if (
+    isLoading ||
+    (!isLoading &&
+      uiItems.length === 0 &&
+      (searchQuery || selectedColors.length > 0))
+  ) {
+    return (
+      <MainContainer>
+        {/* 서브헤더, 배너, 필터 등 상단 UI는 그대로 */}
+        <MelpikGuideBanner />
+        <SubHeader
+          selectedCategory={selectedCategory}
+          setSelectedCategory={(cat) => {
+            setSearchQuery('');
+            setSearchParams({ category: cat }, { replace: true });
+          }}
+          onCategoryClick={() => setSearchQuery('')}
+        />
+        <ControlsContainer>
+          <ChipList>
+            {searchQuery.trim() &&
+              searchQuery.split(',').map((kw, idx) => (
+                <Chip key={kw + idx}>
+                  {kw.trim()}
+                  <ChipClose
+                    aria-label='검색어 삭제'
+                    onClick={() => {
+                      const terms = searchQuery
+                        .split(',')
+                        .map((t) => t.trim())
+                        .filter(Boolean);
+                      const newTerms = terms.filter((_, i) => i !== idx);
+                      setSearchQuery(newTerms.join(', '));
+                      setSearchParams(
+                        (prev) => {
+                          const params = Object.fromEntries(prev.entries());
+                          if (newTerms.length > 0) {
+                            params.search = newTerms.join(', ');
+                          } else {
+                            delete params.search;
+                          }
+                          return params;
+                        },
+                        { replace: true }
+                      );
+                    }}
+                  >
+                    ×
+                  </ChipClose>
+                </Chip>
+              ))}
+            {selectedColors.map((color, idx) => (
+              <Chip key={color + idx}>
+                {color}
+                <ChipClose
+                  aria-label='색상 삭제'
+                  onClick={() => {
+                    const newColors = selectedColors.filter(
+                      (_, i) => i !== idx
+                    );
+                    setSelectedColors(newColors);
+                  }}
+                >
+                  ×
+                </ChipClose>
+              </Chip>
+            ))}
+          </ChipList>
+          <RowAlignBox>
+            <FilterContainer
+              onSearchClick={() => setSearchModalOpen(true)}
+              onFilterClick={() => setFilterModalOpen(true)}
+            />
+          </RowAlignBox>
+          <SearchModal
+            isOpen={isSearchModalOpen}
+            onClose={() => setSearchModalOpen(false)}
+            onSearch={(searchTerm) => {
+              setSearchQuery(searchTerm);
+              setSelectedCategory('All');
+              setSearchParams(
+                { category: 'All', search: searchTerm },
+                { replace: true }
+              );
+            }}
+            historyKey='searchHistory'
+            initialValue={searchQuery}
+          />
+        </ControlsContainer>
+        <ContentWrapper>
+          <SkeletonItemList columns={viewCols} />
+        </ContentWrapper>
+        <Footer />
+        <ScrollToTopButton onClick={scrollToTop}>
+          <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
+        </ScrollToTopButton>
+      </MainContainer>
+    );
   }
   if (isError) {
     return (
@@ -539,8 +635,8 @@ const Home: React.FC = () => {
             items={visibleItems}
             columns={viewCols}
             onItemClick={handleOpenModal}
-            isLoading={isLoading}
             observerRef={observerRef as React.RefObject<HTMLDivElement>}
+            visibleCount={visibleCount}
           />
           <div ref={observerRef} style={{ height: 1 }} />
         </>

@@ -2,6 +2,7 @@ import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 
 import ItemCard from './ItemCard';
+import SkeletonItemList from './SkeletonItemList';
 
 export interface UIItem {
   id: string;
@@ -20,52 +21,47 @@ type ItemListProps = {
   onDelete?: (id: string) => void;
   isLoading?: boolean;
   observerRef?: React.RefObject<HTMLDivElement>;
+  visibleCount?: number;
 };
-
-const SKELETON_COUNT = 8;
 
 const ItemList: React.FC<ItemListProps> = ({
   items,
   columns = 4,
   onItemClick,
   onDelete,
-  isLoading = false,
   observerRef,
+  visibleCount = 40,
 }) => {
   const handleOpen = useCallback(onItemClick ?? (() => {}), [onItemClick]);
   const handleDelete = useCallback(onDelete ?? (() => {}), [onDelete]);
 
+  // 아이템별로 준비된 것부터 바로 렌더링, 나머지는 스켈레톤
   const renderedItems = useMemo(() => {
-    if (isLoading) {
-      return Array.from({ length: SKELETON_COUNT }).map((_, idx) => (
-        <ItemCard
-          key={`skeleton-${idx}`}
-          id={'' + idx}
-          image={''}
-          brand={''}
-          description={''}
-          price={0}
-          discount={0}
-          isLiked={false}
-          onOpenModal={() => {}}
-        />
-      ));
+    const cards = [];
+    for (let i = 0; i < visibleCount; i++) {
+      if (items[i]) {
+        cards.push(
+          <ItemCard
+            key={items[i].id}
+            {...items[i]}
+            onOpenModal={handleOpen}
+            onDelete={handleDelete}
+          />
+        );
+      } else {
+        // 스켈레톤 카드: SkeletonItemList의 내부 스켈레톤 카드 스타일을 그대로 사용
+        cards.push(
+          <SkeletonItemList key={`skeleton-${i}`} columns={columns} count={1} />
+        );
+      }
     }
-    return items.map((item) => (
-      <ItemCard
-        key={item.id}
-        {...item}
-        onOpenModal={handleOpen}
-        onDelete={handleDelete}
-      />
-    ));
-  }, [isLoading, items, handleOpen, handleDelete]);
+    return cards;
+  }, [items, visibleCount, columns, handleOpen, handleDelete]);
 
   return (
     <ListContainer>
       <ItemsWrapper columns={columns}>
         {renderedItems}
-        {/* 무한스크롤 observer div를 리스트 마지막에 추가 */}
         {observerRef && <div ref={observerRef} style={{ height: 1 }} />}
       </ItemsWrapper>
     </ListContainer>

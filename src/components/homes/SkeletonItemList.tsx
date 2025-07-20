@@ -51,7 +51,10 @@ const shimmer = keyframes`
 const ListContainer = styled.div`
   background-color: #fff;
   width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
   box-sizing: border-box;
+  height: 100%;
 `;
 
 const ItemsWrapper = styled.div<{ columns: number }>`
