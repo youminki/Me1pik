@@ -5,9 +5,12 @@ import BasketIcon from '../assets/Basket/BasketIcon.svg';
 import PriceIcon from '../assets/Basket/PriceIcon.svg';
 import ProductInfoIcon from '../assets/Basket/ProductInfoIcon.svg';
 import ServiceInfoIcon from '../assets/Basket/ServiceInfoIcon.svg';
-import FixedBottomBar from '../components/FixedBottomBar';
-import ReusableModal2 from '../components/ReusableModal2';
-import { getCartItems, deleteCartItem } from '../api/cart/cart';
+import FixedBottomBar from '../components/fixed-bottom-bar';
+import ReusableModal2 from '../common-components/modals/reusable-modal-v2';
+import {
+  getCartItems,
+  deleteCartItem,
+} from '../api-utils/product-management/cart/cart';
 import { useNavigate } from 'react-router-dom';
 
 interface BasketItemForPayment {

@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Theme from '../../styles/Theme';
-import StatsSection from '../../components/StatsSection';
+import StatsSection from '../../components/stats-section';
 
 import MelpikIcon from '../../assets/Melpik/MelpikIcon.svg';
 import MelpikCreateIcon from '../../assets/Melpik/MelpikCreateIcon.svg';

@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
-import StatsSection from '../../../components/StatsSection';
-import Spinner from '../../../components/Spinner';
-import { useMyCards } from '../../../api/default/payment';
-import { CardItem } from '../../../api/default/payment';
+import StatsSection from '../../../components/stats-section';
+import Spinner from '../../../components/spinner';
+import { useMyCards } from '../../../api-utils/payment/default/payment';
+import { CardItem } from '../../../api-utils/payment/default/payment';
 
 interface UserInfo {
   userId: string;

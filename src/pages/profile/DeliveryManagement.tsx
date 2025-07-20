@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import FixedBottomBar from '../../components/FixedBottomBar';
-import AddressSearchModal from '../../components/AddressSearchModal';
+import FixedBottomBar from '../../components/fixed-bottom-bar';
+import AddressSearchModal from '../../common-components/modals/address-search-modal';
 import {
   useAddresses,
   useUpdateAddress,
@@ -10,7 +10,7 @@ import {
   useSetDefaultAddress,
   Address,
   UpdateAddressRequest,
-} from '../../api/address/address';
+} from '../../api-utils/user-management/address/address';
 
 const DeliveryManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -140,7 +140,7 @@ const DeliveryManagement: React.FC = () => {
         ) : addresses.length === 0 ? (
           <p>등록된 배송지가 없습니다.</p>
         ) : (
-          addresses.map((item, idx) => {
+          addresses.map((item: any, idx: number) => {
             const isEditing = editingId === item.id;
             return (
               <Block key={item.id}>

@@ -5,10 +5,10 @@ import Calendar from './Calendar';
 import { isSameDay, isBefore, addDays as _addDays } from 'date-fns';
 import Holidays from 'date-holidays';
 import ReusableModal2 from '../../../components/Home/HomeDetail/HomeDetailModal';
-import ReusableModal from '../../../components/ReusableModal';
+import ReusableModal from '../../../common-components/modals/reusable-modal';
 import RentalSelectDateIcon from '../../../assets/Home/HomeDetail/RentalSelectDateIcon.svg';
-import { getUnavailableDates } from '../../../api/scedule/scedule';
-import { CustomSelect } from '../../CustomSelect';
+import { getUnavailableDates } from '../../../api-utils/schedule-management/scedule/scedule';
+import { CustomSelect } from '../../../common-components/forms/custom-select';
 
 const hd = new Holidays('KR');
 
@@ -189,9 +189,10 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
   useEffect(() => {
     if (!productId || !selectedSize) return;
     getUnavailableDates({ productId, sizeLabel: selectedSize })
-      .then((ranges) => {
+      .then((ranges: string[][]) => {
         const allTime: number[] = [];
-        ranges.forEach(([startStr, endStr]) => {
+        ranges.forEach((range: string[]) => {
+          const [startStr, endStr] = range;
           const start = new Date(startStr);
           const end = new Date(endStr);
           for (let d = new Date(start); d <= end; d = _addDays(d, 1)) {
@@ -310,7 +311,7 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
           <SelectWrapper>
             <CustomSelect
               value={selectedPeriod}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 setSelectedPeriod(e.target.value);
                 setSelectedRange({ start: null, end: null });
               }}

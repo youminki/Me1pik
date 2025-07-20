@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import ReusableModal from '../components/ReusableModal';
-import { findEmail } from '../api/user/userApi';
+import ReusableModal from '../common-components/modals/reusable-modal';
+import { findEmail } from '../api-utils/user-management/user/userApi';
 import Theme from '../styles/Theme';
 import { ThemeProvider } from 'styled-components';
 import {
@@ -18,7 +18,7 @@ import {
   ErrorMessage,
   FindBtn,
   MelpikPointText,
-} from '../auth/AuthCommon';
+} from '../auth-utils/AuthCommon';
 import styled from 'styled-components';
 
 // FormSectionWrapper 스타일 오버라이드

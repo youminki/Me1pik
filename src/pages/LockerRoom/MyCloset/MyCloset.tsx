@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaTshirt } from 'react-icons/fa';
-import { useMyCloset } from '../../../api/closet/closetApi';
+import { useMyCloset } from '../../../api-utils/product-management/closet/closetApi';
 
-import StatsSection from '../../../components/StatsSection';
+import StatsSection from '../../../components/stats-section';
 import ItemList, { UIItem } from '../../../components/Home/MyclosetItemList';
 import HomeDetail from '../../Home/HomeDetail';
-import Spinner from '../../../components/Spinner'; // Spinner import 추가
+import Spinner from '../../../components/spinner'; // Spinner import 추가
 import CancleIconIcon from '../../../assets/Header/CancleIcon.svg';
 
 const salesLabel = '시즌';

@@ -4,15 +4,18 @@ import React, { useEffect, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 
-import InputField from '../../components/InputField';
-import { CustomSelect } from '../../components/CustomSelect';
+import InputField from '../../common-components/forms/input-field';
+import { CustomSelect } from '../../common-components/forms/custom-select';
 import Theme from '../../styles/Theme';
-import FixedBottomBar from '../../components/FixedBottomBar';
-import ReusableModal from '../../components/ReusableModal';
+import FixedBottomBar from '../../components/fixed-bottom-bar';
+import ReusableModal from '../../common-components/modals/reusable-modal';
 import { regionDistrictData } from '../../components/Signup/regionDistrictData';
 
 // userApi에서 가져올 함수들
-import { useMyInfo, updateMyInfo } from '../../api/user/userApi';
+import {
+  useMyInfo,
+  updateMyInfo,
+} from '../../api-utils/user-management/user/userApi';
 
 export type UpdateProfileFormData = {
   emailId: string;

@@ -4,13 +4,13 @@ import styled, { ThemeProvider } from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaSignup } from '../hooks/ValidationYup';
-import InputField from '../components/InputField';
+import InputField from '../common-components/forms/input-field';
 import AgreementSection from '../components/Signup/AgreementSection';
 import Theme from '../styles/Theme';
-import FixedBottomBar from '../components/FixedBottomBar';
+import FixedBottomBar from '../components/fixed-bottom-bar';
 import { useNavigate } from 'react-router-dom';
-import { CustomSelect } from '../components/CustomSelect';
-import ReusableModal from '../components/ReusableModal';
+import { CustomSelect } from '../common-components/forms/custom-select';
+import ReusableModal from '../common-components/modals/reusable-modal';
 import {
   signUpUser,
   checkEmail,
@@ -18,10 +18,10 @@ import {
   verifyCode,
   checkWebpage,
   checkNickname,
-} from '../api/user/userApi';
+} from '../api-utils/user-management/user/userApi';
 import { regionDistrictData } from '../components/Signup/regionDistrictData';
 import Modal from '../components/Melpik/CreateMelpik/Settings/Modal';
-import SimpleHeader from '../components/SimpleHeader';
+import SimpleHeader from '../common-components/headers/simple-header';
 import type { AxiosError } from 'axios';
 
 export type SignupFormData = {

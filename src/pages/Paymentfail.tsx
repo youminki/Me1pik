@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import FailIcon from '../assets/Complete/FailIcon.svg';
-import FixedBottomBar from '../components/FixedBottomBar';
+import FixedBottomBar from '../components/fixed-bottom-bar';
 
 interface PaymentFailProps {
   onClose?: () => void;

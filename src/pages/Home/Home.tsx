@@ -12,18 +12,18 @@ import styled from 'styled-components';
 import ItemList, { UIItem } from '../../components/Home/ItemList';
 import Footer from '../../components/Home/Footer';
 import SubHeader from '../../components/Home/SubHeader';
-import { useProducts } from '../../api/upload/productApi';
+import { useProducts } from '../../api-utils/product-management/upload/productApi';
 import HomeDetail from './HomeDetail';
 import CancleIconIcon from '../../assets/Header/CancleIcon.svg';
 import ShareIcon from '../../assets/Header/ShareIcon.svg';
 import HomeIcon from '../../assets/Header/HomeIcon.svg';
 import ArrowIconSvg from '../../assets/ArrowIcon.svg';
-import ReusableModal from '../../components/ReusableModal';
+import ReusableModal from '../../common-components/modals/reusable-modal';
 import FilterContainer from '../../components/Home/FilterContainer';
 import SearchModal from '../../components/Home/SearchModal';
-import MelpikGuideBanner from '../../components/MelpikGuideBanner';
+import MelpikGuideBanner from '../../components/melpik-guide-banner';
 import SkeletonItemList from '../../components/Home/SkeletonItemList';
-import FilterModal from '../../components/FilterModal';
+import FilterModal from '../../common-components/modals/filter-modal';
 
 /**
  * Home(상품 리스트) 페이지 - 최적화 버전ㄴ
@@ -171,51 +171,55 @@ const Home: React.FC = () => {
       }
     });
 
-    const filtered = products.filter((item) => {
-      const brand = item.brand?.toLowerCase() || '';
-      const desc = item.description?.toLowerCase() || '';
-      const color = item.color?.toLowerCase() || '';
+    const filtered = products.filter(
+      (item: { brand?: string; description?: string; color?: string }) => {
+        const brand = item.brand?.toLowerCase() || '';
+        const desc = item.description?.toLowerCase() || '';
+        const color = item.color?.toLowerCase() || '';
 
-      // 브랜드/설명 검색: 모든 일반 키워드가 브랜드/설명에 하나라도 포함되면 true
-      const matchesBrandOrDesc =
-        searchKeywords.length === 0 ||
-        searchKeywords.some((kw) => brand.includes(kw) || desc.includes(kw));
+        // 브랜드/설명 검색: 모든 일반 키워드가 브랜드/설명에 하나라도 포함되면 true
+        const matchesBrandOrDesc =
+          searchKeywords.length === 0 ||
+          searchKeywords.some((kw) => brand.includes(kw) || desc.includes(kw));
 
-      // 색상 검색: 검색어에 색상 키워드가 있으면, 상품 색상에 하나라도 포함되면 true
-      let matchesSearchColors = true;
-      if (searchColors.length > 0) {
-        matchesSearchColors = searchColors.some((searchColor) => {
-          // 한글로 입력한 경우 영문도 체크, 영문으로 입력한 경우 한글도 체크
-          const found = colorMapEntries.find(
-            ([kor, eng]) =>
-              kor.toLowerCase() === searchColor ||
-              eng.toLowerCase() === searchColor
-          );
-          if (found) {
-            const [kor, eng] = found;
-            return (
-              color.includes(kor.toLowerCase()) ||
-              color.includes(eng.toLowerCase()) ||
-              color.toUpperCase().includes(eng.toUpperCase())
+        // 색상 검색: 검색어에 색상 키워드가 있으면, 상품 색상에 하나라도 포함되면 true
+        let matchesSearchColors = true;
+        if (searchColors.length > 0) {
+          matchesSearchColors = searchColors.some((searchColor) => {
+            // 한글로 입력한 경우 영문도 체크, 영문으로 입력한 경우 한글도 체크
+            const found = colorMapEntries.find(
+              ([kor, eng]) =>
+                kor.toLowerCase() === searchColor ||
+                eng.toLowerCase() === searchColor
             );
-          }
-          return color.includes(searchColor);
-        });
-      }
+            if (found) {
+              const [kor, eng] = found;
+              return (
+                color.includes(kor.toLowerCase()) ||
+                color.includes(eng.toLowerCase()) ||
+                color.toUpperCase().includes(eng.toUpperCase())
+              );
+            }
+            return color.includes(searchColor);
+          });
+        }
 
-      // 여러 색상 필터(필터 모달): selectedColors 중 하나라도 포함되면 true
-      let matchesSelectedColors = true;
-      if (selectedColors.length > 0) {
-        matchesSelectedColors = selectedColors.some((selected) => {
-          const engColor = colorMap[selected] || selected;
-          return (
-            color.toUpperCase().includes(engColor) || color.includes(selected)
-          );
-        });
-      }
+        // 여러 색상 필터(필터 모달): selectedColors 중 하나라도 포함되면 true
+        let matchesSelectedColors = true;
+        if (selectedColors.length > 0) {
+          matchesSelectedColors = selectedColors.some((selected) => {
+            const engColor = colorMap[selected] || selected;
+            return (
+              color.toUpperCase().includes(engColor) || color.includes(selected)
+            );
+          });
+        }
 
-      return matchesBrandOrDesc && matchesSearchColors && matchesSelectedColors;
-    });
+        return (
+          matchesBrandOrDesc && matchesSearchColors && matchesSelectedColors
+        );
+      }
+    );
     console.timeEnd('filteredProducts');
     return filtered;
   }, [products, searchQuery, selectedColors]);
@@ -223,15 +227,25 @@ const Home: React.FC = () => {
   // UIItem 변환 (모든 상품을 한 번에 불러옴)
   const uiItems: UIItem[] = useMemo(() => {
     console.time('uiItems');
-    const result = filteredProducts.map((p) => ({
-      id: p.id.toString(),
-      image: p.image,
-      brand: p.brand,
-      description: p.description,
-      price: p.price,
-      discount: p.discount,
-      isLiked: p.isLiked,
-    }));
+    const result = filteredProducts.map(
+      (p: {
+        id: number;
+        image: string;
+        brand: string;
+        description: string;
+        price: number;
+        discount?: number;
+        isLiked?: boolean;
+      }) => ({
+        id: p.id.toString(),
+        image: p.image,
+        brand: p.brand,
+        description: p.description,
+        price: p.price,
+        discount: p.discount || 0,
+        isLiked: p.isLiked || false,
+      })
+    );
     console.timeEnd('uiItems');
     return result;
   }, [filteredProducts]);
@@ -535,7 +549,7 @@ const Home: React.FC = () => {
               columns={viewCols}
               onItemClick={handleOpenModal}
               isLoading={isLoading}
-              observerRef={observerRef}
+              observerRef={observerRef as React.RefObject<HTMLDivElement>}
             />
             <div ref={observerRef} style={{ height: 1 }} />
           </>

@@ -2,13 +2,13 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { CustomSelect } from '../../../components/CustomSelect';
-import FixedBottomBar from '../../../components/FixedBottomBar';
-import ReusableModal2 from '../../../components/ReusableModal2';
+import { CustomSelect } from '../../../common-components/forms/custom-select';
+import FixedBottomBar from '../../../components/fixed-bottom-bar';
+import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
 import { format, addMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { useTicketList } from '../../../api/ticket/ticket';
-import { useMembershipInfo } from '../../../api/user/userApi';
+import { useTicketList } from '../../../api-utils/schedule-management/ticket/ticket';
+import { useMembershipInfo } from '../../../api-utils/user-management/user/userApi';
 
 // 한국 시간 기준 오늘 0시 반환 함수
 function getKoreanToday() {
@@ -55,7 +55,9 @@ const PurchaseOfPasses: React.FC = () => {
   });
 
   // 선택된 템플릿 객체
-  const selectedTemplate = templates.find((t) => t.name === purchaseOption);
+  const selectedTemplate = templates.find(
+    (t: { name: string; price: number }) => t.name === purchaseOption
+  );
 
   // 가격 계산
   const basePrice = selectedTemplate?.price ?? 0;
@@ -97,7 +99,7 @@ const PurchaseOfPasses: React.FC = () => {
           value={purchaseOption}
           onChange={(e) => setPurchaseOption(e.target.value)}
         >
-          {templates.map((tpl) => (
+          {templates.map((tpl: { id: number; name: string }) => (
             <option key={tpl.id} value={tpl.name}>
               {tpl.name}
             </option>

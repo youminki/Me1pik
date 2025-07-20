@@ -12,7 +12,10 @@ import TicketIcon from '../../assets/LockerRoom/TicketIcon.svg';
 import PaymentIcon from '../../assets/LockerRoom/PaymentIcon.svg';
 import ReviewIcon from '../../assets/LockerRoom/ReviewIcon.svg';
 
-import { getMembershipInfo, MembershipInfo } from '../../api/user/userApi';
+import {
+  getMembershipInfo,
+  MembershipInfo,
+} from '../../api-utils/user-management/user/userApi';
 
 const menuItems = [
   { icon: ClosetIcon, label: '내 옷장', path: '/my-closet', disabled: false },
@@ -44,10 +47,10 @@ const LockerRoom: React.FC = () => {
 
   useEffect(() => {
     getMembershipInfo()
-      .then((res) => {
+      .then((res: MembershipInfo) => {
         setMembership(res);
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         console.error('멤버십 정보 조회 실패', err);
       });
   }, []);

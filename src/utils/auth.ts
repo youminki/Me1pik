@@ -150,12 +150,23 @@ export const refreshToken = async (): Promise<boolean> => {
     }
 
     // 토큰 갱신 API 호출
-    const { Axios } = await import('../api/Axios');
-    const response = await Axios.post('/auth/refresh', {
-      refreshToken,
+    // Axios import 제거 - 사용하지 않음
+    const response = await fetch('/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        refreshToken,
+      }),
     });
 
-    const { accessToken, refreshToken: newRefreshToken } = response.data;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const { accessToken, refreshToken: newRefreshToken } = data;
 
     // 새 토큰 저장
     saveTokens(accessToken, newRefreshToken);
@@ -253,8 +264,18 @@ export const logout = async (): Promise<void> => {
     if (email) {
       // logoutUser API 호출 (에러가 나도 무시)
       try {
-        const { logoutUser } = await import('../api/user/userApi');
-        await logoutUser(email);
+        // Axios import 제거 - 사용하지 않음
+        const response = await fetch('/user/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
       } catch (error) {
         console.log('서버 로그아웃 실패 (무시됨):', error);
       }
@@ -266,8 +287,9 @@ export const logout = async (): Promise<void> => {
     clearTokens();
 
     // Axios 헤더 초기화
-    const { Axios } = await import('../api/Axios');
-    Axios.defaults.headers.Authorization = '';
+    // Axios import 제거 - 사용하지 않음
+    // const { Axios } = await import('../api-utils/Axios');
+    // Axios.defaults.headers.Authorization = '';
 
     console.log('로그아웃 완료');
   }

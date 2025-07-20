@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import AddTekImage from '../../../assets/ClosetIcon.svg';
-import { addToCloset } from '../../../api/closet/closetApi';
-import ReusableModal from '../../ReusableModal';
+import { addToCloset } from '../../../api-utils/product-management/closet/closetApi';
+import ReusableModal from '../../../common-components/modals/reusable-modal';
 
 export interface ProductInfoProps {
   item: {

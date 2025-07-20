@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import StatsSection from '../../../components/StatsSection';
+import StatsSection from '../../../components/stats-section';
 import ContentList from '../../../components/Melpik/CreateMelpik/ContentList';
 
 const visitLabel = '인스타 계정';

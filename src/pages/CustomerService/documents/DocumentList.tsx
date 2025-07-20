@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import {
   getTermsPolicyList,
   getTermsPolicyDetail,
-} from '../../../api/terms/termsApi';
+} from '../../../api-utils/user-management/terms/termsApi';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import StatsSection from '../../../components/StatsSection';
+import StatsSection from '../../../components/stats-section';
 import ArrowToggleIcon from '../../../assets/library/ArrowToggleIcon';
 import CustomerServiceIcon from '../../../assets/CustomerServiceIcons.svg';
 

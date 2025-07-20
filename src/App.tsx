@@ -69,8 +69,8 @@ import ScheduleReservation1 from './pages/Melpik/Schedule/ScheduleReservation1';
 import ScheduleReservation2 from './pages/Melpik/Schedule/ScheduleReservation2';
 import ScheduleReservation3 from './pages/Melpik/Schedule/ScheduleReservation3';
 
-import PaypleTest from './Test/PaypleTest';
-import AddCardPayple from './Test/AddCardPayple';
+import PaypleTest from './tests/PaypleTest';
+import AddCardPayple from './tests/AddCardPayple';
 import PasswordChange from './pages/PasswordChange';
 import PaymentComplete from './pages/PaymentComplete';
 import PaymentFail from './pages/Paymentfail.tsx';
@@ -83,7 +83,7 @@ import DeliveryManagement from './pages/profile/DeliveryManagement';
 import EditAddress from './pages/profile/EditAddress';
 import NotFound from './pages/NotFound';
 
-import { Axios } from './api/Axios';
+import { Axios } from './api-utils/Axios';
 import { isNativeApp } from './utils/nativeApp';
 import {
   clearTokens,

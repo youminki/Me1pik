@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import Spinner from '../Spinner';
+import Spinner from '../spinner';
 
 import All from '../../assets/SubHeader/Entire.svg';
 import MiniDress from '../../assets/SubHeader/MiniDress.svg';

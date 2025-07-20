@@ -5,11 +5,11 @@ import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Stepper from '../../../components/Melpik/Schedule/Reservation1/Stepper';
 import BottomBar from '../../../components/Melpik/Schedule/Reservation1/BottomBar';
-import { getMyCloset } from '../../../api/closet/closetApi';
-import Spinner from '../../../components/Spinner';
+import { getMyCloset } from '../../../api-utils/product-management/closet/closetApi';
+import Spinner from '../../../components/spinner';
 import { UIItem } from '../../../components/Home/MyclosetItemList'; // UIItem.id는 string 타입
-import { createSaleSchedule } from '../../../api/sale/SaleSchedule'; // API 호출 함수
-import ReusableModal2 from '../../../components/ReusableModal2';
+import { createSaleSchedule } from '../../../api-utils/schedule-management/sale/SaleSchedule'; // API 호출 함수
+import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
 
 interface ItemCardProps {
   id: string;
@@ -128,8 +128,8 @@ const ScheduleReservation3: React.FC = () => {
   useEffect(() => {
     setLoadingCloset(true);
     getMyCloset()
-      .then((res) => {
-        const items: UIItem[] = res.items.map((it) => ({
+      .then((res: any) => {
+        const items: UIItem[] = res.items.map((it: any) => ({
           id: String(it.productId),
           image: it.mainImage,
           brand: it.brand,
@@ -141,7 +141,7 @@ const ScheduleReservation3: React.FC = () => {
         }));
         setClosetItems(items);
       })
-      .catch((err) => {
+      .catch((err: any) => {
         console.error('내 옷장 조회 실패', err);
       })
       .finally(() => {

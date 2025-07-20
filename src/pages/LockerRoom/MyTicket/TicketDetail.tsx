@@ -2,8 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import Spinner from '../../../components/Spinner';
-import { getUserTickets, TicketItem } from '../../../api/ticket/ticket';
+import Spinner from '../../../components/spinner';
+import {
+  getUserTickets,
+  TicketItem,
+} from '../../../api-utils/schedule-management/ticket/ticket';
 
 const TicketDetail: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
@@ -15,7 +18,10 @@ const TicketDetail: React.FC = () => {
       try {
         const items = await getUserTickets();
         const tplId = Number(ticketId);
-        const found = items.find((t) => t.ticketList.id === tplId) ?? null;
+        const found =
+          items.find(
+            (t: { ticketList: { id: number } }) => t.ticketList.id === tplId
+          ) ?? null;
         setTicket(found);
       } catch (err) {
         console.error('티켓 조회 실패:', err);

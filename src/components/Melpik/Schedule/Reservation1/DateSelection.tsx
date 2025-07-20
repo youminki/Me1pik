@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { CustomSelect } from '../../../../components/CustomSelect';
+import { CustomSelect } from '../../../../common-components/forms/custom-select';
 
 interface DateSelectionProps {
   year: number;

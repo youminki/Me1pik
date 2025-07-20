@@ -9,11 +9,14 @@ import SubHeader from '../../components/Home/SubHeader';
 import ItemList, { UIItem } from '../../components/Home/ItemList';
 import FilterContainer from '../../components/Home/FilterContainer';
 import SearchModal from '../../components/Home/SearchModal';
-import { getBrandList, Brand as ApiBrand } from '../../api/brand/brandApi';
+import {
+  getBrandList,
+  Brand as ApiBrand,
+} from '../../api-utils/product-management/brand/brandApi';
 import {
   getProductsByBrand,
   Product as ApiProduct,
-} from '../../api/product/product';
+} from '../../api-utils/product-management/product/product';
 
 import HomeDetail from '../Home/HomeDetail';
 import CancleIconIcon from '../../assets/Header/CancleIcon.svg';

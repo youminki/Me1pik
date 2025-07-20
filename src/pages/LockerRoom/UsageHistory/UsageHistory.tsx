@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import StatsSection from '../../../components/StatsSection';
-import PeriodSection from '../../../components/PeriodSection';
-import Spinner from '../../../components/Spinner';
+import StatsSection from '../../../components/stats-section';
+import PeriodSection from '../../../components/period-section';
+import Spinner from '../../../components/spinner';
 import ServiceInfoIcon from '../../../assets/Basket/ServiceInfoIcon.svg';
 import ProductInfoIcon from '../../../assets/Basket/ProductInfoIcon.svg';
 import PriceIcon from '../../../assets/Basket/PriceIcon.svg';
@@ -13,7 +13,7 @@ import {
   getMyRentalSchedule,
   cancelRentalSchedule,
   RentalScheduleItem,
-} from '../../../api/RentalSchedule/RentalSchedule';
+} from '../../../api-utils/schedule-management/RentalSchedule/RentalSchedule';
 import CancleIconIcon from '../../../assets/Header/CancleIcon.svg';
 
 // 버튼 확대 애니메이션
@@ -56,7 +56,7 @@ const UsageHistory: React.FC = () => {
     const fetchSchedule = async () => {
       try {
         const data = await getMyRentalSchedule();
-        const mapped: BasketItem[] = data.rentals.map((r) => {
+        const mapped: BasketItem[] = data.rentals.map((r: any) => {
           const isRental = r.serviceType === '대여';
           return {
             ...r,

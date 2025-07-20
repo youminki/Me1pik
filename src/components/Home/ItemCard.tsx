@@ -3,8 +3,11 @@ import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import PickIconOn from '../../assets/Home/PickIconOn.svg';
 import PickIconOff from '../../assets/Home/PickIconOff.svg';
-import { addToCloset, removeFromCloset } from '../../api/closet/closetApi';
-import ReusableModal from '../ReusableModal2';
+import {
+  addToCloset,
+  removeFromCloset,
+} from '../../api-utils/product-management/closet/closetApi';
+import ReusableModal from '../../common-components/modals/reusable-modal-v2';
 
 type ItemCardProps = {
   id: string;

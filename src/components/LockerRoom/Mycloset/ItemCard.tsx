@@ -6,7 +6,7 @@ import SampleMyCloset2 from '../../../assets/LockerRoom/SampleMyCloset2.svg';
 import SampleMyCloset3 from '../../../assets/LockerRoom/SampleMyCloset3.svg';
 import SampleMyCloset4 from '../../../assets/LockerRoom/SampleMyCloset4.svg';
 import DeleteButton from '../../../assets/LockerRoom/DeleteButton.svg';
-import ReusableModal2 from '../../../components/ReusableModal2';
+import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
 
 const sampleImages = [
   SampleMyCloset1,

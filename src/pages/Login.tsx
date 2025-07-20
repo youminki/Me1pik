@@ -5,11 +5,14 @@ import styled, { ThemeProvider } from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Theme from '../styles/Theme';
-import { LoginPost } from '../api/auth/LoginPost';
-import { getMembershipInfo, MembershipInfo } from '../api/user/userApi';
+import { LoginPost } from '../api-utils/user-management/auth/LoginPost';
+import {
+  getMembershipInfo,
+  MembershipInfo,
+} from '../api-utils/user-management/user/userApi';
 import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
-import ReusableModal from '../components/ReusableModal';
+import ReusableModal from '../common-components/modals/reusable-modal';
 import { isNativeApp, saveNativeLoginInfo } from '../utils/nativeApp';
 import { saveTokens, forceSaveAppToken } from '../utils/auth';
 import {
@@ -27,7 +30,7 @@ import {
   InputIconBtn,
   StyledInput,
   ErrorMessage,
-} from '../auth/AuthCommon';
+} from '../auth-utils/AuthCommon';
 
 type LoginFormValues = {
   email: string;

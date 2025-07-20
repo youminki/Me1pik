@@ -13,9 +13,9 @@ import {
   ErrorMessage,
   FindBtn,
   MelpikPointText,
-} from '../auth/AuthCommon';
-import ReusableModal from '../components/ReusableModal';
-import { resetPassword } from '../api/user/userApi';
+} from '../auth-utils/AuthCommon';
+import ReusableModal from '../common-components/modals/reusable-modal';
+import { resetPassword } from '../api-utils/user-management/user/userApi';
 import Theme from '../styles/Theme';
 import { ThemeProvider } from 'styled-components';
 import styled from 'styled-components';

@@ -3,13 +3,17 @@ import styled, { ThemeProvider } from 'styled-components';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaMyStyle } from '../hooks/ValidationYup';
-import InputField from '../components/InputField';
+import InputField from '../common-components/forms/input-field';
 import Theme from '../styles/Theme';
 import Modal from '../components/Melpik/CreateMelpik/Settings/Modal';
-import { CustomSelect } from '../components/CustomSelect';
-import FixedBottomBar from '../components/FixedBottomBar';
-import ReusableModal from '../components/ReusableModal';
-import { useUserStyle, updateUserStyle, UserStyle } from '../api/user/userApi';
+import { CustomSelect } from '../common-components/forms/custom-select';
+import FixedBottomBar from '../components/fixed-bottom-bar';
+import ReusableModal from '../common-components/modals/reusable-modal';
+import {
+  useUserStyle,
+  updateUserStyle,
+  UserStyle,
+} from '../api-utils/user-management/user/userApi';
 
 interface FormData {
   height: string;

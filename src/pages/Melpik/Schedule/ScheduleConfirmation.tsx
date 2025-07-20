@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Theme from '../../../styles/Theme';
-import BottomBar from '../../../components/BottomNav2';
+import BottomBar from '../../../components/bottom-navigation-mobile';
 import DeleteButtonIcon from '../../../assets/DeleteButtonIcon.svg';
 import checkIcon from '../../../assets/checkIcon.svg';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,14 +11,14 @@ import {
   SaleScheduleDetailResponse,
   deleteSaleSchedule,
   patchSaleSchedule,
-} from '../../../api/sale/SaleSchedule';
-import Spinner from '../../../components/Spinner';
+} from '../../../api-utils/schedule-management/sale/SaleSchedule';
+import Spinner from '../../../components/spinner';
 import Calendar from '../../../components/Melpik/Schedule/Reservation1/Calendar';
 import DateSelection from '../../../components/Melpik/Schedule/Reservation1/DateSelection';
 import Summary from '../../../components/Melpik/Schedule/Reservation1/Summary';
 
 // 내 옷장 API & 타입 import
-import { getMyCloset } from '../../../api/closet/closetApi';
+import { getMyCloset } from '../../../api-utils/product-management/closet/closetApi';
 import { UIItem } from '../../../components/Home/MyclosetItemList';
 
 const MAX_SELECTION = 6;
@@ -111,8 +111,10 @@ const ScheduleConfirmation: React.FC = () => {
         const data = await getSaleScheduleDetail(Number(scheduleId));
         setDetail(data);
         // 기존 스케줄에 있던 제품도 초기 선택 상태로 반영
-        setSelectedItems(data.products.map((p) => String(p.id)));
-        const [sStr, eStr] = data.dateRange.split('~').map((d) => d.trim());
+        setSelectedItems(data.products.map((p: any) => String(p.id)));
+        const [sStr, eStr] = data.dateRange
+          .split('~')
+          .map((d: string) => d.trim());
         const s = new Date(sStr),
           e = new Date(eStr);
         setEditRange([s, e]);
@@ -138,20 +140,40 @@ const ScheduleConfirmation: React.FC = () => {
   useEffect(() => {
     setLoadingCloset(true);
     getMyCloset()
-      .then((res) => {
-        setClosetItems(
-          res.items.map((it) => ({
-            id: String(it.productId),
-            image: it.mainImage,
-            brand: it.brand,
-            description: it.name,
-            price: it.price,
-            discount: it.discountRate,
-            isLiked: true,
-          }))
-        );
-      })
-      .catch((err) => console.error(err))
+      .then(
+        (res: {
+          items: Array<{
+            productId: number;
+            mainImage: string;
+            brand: string;
+            description: string;
+            price: number;
+          }>;
+        }) => {
+          setClosetItems(
+            res.items.map(
+              (it: {
+                productId: number;
+                mainImage: string;
+                brand: string;
+                description: string;
+                price: number;
+                name?: string;
+                discountRate?: number;
+              }) => ({
+                id: String(it.productId),
+                image: it.mainImage,
+                brand: it.brand,
+                description: it.name || '',
+                price: it.price,
+                discount: it.discountRate || 0,
+                isLiked: true,
+              })
+            )
+          );
+        }
+      )
+      .catch((err: Error) => console.error(err))
       .finally(() => setLoadingCloset(false));
   }, []);
 

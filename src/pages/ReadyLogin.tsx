@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import LoginButton from '../components/Button01';
-import InputField from '../components/InputField';
+import LoginButton from '../common-components/buttons/primary-button';
+import InputField from '../common-components/forms/input-field';
 import Theme from '../styles/Theme';
 import MelpikLogo from '../assets/LoginLogo.svg';
 import { schemaLogin } from '../hooks/ValidationYup';
-import ReusableModal from '../components/ReusableModal';
+import ReusableModal from '../common-components/modals/reusable-modal';
 
 type LoginFormValues = {
   email: string;

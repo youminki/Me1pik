@@ -3,19 +3,28 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { useLocation, useNavigate } from 'react-router-dom';
-import FixedBottomBar from '../components/FixedBottomBar';
-import InputField from '../components/InputField';
-import { YellowButton, BlackButton } from '../components/ButtonWrapper';
-import ReusableModal from '../components/ReusableModal';
-import ReusableModal2 from '../components/ReusableModal2';
-import AddressSearchModal from '../components/AddressSearchModal';
+import FixedBottomBar from '../components/fixed-bottom-bar';
+import InputField from '../common-components/forms/input-field';
+import {
+  YellowButton,
+  BlackButton,
+} from '../common-components/buttons/button-wrapper';
+import ReusableModal from '../common-components/modals/reusable-modal';
+import ReusableModal2 from '../common-components/modals/reusable-modal-v2';
+import AddressSearchModal from '../common-components/modals/address-search-modal';
 import PriceIcon from '../assets/Basket/PriceIcon.svg';
 import ProductInfoIcon from '../assets/Basket/ProductInfoIcon.svg';
 import ServiceInfoIcon from '../assets/Basket/ServiceInfoIcon.svg';
-import { useUserTickets } from '../api/ticket/ticket';
-import { useCreateRentalOrder, RentalOrderRequest } from '../api/rental/rental';
-import { useAddresses, Address } from '../api/address/address';
-import DeliveryListModal from '../components/DeliveryListModal';
+import { useUserTickets } from '../api-utils/schedule-management/ticket/ticket';
+import {
+  useCreateRentalOrder,
+  RentalOrderRequest,
+} from '../api-utils/schedule-management/rental/rental';
+import {
+  useAddresses,
+  Address,
+} from '../api-utils/user-management/address/address';
+import DeliveryListModal from '../common-components/modals/delivery-list-modal';
 
 declare global {
   interface Window {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import TermsPolicyDetail from '../../../components/TermsPolicyDetail';
+import TermsPolicyDetail from '../../../components/terms-policy-detail';
 import styled from 'styled-components';
 
 const typeToTitle: Record<string, string> = {

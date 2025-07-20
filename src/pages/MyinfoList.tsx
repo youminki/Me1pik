@@ -7,11 +7,14 @@ import userInfoIcon from '../assets/Myinfo/UserInfoChangeIcon.svg';
 import passwordIcon from '../assets/Myinfo/PasswordChangeIcon.svg';
 import deliveryIcon from '../assets/Myinfo/DeliveryAdminIcon.svg';
 import { FaPlus, FaUserCircle, FaLongArrowAltRight } from 'react-icons/fa';
-import ReusableModal from '../components/ReusableModal';
+import ReusableModal from '../common-components/modals/reusable-modal';
 import { useNavigate } from 'react-router-dom';
 
 // 추가: API import
-import { getHeaderInfo, HeaderInfoResponse } from '../api/user/userApi';
+import {
+  getHeaderInfo,
+  HeaderInfoResponse,
+} from '../api-utils/user-management/user/userApi';
 
 const MENU_ITEMS = [
   {

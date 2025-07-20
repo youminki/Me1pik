@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { CustomSelect } from '../../CustomSelect';
+import { CustomSelect } from '../../../common-components/forms/custom-select';
 
 export interface ServiceSelectionProps {
   selectedService: string;
@@ -17,7 +17,9 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({
       <label>서비스 방식 (선택)</label>
       <CustomSelect
         value={selectedService}
-        onChange={(e) => setSelectedService(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setSelectedService(e.target.value)
+        }
       >
         <option value=''>서비스 선택 (대여 or 구매)</option>
         <option value='rental'>대여</option>

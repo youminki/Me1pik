@@ -4,7 +4,10 @@ import Theme from '../../styles/Theme';
 import { BrandList } from '../../components/Brand/BrandList';
 import { ControlSection } from '../../components/Brand/ControlSection';
 import StatsSection from '../../components/Brand/StatsSection';
-import { getBrandList, Brand as ApiBrand } from '../../api/brand/brandApi';
+import {
+  getBrandList,
+  Brand as ApiBrand,
+} from '../../api-utils/product-management/brand/brandApi';
 
 interface LocalBrand {
   id: number;

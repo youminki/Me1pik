@@ -5,10 +5,10 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaCardRegistration } from '../../../hooks/ValidationYup';
 
-import InputField from '../../../components/InputField';
-import ReusableModal from '../../../components/ReusableModal';
-import ReusableModal2 from '../../../components/ReusableModal2';
-import FixedBottomBar from '../../../components/FixedBottomBar';
+import InputField from '../../../common-components/forms/input-field';
+import ReusableModal from '../../../common-components/modals/reusable-modal';
+import ReusableModal2 from '../../../common-components/modals/reusable-modal-v2';
+import FixedBottomBar from '../../../components/fixed-bottom-bar';
 
 interface CardFormValues {
   cardNumber: string;

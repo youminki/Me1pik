@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Theme from '../../../styles/Theme';
-import { CustomSelect } from '../../CustomSelect';
+import { CustomSelect } from '../../../common-components/forms/custom-select';
 
 export interface ProductOptionsProps {
   selectedSize: string;
@@ -26,7 +26,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       <OptionsWrapper>
         <CustomSelect
           value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setSelectedSize(e.target.value)
+          }
         >
           <option value=''>사이즈 선택</option>
           {sizeOptions.map((size) => (
@@ -37,7 +39,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
         </CustomSelect>
         <CustomSelect
           value={selectedColor}
-          onChange={(e) => setSelectedColor(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setSelectedColor(e.target.value)
+          }
         >
           <option value=''>색상 선택</option>
           {colorOptions.map((color) => (

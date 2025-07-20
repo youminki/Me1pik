@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 
-import InputField from '../../components/InputField';
+import InputField from '../../common-components/forms/input-field';
 import Theme from '../../styles/Theme';
-import FixedBottomBar from '../../components/FixedBottomBar';
-import ReusableModal from '../../components/ReusableModal';
+import FixedBottomBar from '../../components/fixed-bottom-bar';
+import ReusableModal from '../../common-components/modals/reusable-modal';
 
-import { changePassword } from '../../api/user/userApi';
+import { changePassword } from '../../api-utils/user-management/user/userApi';
 
 export interface ChangePasswordFormData {
   currentPassword: string;

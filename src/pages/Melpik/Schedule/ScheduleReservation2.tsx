@@ -10,8 +10,8 @@ import BottomBar from '../../../components/Melpik/Schedule/Reservation1/BottomBa
 
 import checkIcon from '../../../assets/checkIcon.svg';
 
-import { getMyCloset } from '../../../api/closet/closetApi';
-import Spinner from '../../../components/Spinner';
+import { getMyCloset } from '../../../api-utils/product-management/closet/closetApi';
+import Spinner from '../../../components/spinner';
 import { UIItem } from '../../../components/Home/MyclosetItemList';
 
 const MAX_SELECTION = 6;
@@ -122,20 +122,30 @@ const ScheduleReservation2: React.FC = () => {
   useEffect(() => {
     setLoadingCloset(true);
     getMyCloset()
-      .then((res) => {
-        const items: UIItem[] = res.items.map((it) => ({
-          id: String(it.productId),
-          image: it.mainImage,
-          brand: it.brand,
-          description: it.name,
-          price: it.price,
-          discount: it.discountRate,
-          // it.isLiked이 없으므로 기본값으로 할당
-          isLiked: true,
-        }));
-        setClosetItems(items);
-      })
-      .catch((err) => {
+      .then(
+        (res: {
+          items: Array<{
+            productId: number;
+            mainImage: string;
+            brand: string;
+            description: string;
+            price: number;
+          }>;
+        }) => {
+          const items: UIItem[] = res.items.map((it: any) => ({
+            id: String(it.productId),
+            image: it.mainImage,
+            brand: it.brand,
+            description: it.name,
+            price: it.price,
+            discount: it.discountRate,
+            // it.isLiked이 없으므로 기본값으로 할당
+            isLiked: true,
+          }));
+          setClosetItems(items);
+        }
+      )
+      .catch((err: any) => {
         console.error('내 옷장 조회 실패', err);
       })
       .finally(() => {

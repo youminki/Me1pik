@@ -6,11 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import Theme from '../../../styles/Theme';
 import ScheduleIcon from '../../../assets/Melpik/schedule.svg';
 import BletIcon from '../../../assets/Melpik/blet.svg';
-import StatsSection from '../../../components/StatsSection';
+import StatsSection from '../../../components/stats-section';
 import {
   getMySaleScheduleSummaries,
   SaleScheduleSummaryItem,
-} from '../../../api/sale/SaleSchedule';
+} from '../../../api-utils/schedule-management/sale/SaleSchedule';
 
 const Schedule: React.FC = () => {
   const navigate = useNavigate();

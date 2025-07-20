@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import FixedBottomBar from '../../components/FixedBottomBar';
-import AddressSearchModal from '../../components/AddressSearchModal';
-import { useCreateAddress } from '../../api/address/address';
+import FixedBottomBar from '../../components/fixed-bottom-bar';
+import AddressSearchModal from '../../common-components/modals/address-search-modal';
+import { useCreateAddress } from '../../api-utils/user-management/address/address';
 
 const EditAddress: React.FC = () => {
   const navigate = useNavigate();

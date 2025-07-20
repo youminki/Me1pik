@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaPassword } from '../hooks/ValidationYup'; // 비밀번호 검증 스키마
-import InputField from '../components/InputField';
-import BottomBar from '../components/BottomNav2';
+import InputField from '../common-components/forms/input-field';
+import BottomBar from '../components/bottom-navigation-mobile';
 import ResetButtonIcon from '../assets/ResetButton.png';
 
 type FormData = {

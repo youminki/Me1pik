@@ -22,7 +22,6 @@ if (typeof global.TextDecoder === 'undefined') {
   global.TextDecoder = require('util').TextDecoder;
 }
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Home from '../Home';
 import { MemoryRouter } from 'react-router-dom';

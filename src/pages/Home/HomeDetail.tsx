@@ -6,7 +6,7 @@ import { keyframes } from 'styled-components';
 import {
   useProductInfo,
   ProductDetail as APIProductDetail,
-} from '../../api/upload/productApi';
+} from '../../api-utils/product-management/upload/productApi';
 import ImageSlider from '../../components/Home/HomeDetail/ImageSlider';
 import ProductInfo from '../../components/Home/HomeDetail/ProductInfo';
 import ProductOptions from '../../components/Home/HomeDetail/ProductOptions';
@@ -16,10 +16,10 @@ import MaterialInfo from '../../components/Home/HomeDetail/MaterialInfo';
 import ProductDetails from '../../components/Home/HomeDetail/ProductDetails';
 import ServiceSelection from '../../components/Home/HomeDetail/ServiceSelection';
 import RentalOptions from '../../components/Home/HomeDetail/RentalOptions';
-import ReusableModal from '../../components/ReusableModal';
+import ReusableModal from '../../common-components/modals/reusable-modal';
 import BottomBar from '../../components/Home/HomeDetail/BottomBar';
 import ShoppingBasket from '../../assets/Home/HomeDetail/ShoppingBasket.svg';
-import { addCartItem } from '../../api/cart/cart';
+import { addCartItem } from '../../api-utils/product-management/cart/cart';
 
 interface ProductDetail {
   id: number;

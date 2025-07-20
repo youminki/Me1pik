@@ -2,8 +2,8 @@ import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import Theme from '../../../styles/Theme';
 import AgreementSection from '../../../components/Melpik/settlement/SettlementAgreementSection';
-import InputField from '../../../components/InputField';
-import FixedBottomBar from '../../../components/FixedBottomBar';
+import InputField from '../../../common-components/forms/input-field';
+import FixedBottomBar from '../../../components/fixed-bottom-bar';
 
 const SettlementRequest: React.FC = () => {
   const taxRate = 0.04;

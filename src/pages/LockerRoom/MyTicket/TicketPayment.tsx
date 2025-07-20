@@ -4,13 +4,13 @@ import styled from 'styled-components';
 import { format, addMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
-import InputField from '../../../components/InputField';
-import FixedBottomBar from '../../../components/FixedBottomBar';
+import InputField from '../../../common-components/forms/input-field';
+import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import {
   postInitPayment,
   getMyCards,
   postRecurringPayment,
-} from '../../../api/default/payment';
+} from '../../../api-utils/payment/default/payment';
 
 import PaymentAmountIcon from '../../../assets/LockerRoom/PaymentAmount.svg';
 import TicketPaymentSeaSonIcon from '../../../assets/LockerRoom/TicketPaymentSeaSon.svg';
