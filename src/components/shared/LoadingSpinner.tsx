@@ -10,12 +10,12 @@ interface LoadingSpinnerProps {
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 40,
-  color = '#1976d2',
+  color = '#f7c600',
   className,
   label,
 }) => {
   return (
-    <Wrapper
+    <CenterWrapper
       className={className}
       role='status'
       aria-live='polite'
@@ -23,7 +23,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     >
       <Spinner size={size} color={color} />
       {label && <Label>{label}</Label>}
-    </Wrapper>
+    </CenterWrapper>
   );
 };
 
@@ -34,26 +34,38 @@ const spin = keyframes`
   100% { transform: rotate(360deg); }
 `;
 
-const Wrapper = styled.div`
+const CenterWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 9999;
 `;
 
 const Spinner = styled.div<{ size: number; color: string }>`
   width: ${({ size }) => size}px;
   height: ${({ size }) => size}px;
-  border: 4px solid #e0e0e0;
-  border-top: 4px solid ${({ color }) => color};
+  border: ${({ size }) => Math.max(2, Math.floor(size * 0.12))}px solid
+    rgba(0, 0, 0, 0.07);
+  border-top: ${({ size }) => Math.max(2, Math.floor(size * 0.12))}px solid
+    ${({ color }) => color};
   border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
-  margin-bottom: 8px;
+  animation: ${spin} 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  background: transparent;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 `;
 
 const Label = styled.div`
-  font-size: 1rem;
-  color: #666;
-  margin-top: 4px;
+  font-size: 1.05rem;
+  color: #222;
+  margin-top: 6px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
 `;
