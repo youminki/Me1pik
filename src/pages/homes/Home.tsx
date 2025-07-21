@@ -279,9 +279,9 @@ const Home: React.FC = () => {
 
   // 홈 진입 시 로그인 안내 모달 열기
   useEffect(() => {
-    if (showNotice) {
-      setLoginNoticeOpen(true);
-    }
+    // if (showNotice) {
+    //   setLoginNoticeOpen(true);
+    // }
   }, [showNotice]);
 
   // 스크롤 맨 위로 이동
@@ -847,7 +847,7 @@ const ScrollToTopButton = styled.button`
   border: none;
   cursor: pointer;
   z-index: 1000;
-   0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   background: #555555;
   border-radius: 6px;
   transition:
@@ -964,5 +964,5 @@ const NoResultMessage = styled.div`
   justify-content: center;
   background: #fff;
   border-radius: 12px;
-   0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 `;

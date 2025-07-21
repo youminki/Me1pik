@@ -12,8 +12,8 @@ import {
 } from '../../api-utils/user-managements/users/userApi';
 import MelpikLogo from '../../assets/LoginLogo.svg';
 import {
-  NaverLoginBg,
-  NaverLoginBox,
+  LoginContainer,
+  LoginInfoBox,
   FormSectionWrapper,
   LogoWrap,
   LogoImg,
@@ -30,7 +30,7 @@ import { ErrorMessage as InputErrorMessage } from '../../auth-utils/AuthCommon';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import { schemaLogin } from '../../hooks/useValidationYup';
 import { theme } from '../../styles/Theme';
-import { saveTokens, forceSaveAppToken } from '../../utils/auth';
+import { forceSaveAppToken } from '../../utils/auth';
 import { isNativeApp } from '../../utils/nativeApp';
 
 type LoginFormValues = {
@@ -44,7 +44,7 @@ type LoginResponse = {
 };
 
 // 네이버 스타일 X(전체삭제) 아이콘
-const NaverDeleteIcon = () => (
+const ClearIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
       <circle fill='#000' cx='10' cy='10' r='10' />
@@ -58,7 +58,7 @@ const NaverDeleteIcon = () => (
   </svg>
 );
 // 네이버 스타일 눈(보기) 아이콘
-const NaverEyeOpenIcon = () => (
+const ShowPasswordIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
       <path
@@ -71,7 +71,7 @@ const NaverEyeOpenIcon = () => (
   </svg>
 );
 // 네이버 스타일 눈감김(숨김) 아이콘
-const NaverEyeCloseIcon = () => (
+const HidePasswordIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
       <path
@@ -150,66 +150,66 @@ const Divider = styled.div`
 `;
 
 // 로그인 상태 유지 관련 스타일 주석처리
-// const KeepLoginWrap = styled.div`
-//   display: flex;
-//   align-items: center;
-//   margin-bottom: 12px;
-// `;
-// const KeepLoginLabel = styled.label`
-//   display: flex;
-//   align-items: center;
-//   cursor: pointer;
-//   font-size: 12px;
-//   font-weight: 700;
-//   color: #222;
-//   user-select: none;
-// `;
-// const KeepLoginCheckbox = styled.input`
-//   position: absolute;
-//   opacity: 0;
-//   width: 0;
-//   height: 0;
-// `;
-// const CustomCheckbox = styled.span<{ checked: boolean }>`
-//   width: 24px;
-//   height: 24px;
-//   border: 1.5px solid ${({ checked }) => (checked ? '#F6AE24' : '#ddd')};
-//   background: ${({ checked }) => (checked ? '#F6AE24' : '#fff')};
-//   margin-right: 8px;
-//   display: inline-block;
-//   position: relative;
-//   transition:
-//     border 0.2s,
-//     background 0.2s;
-//   box-sizing: border-box;
-//   cursor: pointer;
-//   // ${KeepLoginLabel}:hover & {
-//   //   border-color: #f6ae24;
-//   // }
-//   &:focus {
-//     outline: 2px solid #f6ae24;
-//     outline-offset: 2px;
-//   }
-//   &::after {
-//     content: '';
-//     display: ${({ checked }) => (checked ? 'block' : 'none')};
-//     position: absolute;
-//     left: 5px;
-//     top: 0px;
-//     width: 7px;
-//     height: 12px;
-//     border: solid #fff;
-//     border-width: 0 3px 3px 0;
-//     border-radius: 1px;
-//     transform: rotate(45deg);
-//   }
-// `;
-// const KeepLoginNotice = styled.div`
-//   font-size: 13px;
-//   color: #ff4d4f;
-//   margin-bottom: 8px;
-//   margin-left: 2px;
-// `;
+const KeepLoginWrap = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+`;
+const KeepLoginLabel = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: #222;
+  user-select: none;
+`;
+const KeepLoginCheckbox = styled.input`
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+`;
+const CustomCheckbox = styled.span<{ checked: boolean }>`
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid ${({ checked }) => (checked ? '#F6AE24' : '#ddd')};
+  background: ${({ checked }) => (checked ? '#F6AE24' : '#fff')};
+  margin-right: 8px;
+  display: inline-block;
+  position: relative;
+  transition:
+    border 0.2s,
+    background 0.2s;
+  box-sizing: border-box;
+  cursor: pointer;
+  // ${KeepLoginLabel}:hover & {
+  //   border-color: #f6ae24;
+  // }
+  &:focus {
+    outline: 2px solid #f6ae24;
+    outline-offset: 2px;
+  }
+  &::after {
+    content: '';
+    display: ${({ checked }) => (checked ? 'block' : 'none')};
+    position: absolute;
+    left: 5px;
+    top: 0px;
+    width: 7px;
+    height: 12px;
+    border: solid #fff;
+    border-width: 0 3px 3px 0;
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+`;
+const KeepLoginNotice = styled.div`
+  font-size: 13px;
+  color: #ff4d4f;
+  margin-bottom: 8px;
+  margin-left: 2px;
+`;
 
 const CapsLockNotice = styled.div`
   color: #ff4d4f;
@@ -225,7 +225,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // const [keepLogin, setKeepLogin] = useState(false); // 로그인 상태 유지
+  const [keepLogin, setKeepLogin] = useState(false); // 로그인 상태 유지
   const [isCapsLock, setIsCapsLock] = useState(false);
 
   useEffect(() => {}, [errorMessage]);
@@ -301,21 +301,18 @@ const Login: React.FC = () => {
       if (isNativeApp()) {
         forceSaveAppToken(accessToken, refreshToken);
       } else {
-        // 로그인 상태 유지 분기 주석처리
-        // if (keepLogin) {
-        //   // 로그인 상태 유지: localStorage에 저장
-        //   localStorage.setItem('accessToken', accessToken);
-        //   localStorage.setItem('refreshToken', refreshToken);
-        //   console.log('localStorage에 토큰 저장됨');
-        // } else {
-        //   // 세션 유지: sessionStorage에 저장
-        //   sessionStorage.setItem('accessToken', accessToken);
-        //   sessionStorage.setItem('refreshToken', refreshToken);
-        //   console.log('sessionStorage에 토큰 저장됨');
-        // }
-
-        // 항상 saveTokens만 호출
-        saveTokens(accessToken, refreshToken);
+        // 로그인 상태 유지 분기
+        if (keepLogin) {
+          // 로그인 상태 유지: localStorage에 저장
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+          console.log('localStorage에 토큰 저장됨');
+        } else {
+          // 세션 유지: sessionStorage에 저장
+          sessionStorage.setItem('accessToken', accessToken);
+          sessionStorage.setItem('refreshToken', refreshToken);
+          console.log('sessionStorage에 토큰 저장됨');
+        }
       }
 
       const membership: MembershipInfo = await getMembershipInfo();
@@ -360,9 +357,9 @@ const Login: React.FC = () => {
     setShowPassword((v) => !v);
   };
 
-  // const handleKeepLoginChange = () => {
-  //   setKeepLogin((prev) => !prev);
-  // };
+  const handleKeepLoginChange = () => {
+    setKeepLogin((prev) => !prev);
+  };
 
   // 예시: 로딩/에러 상태 처리
   // if (isSubmitting) {
@@ -375,8 +372,8 @@ const Login: React.FC = () => {
   // 에러 메시지는 인풋 필드 아래에서만 노출
   return (
     <ThemeProvider theme={theme}>
-      <NaverLoginBg>
-        <NaverLoginBox>
+      <LoginContainer>
+        <LoginInfoBox>
           <LogoWrap>
             <LogoImg src={MelpikLogo} alt='멜픽 로고' />
           </LogoWrap>
@@ -387,7 +384,7 @@ const Login: React.FC = () => {
             <br />
             <SloganSub>사고, 팔고, 빌리는 것을 한번에!</SloganSub>
           </Slogan>
-        </NaverLoginBox>
+        </LoginInfoBox>
         <FormSectionWrapper>
           <FormSection onSubmit={handleSubmit(handleLoginClick)}>
             <InputLabel style={{ marginBottom: '8px' }}>로그인 계정</InputLabel>
@@ -404,7 +401,7 @@ const Login: React.FC = () => {
                 />
                 {email && (
                   <InputIconBtn type='button' onClick={handleEmailClear}>
-                    <NaverDeleteIcon />
+                    <ClearIcon />
                   </InputIconBtn>
                 )}
               </InputWrap>
@@ -425,7 +422,7 @@ const Login: React.FC = () => {
                 />
                 {password && (
                   <InputIconBtn type='button' onClick={handlePwClear}>
-                    <NaverDeleteIcon />
+                    <ClearIcon />
                   </InputIconBtn>
                 )}
                 {password && (
@@ -434,11 +431,7 @@ const Login: React.FC = () => {
                     onClick={toggleShowPassword}
                     type='button'
                   >
-                    {showPassword ? (
-                      <NaverEyeOpenIcon />
-                    ) : (
-                      <NaverEyeCloseIcon />
-                    )}
+                    {showPassword ? <ShowPasswordIcon /> : <HidePasswordIcon />}
                   </InputIconBtn>
                 )}
               </InputWrap>
@@ -453,7 +446,7 @@ const Login: React.FC = () => {
                 <InputErrorMessage>{errorMessage}</InputErrorMessage>
               )}
             </InputFieldsContainer>
-            {/*
+
             <KeepLoginWrap>
               <KeepLoginLabel htmlFor='keepLogin'>
                 <KeepLoginCheckbox
@@ -475,7 +468,6 @@ const Login: React.FC = () => {
                 마세요.
               </KeepLoginNotice>
             )}
-            */}
 
             <LoginBtn
               type='submit'
@@ -500,7 +492,7 @@ const Login: React.FC = () => {
             </LinksRight>
           </LinksRow>
         </FormSectionWrapper>
-      </NaverLoginBg>
+      </LoginContainer>
     </ThemeProvider>
   );
 };

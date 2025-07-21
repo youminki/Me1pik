@@ -125,7 +125,9 @@ body.landing #root {
 }
 
 html,
-body {
+body,
+#root {
+  height: 100%;
   overflow-x: hidden;
   scrollbar-width: none;
   -webkit-font-smoothing: antialiased;

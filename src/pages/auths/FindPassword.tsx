@@ -2,12 +2,18 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ThemeProvider } from 'styled-components';
-import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { resetPassword } from '../../api-utils/user-managements/users/userApi';
+import MelpikLogo from '../../assets/LoginLogo.svg';
 import {
+  LoginContainer,
+  LoginInfoBox,
   FormSectionWrapper,
+  LogoWrap,
+  LogoImg,
+  Slogan,
+  SloganSub,
   FormSection,
   InputLabel,
   InputFieldsContainer,
@@ -54,7 +60,7 @@ const schemaFindPassword = yup.object().shape({
 type FormValues = yup.InferType<typeof schemaFindPassword>;
 
 // 네이버 스타일 눈(보기) 아이콘
-const NaverEyeOpenIcon = () => (
+const ShowPasswordIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
       <path
@@ -67,7 +73,7 @@ const NaverEyeOpenIcon = () => (
   </svg>
 );
 // 네이버 스타일 눈감김(숨김) 아이콘
-const NaverEyeCloseIcon = () => (
+const HidePasswordIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
       <path
@@ -86,11 +92,7 @@ const NaverEyeCloseIcon = () => (
   </svg>
 );
 
-// FormSectionWrapper 스타일 오버라이드
-const TopFormSectionWrapper = styled(FormSectionWrapper)`
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-`;
+// FormSectionWrapper 스타일 오버라이드 삭제
 
 const FindPassword: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -196,109 +198,37 @@ const FindPassword: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      {/* <NaverLoginBg> */}
-      <TopFormSectionWrapper>
-        <FormSection onSubmit={handleSubmit(onSubmit, onError)}>
-          <InputLabel style={{ marginBottom: '8px' }}>비밀번호 찾기</InputLabel>
-          <InputFieldsContainer>
-            <InputWrap>
-              <StyledInput
-                id='name'
-                type='text'
-                placeholder='이름(한글)'
-                value={name}
-                onChange={handleNameChange}
-                hasError={!!errors.name}
-                autoComplete='off'
-              />
-              {name && (
-                <InputIconBtn type='button' onClick={handleNameClear}>
-                  <svg width='20' height='20' viewBox='0 0 20 20'>
-                    <g fill='none' fillRule='evenodd'>
-                      <circle fill='#000' cx='10' cy='10' r='10' />
-                      <path
-                        stroke='#FFF'
-                        strokeWidth='1.5'
-                        strokeLinecap='round'
-                        d='M7.5 7.5l5 5m0-5l-5 5'
-                      />
-                    </g>
-                  </svg>
-                </InputIconBtn>
-              )}
-            </InputWrap>
-            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-            <InputWrap>
-              <StyledInput
-                id='email'
-                type='text'
-                placeholder='이메일'
-                value={email}
-                onChange={handleEmailChange}
-                hasError={!!errors.email}
-                autoComplete='off'
-              />
-              {email && (
-                <InputIconBtn type='button' onClick={handleEmailClear}>
-                  <svg width='20' height='20' viewBox='0 0 20 20'>
-                    <g fill='none' fillRule='evenodd'>
-                      <circle fill='#000' cx='10' cy='10' r='10' />
-                      <path
-                        stroke='#FFF'
-                        strokeWidth='1.5'
-                        strokeLinecap='round'
-                        d='M7.5 7.5l5 5m0-5l-5 5'
-                      />
-                    </g>
-                  </svg>
-                </InputIconBtn>
-              )}
-            </InputWrap>
-            {errors.email && (
-              <ErrorMessage>{errors.email.message}</ErrorMessage>
-            )}
-            <InputWrap>
-              <StyledInput
-                id='phone'
-                type='text'
-                placeholder='010-1234-5678'
-                value={phone}
-                onChange={handlePhoneChange}
-                hasError={!!errors.phone}
-                autoComplete='off'
-              />
-              {phone && (
-                <InputIconBtn type='button' onClick={handlePhoneClear}>
-                  <svg width='20' height='20' viewBox='0 0 20 20'>
-                    <g fill='none' fillRule='evenodd'>
-                      <circle fill='#000' cx='10' cy='10' r='10' />
-                      <path
-                        stroke='#FFF'
-                        strokeWidth='1.5'
-                        strokeLinecap='round'
-                        d='M7.5 7.5l5 5m0-5l-5 5'
-                      />
-                    </g>
-                  </svg>
-                </InputIconBtn>
-              )}
-            </InputWrap>
-            {errors.phone && (
-              <ErrorMessage>{errors.phone.message}</ErrorMessage>
-            )}
-            <InputWrap>
-              <StyledInput
-                id='newPassword'
-                type={showNewPassword ? 'text' : 'password'}
-                placeholder='새 비밀번호를 입력하세요'
-                value={newPassword}
-                onChange={handleNewPasswordChange}
-                hasError={!!errors.newPassword}
-                autoComplete='new-password'
-              />
-              {newPassword && (
-                <>
-                  <InputIconBtn type='button' onClick={handleNewPasswordClear}>
+      <LoginContainer>
+        <LoginInfoBox>
+          <LogoWrap>
+            <LogoImg src={MelpikLogo} alt='멜픽 로고' />
+          </LogoWrap>
+          <Slogan>
+            이젠 <span style={{ color: '#F6AE24' }}>멜픽</span>을 통해
+            <br />
+            브랜드를 골라보세요
+            <br />
+            <SloganSub>사고, 팔고, 빌리는 것을 한번에!</SloganSub>
+          </Slogan>
+        </LoginInfoBox>
+        <FormSectionWrapper>
+          <FormSection onSubmit={handleSubmit(onSubmit, onError)}>
+            <InputLabel style={{ marginBottom: '8px' }}>
+              비밀번호 찾기
+            </InputLabel>
+            <InputFieldsContainer>
+              <InputWrap>
+                <StyledInput
+                  id='name'
+                  type='text'
+                  placeholder='이름(한글)'
+                  value={name}
+                  onChange={handleNameChange}
+                  hasError={!!errors.name}
+                  autoComplete='off'
+                />
+                {name && (
+                  <InputIconBtn type='button' onClick={handleNameClear}>
                     <svg width='20' height='20' viewBox='0 0 20 20'>
                       <g fill='none' fillRule='evenodd'>
                         <circle fill='#000' cx='10' cy='10' r='10' />
@@ -311,39 +241,23 @@ const FindPassword: React.FC = () => {
                       </g>
                     </svg>
                   </InputIconBtn>
-                  <InputIconBtn
-                    type='button'
-                    onClick={toggleShowNewPassword}
-                    style={{ right: 40 }}
-                  >
-                    {showNewPassword ? (
-                      <NaverEyeOpenIcon />
-                    ) : (
-                      <NaverEyeCloseIcon />
-                    )}
-                  </InputIconBtn>
-                </>
+                )}
+              </InputWrap>
+              {errors.name && (
+                <ErrorMessage>{errors.name.message}</ErrorMessage>
               )}
-            </InputWrap>
-            {errors.newPassword && (
-              <ErrorMessage>{errors.newPassword.message}</ErrorMessage>
-            )}
-            <InputWrap>
-              <StyledInput
-                id='confirmPassword'
-                type={showConfirmPassword ? 'text' : 'password'}
-                placeholder='비밀번호를 다시 입력하세요'
-                value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                hasError={!!errors.confirmPassword}
-                autoComplete='new-password'
-              />
-              {confirmPassword && (
-                <>
-                  <InputIconBtn
-                    type='button'
-                    onClick={handleConfirmPasswordClear}
-                  >
+              <InputWrap>
+                <StyledInput
+                  id='email'
+                  type='text'
+                  placeholder='이메일'
+                  value={email}
+                  onChange={handleEmailChange}
+                  hasError={!!errors.email}
+                  autoComplete='off'
+                />
+                {email && (
+                  <InputIconBtn type='button' onClick={handleEmailClear}>
                     <svg width='20' height='20' viewBox='0 0 20 20'>
                       <g fill='none' fillRule='evenodd'>
                         <circle fill='#000' cx='10' cy='10' r='10' />
@@ -356,42 +270,149 @@ const FindPassword: React.FC = () => {
                       </g>
                     </svg>
                   </InputIconBtn>
-                  <InputIconBtn
-                    type='button'
-                    onClick={toggleShowConfirmPassword}
-                    style={{ right: 40 }}
-                  >
-                    {showConfirmPassword ? (
-                      <NaverEyeOpenIcon />
-                    ) : (
-                      <NaverEyeCloseIcon />
-                    )}
-                  </InputIconBtn>
-                </>
+                )}
+              </InputWrap>
+              {errors.email && (
+                <ErrorMessage>{errors.email.message}</ErrorMessage>
               )}
-            </InputWrap>
-            {errors.confirmPassword && (
-              <ErrorMessage>{errors.confirmPassword.message}</ErrorMessage>
-            )}
-            {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-          </InputFieldsContainer>
-          <FindBtn
-            type='submit'
-            disabled={!isValid || isSubmitting}
-            active={isValid && !isSubmitting}
-          >
-            {isSubmitting ? '조회 중...' : '비밀번호 변경'}
-          </FindBtn>
-        </FormSection>
-      </TopFormSectionWrapper>
-      <ReusableModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        title='비밀번호 찾기 결과'
-      >
-        <MelpikPointText>{successMessage}</MelpikPointText>
-      </ReusableModal>
-      {/* </NaverLoginBg> */}
+              <InputWrap>
+                <StyledInput
+                  id='phone'
+                  type='text'
+                  placeholder='010-1234-5678'
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  hasError={!!errors.phone}
+                  autoComplete='off'
+                />
+                {phone && (
+                  <InputIconBtn type='button' onClick={handlePhoneClear}>
+                    <svg width='20' height='20' viewBox='0 0 20 20'>
+                      <g fill='none' fillRule='evenodd'>
+                        <circle fill='#000' cx='10' cy='10' r='10' />
+                        <path
+                          stroke='#FFF'
+                          strokeWidth='1.5'
+                          strokeLinecap='round'
+                          d='M7.5 7.5l5 5m0-5l-5 5'
+                        />
+                      </g>
+                    </svg>
+                  </InputIconBtn>
+                )}
+              </InputWrap>
+              {errors.phone && (
+                <ErrorMessage>{errors.phone.message}</ErrorMessage>
+              )}
+              <InputWrap>
+                <StyledInput
+                  id='newPassword'
+                  type={showNewPassword ? 'text' : 'password'}
+                  placeholder='새 비밀번호를 입력하세요'
+                  value={newPassword}
+                  onChange={handleNewPasswordChange}
+                  hasError={!!errors.newPassword}
+                  autoComplete='new-password'
+                />
+                {newPassword && (
+                  <>
+                    <InputIconBtn
+                      type='button'
+                      onClick={handleNewPasswordClear}
+                    >
+                      <svg width='20' height='20' viewBox='0 0 20 20'>
+                        <g fill='none' fillRule='evenodd'>
+                          <circle fill='#000' cx='10' cy='10' r='10' />
+                          <path
+                            stroke='#FFF'
+                            strokeWidth='1.5'
+                            strokeLinecap='round'
+                            d='M7.5 7.5l5 5m0-5l-5 5'
+                          />
+                        </g>
+                      </svg>
+                    </InputIconBtn>
+                    <InputIconBtn
+                      type='button'
+                      onClick={toggleShowNewPassword}
+                      style={{ right: 40 }}
+                    >
+                      {showNewPassword ? (
+                        <ShowPasswordIcon />
+                      ) : (
+                        <HidePasswordIcon />
+                      )}
+                    </InputIconBtn>
+                  </>
+                )}
+              </InputWrap>
+              {errors.newPassword && (
+                <ErrorMessage>{errors.newPassword.message}</ErrorMessage>
+              )}
+              <InputWrap>
+                <StyledInput
+                  id='confirmPassword'
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder='비밀번호를 다시 입력하세요'
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
+                  hasError={!!errors.confirmPassword}
+                  autoComplete='new-password'
+                />
+                {confirmPassword && (
+                  <>
+                    <InputIconBtn
+                      type='button'
+                      onClick={handleConfirmPasswordClear}
+                    >
+                      <svg width='20' height='20' viewBox='0 0 20 20'>
+                        <g fill='none' fillRule='evenodd'>
+                          <circle fill='#000' cx='10' cy='10' r='10' />
+                          <path
+                            stroke='#FFF'
+                            strokeWidth='1.5'
+                            strokeLinecap='round'
+                            d='M7.5 7.5l5 5m0-5l-5 5'
+                          />
+                        </g>
+                      </svg>
+                    </InputIconBtn>
+                    <InputIconBtn
+                      type='button'
+                      onClick={toggleShowConfirmPassword}
+                      style={{ right: 40 }}
+                    >
+                      {showConfirmPassword ? (
+                        <ShowPasswordIcon />
+                      ) : (
+                        <HidePasswordIcon />
+                      )}
+                    </InputIconBtn>
+                  </>
+                )}
+              </InputWrap>
+              {errors.confirmPassword && (
+                <ErrorMessage>{errors.confirmPassword.message}</ErrorMessage>
+              )}
+              {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+            </InputFieldsContainer>
+            <FindBtn
+              type='submit'
+              disabled={!isValid || isSubmitting}
+              active={isValid && !isSubmitting}
+            >
+              {isSubmitting ? '조회 중...' : '비밀번호 변경'}
+            </FindBtn>
+          </FormSection>
+        </FormSectionWrapper>
+        <ReusableModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          title='비밀번호 찾기 결과'
+        >
+          <MelpikPointText>{successMessage}</MelpikPointText>
+        </ReusableModal>
+      </LoginContainer>
     </ThemeProvider>
   );
 };

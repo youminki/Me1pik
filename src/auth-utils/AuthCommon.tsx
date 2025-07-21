@@ -2,18 +2,18 @@ import styled from 'styled-components';
 
 import { theme } from '@/styles/Theme';
 
-export const NaverLoginBg = styled.div`
-  min-height: 100vh;
+export const LoginContainer = styled.div`
+  height: 100%;
   min-width: 320px;
   width: 100vw;
   max-width: 100vw;
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   overflow-x: auto;
 `;
-export const NaverLoginBox = styled.div`
+export const LoginInfoBox = styled.div`
   background: #fff;
   border-radius: 12px;
   width: 100%;
@@ -36,12 +36,6 @@ export const FormSectionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 64px;
-  margin-left: auto;
-  margin-right: auto;
   box-sizing: border-box;
   overflow-x: auto;
 `;

@@ -65,7 +65,7 @@ export default AppLayout;
 const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   background: #fff;
 `;
 
@@ -75,6 +75,6 @@ const ContentContainer = styled.div<{
   flex: 1;
   padding: ${({ $disablePadding }) => ($disablePadding ? '0' : '70px 0')};
   overflow: auto;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   background: #fff;
 `;
