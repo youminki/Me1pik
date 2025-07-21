@@ -168,7 +168,6 @@ const MyStyle: React.FC = () => {
               label='키'
               id='height'
               error={errors.height?.message}
-              as='select'
               {...register('height')}
             >
               <option value='' disabled hidden>
@@ -184,7 +183,6 @@ const MyStyle: React.FC = () => {
               label='몸무게'
               id='size'
               error={errors.size?.message}
-              as='select'
               {...register('size')}
             >
               <option value='' disabled hidden>
@@ -220,7 +218,6 @@ const MyStyle: React.FC = () => {
                       error={errors[field]?.message}
                       value={value}
                       onChange={(e) => onChange(e.target.value)}
-                      as='select'
                     >
                       <option value='' disabled hidden>
                         선택해주세요
