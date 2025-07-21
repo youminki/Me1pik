@@ -145,8 +145,19 @@ const setupTokenRefreshTimer = (token: string): void => {
 
     if (!expiresAt) return;
 
-    // 토큰 만료 5분 전에 갱신
-    const refreshTime = (expiresAt - currentTime - 300) * 1000;
+    // 자동로그인 여부에 따라 갱신 시점 조정
+    const autoLogin = localStorage.getItem('autoLogin') === 'true';
+    // 자동로그인: 만료 1일 전에 갱신
+    // 일반로그인: 만료 5분 전에 갱신
+    const refreshOffset = autoLogin ? 24 * 60 * 60 : 300; // 24시간 또는 5분
+    const refreshTime = (expiresAt - currentTime - refreshOffset) * 1000;
+
+    const refreshAt = new Date(Date.now() + refreshTime);
+    console.log('토큰 갱신 예정:', {
+      autoLogin,
+      refreshAt: refreshAt.toLocaleString(),
+      offsetMinutes: refreshOffset / 60,
+    });
 
     if (refreshTime > 0) {
       // 기존 타이머 정리
@@ -155,6 +166,7 @@ const setupTokenRefreshTimer = (token: string): void => {
       }
 
       tokenRefreshTimer = setTimeout(async () => {
+        console.log('토큰 갱신 타이머 실행');
         await refreshToken();
       }, refreshTime);
     }
@@ -169,16 +181,33 @@ const setupTokenRefreshTimer = (token: string): void => {
 export const refreshToken = async (): Promise<boolean> => {
   try {
     const refreshToken = getRefreshToken();
+    const autoLogin = localStorage.getItem('autoLogin') === 'true';
+    console.log('토큰 갱신 시도:', { autoLogin });
+
     if (!refreshToken) {
+      console.log('Refresh 토큰이 없음');
       return false;
     }
 
     // 토큰 갱신 API 호출
-    const response = await Axios.post('/auth/refresh', { refreshToken });
+    const response = await Axios.post('/auth/refresh', {
+      refreshToken,
+      autoLogin,
+    });
     const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+    // 새 토큰의 만료시간 확인
+    try {
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const expiresAt = new Date(payload.exp * 1000);
+      console.log('새 토큰 만료시간:', expiresAt.toLocaleString());
+    } catch (e) {
+      console.error('새 토큰 디코딩 실패:', e);
+    }
 
     // 새 토큰 저장
     saveTokens(accessToken, newRefreshToken);
+    console.log('토큰 갱신 완료');
 
     return true;
   } catch (error) {
@@ -194,6 +223,7 @@ export const refreshToken = async (): Promise<boolean> => {
  */
 export const clearTokens = (): void => {
   removeToken();
+  localStorage.removeItem('autoLogin'); // 자동로그인 플래그도 제거
   if (tokenRefreshTimer) {
     clearTimeout(tokenRefreshTimer);
     tokenRefreshTimer = null;

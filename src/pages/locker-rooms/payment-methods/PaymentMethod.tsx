@@ -228,7 +228,7 @@ const CardItemBox = styled.div`
   background: #f6ae24;
   color: #fff;
   padding: 20px;
-   0 8px 20px rgba(0, 0, 0, 0.15);
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -239,7 +239,6 @@ const CardItemBox = styled.div`
     box-shadow 0.3s ease;
   &:hover {
     transform: translateY(-6px);
-     0 12px 24px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -291,7 +290,7 @@ const AddCardBox = styled(CardItemBox)`
   justify-content: center;
   flex-wrap: wrap;
   gap: 24px;
-
+  border: 2px dashed #ccc;
   max-width: 800px;
 `;
 

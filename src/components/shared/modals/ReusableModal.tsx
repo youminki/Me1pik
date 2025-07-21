@@ -115,7 +115,7 @@ const StyledModal = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: ${({ theme }) => theme.zIndex.modal};
+  z-index: 100000; /* 항상 최상단에 표시되도록 높은 값 설정 */
 `;
 
 const ModalContent = styled.div<{ width: string }>`

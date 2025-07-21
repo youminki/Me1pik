@@ -31,17 +31,20 @@ function isLoginError(error: unknown): error is LoginError {
  * ✅ 사용자 로그인 요청 함수
  * @param id - 사용자 ID
  * @param password - 사용자 비밀번호
+ * @param autoLogin - 자동로그인 여부
  * @returns 로그인 성공 시 서버에서 반환된 데이터 (액세스 토큰 등)
  * @throws 로그인 실패 시 에러 메시지
  */
 export const LoginPost = async (
   email: string,
-  password: string
+  password: string,
+  autoLogin: boolean = false
 ): Promise<LoginResponse> => {
   try {
     const response = await Axios.post<LoginResponse>('/auth/login', {
       email,
       password,
+      autoLogin, // 자동로그인 여부를 서버에 전달
     });
 
     console.log('✅ 로그인 성공:', response.data);

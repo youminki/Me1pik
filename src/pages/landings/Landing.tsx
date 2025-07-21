@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import LandingBackground from '../../assets/landings/7X5A9526.jpg';
 import Footer from '../../components/landings/Footer';
 import Header from '../../components/landings/Header';
 import LandingPage1 from '../../components/landings/LandingPage1';
@@ -67,6 +68,12 @@ const ScrollFadeIn: React.FC<ScrollFadeInProps> = ({ children }) => {
 };
 
 const Landing: React.FC = () => {
+  // 이미지 프리로드
+  useEffect(() => {
+    const img = new Image();
+    img.src = LandingBackground;
+  }, []);
+
   return (
     <LandingContainer>
       <BackgroundWrapper>

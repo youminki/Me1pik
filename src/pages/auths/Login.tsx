@@ -291,28 +291,41 @@ const Login: React.FC = () => {
 
   const handleLoginClick = async (data: LoginFormValues) => {
     try {
+      console.log('로그인 시도:', { email: data.email, keepLogin });
+
       const response = (await LoginPost(
         data.email,
-        data.password
+        data.password,
+        keepLogin
       )) as LoginResponse;
       const { accessToken, refreshToken } = response;
+
+      // 토큰 디코딩하여 만료시간 확인
+      try {
+        const payload = JSON.parse(atob(accessToken.split('.')[1]));
+        const expiresAt = new Date(payload.exp * 1000);
+        console.log('토큰 만료시간:', expiresAt.toLocaleString());
+      } catch (e) {
+        console.error('토큰 디코딩 실패:', e);
+      }
 
       // 앱에서는 항상 localStorage에 저장 (영구 보관)
       if (isNativeApp()) {
         forceSaveAppToken(accessToken, refreshToken);
       } else {
-        // 로그인 상태 유지 분기
+        // 토큰을 localStorage에 저장
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+
+        // 자동로그인 여부 저장
         if (keepLogin) {
-          // 로그인 상태 유지: localStorage에 저장
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('refreshToken', refreshToken);
-          console.log('localStorage에 토큰 저장됨');
+          localStorage.setItem('autoLogin', 'true');
+          console.log('자동로그인 활성화됨');
         } else {
-          // 세션 유지: sessionStorage에 저장
-          sessionStorage.setItem('accessToken', accessToken);
-          sessionStorage.setItem('refreshToken', refreshToken);
-          console.log('sessionStorage에 토큰 저장됨');
+          localStorage.removeItem('autoLogin');
+          console.log('일반 로그인 (자동로그인 비활성화)');
         }
+        console.log('localStorage에 토큰 저장됨');
       }
 
       const membership: MembershipInfo = await getMembershipInfo();
