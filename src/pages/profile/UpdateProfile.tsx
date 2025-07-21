@@ -7,8 +7,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import {
   useMyInfo,
   updateMyInfo,
-} from '../../api-utils/user-managements/users/userApi';
-
+} from '@/api-utils/user-managements/users/userApi';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import CommonField from '@/components/shared/forms/CommonField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';

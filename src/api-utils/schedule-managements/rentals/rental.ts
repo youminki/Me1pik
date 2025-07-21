@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 // --- Types ---
 /**

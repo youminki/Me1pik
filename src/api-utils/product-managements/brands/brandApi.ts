@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 /**
  * 브랜드 정보 타입 (API 응답에 포함되는 모든 필드 반영)

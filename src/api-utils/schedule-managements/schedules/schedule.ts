@@ -1,5 +1,5 @@
 // src/api/schedule/schedule.ts
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 // 예약 스케줄 생성 요청 타입
 export interface RentalScheduleCreateRequest {

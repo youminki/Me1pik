@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import TermsPolicyDetail from '../../../components/terms-policy-detail';
+import TermsPolicyDetail from '@/components/terms-policy-detail';
 
 const typeToTitle: Record<string, string> = {
   notice: '공지사항 상세',

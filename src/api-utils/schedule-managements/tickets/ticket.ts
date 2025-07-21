@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 /**
  * 이용권 템플릿 정보 (UserTicket.ticketList 및 /ticket-list 응답 아이템)

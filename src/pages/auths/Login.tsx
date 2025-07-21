@@ -5,12 +5,12 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 
-import { LoginPost } from '../../api-utils/user-managements/auth/LoginPost';
+import { LoginPost } from '@/api-utils/user-managements/auth/LoginPost';
 import {
   getMembershipInfo,
   MembershipInfo,
-} from '../../api-utils/user-managements/users/userApi';
-import MelpikLogo from '../../assets/LoginLogo.svg';
+} from '@/api-utils/user-managements/users/userApi';
+import MelpikLogo from '@/assets/LoginLogo.svg';
 import {
   LoginContainer,
   LoginInfoBox,
@@ -26,12 +26,12 @@ import {
   InputIconBtn,
   StyledInput,
   ErrorMessage as InputErrorMessage,
-} from '../../auth-utils/AuthCommon';
-import ErrorMessage from '../../components/shared/ErrorMessage';
-import { schemaLogin } from '../../hooks/useValidationYup';
-import { theme } from '../../styles/Theme';
-import { forceSaveAppToken } from '../../utils/auth';
-import { isNativeApp } from '../../utils/nativeApp';
+} from '@/auth-utils/AuthCommon';
+import ErrorMessage from '@/components/shared/ErrorMessage';
+import { schemaLogin } from '@/hooks/useValidationYup';
+import { theme } from '@/styles/Theme';
+import { forceSaveAppToken } from '@/utils/auth';
+import { isNativeApp } from '@/utils/nativeApp';
 
 interface LoginFormValues {
   email: string;

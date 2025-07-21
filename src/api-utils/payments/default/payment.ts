@@ -1,7 +1,7 @@
 // src/api/paypleApi.ts
 import { useQuery } from '@tanstack/react-query';
 
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 /**
  * 1. 로그인 유저의 카드 목록 조회

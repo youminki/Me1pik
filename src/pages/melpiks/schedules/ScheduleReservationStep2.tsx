@@ -5,14 +5,13 @@ import { FaTshirt } from 'react-icons/fa'; // 아이콘 import
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
-import checkIcon from '../../../assets/checkIcon.svg';
-import { UIItem } from '../../../components/homes/MyclosetItemList';
-import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
-import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
-import LoadingSpinner from '../../../components/shared/LoadingSpinner';
-
+import { getMyCloset } from '@/api-utils/product-managements/closets/closetApi';
+import checkIcon from '@/assets/checkIcon.svg';
+import { UIItem } from '@/components/homes/MyclosetItemList';
+import BottomBar from '@/components/melpiks/schedules/reservations/BottomBar';
+import Stepper from '@/components/melpiks/schedules/reservations/Stepper';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 const MAX_SELECTION = 6;
 

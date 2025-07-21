@@ -1,4 +1,4 @@
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 // 개인 페이지 활성화
 export const activateUserPage = async () => {

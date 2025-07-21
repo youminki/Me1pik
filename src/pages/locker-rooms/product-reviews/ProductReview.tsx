@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg';
-import EvaluationIcon from '../../../assets/baskets/EvaluationIcon.svg';
-import FilledStarIcon from '../../../assets/baskets/FilledStarIcon.svg';
-import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
-
+import EmptyStarIcon from '@/assets/baskets/EmptyStarIcon.svg';
+import EvaluationIcon from '@/assets/baskets/EvaluationIcon.svg';
+import FilledStarIcon from '@/assets/baskets/FilledStarIcon.svg';
 import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
 import sampleImage from '@/assets/sample-dress.svg';
 import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';

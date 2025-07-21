@@ -5,10 +5,9 @@ import styled from 'styled-components';
 import {
   getTermsPolicyList,
   getTermsPolicyDetail,
-} from '../../../api-utils/user-managements/terms/termsApi';
-import CustomerServiceIcon from '../../../assets/CustomerServiceIcons.svg';
-import ArrowToggleIcon from '../../../assets/library/ArrowToggleIcon';
-import StatsSection from '../../../components/stats-section';
+} from '@/api-utils/user-managements/terms/termsApi';
+import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
+import StatsSection from '@/components/stats-section';
 
 // 스켈레톤 UI용 styled-components (불필요한 것 삭제)
 const shimmer = `
@@ -231,9 +230,9 @@ const DocumentList: React.FC = () => {
                   </ItemMeta>
                 </div>
                 <IconRight>
-                  <ArrowToggleIcon
+                  {/* <ArrowToggleIcon
                     direction={openId === item.id ? 'up' : 'down'}
-                  />
+                  /> */}
                 </IconRight>
               </ListItem>
               <DetailWrapper

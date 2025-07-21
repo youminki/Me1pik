@@ -3,12 +3,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import FixedBottomBar from '../../../components/fixed-bottom-bar';
-import PeriodSection from '../../../components/period-section';
-import StatsSection from '../../../components/stats-section';
-
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import PeriodSection from '@/components/period-section';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import StatsSection from '@/components/stats-section';
 
 // 정산 내역 타입
 export interface Settlement {
@@ -46,7 +45,7 @@ async function fetchSettlements(): Promise<Settlement[]> {
       date: '2025-01 (1차)',
       subDate: '2025-01-10 (18:30:40)',
       amount: '144,000',
-      deduction: '공제 6,000',
+      deduction: '공제 6,000원',
     },
     {
       id: 4,

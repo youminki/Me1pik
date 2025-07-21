@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { Axios } from '../../Axios';
-
+import { Axios } from '@/api-utils/Axios';
 import { getCurrentToken } from '@/utils/auth';
 
 export interface SignupRequest {

@@ -1,7 +1,7 @@
 // src/api/upload/productApi.ts
 import { useQuery } from '@tanstack/react-query';
 
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 export interface ProductListItem {
   id: number;

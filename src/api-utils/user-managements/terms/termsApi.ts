@@ -1,4 +1,4 @@
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 // 문서 목록 조회 (필터 가능)
 export const getTermsPolicyList = async (params?: {

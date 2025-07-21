@@ -1,6 +1,6 @@
 // src/api/product.ts
 
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 /**
  * 특정 브랜드의 제품 정보 타입

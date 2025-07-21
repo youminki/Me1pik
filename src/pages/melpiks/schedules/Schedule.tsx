@@ -7,14 +7,13 @@ import styled from 'styled-components';
 import {
   getMySaleScheduleSummaries,
   SaleScheduleSummaryItem,
-} from '../../../api-utils/schedule-managements/sales/SaleSchedule';
-import BletIcon from '../../../assets/melpiks/blet.svg';
-import ScheduleIcon from '../../../assets/melpiks/schedule.svg';
-import StatsSection from '../../../components/stats-section';
-import { theme } from '../../../styles/Theme';
-
+} from '@/api-utils/schedule-managements/sales/SaleSchedule';
+import BletIcon from '@/assets/melpiks/blet.svg';
+import ScheduleIcon from '@/assets/melpiks/schedule.svg';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import StatsSection from '@/components/stats-section';
+import { theme } from '@/styles/Theme';
 
 const Schedule: React.FC = () => {
   const navigate = useNavigate();

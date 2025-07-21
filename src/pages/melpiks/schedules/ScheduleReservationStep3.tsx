@@ -4,15 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
-import { createSaleSchedule } from '../../../api-utils/schedule-managements/sales/SaleSchedule'; // API 호출 함수
-import { UIItem } from '../../../components/homes/MyclosetItemList'; // UIItem.id는 string 타입
-import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
-import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
-import LoadingSpinner from '../../../components/shared/LoadingSpinner';
-import ReusableModal from '../../../components/shared/modals/ReusableModal';
-
+import { getMyCloset } from '@/api-utils/product-managements/closets/closetApi';
+import { createSaleSchedule } from '@/api-utils/schedule-managements/sales/SaleSchedule'; // API 호출 함수
+import { UIItem } from '@/components/homes/MyclosetItemList'; // UIItem.id는 string 타입
+import BottomBar from '@/components/melpiks/schedules/reservations/BottomBar';
+import Stepper from '@/components/melpiks/schedules/reservations/Stepper';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface ItemCardProps {
   id: string;

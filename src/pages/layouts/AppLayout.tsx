@@ -3,10 +3,9 @@ import React from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 
-import BottomNav from '../../components/bottom-navigation';
-import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
-import useHeaderConfig from '../../hooks/useHeaderConfig';
-
+import BottomNav from '@/components/bottom-navigation';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import useHeaderConfig from '@/hooks/useHeaderConfig';
 import { hideScrollbar } from '@/styles/CommonStyles';
 
 const AppLayout: React.FC = () => {

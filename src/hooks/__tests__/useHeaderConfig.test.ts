@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import useHeaderConfig from '../useHeaderConfig';
+import useHeaderConfig from '@/hooks/useHeaderConfig';
 
 describe('useHeaderConfig', () => {
   it('returns correct variant and title for /home', () => {

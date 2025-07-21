@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import { ThemeProvider } from 'styled-components';
 import * as yup from 'yup';
 
-import { resetPassword } from '../../api-utils/user-managements/users/userApi';
-import MelpikLogo from '../../assets/LoginLogo.svg';
+import { resetPassword } from '@/api-utils/user-managements/users/userApi';
+import MelpikLogo from '@/assets/LoginLogo.svg';
 import {
   ErrorMessage,
   FindBtn,
@@ -23,12 +23,12 @@ import {
   Slogan,
   SloganSub,
   StyledInput,
-} from '../../auth-utils/AuthCommon';
-import CommonErrorMessage from '../../components/shared/ErrorMessage';
-import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-import { theme } from '../../styles/Theme';
+} from '@/auth-utils/AuthCommon';
+import CommonErrorMessage from '@/components/shared/ErrorMessage';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { theme } from '@/styles/Theme';
 
 // Validation schema
 const schemaFindPassword = yup.object().shape({

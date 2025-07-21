@@ -1,12 +1,12 @@
 // @jest-environment jsdom
-import { Axios } from '../../../Axios';
+import { Axios } from '@/api-utils/Axios';
 import {
   activateUserPage,
   addUserPageLink,
   deleteUserPageLink,
   setUserPageAccount,
   getUserPageAdminInfo,
-} from '../AdminUserPage';
+} from '@/api-utils/user-managements/admin-user-pages/AdminUserPage';
 
 jest.mock('../../Axios');
 const mockedAxios = Axios as jest.Mocked<typeof Axios>;

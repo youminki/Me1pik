@@ -4,16 +4,16 @@ import { useForm, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { LoginPost } from '../../api-utils/user-managements/auth/LoginPost';
+import { LoginPost } from '@/api-utils/user-managements/auth/LoginPost';
 import {
   getMembershipInfo,
   MembershipInfo,
-} from '../../api-utils/user-managements/users/userApi';
-import MelpikLogo from '../../assets/LoginLogo.svg';
-import LoginButton from '../../components/shared/buttons/PrimaryButton';
-import InputField from '../../components/shared/forms/InputField';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-import { schemaLogin } from '../../hooks/useValidationYup';
+} from '@/api-utils/user-managements/users/userApi';
+import MelpikLogo from '@/assets/LoginLogo.svg';
+import LoginButton from '@/components/shared/buttons/PrimaryButton';
+import InputField from '@/components/shared/forms/InputField';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { schemaLogin } from '@/hooks/useValidationYup';
 
 interface LoginFormValues {
   email: string;

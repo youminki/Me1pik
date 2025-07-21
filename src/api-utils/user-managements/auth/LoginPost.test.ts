@@ -1,6 +1,5 @@
-import { Axios } from '../../Axios';
-
-import { LoginPost } from './LoginPost';
+import { Axios } from '@/api-utils/Axios';
+import { LoginPost } from '@/api-utils/user-managements/auth/LoginPost';
 
 jest.mock('../../Axios');
 const mockedAxios = Axios as jest.Mocked<typeof Axios>;

@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 
-import { useAsyncState } from '../useAsyncState';
+import { useAsyncState } from '@/hooks/useAsyncState';
 
 describe('useAsyncState', () => {
   it('비동기 함수가 성공하면 data가 세팅되고 loading이 false가 된다', async () => {

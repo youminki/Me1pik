@@ -2,14 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 
-import FrequentlyAskedQuestionsBox from '../../assets/customer-services/FrequentlyAskedQuestions.svg';
-import NoticeBox from '../../assets/customer-services/Notice.svg';
-import PersonalInformationProcessingPolicyBox from '../../assets/customer-services/PersonalInformationProcessingPolicy.svg';
-import TermsAndConditionsOfUseBox from '../../assets/customer-services/TermsAndConditionsOfUse.svg';
-import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
-import StatsSection from '../../components/stats-section';
-
+import FrequentlyAskedQuestionsBox from '@/assets/customer-services/FrequentlyAskedQuestions.svg';
+import NoticeBox from '@/assets/customer-services/Notice.svg';
+import PersonalInformationProcessingPolicyBox from '@/assets/customer-services/PersonalInformationProcessingPolicy.svg';
+import TermsAndConditionsOfUseBox from '@/assets/customer-services/TermsAndConditionsOfUse.svg';
 import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
 const menuItems = [

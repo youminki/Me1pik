@@ -3,12 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-import { useMyCards } from '../../../api-utils/payments/default/payment';
-import { CardItem } from '../../../api-utils/payments/default/payment';
-import LoadingSpinner from '../../../components/shared/LoadingSpinner';
-import StatsSection from '../../../components/stats-section';
-
+import { useMyCards, CardItem } from '@/api-utils/payments/default/payment';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import StatsSection from '@/components/stats-section';
 import { getCurrentToken } from '@/utils/auth';
 
 interface UserInfo {

@@ -8,17 +8,14 @@ import styled from 'styled-components';
 import {
   getHeaderInfo,
   HeaderInfoResponse,
-} from '../../api-utils/user-managements/users/userApi';
-import deliveryIcon from '../../assets/my-info/DeliveryAdminIcon.svg';
-import passwordIcon from '../../assets/my-info/PasswordChangeIcon.svg';
-import userInfoIcon from '../../assets/my-info/UserInfoChangeIcon.svg';
-import ErrorMessage from '../../components/shared/ErrorMessage';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-
-// 추가: API import
-
+} from '@/api-utils/user-managements/users/userApi';
+import deliveryIcon from '@/assets/my-info/DeliveryAdminIcon.svg';
+import passwordIcon from '@/assets/my-info/PasswordChangeIcon.svg';
+import userInfoIcon from '@/assets/my-info/UserInfoChangeIcon.svg';
+import ErrorMessage from '@/components/shared/ErrorMessage';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
 
 const MENU_ITEMS = [

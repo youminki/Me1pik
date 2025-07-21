@@ -1,54 +1,27 @@
 // src/pages/homesDetail.tsx
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { keyframes } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
-import { addCartItem } from '../../api-utils/product-managements/carts/cart';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
+
+import { addCartItem } from '@/api-utils/product-managements/carts/cart';
 import {
   useProductInfo,
   ProductDetail as APIProductDetail,
-} from '../../api-utils/product-managements/uploads/productApi';
-import ShoppingBasket from '../../assets/homes/home-details/ShoppingBasket.svg';
-import BottomBar from '../../components/homes/home-details/BottomBar';
-import ImageSlider from '../../components/homes/home-details/ImageSlider';
-import MaterialInfo from '../../components/homes/home-details/MaterialInfo';
-import PaymentMethod from '../../components/homes/home-details/PaymentMethod';
-import ProductDetails from '../../components/homes/home-details/ProductDetails';
-import ProductInfo from '../../components/homes/home-details/ProductInfo';
-import ProductOptions from '../../components/homes/home-details/ProductOptions';
-import RentalOptions from '../../components/homes/home-details/RentalOptions';
-import ServiceSelection from '../../components/homes/home-details/ServiceSelection';
-import SizeInfo from '../../components/homes/home-details/SizeInfo';
-import ErrorMessage from '../../components/shared/ErrorMessage';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-
-interface ProductDetail {
-  id: number;
-  name: string;
-  product_num: string;
-  brand: string;
-  mainImage: string;
-  retailPrice: number;
-  discountPrice: number;
-  discountPercent: number;
-  product_img: string[];
-  sizes: { size: string; measurements: Record<string, string | number> }[];
-  size_picture: string;
-  category: string;
-  season: string;
-  manufacturer: string;
-  description: string;
-  fabricComposition: Record<'겉감' | '안감' | '배색' | '부속', string>;
-  elasticity: string;
-  transparency: string;
-  thickness: string;
-  lining: string;
-  fit: string;
-  color: string;
-  product_url: string;
-  size_label_guide?: Record<string, string>;
-}
+} from '@/api-utils/product-managements/uploads/productApi';
+import ShoppingBasket from '@/assets/homes/home-details/ShoppingBasket.svg';
+import BottomBar from '@/components/homes/home-details/BottomBar';
+import ImageSlider from '@/components/homes/home-details/ImageSlider';
+import MaterialInfo from '@/components/homes/home-details/MaterialInfo';
+import PaymentMethod from '@/components/homes/home-details/PaymentMethod';
+import ProductDetails from '@/components/homes/home-details/ProductDetails';
+import ProductInfo from '@/components/homes/home-details/ProductInfo';
+import ProductOptions from '@/components/homes/home-details/ProductOptions';
+import RentalOptions from '@/components/homes/home-details/RentalOptions';
+import ServiceSelection from '@/components/homes/home-details/ServiceSelection';
+import SizeInfo from '@/components/homes/home-details/SizeInfo';
+import ErrorMessage from '@/components/shared/ErrorMessage';
 
 interface HomeDetailProps {
   id?: string;
@@ -63,28 +36,13 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
   const product = useMemo(() => {
     if (!data) return null;
     const api = data.product as APIProductDetail;
-    const rawFabric = api.fabricComposition;
-    let mappedFabric: Record<'겉감' | '안감' | '배색' | '부속', string>;
-    if (Array.isArray(rawFabric)) {
-      const [겉감 = '', 안감 = '', 배색 = '', 부속 = ''] = rawFabric;
-      mappedFabric = { 겉감, 안감, 배색, 부속 };
-    } else {
-      mappedFabric = {
-        겉감: (rawFabric as Record<string, string>)['겉감'] || '',
-        안감: (rawFabric as Record<string, string>)['안감'] || '',
-        배색: (rawFabric as Record<string, string>)['배색'] || '',
-        부속: (rawFabric as Record<string, string>)['부속'] || '',
-      };
-    }
     const labelGuide = api.size_label_guide as
       | Record<string, string>
       | undefined;
-    const { ...rest } = api;
     return {
-      ...rest,
-      fabricComposition: mappedFabric,
+      ...api,
       size_label_guide: labelGuide,
-    } as ProductDetail;
+    } as APIProductDetail;
   }, [data]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
@@ -299,7 +257,12 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
         <Separator />
 
         <ProductDetails
-          fabricComposition={product.fabricComposition}
+          fabricComposition={{
+            겉감: product.fabricComposition[0] || '',
+            안감: product.fabricComposition[1] || '',
+            배색: product.fabricComposition[2] || '',
+            부속: product.fabricComposition[3] || '',
+          }}
           detailsData={{
             품번: product.product_num,
             시즌: product.season,

@@ -1,12 +1,11 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
-import FixedBottomBar from '../../../components/fixed-bottom-bar';
-import AgreementSection from '../../../components/melpiks/settlement/SettlementAgreementSection';
-import InputField from '../../../components/shared/forms/InputField';
-import { theme } from '../../../styles/Theme';
-
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import AgreementSection from '@/components/melpiks/settlement/SettlementAgreementSection';
+import InputField from '@/components/shared/forms/InputField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import { theme } from '@/styles/Theme';
 
 const SettlementRequest: React.FC = () => {
   const taxRate = 0.04;

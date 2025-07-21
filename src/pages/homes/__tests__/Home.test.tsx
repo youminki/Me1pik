@@ -25,7 +25,7 @@ if (typeof global.TextDecoder === 'undefined') {
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-import Home from '../Home';
+import Home from '@/pages/homes/Home';
 
 // 대량 mock 데이터 생성
 const mockProducts = Array.from({ length: 500 }, (_, i) => ({

@@ -5,10 +5,10 @@ import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import styled from 'styled-components';
 
-import ResetButtonIcon from '../../assets/ResetButton.png';
-import BottomBar from '../../components/bottom-navigation-mobile';
-import InputField from '../../components/shared/forms/InputField';
-import { schemaPassword } from '../../hooks/useValidationYup'; // 비밀번호 검증 스키마
+import ResetButtonIcon from '@/assets/ResetButton.png';
+import BottomBar from '@/components/bottom-navigation-mobile';
+import InputField from '@/components/shared/forms/InputField';
+import { schemaPassword } from '@/hooks/useValidationYup'; // 비밀번호 검증 스키마
 
 interface FormData {
   currentPassword: string;

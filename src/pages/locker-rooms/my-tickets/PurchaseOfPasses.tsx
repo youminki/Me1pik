@@ -11,7 +11,7 @@ import FixedBottomBar from '@/components/fixed-bottom-bar';
 import EmptyState from '@/components/shared/EmptyState';
 import { CustomSelect } from '@/components/shared/forms/CustomSelect';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
-// import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
+// import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
 
 // 한국 시간 기준 오늘 0시 반환 함수
 function getKoreanToday() {

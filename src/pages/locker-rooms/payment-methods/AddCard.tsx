@@ -4,12 +4,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import FixedBottomBar from '../../../components/fixed-bottom-bar';
-import InputField from '../../../components/shared/forms/InputField';
-import ReusableModal from '../../../components/shared/modals/ReusableModal';
-import { schemaCardRegistration } from '../../../hooks/useValidationYup';
-
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import InputField from '@/components/shared/forms/InputField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { schemaCardRegistration } from '@/hooks/useValidationYup';
 
 interface CardFormValues {
   cardNumber: string;

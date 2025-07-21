@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import Content from '../../components/analyses/AnalysisContent';
-import { theme } from '../../styles/Theme';
+import Content from '@/components/analyses/AnalysisContent';
+import { theme } from '@/styles/Theme';
 
 const Analysis = () => {
   return (

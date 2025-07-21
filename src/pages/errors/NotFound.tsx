@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import NotFoundIcon from '../../assets/404icon.svg';
+import NotFoundIcon from '@/assets/404icon.svg';
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();

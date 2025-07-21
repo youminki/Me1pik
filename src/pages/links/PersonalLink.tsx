@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import LinkArrowIcon from '../../assets/personal-links/LinkArrowIcon.svg';
-import personalLinkAlramIcon from '../../assets/personal-links/personalLinkAlramIcon.svg';
-import personalLinkProfileIcon from '../../assets/personal-links/personalLinkProfileIcon.svg';
-import personalLinkShareIcon from '../../assets/personal-links/personalLinkShareIcon.svg';
+import LinkArrowIcon from '@/assets/personal-links/LinkArrowIcon.svg';
+import personalLinkAlramIcon from '@/assets/personal-links/personalLinkAlramIcon.svg';
+import personalLinkProfileIcon from '@/assets/personal-links/personalLinkProfileIcon.svg';
+import personalLinkShareIcon from '@/assets/personal-links/personalLinkShareIcon.svg';
 
 export interface UIItem {
   id: string;

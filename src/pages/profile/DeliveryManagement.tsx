@@ -9,8 +9,7 @@ import {
   useSetDefaultAddress,
   Address,
   UpdateAddressRequest,
-} from '../../api-utils/user-managements/addresses/address';
-
+} from '@/api-utils/user-managements/addresses/address';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import EmptyState from '@/components/shared/EmptyState';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';

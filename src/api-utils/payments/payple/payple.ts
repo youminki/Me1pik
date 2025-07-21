@@ -1,4 +1,4 @@
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 // Request and Response Models
 

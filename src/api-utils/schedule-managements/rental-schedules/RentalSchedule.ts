@@ -1,5 +1,5 @@
 // src/api/rentalScheduleApi.ts
-import { Axios } from '../../Axios';
+import { Axios } from '@/api-utils/Axios';
 
 export interface RentalScheduleItem {
   id: number; // 예약 ID

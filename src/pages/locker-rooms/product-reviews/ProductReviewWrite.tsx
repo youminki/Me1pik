@@ -3,15 +3,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import EmptyStarIcon from '../../../assets/baskets/EmptyStarIcon.svg'; // 빈 별
-import FilledStarIcon from '../../../assets/baskets/FilledStarIcon.svg'; // 채워진 별
-import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
-import sampleImage from '../../../assets/sample-dress.svg';
-import FixedBottomBar from '../../../components/fixed-bottom-bar';
-import ReusableModal from '../../../components/shared/modals/ReusableModal';
-
+import EmptyStarIcon from '@/assets/baskets/EmptyStarIcon.svg'; // 빈 별
+import FilledStarIcon from '@/assets/baskets/FilledStarIcon.svg'; // 채워진 별
+import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
+import sampleImage from '@/assets/sample-dress.svg';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface BasketItem {
   id: number;

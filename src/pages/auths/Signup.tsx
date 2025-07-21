@@ -5,6 +5,8 @@ import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import type { AxiosError } from 'axios';
+
 import {
   signUpUser,
   checkEmail,
@@ -12,20 +14,17 @@ import {
   verifyCode,
   checkWebpage,
   checkNickname,
-} from '../../api-utils/user-managements/users/userApi';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
-import CommonErrorMessage from '../../components/shared/ErrorMessage';
-import CommonField from '../../components/shared/forms/CommonField';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-import AgreementSection from '../../components/signups/AgreementSection';
-import { regionDistrictData } from '../../components/signups/regionDistrictData';
-import { schemaSignup } from '../../hooks/useValidationYup';
-
-import type { AxiosError } from 'axios';
-
+} from '@/api-utils/user-managements/users/userApi';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import Modal from '@/components/melpiks/create-melpiks/settings/Modal';
+import CommonErrorMessage from '@/components/shared/ErrorMessage';
+import CommonField from '@/components/shared/forms/CommonField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import AgreementSection from '@/components/signups/AgreementSection';
+import { regionDistrictData } from '@/components/signups/regionDistrictData';
+import { schemaSignup } from '@/hooks/useValidationYup';
 
 export type SignupFormData = {
   email: string;

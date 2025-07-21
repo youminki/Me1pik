@@ -3,24 +3,23 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { getMyCloset } from '../../../api-utils/product-managements/closets/closetApi';
+import { getMyCloset } from '@/api-utils/product-managements/closets/closetApi';
 import {
   getSaleScheduleDetail,
   SaleScheduleDetailResponse,
   deleteSaleSchedule,
   patchSaleSchedule,
-} from '../../../api-utils/schedule-managements/sales/SaleSchedule';
-import checkIcon from '../../../assets/checkIcon.svg';
-import DeleteButtonIcon from '../../../assets/DeleteButtonIcon.svg';
-import BottomBar from '../../../components/bottom-navigation-mobile';
-import { UIItem } from '../../../components/homes/MyclosetItemList';
-import Calendar from '../../../components/melpiks/schedules/reservations/Calendar';
-import DateSelection from '../../../components/melpiks/schedules/reservations/DateSelection';
-import Summary from '../../../components/melpiks/schedules/reservations/Summary';
-import LoadingSpinner from '../../../components/shared/LoadingSpinner';
-import { theme } from '../../../styles/Theme';
-
+} from '@/api-utils/schedule-managements/sales/SaleSchedule';
+import checkIcon from '@/assets/checkIcon.svg';
+import DeleteButtonIcon from '@/assets/DeleteButtonIcon.svg';
+import BottomBar from '@/components/bottom-navigation-mobile';
+import { UIItem } from '@/components/homes/MyclosetItemList';
+import Calendar from '@/components/melpiks/schedules/reservations/Calendar';
+import DateSelection from '@/components/melpiks/schedules/reservations/DateSelection';
+import Summary from '@/components/melpiks/schedules/reservations/Summary';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { theme } from '@/styles/Theme';
 
 const MAX_SELECTION = 6;
 
