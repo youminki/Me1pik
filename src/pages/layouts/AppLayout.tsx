@@ -81,6 +81,6 @@ const ContentContainer = styled.div`
   height: calc(100vh - 70px);
   overflow-y: auto;
   background: #fff;
-  padding-top: 70px; // 헤더 높이만큼 패딩 추가!
+
   ${hideScrollbar}
 `;

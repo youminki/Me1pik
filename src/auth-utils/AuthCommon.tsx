@@ -3,40 +3,35 @@ import styled from 'styled-components';
 import { theme } from '@/styles/Theme';
 
 export const LoginContainer = styled.div`
-  height: 100%;
-  min-width: 320px;
-  width: 100vw;
-  max-width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  overflow-x: auto;
+  justify-content: center;
+  flex: 1;
+  background: #fff;
+  padding-top: 70px;
 `;
 export const LoginInfoBox = styled.div`
   background: #fff;
   border-radius: 12px;
   width: 100%;
-  min-width: 320px;
   max-width: 400px;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 64px;
+  margin-top: 0;
   box-sizing: border-box;
-  overflow-x: auto;
 `;
 export const FormSectionWrapper = styled.div`
   padding: 2rem;
-  min-width: 320px;
   width: 100%;
   max-width: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
-  overflow-x: auto;
+  margin-top: 0;
 `;
 export const LogoWrap = styled.div`
   margin-bottom: 24px;

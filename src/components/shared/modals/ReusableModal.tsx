@@ -195,3 +195,16 @@ const ConfirmButton = styled(ButtonBase)`
   background-color: ${({ theme }) => theme.colors.black};
   color: ${({ theme }) => theme.colors.white};
 `;
+
+export const LoginContainer = styled.div`
+  /* padding-top: 70px; // AppLayout에서 이미 처리됨, 중복 방지 */
+  min-width: 320px;
+  width: 100vw;
+  max-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  overflow-x: auto;
+  /* height: 100%; 또는 height: 100vh; 삭제 */
+`;
