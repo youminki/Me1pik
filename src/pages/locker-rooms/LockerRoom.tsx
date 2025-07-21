@@ -15,6 +15,7 @@ import ReviewIcon from '@/assets/locker-rooms/ReviewIcon.svg';
 import TicketIcon from '@/assets/locker-rooms/TicketIcon.svg';
 import LockerRoomIcons from '@/assets/LockerRoomIcons.svg';
 import StatsSection from '@/components/locker-rooms/StatsSection';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
 const menuItems = [
   { icon: ClosetIcon, label: '내 옷장', path: '/my-closet', disabled: false },
@@ -75,37 +76,40 @@ const LockerRoom: React.FC = () => {
   );
 
   return (
-    <Container>
-      <Header>
-        <Title>락커룸</Title>
-        <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-      </Header>
+    <>
+      <UnifiedHeader variant='default' />
+      <Container>
+        <Header>
+          <Title>락커룸</Title>
+          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
+        </Header>
 
-      <StatsRow>
-        <StatsSection {...statsData} />
-        <MenuIcon src={LockerRoomIcons} alt='메뉴 이미지' />
-      </StatsRow>
+        <StatsRow>
+          <StatsSection {...statsData} />
+          <MenuIcon src={LockerRoomIcons} alt='메뉴 이미지' />
+        </StatsRow>
 
-      <Divider />
+        <Divider />
 
-      <GridMenu>
-        {menuItems.map((item, idx) => (
-          <GridItem
-            key={idx}
-            disabled={item.disabled}
-            onClick={() => handleMenuClick(item.path, item.disabled)}
-          >
-            <IconLabelRow>
-              <IconImage src={item.icon} alt={item.label} />
-              <Label disabled={item.disabled}>{item.label}</Label>
-            </IconLabelRow>
-            <PickButton disabled={item.disabled}>
-              PICK <Arrow>→</Arrow>
-            </PickButton>
-          </GridItem>
-        ))}
-      </GridMenu>
-    </Container>
+        <GridMenu>
+          {menuItems.map((item, idx) => (
+            <GridItem
+              key={idx}
+              disabled={item.disabled}
+              onClick={() => handleMenuClick(item.path, item.disabled)}
+            >
+              <IconLabelRow>
+                <IconImage src={item.icon} alt={item.label} />
+                <Label disabled={item.disabled}>{item.label}</Label>
+              </IconLabelRow>
+              <PickButton disabled={item.disabled}>
+                PICK <Arrow>→</Arrow>
+              </PickButton>
+            </GridItem>
+          ))}
+        </GridMenu>
+      </Container>
+    </>
   );
 };
 
@@ -115,6 +119,7 @@ export default LockerRoom;
 
 const Container = styled.div`
   width: 100%;
+
   padding: 1rem;
   background: #fff;
   box-sizing: border-box;
@@ -124,6 +129,7 @@ const Header = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 6px;
+  margin-top: 70px;
 `;
 
 const Title = styled.h1`

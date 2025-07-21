@@ -25,8 +25,8 @@ import {
   InputWrap,
   InputIconBtn,
   StyledInput,
+  ErrorMessage as InputErrorMessage,
 } from '../../auth-utils/AuthCommon';
-import { ErrorMessage as InputErrorMessage } from '../../auth-utils/AuthCommon';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import { schemaLogin } from '../../hooks/useValidationYup';
 import { theme } from '../../styles/Theme';
@@ -385,127 +385,140 @@ const Login: React.FC = () => {
   // 에러 메시지는 인풋 필드 아래에서만 노출
   return (
     <ThemeProvider theme={theme}>
-      <LoginContainer>
-        <LoginInfoBox>
-          <LogoWrap>
-            <LogoImg src={MelpikLogo} alt='멜픽 로고' />
-          </LogoWrap>
-          <Slogan>
-            이젠 <span style={{ color: '#F6AE24' }}>멜픽</span>을 통해
-            <br />
-            브랜드를 골라보세요
-            <br />
-            <SloganSub>사고, 팔고, 빌리는 것을 한번에!</SloganSub>
-          </Slogan>
-        </LoginInfoBox>
-        <FormSectionWrapper>
-          <FormSection onSubmit={handleSubmit(handleLoginClick)}>
-            <InputLabel style={{ marginBottom: '8px' }}>로그인 계정</InputLabel>
-            <InputFieldsContainer>
-              <InputWrap>
-                <StyledInput
-                  id='email'
-                  type='text'
-                  placeholder='아이디(이메일)'
-                  value={email}
-                  onChange={handleEmailChange}
-                  hasError={!!errors.email}
-                  autoComplete='username'
-                />
-                {email && (
-                  <InputIconBtn type='button' onClick={handleEmailClear}>
-                    <ClearIcon />
-                  </InputIconBtn>
+      <>
+        <LoginContainer>
+          <LoginInfoBox>
+            <LogoWrap>
+              <LogoImg src={MelpikLogo} alt='멜픽 로고' />
+            </LogoWrap>
+            <Slogan>
+              이젠 <span style={{ color: '#F6AE24' }}>멜픽</span>을 통해
+              <br />
+              브랜드를 골라보세요
+              <br />
+              <SloganSub>사고, 팔고, 빌리는 것을 한번에!</SloganSub>
+            </Slogan>
+          </LoginInfoBox>
+          <FormSectionWrapper>
+            <FormSection onSubmit={handleSubmit(handleLoginClick)}>
+              <InputLabel style={{ marginBottom: '8px' }}>
+                로그인 계정
+              </InputLabel>
+              <InputFieldsContainer>
+                <InputWrap>
+                  <StyledInput
+                    id='email'
+                    type='text'
+                    placeholder='아이디(이메일)'
+                    value={email}
+                    onChange={handleEmailChange}
+                    hasError={!!errors.email}
+                    autoComplete='username'
+                  />
+                  {email && (
+                    <InputIconBtn type='button' onClick={handleEmailClear}>
+                      <ClearIcon />
+                    </InputIconBtn>
+                  )}
+                </InputWrap>
+                {errors.email && (
+                  <ErrorMessage message={errors.email.message ?? ''} />
                 )}
-              </InputWrap>
-              {errors.email && (
-                <ErrorMessage message={errors.email.message ?? ''} />
-              )}
-              <InputWrap>
-                <StyledInput
-                  id='password'
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder='비밀번호'
-                  value={password}
-                  onChange={handlePwChange}
-                  hasError={!!errors.password}
-                  autoComplete='current-password'
-                  onKeyDown={handlePwKeyDown}
-                  onBlur={handlePwBlur}
-                />
-                {password && (
-                  <InputIconBtn type='button' onClick={handlePwClear}>
-                    <ClearIcon />
-                  </InputIconBtn>
+                <InputWrap>
+                  <StyledInput
+                    id='password'
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder='비밀번호'
+                    value={password}
+                    onChange={handlePwChange}
+                    hasError={!!errors.password}
+                    autoComplete='current-password'
+                    onKeyDown={handlePwKeyDown}
+                    onBlur={handlePwBlur}
+                  />
+                  {password && (
+                    <InputIconBtn type='button' onClick={handlePwClear}>
+                      <ClearIcon />
+                    </InputIconBtn>
+                  )}
+                  {password && (
+                    <InputIconBtn
+                      style={{ right: '40px' }}
+                      onClick={toggleShowPassword}
+                      type='button'
+                    >
+                      {showPassword ? (
+                        <ShowPasswordIcon />
+                      ) : (
+                        <HidePasswordIcon />
+                      )}
+                    </InputIconBtn>
+                  )}
+                </InputWrap>
+                {isCapsLock && (
+                  <CapsLockNotice>Caps Lock이 켜져 있습니다.</CapsLockNotice>
                 )}
-                {password && (
-                  <InputIconBtn
-                    style={{ right: '40px' }}
-                    onClick={toggleShowPassword}
-                    type='button'
-                  >
-                    {showPassword ? <ShowPasswordIcon /> : <HidePasswordIcon />}
-                  </InputIconBtn>
+                {errors.password && (
+                  <InputErrorMessage>
+                    {errors.password.message}
+                  </InputErrorMessage>
                 )}
-              </InputWrap>
-              {isCapsLock && (
-                <CapsLockNotice>Caps Lock이 켜져 있습니다.</CapsLockNotice>
-              )}
-              {errors.password && (
-                <InputErrorMessage>{errors.password.message}</InputErrorMessage>
-              )}
-              {/* 서버 에러 메시지(로그인 실패 등)는 인풋 아래에 노출 */}
-              {errorMessage && !errors.password && (
-                <InputErrorMessage>{errorMessage}</InputErrorMessage>
-              )}
-            </InputFieldsContainer>
+                {/* 서버 에러 메시지(로그인 실패 등)는 인풋 아래에 노출 */}
+                {errorMessage && !errors.password && (
+                  <InputErrorMessage>{errorMessage}</InputErrorMessage>
+                )}
+              </InputFieldsContainer>
 
-            <KeepLoginWrap>
-              <KeepLoginLabel htmlFor='keepLogin'>
-                <KeepLoginCheckbox
-                  type='checkbox'
-                  checked={keepLogin}
-                  onChange={handleKeepLoginChange}
-                  id='keepLogin'
-                  aria-label='로그인 상태 유지'
-                />
-                <CustomCheckbox checked={keepLogin} tabIndex={0} />
-                <span>
-                  로그인 상태 유지 <span style={{ color: '#aaa' }}>(선택)</span>
-                </span>
-              </KeepLoginLabel>
-            </KeepLoginWrap>
-            {keepLogin && (
-              <KeepLoginNotice>
-                공용 PC에서는 개인정보 보호를 위해 로그인 상태 유지를 사용하지
-                마세요.
-              </KeepLoginNotice>
-            )}
+              <KeepLoginWrap>
+                <KeepLoginLabel htmlFor='keepLogin'>
+                  <KeepLoginCheckbox
+                    type='checkbox'
+                    checked={keepLogin}
+                    onChange={handleKeepLoginChange}
+                    id='keepLogin'
+                    aria-label='로그인 상태 유지'
+                  />
+                  <CustomCheckbox checked={keepLogin} tabIndex={0} />
+                  <span>
+                    로그인 상태 유지{' '}
+                    <span style={{ color: '#aaa' }}>(선택)</span>
+                  </span>
+                </KeepLoginLabel>
+              </KeepLoginWrap>
+              {keepLogin && (
+                <KeepLoginNotice>
+                  공용 PC에서는 개인정보 보호를 위해 로그인 상태 유지를 사용하지
+                  마세요.
+                </KeepLoginNotice>
+              )}
 
-            <LoginBtn
-              type='submit'
-              disabled={!isValid || isSubmitting}
-              active={isValid && !isSubmitting}
-            >
-              {isSubmitting ? '로그인 중...' : '로그인'}
-            </LoginBtn>
-          </FormSection>
-          <LinksRow>
-            <LinksLeft>
-              <LinkBtn onClick={() => navigate('/findid')}>아이디 찾기</LinkBtn>
-              <Divider />
-              <LinkBtn onClick={() => navigate('/findPassword')}>
-                비밀번호 찾기
-              </LinkBtn>
-            </LinksLeft>
-            <LinksRight>
-              <LinkBtn onClick={() => navigate('/signup')}>
-                회원가입 <span style={{ color: '#aaa' }}>(이메일)</span>
-              </LinkBtn>
-            </LinksRight>
-          </LinksRow>
-        </FormSectionWrapper>
-      </LoginContainer>
+              <LoginBtn
+                type='submit'
+                disabled={!isValid || isSubmitting}
+                active={isValid && !isSubmitting}
+              >
+                {isSubmitting ? '로그인 중...' : '로그인'}
+              </LoginBtn>
+            </FormSection>
+            <LinksRow>
+              <LinksLeft>
+                <LinkBtn onClick={() => navigate('/findid')}>
+                  아이디 찾기
+                </LinkBtn>
+                <Divider />
+                <LinkBtn onClick={() => navigate('/findPassword')}>
+                  비밀번호 찾기
+                </LinkBtn>
+              </LinksLeft>
+              <LinksRight>
+                <LinkBtn onClick={() => navigate('/signup')}>
+                  회원가입 <span style={{ color: '#aaa' }}>(이메일)</span>
+                </LinkBtn>
+              </LinksRight>
+            </LinksRow>
+          </FormSectionWrapper>
+        </LoginContainer>
+      </>
     </ThemeProvider>
   );
 };

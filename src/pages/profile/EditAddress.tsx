@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { useCreateAddress } from '@/api-utils/user-managements/addresses/address';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import AddressSearchModal from '@/components/shared/modals/AddressSearchModal';
 
 const EditAddress: React.FC = () => {
@@ -44,64 +45,67 @@ const EditAddress: React.FC = () => {
   };
 
   return (
-    <Container>
-      <ContentWrapper>
-        {/* 타이틀 */}
-        <FieldTitle>배송지 입력 *</FieldTitle>
+    <>
+      <UnifiedHeader variant='twoDepth' />
+      <Container>
+        <ContentWrapper>
+          {/* 타이틀 */}
+          <FieldTitle>배송지 입력 *</FieldTitle>
 
-        {/* 검색 입력+버튼 */}
-        <SearchWrapper>
-          <SearchInput
+          {/* 검색 입력+버튼 */}
+          <SearchWrapper>
+            <SearchInput
+              type='text'
+              placeholder='주소를 검색 하세요'
+              value={searchQuery}
+              readOnly
+              onClick={handleSearch}
+            />
+            <SearchButton onClick={handleSearch}>검색</SearchButton>
+          </SearchWrapper>
+
+          {/* 상세주소 입력란 */}
+          <DetailInput
             type='text'
-            placeholder='주소를 검색 하세요'
-            value={searchQuery}
-            readOnly
-            onClick={handleSearch}
+            placeholder='상세주소를 입력 하세요'
+            value={detailAddress}
+            onChange={(e) => setDetailAddress(e.target.value)}
           />
-          <SearchButton onClick={handleSearch}>검색</SearchButton>
-        </SearchWrapper>
 
-        {/* 상세주소 입력란 */}
-        <DetailInput
-          type='text'
-          placeholder='상세주소를 입력 하세요'
-          value={detailAddress}
-          onChange={(e) => setDetailAddress(e.target.value)}
+          {/* 배송 메시지 타이틀 */}
+          <MessageTitle>배송 메세지 (선택)</MessageTitle>
+
+          {/* 배송 메시지 입력란 */}
+          <MessageInput
+            type='text'
+            placeholder='배송 시 전달할 내용을 입력하세요 (예: 공동 현관문 비번 등..)'
+            value={deliveryMessage}
+            onChange={(e) => setDeliveryMessage(e.target.value)}
+          />
+
+          <Separator />
+        </ContentWrapper>
+
+        {/* 주소 검색 모달 */}
+        <AddressSearchModal
+          isOpen={searchModalOpen}
+          onClose={() => setSearchModalOpen(false)}
+          onSelect={(addr: string) => {
+            setSearchQuery(addr);
+            setSearchModalOpen(false);
+          }}
         />
 
-        {/* 배송 메시지 타이틀 */}
-        <MessageTitle>배송 메세지 (선택)</MessageTitle>
-
-        {/* 배송 메시지 입력란 */}
-        <MessageInput
-          type='text'
-          placeholder='배송 시 전달할 내용을 입력하세요 (예: 공동 현관문 비번 등..)'
-          value={deliveryMessage}
-          onChange={(e) => setDeliveryMessage(e.target.value)}
+        {/* 하단 고정 바: 저장 버튼 */}
+        <FixedBottomBar
+          type='button'
+          text={createAddressMutation.isPending ? '등록 중...' : '등록하기'}
+          color='yellow'
+          onClick={handleSave}
+          disabled={createAddressMutation.isPending}
         />
-
-        <Separator />
-      </ContentWrapper>
-
-      {/* 주소 검색 모달 */}
-      <AddressSearchModal
-        isOpen={searchModalOpen}
-        onClose={() => setSearchModalOpen(false)}
-        onSelect={(addr: string) => {
-          setSearchQuery(addr);
-          setSearchModalOpen(false);
-        }}
-      />
-
-      {/* 하단 고정 바: 저장 버튼 */}
-      <FixedBottomBar
-        type='button'
-        text={createAddressMutation.isPending ? '등록 중...' : '등록하기'}
-        color='yellow'
-        onClick={handleSave}
-        disabled={createAddressMutation.isPending}
-      />
-    </Container>
+      </Container>
+    </>
   );
 };
 
@@ -120,6 +124,7 @@ const Container = styled.div`
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  margin-top: 70px;
   width: 100%;
 `;
 

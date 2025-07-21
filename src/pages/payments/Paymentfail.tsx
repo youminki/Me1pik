@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import FailIcon from '../../assets/completes/FailIcon.svg';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 interface PaymentFailProps {
   onClose?: () => void;
 }
@@ -29,22 +31,25 @@ const PaymentFail: React.FC<PaymentFailProps> = ({ onClose }) => {
   // return <CommonErrorMessage message="결제에 실패했습니다. 서비스팀에 문의해 주세요." />;
 
   return (
-    <Container>
-      <Content>
-        <IconWrapper>
-          <CompleteImg src={FailIcon} alt='결제 실패 아이콘' />
-        </IconWrapper>
-        <Title>
-          결제가 <Strong>실패</Strong> 되었습니다.
-        </Title>
-        <Subtitle>
-          처리 중 문제가 발생 하였습니다.
-          <br />
-          서비스팀에서 신속히 처리 드리겠습니다.
-        </Subtitle>
-      </Content>
-      <FixedBottomBar text='확인' color='black' onClick={handleClose} />
-    </Container>
+    <>
+      <UnifiedHeader variant='twoDepth' title='결제실패' />
+      <Container>
+        <Content>
+          <IconWrapper>
+            <CompleteImg src={FailIcon} alt='결제 실패 아이콘' />
+          </IconWrapper>
+          <Title>
+            결제가 <Strong>실패</Strong> 되었습니다.
+          </Title>
+          <Subtitle>
+            처리 중 문제가 발생 하였습니다.
+            <br />
+            서비스팀에서 신속히 처리 드리겠습니다.
+          </Subtitle>
+        </Content>
+        <FixedBottomBar text='확인' color='black' onClick={handleClose} />
+      </Container>
+    </>
   );
 };
 
@@ -54,6 +59,7 @@ const Container = styled.div`
   position: fixed;
   inset: 0;
   background: #fff;
+  padding-top: 70px;
 `;
 
 const Content = styled.div`

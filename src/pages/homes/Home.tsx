@@ -27,6 +27,8 @@ import ReusableModal from '../../components/shared/modals/ReusableModal';
 
 import HomeDetail from './HomeDetail';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 /**
  * Home(상품 리스트) 페이지 - 최적화 버전ㄴ
  * - react-query로 상품 데이터 관리(캐싱/중복방지)
@@ -609,7 +611,8 @@ const Home: React.FC = () => {
   }
 
   return (
-    <MainContainer>
+    <>
+      <UnifiedHeader variant='default' />
       {/* 로그인 안내 모달 */}
       <ReusableModal
         isOpen={isLoginNoticeOpen}
@@ -797,7 +800,7 @@ const Home: React.FC = () => {
           </ReusableModal>
         </>
       )}
-    </MainContainer>
+    </>
   );
 };
 

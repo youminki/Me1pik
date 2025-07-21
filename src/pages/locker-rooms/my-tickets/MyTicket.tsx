@@ -12,6 +12,7 @@ import BarcodeImg from '@/assets/locker-rooms/barcodeIcon.svg';
 import TicketIllustration from '@/assets/locker-rooms/TicketIllustration.svg';
 import EmptyState from '@/components/shared/EmptyState';
 import CommonErrorMessage from '@/components/shared/ErrorMessage';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
 import { hideScrollbar } from '@/styles/CommonStyles';
@@ -50,109 +51,112 @@ const MyTicket: React.FC = () => {
   }
 
   return (
-    <MyTicketContainer>
-      <HeaderSection>
-        <Title>이용권</Title>
-        <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-      </HeaderSection>
+    <>
+      <UnifiedHeader variant='oneDepth' />
+      <MyTicketContainer>
+        <HeaderSection>
+          <Title>이용권</Title>
+          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
+        </HeaderSection>
 
-      <StatsSectionWrapper>
-        <StatsSection
-          visits={String(tickets.length)}
-          sales={sales}
-          dateRange={dateRange}
-          visitLabel={visitLabel}
-          salesLabel={salesLabel}
-        />
-      </StatsSectionWrapper>
-      <Divider />
+        <StatsSectionWrapper>
+          <StatsSection
+            visits={String(tickets.length)}
+            sales={sales}
+            dateRange={dateRange}
+            visitLabel={visitLabel}
+            salesLabel={salesLabel}
+          />
+        </StatsSectionWrapper>
+        <Divider />
 
-      <TicketScrollContainer>
-        <TicketListSection>
-          {tickets.length === 0 && (
-            <EmptyState message='보유한 이용권이 없습니다.' />
-          )}
-          {tickets.map((ticket) => {
-            const {
-              id,
-              startDate,
-              endDate,
-              remainingRentals,
-              ticketList: { id: tplId, name, price, isLongTerm, isUlimited },
-            } = ticket;
+        <TicketScrollContainer>
+          <TicketListSection>
+            {tickets.length === 0 && (
+              <EmptyState message='보유한 이용권이 없습니다.' />
+            )}
+            {tickets.map((ticket) => {
+              const {
+                id,
+                startDate,
+                endDate,
+                remainingRentals,
+                ticketList: { id: tplId, name, price, isLongTerm, isUlimited },
+              } = ticket;
 
-            const subtitle = isLongTerm ? '[매월결제]' : '[일반결제]';
-            const discountedPrice =
-              discountRate > 0
-                ? Math.round(price * (1 - discountRate / 100))
-                : price;
-            const formattedPrice = `${price.toLocaleString()}원`;
-            const formattedDiscountedPrice = `${discountedPrice.toLocaleString()}원`;
-            const formattedDate = `${startDate.replace(/-/g, '.')} ~ ${endDate.replace(/-/g, '.')}`;
+              const subtitle = isLongTerm ? '[매월결제]' : '[일반결제]';
+              const discountedPrice =
+                discountRate > 0
+                  ? Math.round(price * (1 - discountRate / 100))
+                  : price;
+              const formattedPrice = `${price.toLocaleString()}원`;
+              const formattedDiscountedPrice = `${discountedPrice.toLocaleString()}원`;
+              const formattedDate = `${startDate.replace(/-/g, '.')} ~ ${endDate.replace(/-/g, '.')}`;
 
-            return (
-              <TicketCard
-                key={id}
-                onClick={() => navigate(`/ticketDetail/${tplId}`)}
-              >
-                <RemainingBadge>
-                  {isUlimited ? '무제한' : `잔여횟수 ${remainingRentals}회`}
-                </RemainingBadge>
-                <Left>
-                  <SeasonRow>
-                    <SeasonText>
-                      2025 <YellowText>SPRING</YellowText>
-                    </SeasonText>
-                    <CardIconImg src={CardIcon} alt='card icon' />
-                  </SeasonRow>
-                  <TicketTitle>{name}</TicketTitle>
-                  <TicketSubtitle>{subtitle}</TicketSubtitle>
-                  {discountRate > 0 ? (
-                    <>
-                      <TicketPriceOriginal>
-                        {formattedPrice}
-                      </TicketPriceOriginal>
-                      <TicketPriceDiscounted>
-                        {formattedDiscountedPrice}
-                      </TicketPriceDiscounted>
-                    </>
-                  ) : (
-                    <TicketPrice>{formattedPrice}</TicketPrice>
-                  )}
-                  <Barcode src={BarcodeImg} alt='barcode' />
-                </Left>
-                <Right>
-                  <DateText>{formattedDate}</DateText>
-                  <Illustration
-                    src={TicketIllustration}
-                    alt='ticket illustration'
-                  />
-                </Right>
-              </TicketCard>
-            );
-          })}
-        </TicketListSection>
-        <AddTicketSection>
-          {/* 항상 표시되는 "이용권 추가" 카드 */}
-          <TicketCardAdd
-            onClick={() => navigate('/my-ticket/PurchaseOfPasses')}
-          >
-            <AddLeft>
-              <PlusBox>
-                <PlusSign>＋</PlusSign>
-              </PlusBox>
-              <AddText>이용권 추가</AddText>
-            </AddLeft>
-            <AddRight>
-              <Illustration
-                src={AddTicketIllustration}
-                alt='Add ticket illustration'
-              />
-            </AddRight>
-          </TicketCardAdd>
-        </AddTicketSection>
-      </TicketScrollContainer>
-    </MyTicketContainer>
+              return (
+                <TicketCard
+                  key={id}
+                  onClick={() => navigate(`/ticketDetail/${tplId}`)}
+                >
+                  <RemainingBadge>
+                    {isUlimited ? '무제한' : `잔여횟수 ${remainingRentals}회`}
+                  </RemainingBadge>
+                  <Left>
+                    <SeasonRow>
+                      <SeasonText>
+                        2025 <YellowText>SPRING</YellowText>
+                      </SeasonText>
+                      <CardIconImg src={CardIcon} alt='card icon' />
+                    </SeasonRow>
+                    <TicketTitle>{name}</TicketTitle>
+                    <TicketSubtitle>{subtitle}</TicketSubtitle>
+                    {discountRate > 0 ? (
+                      <>
+                        <TicketPriceOriginal>
+                          {formattedPrice}
+                        </TicketPriceOriginal>
+                        <TicketPriceDiscounted>
+                          {formattedDiscountedPrice}
+                        </TicketPriceDiscounted>
+                      </>
+                    ) : (
+                      <TicketPrice>{formattedPrice}</TicketPrice>
+                    )}
+                    <Barcode src={BarcodeImg} alt='barcode' />
+                  </Left>
+                  <Right>
+                    <DateText>{formattedDate}</DateText>
+                    <Illustration
+                      src={TicketIllustration}
+                      alt='ticket illustration'
+                    />
+                  </Right>
+                </TicketCard>
+              );
+            })}
+          </TicketListSection>
+          <AddTicketSection>
+            {/* 항상 표시되는 "이용권 추가" 카드 */}
+            <TicketCardAdd
+              onClick={() => navigate('/my-ticket/PurchaseOfPasses')}
+            >
+              <AddLeft>
+                <PlusBox>
+                  <PlusSign>＋</PlusSign>
+                </PlusBox>
+                <AddText>이용권 추가</AddText>
+              </AddLeft>
+              <AddRight>
+                <Illustration
+                  src={AddTicketIllustration}
+                  alt='Add ticket illustration'
+                />
+              </AddRight>
+            </TicketCardAdd>
+          </AddTicketSection>
+        </TicketScrollContainer>
+      </MyTicketContainer>
+    </>
   );
 };
 

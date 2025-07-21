@@ -24,6 +24,8 @@ import SubHeader from '../../components/homes/SubHeader';
 import ErrorMessage from '../../components/shared/ErrorMessage';
 import HomeDetail from '../homes/HomeDetail';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 interface LocalBrand {
   id: number;
   name: string;
@@ -460,98 +462,104 @@ const BrandDetail: React.FC = () => {
   }
 
   return (
-    <PageWrapper>
-      <Container>
-        <Header>
-          <Title>{brand?.name}</Title>
-          <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
-        </Header>
+    <>
+      <UnifiedHeader variant='oneDepth' />
+      <PageWrapper>
+        <Container>
+          <Header>
+            <Title>{brand?.name}</Title>
+            <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
+          </Header>
 
-        <StatsSection brandCount={1} productCount={brand?.productCount || 0} />
-        <Divider />
+          <StatsSection
+            brandCount={1}
+            productCount={brand?.productCount || 0}
+          />
+          <Divider />
 
-        <SubHeader
-          selectedCategory={selectedCategory}
-          setSelectedCategory={(cat) => {
-            setSelectedCategory(cat);
-            scrollToTop();
-          }}
-          onCategoryClick={scrollToTop}
-        />
-
-        {/* 필터 및 검색 아이콘 */}
-        <ControlsContainer>
-          <RowAlignBox>
-            {/* 검색 및 필터 아이콘 */}
-            <FilterContainer
-              onSearchClick={() => setSearchModalOpen(true)}
-              onFilterClick={() => {
-                /* 필터 모달 열기 등 구현 */
-              }}
-            />
-          </RowAlignBox>
-          {/* 검색 모달 */}
-          <SearchModal
-            isOpen={isSearchModalOpen}
-            onClose={() => setSearchModalOpen(false)}
-            onSearch={(searchTerm) => {
-              setSearchParams(
-                { category: 'All', search: searchTerm },
-                { replace: true }
-              );
-              setSelectedCategory('All');
+          <SubHeader
+            selectedCategory={selectedCategory}
+            setSelectedCategory={(cat) => {
+              setSelectedCategory(cat);
+              scrollToTop();
             }}
-            historyKey='brandSearchHistory'
-            initialValue={searchTerm}
+            onCategoryClick={scrollToTop}
           />
-        </ControlsContainer>
 
-        <MainContent>
-          <ItemList
-            items={uiItems}
-            columns={viewCols}
-            onItemClick={handleItemClick}
-            isLoading={loadingProducts}
-          />
-        </MainContent>
+          {/* 필터 및 검색 아이콘 */}
+          <ControlsContainer>
+            <RowAlignBox>
+              {/* 검색 및 필터 아이콘 */}
+              <FilterContainer
+                onSearchClick={() => setSearchModalOpen(true)}
+                onFilterClick={() => {
+                  /* 필터 모달 열기 등 구현 */
+                }}
+              />
+            </RowAlignBox>
+            {/* 검색 모달 */}
+            <SearchModal
+              isOpen={isSearchModalOpen}
+              onClose={() => setSearchModalOpen(false)}
+              onSearch={(searchTerm) => {
+                setSearchParams(
+                  { category: 'All', search: searchTerm },
+                  { replace: true }
+                );
+                setSelectedCategory('All');
+              }}
+              historyKey='brandSearchHistory'
+              initialValue={searchTerm}
+            />
+          </ControlsContainer>
 
-        {/* 하단 스크롤 탑 버튼(유지) */}
-        <ScrollToTopButton onClick={scrollToTop}>
-          <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
-        </ScrollToTopButton>
-      </Container>
+          <MainContent>
+            <ItemList
+              items={uiItems}
+              columns={viewCols}
+              onItemClick={handleItemClick}
+              isLoading={loadingProducts}
+            />
+          </MainContent>
 
-      {/* 상세 모달 */}
-      {isModalOpen && modalId && (
-        <ModalOverlay>
-          <ModalBox>
-            <ModalHeaderWrapper>
-              <ModalHeaderContainer>
-                <LeftSection>
-                  <CancleIcon
-                    src={CancleIconIcon}
-                    alt='취소'
-                    onClick={handleCloseModal}
-                  />
-                </LeftSection>
-                <CenterSection />
-                <RightSection>
-                  <Icon src={ShareIcon} alt='공유' onClick={handleShare} />
-                  <Icon
-                    src={HomeIcon}
-                    alt='홈'
-                    onClick={() => navigate('/home')}
-                  />
-                </RightSection>
-              </ModalHeaderContainer>
-            </ModalHeaderWrapper>
-            <ModalBody>
-              <HomeDetail id={modalId} />
-            </ModalBody>
-          </ModalBox>
-        </ModalOverlay>
-      )}
-    </PageWrapper>
+          {/* 하단 스크롤 탑 버튼(유지) */}
+          <ScrollToTopButton onClick={scrollToTop}>
+            <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
+          </ScrollToTopButton>
+        </Container>
+
+        {/* 상세 모달 */}
+        {isModalOpen && modalId && (
+          <ModalOverlay>
+            <ModalBox>
+              <ModalHeaderWrapper>
+                <ModalHeaderContainer>
+                  <LeftSection>
+                    <CancleIcon
+                      src={CancleIconIcon}
+                      alt='취소'
+                      onClick={handleCloseModal}
+                    />
+                  </LeftSection>
+                  <CenterSection />
+                  <RightSection>
+                    <Icon src={ShareIcon} alt='공유' onClick={handleShare} />
+                    <Icon
+                      src={HomeIcon}
+                      alt='홈'
+                      onClick={() => navigate('/home')}
+                    />
+                  </RightSection>
+                </ModalHeaderContainer>
+              </ModalHeaderWrapper>
+              <ModalBody>
+                <HomeDetail id={modalId} />
+              </ModalBody>
+            </ModalBox>
+          </ModalOverlay>
+        )}
+      </PageWrapper>
+    </>
   );
 };
 
@@ -567,6 +575,8 @@ const Container = styled.div`
   max-width: 1000px;
   width: 100%;
   position: relative;
+  margin-top: 70px;
+  margin-bottom: 70px;
 `;
 
 const Header = styled.div`

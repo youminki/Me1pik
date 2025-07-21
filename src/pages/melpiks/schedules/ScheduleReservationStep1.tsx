@@ -8,6 +8,8 @@ import DateSelection from '../../../components/melpiks/schedules/reservations/Da
 import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
 import Summary from '../../../components/melpiks/schedules/reservations/Summary';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 const ScheduleReservation1: React.FC = () => {
   const navigate = useNavigate();
 
@@ -88,31 +90,34 @@ const ScheduleReservation1: React.FC = () => {
   const seasonProgress = { total: 6, completed: 2, pending: 0 };
 
   return (
-    <Container>
-      <Stepper currentStep={1} />
+    <>
+      <UnifiedHeader variant='twoDepth' />
+      <Container>
+        <Stepper currentStep={1} />
 
-      <DateSelection
-        year={year}
-        month={month}
-        onYearChange={handleYearChange}
-        onMonthChange={handleMonthChange}
-      />
+        <DateSelection
+          year={year}
+          month={month}
+          onYearChange={handleYearChange}
+          onMonthChange={handleMonthChange}
+        />
 
-      <Calendar
-        year={year}
-        month={month}
-        startDate={range?.[0]}
-        endDate={range?.[1]}
-        onDateClick={handleDateClick}
-        onIncrease={() => adjustEnd(1)}
-        onDecrease={() => adjustEnd(-1)}
-        today={today}
-      />
+        <Calendar
+          year={year}
+          month={month}
+          startDate={range?.[0]}
+          endDate={range?.[1]}
+          onDateClick={handleDateClick}
+          onIncrease={() => adjustEnd(1)}
+          onDecrease={() => adjustEnd(-1)}
+          today={today}
+        />
 
-      <Summary range={range} seasonProgress={seasonProgress} />
+        <Summary range={range} seasonProgress={seasonProgress} />
 
-      <BottomBar onNext={handleBottomClick} />
-    </Container>
+        <BottomBar onNext={handleBottomClick} />
+      </Container>
+    </>
   );
 };
 

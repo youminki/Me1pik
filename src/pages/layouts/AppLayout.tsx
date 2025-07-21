@@ -81,6 +81,8 @@ const ContentContainer = styled.div`
   height: calc(100vh - 70px);
   overflow-y: auto;
   background: #fff;
-
+  padding: 1rem;
+  margin: auto;
+  /* padding-top: 70px; */
   ${hideScrollbar}
 `;

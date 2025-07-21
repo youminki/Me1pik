@@ -5,6 +5,8 @@ import AlarmIcon from '../../assets/AlarmIcon.svg';
 import PeriodSection from '../../components/period-section';
 import EmptyState from '../../components/shared/EmptyState';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 const Alarm: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(6);
 
@@ -45,29 +47,32 @@ const Alarm: React.FC = () => {
   }
 
   return (
-    <AlarmContainer>
-      <PeriodSection
-        selectedPeriod={selectedPeriod}
-        setSelectedPeriod={setSelectedPeriod}
-      />
+    <>
+      <UnifiedHeader variant='threeDepth' title='알람' />
+      <AlarmContainer>
+        <PeriodSection
+          selectedPeriod={selectedPeriod}
+          setSelectedPeriod={setSelectedPeriod}
+        />
 
-      <AlarmList>
-        {alarmList.map((item, index) => (
-          <AlarmItem key={item.id}>
-            <BulletWrapper>
-              <BulletIcon src={AlarmIcon} alt='alarm-icon' />
+        <AlarmList>
+          {alarmList.map((item, index) => (
+            <AlarmItem key={item.id}>
+              <BulletWrapper>
+                <BulletIcon src={AlarmIcon} alt='alarm-icon' />
 
-              {index !== alarmList.length - 1 && <VerticalLine />}
-            </BulletWrapper>
-            <AlarmContent>
-              <AlarmTitle>{item.title}</AlarmTitle>
-              <AlarmText>{item.content}</AlarmText>
-              <AlarmDate>{item.date}</AlarmDate>
-            </AlarmContent>
-          </AlarmItem>
-        ))}
-      </AlarmList>
-    </AlarmContainer>
+                {index !== alarmList.length - 1 && <VerticalLine />}
+              </BulletWrapper>
+              <AlarmContent>
+                <AlarmTitle>{item.title}</AlarmTitle>
+                <AlarmText>{item.content}</AlarmText>
+                <AlarmDate>{item.date}</AlarmDate>
+              </AlarmContent>
+            </AlarmItem>
+          ))}
+        </AlarmList>
+      </AlarmContainer>
+    </>
   );
 };
 

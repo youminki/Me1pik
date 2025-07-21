@@ -29,6 +29,14 @@ import AddressSearchModal from '../../components/shared/modals/AddressSearchModa
 import DeliveryListModal from '../../components/shared/modals/DeliveryListModal';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
+const Container = styled.div`
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+`;
+
 declare global {
   interface Window {
     daum: { Postcode: unknown };
@@ -339,13 +347,13 @@ const PaymentPage: React.FC = () => {
 
   return (
     <Container>
+      <UnifiedHeader variant='twoDepth' />
       {/* 알림 모달 */}
       {modalAlert.isOpen && (
         <ReusableModal isOpen onClose={closeAlertModal} title='알림'>
           <ModalBody>{modalAlert.message}</ModalBody>
         </ReusableModal>
       )}
-
       {/* 결제 확인 모달 */}
       {confirmModalOpen && (
         <ReusableModal
@@ -359,7 +367,6 @@ const PaymentPage: React.FC = () => {
           <ModalBody>결제를 진행하시겠습니까?</ModalBody>
         </ReusableModal>
       )}
-
       {/* 신청제품 리스트 */}
       <LabelDetailText>신청제품</LabelDetailText>
       {items.map((item) => (
@@ -655,17 +662,6 @@ const PaymentPage: React.FC = () => {
 };
 
 export default PaymentPage;
-
-/* ── styled-components ── */
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto;
-  background: #ffffff;
-  padding: 1rem;
-  max-width: 600px;
-  margin-bottom: 100px;
-`;
 
 const Section = styled.div`
   display: flex;

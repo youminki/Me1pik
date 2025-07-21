@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { useMyCloset } from '@/api-utils/product-managements/closets/closetApi';
 import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
 import ItemList, { UIItem } from '@/components/homes/MyclosetItemList';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
 import HomeDetail from '@/pages/homes/HomeDetail';
@@ -59,65 +60,68 @@ const MyCloset: React.FC = () => {
   };
 
   return (
-    <Container>
-      <Header>
-        <Title>내 옷장</Title>
-        <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-      </Header>
+    <>
+      <UnifiedHeader variant='oneDepth' />
+      <Container>
+        <Header>
+          <Title>내 옷장</Title>
+          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
+        </Header>
 
-      <StatsSection
-        visits={items.length}
-        sales={sales}
-        dateRange={dateRange}
-        visitLabel='담긴 제품들'
-        salesLabel={salesLabel}
-      />
+        <StatsSection
+          visits={items.length}
+          sales={sales}
+          dateRange={dateRange}
+          visitLabel='담긴 제품들'
+          salesLabel={salesLabel}
+        />
 
-      <Divider />
+        <Divider />
 
-      <Content>
-        {isLoading ? (
-          <LoadingSpinner label='로딩 중...' />
-        ) : items.length === 0 ? (
-          <EmptyState>
-            <EmptyMessage>내옷장에 보관한 옷이 없습니다.</EmptyMessage>
-            <AddButton onClick={goToLocker}>
-              <FaTshirt size={48} />
-              <ButtonText>옷 추가하러 가기</ButtonText>
-            </AddButton>
-          </EmptyState>
-        ) : (
-          <ItemList
-            items={items}
-            onDelete={handleDelete}
-            onItemClick={handleOpenDetail}
-          />
+        <Content>
+          {isLoading ? (
+            <LoadingSpinner label='로딩 중...' />
+          ) : items.length === 0 ? (
+            <EmptyState>
+              <EmptyMessage>내옷장에 보관한 옷이 없습니다.</EmptyMessage>
+              <AddButton onClick={goToLocker}>
+                <FaTshirt size={48} />
+                <ButtonText>옷 추가하러 가기</ButtonText>
+              </AddButton>
+            </EmptyState>
+          ) : (
+            <ItemList
+              items={items}
+              onDelete={handleDelete}
+              onItemClick={handleOpenDetail}
+            />
+          )}
+        </Content>
+
+        {isModalOpen && selectedItemId && (
+          <ModalOverlay>
+            <ModalBox>
+              <ModalHeaderWrapper>
+                <ModalHeaderContainer>
+                  <LeftSection>
+                    <CancelIcon
+                      src={CancleIconIcon}
+                      alt='닫기'
+                      onClick={handleCloseDetail}
+                    />
+                  </LeftSection>
+                  <CenterSection />
+                  <RightSection />
+                </ModalHeaderContainer>
+              </ModalHeaderWrapper>
+              <ModalBody>
+                <HomeDetail id={selectedItemId} />
+              </ModalBody>
+            </ModalBox>
+          </ModalOverlay>
         )}
-      </Content>
-
-      {isModalOpen && selectedItemId && (
-        <ModalOverlay>
-          <ModalBox>
-            <ModalHeaderWrapper>
-              <ModalHeaderContainer>
-                <LeftSection>
-                  <CancelIcon
-                    src={CancleIconIcon}
-                    alt='닫기'
-                    onClick={handleCloseDetail}
-                  />
-                </LeftSection>
-                <CenterSection />
-                <RightSection />
-              </ModalHeaderContainer>
-            </ModalHeaderWrapper>
-            <ModalBody>
-              <HomeDetail id={selectedItemId} />
-            </ModalBody>
-          </ModalBox>
-        </ModalOverlay>
-      )}
-    </Container>
+      </Container>
+    </>
   );
 };
 

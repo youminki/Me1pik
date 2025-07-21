@@ -11,6 +11,7 @@ import {
 
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import CommonField from '@/components/shared/forms/CommonField';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { regionDistrictData } from '@/components/signups/regionDistrictData';
 import { theme } from '@/styles/Theme';
@@ -193,139 +194,142 @@ const UpdateProfile: React.FC = () => {
   if (isLoading) {
     return (
       <ThemeProvider theme={theme}>
-        <Container>
+        <PageContainer>
           <div>프로필 정보를 불러오는 중...</div>
-        </Container>
+        </PageContainer>
       </ThemeProvider>
     );
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <FormProvider {...methods}>
-        <Container>
-          <Form onSubmit={(e) => e.preventDefault()}>
-            {/* 이메일 아이디 (읽기 전용) */}
-            <RowLabel>
-              <CommonField
-                label='이메일 아이디'
-                id='emailId'
-                type='text'
-                readOnly
-                {...register('emailId')}
-              />
-              <span>@</span>
-              <CommonField
-                label='이메일 도메인'
-                id='emailDomain'
-                type='text'
-                readOnly
-                {...register('emailDomain')}
-              />
-            </RowLabel>
+    <>
+      <UnifiedHeader variant='threeDepth' title='내 정보 - 회원정보 변경' />
+      <ThemeProvider theme={theme}>
+        <FormProvider {...methods}>
+          <PageContainer>
+            <Form onSubmit={(e) => e.preventDefault()}>
+              {/* 이메일 아이디 (읽기 전용) */}
+              <RowLabel>
+                <CommonField
+                  label='이메일 아이디'
+                  id='emailId'
+                  type='text'
+                  readOnly
+                  {...register('emailId')}
+                />
+                <span>@</span>
+                <CommonField
+                  label='이메일 도메인'
+                  id='emailDomain'
+                  type='text'
+                  readOnly
+                  {...register('emailDomain')}
+                />
+              </RowLabel>
 
-            {/* 닉네임 (편집 가능) */}
-            <CommonField
-              label='닉네임'
-              id='nickname'
-              type='text'
-              placeholder='닉네임을 입력하세요'
-              {...register('nickname')}
-              maxLength={8}
+              {/* 닉네임 (편집 가능) */}
+              <CommonField
+                label='닉네임'
+                id='nickname'
+                type='text'
+                placeholder='닉네임을 입력하세요'
+                {...register('nickname')}
+                maxLength={8}
+              />
+
+              {/* 이름 & 태어난 해 (읽기 전용) */}
+              <RowLabel>
+                <CommonField
+                  label='이름'
+                  id='name'
+                  type='text'
+                  readOnly
+                  {...register('name')}
+                />
+
+                <CommonField
+                  label='태어난 해'
+                  id='birthYear'
+                  type='text'
+                  readOnly
+                  {...register('birthYear')}
+                />
+              </RowLabel>
+
+              {/* 전화번호 (읽기 전용) */}
+              <CommonField
+                label='전화번호'
+                id='phoneNumber'
+                type='text'
+                readOnly
+                {...register('phoneNumber')}
+              />
+
+              {/* 성별 (읽기 전용) */}
+              <CommonField
+                label='성별'
+                id='gender'
+                as='select'
+                readOnly
+                {...register('gender')}
+              >
+                <option value='여성'>여성</option>
+                <option value='남성'>남성</option>
+              </CommonField>
+
+              {/* 시/도 & 구/군 */}
+              <RowLabel>
+                <CommonField
+                  label='시/도'
+                  id='region'
+                  as='select'
+                  {...register('region', { required: '시/도를 선택하세요' })}
+                >
+                  <option value=''>시/도를 선택하세요</option>
+                  {regionOptions}
+                </CommonField>
+
+                <CommonField
+                  label='구/군'
+                  id='district'
+                  as='select'
+                  {...register('district', { required: '구/군을 선택하세요' })}
+                  disabled={!watch('region')}
+                >
+                  {districtOptions}
+                </CommonField>
+              </RowLabel>
+
+              {errors.region && (
+                <span style={{ color: 'red', fontSize: '0.9em' }}>
+                  {errors.region.message}
+                </span>
+              )}
+              {errors.district && (
+                <span style={{ color: 'red', fontSize: '0.9em' }}>
+                  {errors.district.message}
+                </span>
+              )}
+            </Form>
+
+            <FixedBottomBar
+              text='저장'
+              color='black'
+              onClick={onSaveClick}
+              disabled={isSubmitting}
             />
 
-            {/* 이름 & 태어난 해 (읽기 전용) */}
-            <RowLabel>
-              <CommonField
-                label='이름'
-                id='name'
-                type='text'
-                readOnly
-                {...register('name')}
-              />
-
-              <CommonField
-                label='태어난 해'
-                id='birthYear'
-                type='text'
-                readOnly
-                {...register('birthYear')}
-              />
-            </RowLabel>
-
-            {/* 전화번호 (읽기 전용) */}
-            <CommonField
-              label='전화번호'
-              id='phoneNumber'
-              type='text'
-              readOnly
-              {...register('phoneNumber')}
-            />
-
-            {/* 성별 (읽기 전용) */}
-            <CommonField
-              label='성별'
-              id='gender'
-              as='select'
-              readOnly
-              {...register('gender')}
+            <ReusableModal
+              isOpen={showResultModal}
+              onClose={handleResultModalClose}
+              title='회원정보 수정'
             >
-              <option value='여성'>여성</option>
-              <option value='남성'>남성</option>
-            </CommonField>
-
-            {/* 시/도 & 구/군 */}
-            <RowLabel>
-              <CommonField
-                label='시/도'
-                id='region'
-                as='select'
-                {...register('region', { required: '시/도를 선택하세요' })}
-              >
-                <option value=''>시/도를 선택하세요</option>
-                {regionOptions}
-              </CommonField>
-
-              <CommonField
-                label='구/군'
-                id='district'
-                as='select'
-                {...register('district', { required: '구/군을 선택하세요' })}
-                disabled={!watch('region')}
-              >
-                {districtOptions}
-              </CommonField>
-            </RowLabel>
-
-            {errors.region && (
-              <span style={{ color: 'red', fontSize: '0.9em' }}>
-                {errors.region.message}
-              </span>
-            )}
-            {errors.district && (
-              <span style={{ color: 'red', fontSize: '0.9em' }}>
-                {errors.district.message}
-              </span>
-            )}
-          </Form>
-
-          <FixedBottomBar
-            text='저장'
-            color='black'
-            onClick={onSaveClick}
-            disabled={isSubmitting}
-          />
-
-          <ReusableModal
-            isOpen={showResultModal}
-            onClose={handleResultModalClose}
-            title='회원정보 수정'
-          >
-            {signupResult}
-          </ReusableModal>
-        </Container>
-      </FormProvider>
-    </ThemeProvider>
+              {signupResult}
+            </ReusableModal>
+          </PageContainer>
+        </FormProvider>
+      </ThemeProvider>
+    </>
   );
 };
 
@@ -333,13 +337,15 @@ export default UpdateProfile;
 
 /* ========== Styled Components ========== */
 
-const Container = styled.div`
+const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0 auto;
+  background: #fff;
   padding: 1rem;
+  padding-top: 70px;
   max-width: 600px;
+  margin: 0 auto;
 `;
 
 const Form = styled.form`

@@ -8,6 +8,7 @@ import { CardItem } from '../../../api-utils/payments/default/payment';
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import StatsSection from '../../../components/stats-section';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import { getCurrentToken } from '@/utils/auth';
 
 interface UserInfo {
@@ -122,6 +123,7 @@ const PaymentMethod: React.FC = () => {
 
   return (
     <>
+      <UnifiedHeader variant='oneDepth' />
       {/* 글로벌하게 적용 */}
       {/* <HideScrollbarStyle /> */}
       {/* 또는 특정 영역만 */}

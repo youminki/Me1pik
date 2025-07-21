@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
-import { findEmail } from '../../api-utils/user-managements/users/userApi';
-import MelpikLogo from '../../assets/LoginLogo.svg';
+import { findEmail } from '@/api-utils/user-managements/users/userApi';
+import MelpikLogo from '@/assets/LoginLogo.svg';
 import {
   LoginContainer,
   LoginInfoBox,
@@ -23,11 +23,11 @@ import {
   ErrorMessage,
   FindBtn,
   MelpikPointText,
-} from '../../auth-utils/AuthCommon';
-import CommonErrorMessage from '../../components/shared/ErrorMessage';
-import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
+} from '@/auth-utils/AuthCommon';
+import CommonErrorMessage from '@/components/shared/ErrorMessage';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 // 전화번호 포맷 함수
 const formatPhone = (digits: string) => {

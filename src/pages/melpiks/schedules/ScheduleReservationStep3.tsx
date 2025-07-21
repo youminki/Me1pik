@@ -12,6 +12,8 @@ import Stepper from '../../../components/melpiks/schedules/reservations/Stepper'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import ReusableModal from '../../../components/shared/modals/ReusableModal';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 interface ItemCardProps {
   id: string;
   image: string;
@@ -253,79 +255,82 @@ const ScheduleReservation3: React.FC = () => {
   );
 
   return (
-    <Container>
-      <Stepper currentStep={3} />
+    <>
+      <UnifiedHeader variant='twoDepth' />
+      <Container>
+        <Stepper currentStep={3} />
 
-      <Summary>
-        <ScheduleInfo>
-          <Label>예약한 스케줄</Label>
-          <InfoText>
-            {initialRange
-              ? `${formatKoreanDate(initialRange[0])} ~ ${formatKoreanDate(
-                  initialRange[1]
-                )}`
-              : '날짜 정보 없음'}
-          </InfoText>
-        </ScheduleInfo>
-        <ScheduleInfo>
-          <Label>예약한 제품목록</Label>
-          <InfoText>선택한 제품 수 {selectedItems.length} 개</InfoText>
-        </ScheduleInfo>
-      </Summary>
+        <Summary>
+          <ScheduleInfo>
+            <Label>예약한 스케줄</Label>
+            <InfoText>
+              {initialRange
+                ? `${formatKoreanDate(initialRange[0])} ~ ${formatKoreanDate(
+                    initialRange[1]
+                  )}`
+                : '날짜 정보 없음'}
+            </InfoText>
+          </ScheduleInfo>
+          <ScheduleInfo>
+            <Label>예약한 제품목록</Label>
+            <InfoText>선택한 제품 수 {selectedItems.length} 개</InfoText>
+          </ScheduleInfo>
+        </Summary>
 
-      <Content>
-        {loadingCloset ? (
-          <LoadingSpinner label='로딩 중...' />
-        ) : (
-          <ItemList
-            HeaderContainer={ItemContainer}
-            items={closetItems}
-            selectedItems={selectedItems}
-            onSelect={handleSelect}
-          />
-        )}
-      </Content>
+        <Content>
+          {loadingCloset ? (
+            <LoadingSpinner label='로딩 중...' />
+          ) : (
+            <ItemList
+              HeaderContainer={ItemContainer}
+              items={closetItems}
+              selectedItems={selectedItems}
+              onSelect={handleSelect}
+            />
+          )}
+        </Content>
 
-      <GrayLine />
+        <GrayLine />
 
-      <FormContainer>
-        <ColumnWrapper>
-          <Label>판매방식 선택 *</Label>
-          <StyledSelect value={saleMethod} onChange={handleSaleMethodChange}>
-            <option value='제품판매'>제품판매</option>
-            <option value='제품대여'>제품대여</option>
-          </StyledSelect>
-        </ColumnWrapper>
-      </FormContainer>
+        <FormContainer>
+          <ColumnWrapper>
+            <Label>판매방식 선택 *</Label>
+            <StyledSelect value={saleMethod} onChange={handleSaleMethodChange}>
+              <option value='제품판매'>제품판매</option>
+              <option value='제품대여'>제품대여</option>
+            </StyledSelect>
+          </ColumnWrapper>
+        </FormContainer>
 
-      <InfoMessage>
-        <GrayText> ※ 노출일정은</GrayText>
-        <BlackText>스케줄 시작일 기준 2일 이내 </BlackText>
-        <GrayText>까지 가능합니다.</GrayText>
-      </InfoMessage>
+        <InfoMessage>
+          <GrayText> ※ 노출일정은</GrayText>
+          <BlackText>스케줄 시작일 기준 2일 이내 </BlackText>
+          <GrayText>까지 가능합니다.</GrayText>
+        </InfoMessage>
 
-      {/* BottomBar: onNext에서 모달 열기 */}
-      <BottomBar
-        onNext={handleOpenModal}
-        buttonText='예약완료'
-        disabled={submitting}
-      />
+        {/* BottomBar: onNext에서 모달 열기 */}
+        <BottomBar
+          onNext={handleOpenModal}
+          buttonText='예약완료'
+          disabled={submitting}
+        />
 
-      {/* ReusableModal */}
-      <ReusableModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleCreateSchedule}
-        title='판매 스케줄 생성'
-        showConfirmButton={true}
-      >
-        <ModalMessage>
-          선택하신 기간과 제품으로 판매 스케줄을 생성하시겠습니까?
-        </ModalMessage>
-      </ReusableModal>
+        {/* ReusableModal */}
+        <ReusableModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleCreateSchedule}
+          title='판매 스케줄 생성'
+          showConfirmButton={true}
+        >
+          <ModalMessage>
+            선택하신 기간과 제품으로 판매 스케줄을 생성하시겠습니까?
+          </ModalMessage>
+        </ReusableModal>
 
-      <BeenContainer />
-    </Container>
+        <BeenContainer />
+      </Container>
+    </>
   );
 };
 

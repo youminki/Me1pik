@@ -17,7 +17,6 @@ import FixedBottomBar from '../../components/fixed-bottom-bar';
 import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
 import CommonErrorMessage from '../../components/shared/ErrorMessage';
 import CommonField from '../../components/shared/forms/CommonField';
-import SimpleHeader from '../../components/shared/headers/SimpleHeader';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 import AgreementSection from '../../components/signups/AgreementSection';
@@ -25,6 +24,8 @@ import { regionDistrictData } from '../../components/signups/regionDistrictData'
 import { schemaSignup } from '../../hooks/useValidationYup';
 
 import type { AxiosError } from 'axios';
+
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
 export type SignupFormData = {
   email: string;
@@ -444,585 +445,595 @@ const Signup: React.FC = () => {
 
   return (
     <>
-      <SimpleHeader title='회원가입' />
-      <FormProvider {...methods}>
-        {/* 폼의 onSubmit은 preventDefault 처리 */}
-        <Container onSubmit={(e) => e.preventDefault()}>
-          <Form>
-            <AgreementSection />
-            <CommonField
-              label={
-                <span style={{ fontSize: 11, fontWeight: 700 }}>
-                  계정*(이메일)
-                </span>
-              }
-              id='email'
-              type='text'
-              error={emailApiError || errors.email?.message}
-              placeholder='계정을 입력하세요'
-              buttonLabel={emailButtonText}
-              buttonColorType={
-                emailButtonText === '인증 완료'
-                  ? 'blue'
-                  : emailButtonText === '인증 실패'
-                    ? 'red'
-                    : 'yellow'
-              }
-              {...register('email', {
-                onChange: (e) => {
-                  resetVerificationState('email');
-                  setValue('email', e.target.value);
-                },
-              })}
-              required
-              maxLength={50}
-              onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.preventDefault();
-                handleEmailCheck();
-              }}
-            />
-            <CommonField
-              label={
-                <span style={{ fontSize: 11, fontWeight: 700 }}>
-                  비밀번호*(숫자, 문자를 조합하여 8자리 이상 입력하세요)
-                </span>
-              }
-              id='password'
-              type='password'
-              placeholder='비밀번호를 입력하세요'
-              error={errors.password?.message}
-              {...register('password')}
-              required
-              maxLength={20}
-              autoComplete='current-password'
-            />
-            <CommonField
-              label={
-                <span style={{ fontSize: 11, fontWeight: 700 }}>
-                  비밀번호 확인*
-                </span>
-              }
-              id='passwordConfirm'
-              type='password'
-              placeholder='비밀번호를 한번 더 입력하세요'
-              error={errors.passwordConfirm?.message}
-              {...register('passwordConfirm')}
-              required
-              maxLength={20}
-            />
-            <CommonField
-              label={
-                <span style={{ fontSize: 11, fontWeight: 700 }}>
-                  닉네임*(8글자 이내)
-                </span>
-              }
-              id='nickname'
-              type='text'
-              placeholder='닉네임을 입력하세요'
-              error={nicknameApiError || errors.nickname?.message}
-              {...register('nickname', {
-                onChange: (e) => {
-                  resetVerificationState('nickname');
-                  setValue('nickname', e.target.value);
-                },
-              })}
-              required
-              maxLength={8}
-              buttonLabel={nicknameButtonText}
-              buttonColorType={
-                nicknameButtonText === '인증 완료'
-                  ? 'blue'
-                  : nicknameButtonText === '인증 실패'
-                    ? 'red'
-                    : 'yellow'
-              }
-              onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.preventDefault();
-                handleNicknameCheck();
-              }}
-            />
-            <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>이름*</span>
-                }
-                id='name'
-                type='text'
-                placeholder='이름을 입력하세요'
-                error={errors.name?.message}
-                {...register('name')}
-                required
-                maxLength={5}
-              />
+      <UnifiedHeader variant='threeDepth' title='회원가입' />
+      <PageContainer>
+        <FormProvider {...methods}>
+          {/* 폼의 onSubmit은 preventDefault 처리 */}
+          <Container onSubmit={(e) => e.preventDefault()}>
+            <Form>
+              <AgreementSection />
               <CommonField
                 label={
                   <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    태어난 해*
+                    계정*(이메일)
                   </span>
                 }
-                id='birthYear'
-                as='select'
-                error={errors.birthYear?.message}
-                required
-                {...register('birthYear')}
-                placeholder='태어난 해 선택'
-                children={[
-                  <option value='' disabled key='default'>
-                    태어난 해를 선택하세요
-                  </option>,
-                  ...Array.from({ length: 100 }, (_, i) => 2023 - i).map(
-                    (year) => (
-                      <option key={year} value={year}>
-                        {year}년
-                      </option>
-                    )
-                  ),
-                ]}
-              />
-            </RowLabel>
-            <GenderField>
-              <InputFieldLabel>성별*</InputFieldLabel>
-              <GenderRow>
-                <GenderButton
-                  type='button'
-                  selected={gender === '여성'}
-                  onClick={() => handleGenderChange('여성')}
-                  $isSelected={selectedGenderButton === '여성'}
-                >
-                  여성
-                </GenderButton>
-                <GenderButton
-                  type='button'
-                  selected={gender === '남성'}
-                  onClick={() => handleGenderChange('남성')}
-                  $isSelected={selectedGenderButton === '남성'}
-                >
-                  남성
-                </GenderButton>
-              </GenderRow>
-            </GenderField>
-            <PhoneField>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    본인인증*(11자를 입력하세요)
-                  </span>
-                }
-                id='phoneNumber'
+                id='email'
                 type='text'
-                placeholder='전화번호를 입력하세요'
-                error={phoneApiError || errors.phoneNumber?.message}
-                {...register('phoneNumber')}
-                required
-                maxLength={11}
-                buttonLabel={phoneVerificationButtonText}
+                error={emailApiError || errors.email?.message}
+                placeholder='계정을 입력하세요'
+                buttonLabel={emailButtonText}
                 buttonColorType={
-                  phoneVerificationButtonText === '인증 완료'
+                  emailButtonText === '인증 완료'
                     ? 'blue'
-                    : phoneVerificationButtonText === '인증 실패'
+                    : emailButtonText === '인증 실패'
+                      ? 'red'
+                      : 'yellow'
+                }
+                {...register('email', {
+                  onChange: (e) => {
+                    resetVerificationState('email');
+                    setValue('email', e.target.value);
+                  },
+                })}
+                required
+                maxLength={50}
+                onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.preventDefault();
+                  handleEmailCheck();
+                }}
+              />
+              <CommonField
+                label={
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    비밀번호*(숫자, 문자를 조합하여 8자리 이상 입력하세요)
+                  </span>
+                }
+                id='password'
+                type='password'
+                placeholder='비밀번호를 입력하세요'
+                error={errors.password?.message}
+                {...register('password')}
+                required
+                maxLength={20}
+                autoComplete='current-password'
+              />
+              <CommonField
+                label={
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    비밀번호 확인*
+                  </span>
+                }
+                id='passwordConfirm'
+                type='password'
+                placeholder='비밀번호를 한번 더 입력하세요'
+                error={errors.passwordConfirm?.message}
+                {...register('passwordConfirm')}
+                required
+                maxLength={20}
+              />
+              <CommonField
+                label={
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    닉네임*(8글자 이내)
+                  </span>
+                }
+                id='nickname'
+                type='text'
+                placeholder='닉네임을 입력하세요'
+                error={nicknameApiError || errors.nickname?.message}
+                {...register('nickname', {
+                  onChange: (e) => {
+                    resetVerificationState('nickname');
+                    setValue('nickname', e.target.value);
+                  },
+                })}
+                required
+                maxLength={8}
+                buttonLabel={nicknameButtonText}
+                buttonColorType={
+                  nicknameButtonText === '인증 완료'
+                    ? 'blue'
+                    : nicknameButtonText === '인증 실패'
                       ? 'red'
                       : 'yellow'
                 }
                 onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                   e.preventDefault();
-                  handleSendVerification();
+                  handleNicknameCheck();
                 }}
               />
-            </PhoneField>
-            {isPhoneVerificationSent && !isPhoneVerified && (
-              <VerificationWrapper>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    width: '100%',
-                  }}
-                >
-                  <label
-                    htmlFor='verificationCode'
-                    style={{ marginRight: 8, fontWeight: 700, fontSize: 12 }}
-                  >
-                    인증번호 입력
-                  </label>
-                  <input
-                    id='verificationCode'
-                    type='text'
-                    placeholder='인증번호를 입력하세요'
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    style={{
-                      flex: 1,
-                      padding: '8px',
-                      border: '1px solid #ccc',
-                      borderRadius: 4,
-                      fontSize: 14,
-                    }}
-                  />
-                  <button
-                    type='button'
-                    style={{
-                      marginLeft: 8,
-                      padding: '8px 16px',
-                      background: '#f6ae24',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: 4,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleVerifyCode();
-                    }}
-                  >
-                    {phoneVerificationButtonText}
-                  </button>
-                </div>
-                <TimerDisplay>{formatTime(timer)}</TimerDisplay>
-              </VerificationWrapper>
-            )}
-            <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    서비스 지역*
-                  </span>
-                }
-                id='region'
-                as='select'
-                error={errors.region?.message}
-                required
-                {...register('region')}
-                placeholder='지역 선택'
-                children={[
-                  <option value='' disabled key='default'>
-                    지역을 선택하세요
-                  </option>,
-                  ...Object.keys(regionDistrictData).map((region) => (
-                    <option key={region} value={region}>
-                      {region}
-                    </option>
-                  )),
-                ]}
-              />
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>구*</span>
-                }
-                id='district'
-                as='select'
-                error={errors.district?.message}
-                required
-                {...register('district')}
-                placeholder='구 선택'
-                children={[
-                  <option value='' disabled key='default'>
-                    구를 선택하세요
-                  </option>,
-                  ...(watch('region') && regionDistrictData[watch('region')]
-                    ? regionDistrictData[watch('region')].map(
-                        (district: string) => (
-                          <option key={district} value={district}>
-                            {district}
-                          </option>
-                        )
-                      )
-                    : [
-                        <option value='' key='empty'>
-                          지역을 먼저 선택하세요
-                        </option>,
-                      ]),
-                ]}
-              />
-            </RowLabel>
-            <RowLabel>
-              <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                <span style={{ fontWeight: 700, fontSize: 13, minWidth: 100 }}>
-                  instagram.com/
-                </span>
+              <RowLabel>
                 <CommonField
-                  id='instar'
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>이름*</span>
+                  }
+                  id='name'
                   type='text'
-                  placeholder='인스타 아이디를 입력하세요'
-                  error={errors.instar?.message}
+                  placeholder='이름을 입력하세요'
+                  error={errors.name?.message}
+                  {...register('name')}
                   required
-                  maxLength={50}
-                  style={{
-                    flex: 1,
-                    fontSize: 16,
-                    marginLeft: 3,
-                  }}
-                  {...register('instar')}
+                  maxLength={5}
                 />
-              </div>
-            </RowLabel>
-
-            <RowLabel>
-              <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                <span style={{ fontWeight: 700, fontSize: 13, minWidth: 100 }}>
-                  me1pik.com/
-                </span>
                 <CommonField
-                  id='melpickAddress'
-                  type='text'
-                  placeholder='멜픽 주소를 입력하세요'
-                  error={errors.melpickAddress?.message}
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      태어난 해*
+                    </span>
+                  }
+                  id='birthYear'
+                  as='select'
+                  error={errors.birthYear?.message}
                   required
-                  maxLength={12}
-                  style={{
-                    flex: 1,
-                    fontSize: 16,
-                    marginLeft: 3,
-                  }}
-                  {...register('melpickAddress', {
-                    onChange: (e) => {
-                      resetVerificationState('melpickAddress');
-                      setValue('melpickAddress', e.target.value);
-                    },
-                  })}
-                  buttonLabel='체크'
-                  buttonColorType='yellow'
+                  {...register('birthYear')}
+                  placeholder='태어난 해 선택'
+                  children={[
+                    <option value='' disabled key='default'>
+                      태어난 해를 선택하세요
+                    </option>,
+                    ...Array.from({ length: 100 }, (_, i) => 2023 - i).map(
+                      (year) => (
+                        <option key={year} value={year}>
+                          {year}년
+                        </option>
+                      )
+                    ),
+                  ]}
+                />
+              </RowLabel>
+              <GenderField>
+                <InputFieldLabel>성별*</InputFieldLabel>
+                <GenderRow>
+                  <GenderButton
+                    type='button'
+                    selected={gender === '여성'}
+                    onClick={() => handleGenderChange('여성')}
+                    $isSelected={selectedGenderButton === '여성'}
+                  >
+                    여성
+                  </GenderButton>
+                  <GenderButton
+                    type='button'
+                    selected={gender === '남성'}
+                    onClick={() => handleGenderChange('남성')}
+                    $isSelected={selectedGenderButton === '남성'}
+                  >
+                    남성
+                  </GenderButton>
+                </GenderRow>
+              </GenderField>
+              <PhoneField>
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      본인인증*(11자를 입력하세요)
+                    </span>
+                  }
+                  id='phoneNumber'
+                  type='text'
+                  placeholder='전화번호를 입력하세요'
+                  error={phoneApiError || errors.phoneNumber?.message}
+                  {...register('phoneNumber')}
+                  required
+                  maxLength={11}
+                  buttonLabel={phoneVerificationButtonText}
+                  buttonColorType={
+                    phoneVerificationButtonText === '인증 완료'
+                      ? 'blue'
+                      : phoneVerificationButtonText === '인증 실패'
+                        ? 'red'
+                        : 'yellow'
+                  }
                   onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.preventDefault();
-                    handleMelpickAddressCheck();
+                    handleSendVerification();
                   }}
                 />
-              </div>
-            </RowLabel>
-            <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>키*</span>
-                }
-                id='height'
-                as='select'
-                error={errors.height?.message}
-                {...register('height')}
-                placeholder='키 선택'
-                children={[
-                  <option value='' disabled hidden key='default'>
-                    키 선택
-                  </option>,
-                  ...[...Array(200 - 130 + 1)].map((_, i) => (
-                    <option key={i + 130} value={i + 130}>
-                      {i + 130} cm
-                    </option>
-                  )),
-                ]}
-              />
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>몸무게*</span>
-                }
-                id='size'
-                as='select'
-                error={errors.size?.message}
-                {...register('size')}
-                placeholder='몸무게 선택'
-                children={[
-                  <option value='' disabled hidden key='default'>
-                    몸무게 선택
-                  </option>,
-                  ...Array.from({ length: 90 - 30 + 1 }, (_, i) => (
-                    <option key={i + 30} value={i + 30}>
-                      {i + 30} kg
-                    </option>
-                  )),
-                ]}
-              />
-            </RowLabel>
-            <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>원피스*</span>
-                }
-                id='dress'
-                as='select'
-                error={errors.dress?.message}
-                {...register('dress')}
-                placeholder='원피스'
-                children={[
-                  <option value='' disabled hidden key='default'>
-                    원피스
-                  </option>,
-                  <option value='44'>44 (XS)</option>,
-                  <option value='55'>55 (S)</option>,
-                  <option value='66'>66 (M)</option>,
-                  <option value='77'>77 (L)</option>,
-                ]}
-              />
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>상의*</span>
-                }
-                id='top'
-                as='select'
-                error={errors.top?.message}
-                {...register('top')}
-                placeholder='상의'
-                children={[
-                  <option value='' disabled hidden key='default'>
-                    상의
-                  </option>,
-                  <option value='44'>44 (XS)</option>,
-                  <option value='55'>55 (S)</option>,
-                  <option value='66'>66 (M)</option>,
-                  <option value='77'>77 (L)</option>,
-                ]}
-              />
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>하의*</span>
-                }
-                id='bottom'
-                as='select'
-                error={errors.bottom?.message}
-                {...register('bottom')}
-                placeholder='하의'
-                children={[
-                  <option value='' disabled hidden key='default'>
-                    하의
-                  </option>,
-                  <option value='44'>44 (XS)</option>,
-                  <option value='55'>55 (S)</option>,
-                  <option value='66'>66 (M)</option>,
-                  <option value='77'>77 (L)</option>,
-                ]}
-              />
-            </RowLabel>
-            <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    선호 브랜드 선택*(최대 3가지)
+              </PhoneField>
+              {isPhoneVerificationSent && !isPhoneVerified && (
+                <VerificationWrapper>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    <label
+                      htmlFor='verificationCode'
+                      style={{ marginRight: 8, fontWeight: 700, fontSize: 12 }}
+                    >
+                      인증번호 입력
+                    </label>
+                    <input
+                      id='verificationCode'
+                      type='text'
+                      placeholder='인증번호를 입력하세요'
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        border: '1px solid #ccc',
+                        borderRadius: 4,
+                        fontSize: 14,
+                      }}
+                    />
+                    <button
+                      type='button'
+                      style={{
+                        marginLeft: 8,
+                        padding: '8px 16px',
+                        background: '#f6ae24',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 4,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleVerifyCode();
+                      }}
+                    >
+                      {phoneVerificationButtonText}
+                    </button>
+                  </div>
+                  <TimerDisplay>{formatTime(timer)}</TimerDisplay>
+                </VerificationWrapper>
+              )}
+              <RowLabel>
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      서비스 지역*
+                    </span>
+                  }
+                  id='region'
+                  as='select'
+                  error={errors.region?.message}
+                  required
+                  {...register('region')}
+                  placeholder='지역 선택'
+                  children={[
+                    <option value='' disabled key='default'>
+                      지역을 선택하세요
+                    </option>,
+                    ...Object.keys(regionDistrictData).map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    )),
+                  ]}
+                />
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>구*</span>
+                  }
+                  id='district'
+                  as='select'
+                  error={errors.district?.message}
+                  required
+                  {...register('district')}
+                  placeholder='구 선택'
+                  children={[
+                    <option value='' disabled key='default'>
+                      구를 선택하세요
+                    </option>,
+                    ...(watch('region') && regionDistrictData[watch('region')]
+                      ? regionDistrictData[watch('region')].map(
+                          (district: string) => (
+                            <option key={district} value={district}>
+                              {district}
+                            </option>
+                          )
+                        )
+                      : [
+                          <option value='' key='empty'>
+                            지역을 먼저 선택하세요
+                          </option>,
+                        ]),
+                  ]}
+                />
+              </RowLabel>
+              <RowLabel>
+                <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                  <span
+                    style={{ fontWeight: 700, fontSize: 13, minWidth: 100 }}
+                  >
+                    instagram.com/
                   </span>
-                }
-                id='brand'
-                type='text'
-                placeholder='브랜드 3가지를 선택하세요'
-                error={errors.brand?.message}
-                {...register('brand')}
-                buttonLabel={brandButtonLabel}
-                onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  e.preventDefault();
-                  openModal();
-                }}
-              />
-            </RowLabel>
-            <Divider />
-            <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    신체 치수 (선택)
-                  </span>
-                }
-                id='shoulder'
-                type='text'
-                placeholder='어깨너비(cm)'
-                error={errors.shoulder?.message}
-                {...register('shoulder')}
-              />
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    가슴둘레(cm)
-                  </span>
-                }
-                id='chest'
-                type='text'
-                placeholder='가슴둘레(cm)'
-                error={errors.chest?.message}
-                {...register('chest')}
-              />
-            </RowLabel>
-            <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    허리둘레(cm)
-                  </span>
-                }
-                id='waist'
-                type='text'
-                placeholder='허리둘레(cm)'
-                error={errors.waist?.message}
-                {...register('waist')}
-              />
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    소매길이(cm)
-                  </span>
-                }
-                id='sleeve'
-                type='text'
-                placeholder='소매길이(cm)'
-                error={errors.sleeve?.message}
-                {...register('sleeve')}
-              />
-            </RowLabel>
-            <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    맴버십 코드 (선택)
-                  </span>
-                }
-                id='mebershipCode'
-                type='mebershipCode'
-                placeholder='맴버쉽 코드를 입력하세요'
-                error={errors.mebershipCode?.message}
-                {...register('mebershipCode')}
-                required
-                maxLength={20}
-                autoComplete='current-mebershipCode'
-              />
-            </RowLabel>
+                  <CommonField
+                    id='instar'
+                    type='text'
+                    placeholder='인스타 아이디를 입력하세요'
+                    error={errors.instar?.message}
+                    required
+                    maxLength={50}
+                    style={{
+                      flex: 1,
+                      fontSize: 16,
+                      marginLeft: 3,
+                    }}
+                    {...register('instar')}
+                  />
+                </div>
+              </RowLabel>
 
-            {!isKeyboardOpen && (
-              <FixedBottomBar
-                type='button'
-                text={isSubmitting ? '가입 중...' : '회원가입'}
-                color='black'
-                onClick={onSignupButtonClick}
-                disabled={isSubmitting}
-              />
-            )}
-          </Form>
-          <BlackContainer>
-            {isSubmitting && <LoadingSpinner label='회원가입 처리 중...' />}
-            {signupResult && !isSignupSuccess && (
-              <CommonErrorMessage
-                message={
-                  typeof signupResult === 'string'
-                    ? signupResult
-                    : '회원가입에 실패했습니다.'
-                }
-              />
-            )}
-          </BlackContainer>
-        </Container>
-      </FormProvider>
+              <RowLabel>
+                <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                  <span
+                    style={{ fontWeight: 700, fontSize: 13, minWidth: 100 }}
+                  >
+                    me1pik.com/
+                  </span>
+                  <CommonField
+                    id='melpickAddress'
+                    type='text'
+                    placeholder='멜픽 주소를 입력하세요'
+                    error={errors.melpickAddress?.message}
+                    required
+                    maxLength={12}
+                    style={{
+                      flex: 1,
+                      fontSize: 16,
+                      marginLeft: 3,
+                    }}
+                    {...register('melpickAddress', {
+                      onChange: (e) => {
+                        resetVerificationState('melpickAddress');
+                        setValue('melpickAddress', e.target.value);
+                      },
+                    })}
+                    buttonLabel='체크'
+                    buttonColorType='yellow'
+                    onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      e.preventDefault();
+                      handleMelpickAddressCheck();
+                    }}
+                  />
+                </div>
+              </RowLabel>
+              <RowLabel>
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>키*</span>
+                  }
+                  id='height'
+                  as='select'
+                  error={errors.height?.message}
+                  {...register('height')}
+                  placeholder='키 선택'
+                  children={[
+                    <option value='' disabled hidden key='default'>
+                      키 선택
+                    </option>,
+                    ...[...Array(200 - 130 + 1)].map((_, i) => (
+                      <option key={i + 130} value={i + 130}>
+                        {i + 130} cm
+                      </option>
+                    )),
+                  ]}
+                />
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      몸무게*
+                    </span>
+                  }
+                  id='size'
+                  as='select'
+                  error={errors.size?.message}
+                  {...register('size')}
+                  placeholder='몸무게 선택'
+                  children={[
+                    <option value='' disabled hidden key='default'>
+                      몸무게 선택
+                    </option>,
+                    ...Array.from({ length: 90 - 30 + 1 }, (_, i) => (
+                      <option key={i + 30} value={i + 30}>
+                        {i + 30} kg
+                      </option>
+                    )),
+                  ]}
+                />
+              </RowLabel>
+              <RowLabel>
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      원피스*
+                    </span>
+                  }
+                  id='dress'
+                  as='select'
+                  error={errors.dress?.message}
+                  {...register('dress')}
+                  placeholder='원피스'
+                  children={[
+                    <option value='' disabled hidden key='default'>
+                      원피스
+                    </option>,
+                    <option value='44'>44 (XS)</option>,
+                    <option value='55'>55 (S)</option>,
+                    <option value='66'>66 (M)</option>,
+                    <option value='77'>77 (L)</option>,
+                  ]}
+                />
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>상의*</span>
+                  }
+                  id='top'
+                  as='select'
+                  error={errors.top?.message}
+                  {...register('top')}
+                  placeholder='상의'
+                  children={[
+                    <option value='' disabled hidden key='default'>
+                      상의
+                    </option>,
+                    <option value='44'>44 (XS)</option>,
+                    <option value='55'>55 (S)</option>,
+                    <option value='66'>66 (M)</option>,
+                    <option value='77'>77 (L)</option>,
+                  ]}
+                />
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>하의*</span>
+                  }
+                  id='bottom'
+                  as='select'
+                  error={errors.bottom?.message}
+                  {...register('bottom')}
+                  placeholder='하의'
+                  children={[
+                    <option value='' disabled hidden key='default'>
+                      하의
+                    </option>,
+                    <option value='44'>44 (XS)</option>,
+                    <option value='55'>55 (S)</option>,
+                    <option value='66'>66 (M)</option>,
+                    <option value='77'>77 (L)</option>,
+                  ]}
+                />
+              </RowLabel>
+              <RowLabel>
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      선호 브랜드 선택*(최대 3가지)
+                    </span>
+                  }
+                  id='brand'
+                  type='text'
+                  placeholder='브랜드 3가지를 선택하세요'
+                  error={errors.brand?.message}
+                  {...register('brand')}
+                  buttonLabel={brandButtonLabel}
+                  onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                    e.preventDefault();
+                    openModal();
+                  }}
+                />
+              </RowLabel>
+              <Divider />
+              <RowLabel>
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      신체 치수 (선택)
+                    </span>
+                  }
+                  id='shoulder'
+                  type='text'
+                  placeholder='어깨너비(cm)'
+                  error={errors.shoulder?.message}
+                  {...register('shoulder')}
+                />
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      가슴둘레(cm)
+                    </span>
+                  }
+                  id='chest'
+                  type='text'
+                  placeholder='가슴둘레(cm)'
+                  error={errors.chest?.message}
+                  {...register('chest')}
+                />
+              </RowLabel>
+              <RowLabel>
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      허리둘레(cm)
+                    </span>
+                  }
+                  id='waist'
+                  type='text'
+                  placeholder='허리둘레(cm)'
+                  error={errors.waist?.message}
+                  {...register('waist')}
+                />
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      소매길이(cm)
+                    </span>
+                  }
+                  id='sleeve'
+                  type='text'
+                  placeholder='소매길이(cm)'
+                  error={errors.sleeve?.message}
+                  {...register('sleeve')}
+                />
+              </RowLabel>
+              <RowLabel>
+                <CommonField
+                  label={
+                    <span style={{ fontSize: 11, fontWeight: 700 }}>
+                      맴버십 코드 (선택)
+                    </span>
+                  }
+                  id='mebershipCode'
+                  type='mebershipCode'
+                  placeholder='맴버쉽 코드를 입력하세요'
+                  error={errors.mebershipCode?.message}
+                  {...register('mebershipCode')}
+                  required
+                  maxLength={20}
+                  autoComplete='current-mebershipCode'
+                />
+              </RowLabel>
 
-      {showSignupResultModal && (
-        <ReusableModal
-          isOpen={showSignupResultModal}
-          onClose={handleSignupResultModalClose}
-          title='회원가입 결과'
-        >
-          {signupResult}
-        </ReusableModal>
-      )}
+              {!isKeyboardOpen && (
+                <FixedBottomBar
+                  type='button'
+                  text={isSubmitting ? '가입 중...' : '회원가입'}
+                  color='black'
+                  onClick={onSignupButtonClick}
+                  disabled={isSubmitting}
+                />
+              )}
+            </Form>
+            <BlackContainer>
+              {isSubmitting && <LoadingSpinner label='회원가입 처리 중...' />}
+              {signupResult && !isSignupSuccess && (
+                <CommonErrorMessage
+                  message={
+                    typeof signupResult === 'string'
+                      ? signupResult
+                      : '회원가입에 실패했습니다.'
+                  }
+                />
+              )}
+            </BlackContainer>
+          </Container>
+        </FormProvider>
 
-      {isModalOpen && (
-        <Modal
-          isOpen={isModalOpen}
-          onClose={closeModal}
-          onSelect={handleBrandSelect}
-          selectedBrands={selectedBrands}
-        />
-      )}
+        {showSignupResultModal && (
+          <ReusableModal
+            isOpen={showSignupResultModal}
+            onClose={handleSignupResultModalClose}
+            title='회원가입 결과'
+          >
+            {signupResult}
+          </ReusableModal>
+        )}
+
+        {isModalOpen && (
+          <Modal
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            onSelect={handleBrandSelect}
+            selectedBrands={selectedBrands}
+          />
+        )}
+      </PageContainer>
     </>
   );
 };
@@ -1147,4 +1158,16 @@ const TimerDisplay = styled.div`
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
+`;
+
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  padding: 2rem;
+  padding-top: 70px;
+  max-width: 400px;
+  margin: 0 auto;
+  margin-top: 30px;
 `;

@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 
+import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
+
 import MelpikCalculateIcon from '@/assets/melpiks/MelpikCalculateIcon.svg';
 import MelpikCreateIcon from '@/assets/melpiks/MelpikCreateIcon.svg';
 import MelpikIcon from '@/assets/melpiks/MelpikIcon.svg';
@@ -28,6 +30,7 @@ const MelpikPage: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <UnifiedHeader variant='default' />
       <Container>
         <Header>
           <Title>멜픽</Title>
@@ -76,7 +79,6 @@ const Container = styled.div`
   background: #fff;
 
   @media (min-width: 1024px) {
-    padding: 3rem;
     max-width: 1000px;
     margin: 0 auto;
   }
@@ -86,7 +88,7 @@ const Header = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 6px;
-
+  margin-top: 70px;
   @media (min-width: 1024px) {
     margin-bottom: 24px;
   }

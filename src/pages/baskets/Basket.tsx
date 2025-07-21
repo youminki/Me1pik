@@ -16,6 +16,8 @@ import EmptyState from '../../components/shared/EmptyState';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 interface BasketItemForPayment {
   id: number;
   brand: string;
@@ -180,6 +182,7 @@ const Basket: React.FC = () => {
 
   return (
     <Container>
+      <UnifiedHeader variant='threeDepth' title='장바구니' />
       {items.length === 0 ? (
         <EmptyContainer>
           <Icon src={BasketIcon} alt='장바구니 아이콘' />
@@ -322,11 +325,9 @@ export default Basket;
 // --- styled-components 정의 (생략 없이 동일하게 유지) ---
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
+  max-width: 600px;
   margin: 0 auto;
   padding: 1rem;
-  max-width: 600px;
 `;
 
 const EmptyContainer = styled.div`
@@ -355,6 +356,7 @@ const Header = styled.div`
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 15px;
+  margin-top: 70px;
 `;
 
 const Checkbox = styled.input`

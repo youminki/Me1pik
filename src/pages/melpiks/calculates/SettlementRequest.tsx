@@ -6,6 +6,8 @@ import AgreementSection from '../../../components/melpiks/settlement/SettlementA
 import InputField from '../../../components/shared/forms/InputField';
 import { theme } from '../../../styles/Theme';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 const SettlementRequest: React.FC = () => {
   const taxRate = 0.04;
 
@@ -15,6 +17,7 @@ const SettlementRequest: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <UnifiedHeader variant='twoDepth' />
       <Container>
         <AgreementSection />
         <InputField

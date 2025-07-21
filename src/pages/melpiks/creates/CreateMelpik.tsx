@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import ContentList from '../../../components/melpiks/create-melpiks/ContentList';
 import StatsSection from '../../../components/stats-section';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 const visitLabel = '인스타 계정';
 const salesLabel = '현재 등록수  ';
 const visits = '@styleweex';
@@ -12,24 +14,27 @@ const dateRange = 'Now';
 
 const CreateMelpik: React.FC = () => {
   return (
-    <CreateMelpikContainer>
-      <Header>
-        <Title>멜픽 생성</Title>
-        <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
-      </Header>
+    <>
+      <UnifiedHeader variant='oneDepth' />
+      <CreateMelpikContainer>
+        <Header>
+          <Title>멜픽 생성</Title>
+          <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
+        </Header>
 
-      <StatsSection
-        visits={visits}
-        sales={sales}
-        dateRange={dateRange}
-        visitLabel={visitLabel}
-        salesLabel={salesLabel}
-      />
-      <Divider />
-      <ContentWrapper>
-        <ContentList />
-      </ContentWrapper>
-    </CreateMelpikContainer>
+        <StatsSection
+          visits={visits}
+          sales={sales}
+          dateRange={dateRange}
+          visitLabel={visitLabel}
+          salesLabel={salesLabel}
+        />
+        <Divider />
+        <ContentWrapper>
+          <ContentList />
+        </ContentWrapper>
+      </CreateMelpikContainer>
+    </>
   );
 };
 

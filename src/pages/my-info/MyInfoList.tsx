@@ -18,6 +18,7 @@ import ReusableModal from '../../components/shared/modals/ReusableModal';
 
 // 추가: API import
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import { getCurrentToken } from '@/utils/auth';
 
 const MENU_ITEMS = [
@@ -40,6 +41,18 @@ const MENU_ITEMS = [
     iconSrc: deliveryIcon,
   },
 ];
+
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  padding: 1rem;
+  padding-top: 70px;
+  max-width: 400px;
+
+  margin: 0 auto;
+`;
 
 const MyinfoList: React.FC = () => {
   const navigate = useNavigate();
@@ -107,88 +120,85 @@ const MyinfoList: React.FC = () => {
   }
 
   return (
-    <PageContainer>
-      {/* PROFILE */}
-      <ProfileSection>
-        <AvatarWrapper onClick={() => setProfilePlaceholderOpen(true)}>
-          <FaUserCircle size={70} color='#999' />
-          <PlusBadge>
-            <FaPlus size={12} />
-          </PlusBadge>
-        </AvatarWrapper>
-        <ProfileBox>
-          <ProfileText>
-            <Email>{headerInfo.email}</Email>
-            <Nickname>닉네임: {headerInfo.nickname}</Nickname>
-          </ProfileText>
-        </ProfileBox>
-      </ProfileSection>
+    <>
+      <UnifiedHeader variant='threeDepth' title='내 정보' />
+      <PageContainer>
+        {/* PROFILE */}
+        <ProfileSection>
+          <AvatarWrapper onClick={() => setProfilePlaceholderOpen(true)}>
+            <FaUserCircle size={70} color='#999' />
+            <PlusBadge>
+              <FaPlus size={12} />
+            </PlusBadge>
+          </AvatarWrapper>
+          <ProfileBox>
+            <ProfileText>
+              <Email>{headerInfo.email}</Email>
+              <Nickname>닉네임: {headerInfo.nickname}</Nickname>
+            </ProfileText>
+          </ProfileBox>
+        </ProfileSection>
 
-      <ContentDivider />
+        <ContentDivider />
 
-      {/* MENU LIST */}
-      <MenuList>
-        {MENU_ITEMS.map(({ key, title, desc, iconSrc }) => (
-          <MenuItem key={key} onClick={() => handleMenuClick(key)}>
-            <IconBox>
-              <IconImg src={iconSrc} alt={title} />
-            </IconBox>
-            <TextBox>
-              <MenuTitle>{title}</MenuTitle>
-              <MenuDesc>{desc}</MenuDesc>
-            </TextBox>
-            <Panel>
-              <PickText>PICK</PickText>
-              <FaLongArrowAltRight size={24} />
-            </Panel>
-          </MenuItem>
-        ))}
-      </MenuList>
+        {/* MENU LIST */}
+        <MenuList>
+          {MENU_ITEMS.map(({ key, title, desc, iconSrc }) => (
+            <MenuItem key={key} onClick={() => handleMenuClick(key)}>
+              <IconBox>
+                <IconImg src={iconSrc} alt={title} />
+              </IconBox>
+              <TextBox>
+                <MenuTitle>{title}</MenuTitle>
+                <MenuDesc>{desc}</MenuDesc>
+              </TextBox>
+              <Panel>
+                <PickText>PICK</PickText>
+                <FaLongArrowAltRight size={24} />
+              </Panel>
+            </MenuItem>
+          ))}
+        </MenuList>
 
-      {/* 알림 설정 */}
-      <Section>
-        <SectionHeader>알림 설정</SectionHeader>
-        <SectionBody>
-          <StatusText>
-            상태 | <StrongText>알림 받기</StrongText>
-          </StatusText>
-          <ToggleWrapper onClick={() => setNotifyOn((v) => !v)}>
-            <ToggleBg on={notifyOn} />
-            <ToggleCircle on={notifyOn}>
-              <ToggleText>{notifyOn ? 'ON' : 'OFF'}</ToggleText>
-            </ToggleCircle>
-          </ToggleWrapper>
-        </SectionBody>
-      </Section>
+        {/* 알림 설정 */}
+        <Section>
+          <SectionHeader>알림 설정</SectionHeader>
+          <SectionBody>
+            <StatusText>
+              상태 | <StrongText>알림 받기</StrongText>
+            </StatusText>
+            <ToggleWrapper onClick={() => setNotifyOn((v) => !v)}>
+              <ToggleBg on={notifyOn} />
+              <ToggleCircle on={notifyOn}>
+                <ToggleText>{notifyOn ? 'ON' : 'OFF'}</ToggleText>
+              </ToggleCircle>
+            </ToggleWrapper>
+          </SectionBody>
+        </Section>
 
-      {/* 프로필 이미지 클릭 시 미구현 모달 */}
-      {isProfilePlaceholderOpen && (
-        <ReusableModal
-          isOpen={isProfilePlaceholderOpen}
-          onClose={() => setProfilePlaceholderOpen(false)}
-          title='준비 중입니다'
-        >
-          아직 구현 전인 기능이에요.
-        </ReusableModal>
-      )}
-    </PageContainer>
+        {/* 프로필 이미지 클릭 시 미구현 모달 */}
+        {isProfilePlaceholderOpen && (
+          <ReusableModal
+            isOpen={isProfilePlaceholderOpen}
+            onClose={() => setProfilePlaceholderOpen(false)}
+            title='준비 중입니다'
+          >
+            아직 구현 전인 기능이에요.
+          </ReusableModal>
+        )}
+      </PageContainer>
+    </>
   );
 };
 
 export default MyinfoList;
 
 /* ─────────────────── Styled Components for MyinfoList ─────────────────── */
-const PageContainer = styled.div`
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem;
-  background: #fff;
-`;
-
 const ProfileSection = styled.div`
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 `;
 const AvatarWrapper = styled.div`
   width: 70px;
@@ -314,6 +324,7 @@ const PickText = styled.div<{ disabled?: boolean }>`
 
 const Section = styled.section`
   margin-top: 50px;
+  width: 100%;
 `;
 const SectionHeader = styled.div`
   font-size: 10px;

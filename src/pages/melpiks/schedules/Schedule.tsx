@@ -13,6 +13,7 @@ import ScheduleIcon from '../../../assets/melpiks/schedule.svg';
 import StatsSection from '../../../components/stats-section';
 import { theme } from '../../../styles/Theme';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 const Schedule: React.FC = () => {
@@ -94,94 +95,97 @@ const Schedule: React.FC = () => {
       .join(' ~ ');
 
   return (
-    <ScheduleContainer>
-      <Header>
-        <Title>판매 스케줄</Title>
-        <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
-      </Header>
+    <>
+      <UnifiedHeader variant='oneDepth' />
+      <ScheduleContainer>
+        <Header>
+          <Title>판매 스케줄</Title>
+          <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
+        </Header>
 
-      {loading ? (
-        <LoadingSpinner label='일정 정보를 불러오는 중입니다...' />
-      ) : error ? (
-        <ErrorMessage>{error}</ErrorMessage>
-      ) : (
-        <>
-          <StatsRow>
-            <StatsSection
-              visits={totalCount}
-              sales={inProgressCount}
-              dateRange={currentDateRange}
-              visitLabel={visitLabel}
-              salesLabel={salesLabel}
-            />
-          </StatsRow>
-          <Divider />
+        {loading ? (
+          <LoadingSpinner label='일정 정보를 불러오는 중입니다...' />
+        ) : error ? (
+          <ErrorMessage>{error}</ErrorMessage>
+        ) : (
+          <>
+            <StatsRow>
+              <StatsSection
+                visits={totalCount}
+                sales={inProgressCount}
+                dateRange={currentDateRange}
+                visitLabel={visitLabel}
+                salesLabel={salesLabel}
+              />
+            </StatsRow>
+            <Divider />
 
-          <ScheduleContent>
-            <ScheduleList>
-              {schedules.map((item) => {
-                const uiStatus = mapStatusToUI(item.status);
-                return (
-                  <ScheduleItemContainer
-                    key={item.id}
-                    scheduleStatus={uiStatus}
-                    onClick={() => handleItemClick(item.id)}
-                  >
-                    <IconContainer>
-                      <IconWrapper scheduleStatus={uiStatus}>
-                        <Icon src={ScheduleIcon} alt={`${item.title} Icon`} />
-                      </IconWrapper>
-                      <ConnectorLine />
-                    </IconContainer>
-                    <ItemContainer>
-                      <MiniTitle>
-                        {uiStatus === 'reserved'
-                          ? '예약된 스케줄'
-                          : uiStatus === 'inProgress'
-                            ? '진행된 스케줄'
-                            : '미진행 스케줄'}
-                      </MiniTitle>
-                      <ScheduleItem>
-                        <Details>
-                          <SeasonWrapper>
-                            <Season>
-                              {item.title} 시즌 {item.id}
-                            </Season>
-                            <BletIconWrapper
-                              onClick={() => handleItemClick(item.id)}
-                            >
-                              <BletIconImg src={BletIcon} alt='Blet Icon' />
-                            </BletIconWrapper>
-                          </SeasonWrapper>
-                          <DateWrapper>
-                            <DateTitle>스케줄 일정</DateTitle>
-                            <DateText>
-                              {formatDateRange(item.dateRange)}
-                            </DateText>
-                          </DateWrapper>
-                          <ConnectorLine1 />
-                          <InfoRow>
-                            <InfoColumn>
-                              <DateTitle>선택한 작품</DateTitle>
-                              <DateText>{item.productCount}가지</DateText>
-                            </InfoColumn>
-                          </InfoRow>
-                        </Details>
-                      </ScheduleItem>
-                    </ItemContainer>
-                  </ScheduleItemContainer>
-                );
-              })}
-            </ScheduleList>
-          </ScheduleContent>
-        </>
-      )}
+            <ScheduleContent>
+              <ScheduleList>
+                {schedules.map((item) => {
+                  const uiStatus = mapStatusToUI(item.status);
+                  return (
+                    <ScheduleItemContainer
+                      key={item.id}
+                      scheduleStatus={uiStatus}
+                      onClick={() => handleItemClick(item.id)}
+                    >
+                      <IconContainer>
+                        <IconWrapper scheduleStatus={uiStatus}>
+                          <Icon src={ScheduleIcon} alt={`${item.title} Icon`} />
+                        </IconWrapper>
+                        <ConnectorLine />
+                      </IconContainer>
+                      <ItemContainer>
+                        <MiniTitle>
+                          {uiStatus === 'reserved'
+                            ? '예약된 스케줄'
+                            : uiStatus === 'inProgress'
+                              ? '진행된 스케줄'
+                              : '미진행 스케줄'}
+                        </MiniTitle>
+                        <ScheduleItem>
+                          <Details>
+                            <SeasonWrapper>
+                              <Season>
+                                {item.title} 시즌 {item.id}
+                              </Season>
+                              <BletIconWrapper
+                                onClick={() => handleItemClick(item.id)}
+                              >
+                                <BletIconImg src={BletIcon} alt='Blet Icon' />
+                              </BletIconWrapper>
+                            </SeasonWrapper>
+                            <DateWrapper>
+                              <DateTitle>스케줄 일정</DateTitle>
+                              <DateText>
+                                {formatDateRange(item.dateRange)}
+                              </DateText>
+                            </DateWrapper>
+                            <ConnectorLine1 />
+                            <InfoRow>
+                              <InfoColumn>
+                                <DateTitle>선택한 작품</DateTitle>
+                                <DateText>{item.productCount}가지</DateText>
+                              </InfoColumn>
+                            </InfoRow>
+                          </Details>
+                        </ScheduleItem>
+                      </ItemContainer>
+                    </ScheduleItemContainer>
+                  );
+                })}
+              </ScheduleList>
+            </ScheduleContent>
+          </>
+        )}
 
-      <BottomBarContainer>
-        <OrderButton onClick={handleBottomClick}>스케줄 예약하기</OrderButton>
-      </BottomBarContainer>
-      <BeenContainer />
-    </ScheduleContainer>
+        <BottomBarContainer>
+          <OrderButton onClick={handleBottomClick}>스케줄 예약하기</OrderButton>
+        </BottomBarContainer>
+        <BeenContainer />
+      </ScheduleContainer>
+    </>
   );
 };
 

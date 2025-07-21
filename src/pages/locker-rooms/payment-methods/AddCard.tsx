@@ -9,6 +9,8 @@ import InputField from '../../../components/shared/forms/InputField';
 import ReusableModal from '../../../components/shared/modals/ReusableModal';
 import { schemaCardRegistration } from '../../../hooks/useValidationYup';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 interface CardFormValues {
   cardNumber: string;
   cardExpiration: string;
@@ -76,6 +78,7 @@ const AddCard: React.FC = () => {
 
   return (
     <>
+      <UnifiedHeader variant='twoDepth' />
       <FormContainer onSubmit={handleSubmit(onSubmit)}>
         <Container>
           <AgreementSection>

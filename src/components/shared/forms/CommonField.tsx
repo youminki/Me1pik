@@ -1,6 +1,8 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
+import { InputLabel } from '../../../auth-utils/AuthCommon';
+
 const readonlyStyle = css`
   background-color: #eeeeee !important;
   color: #888 !important;
@@ -215,7 +217,7 @@ const CommonField: React.FC<CommonFieldProps> = ({
         gap: '5px',
       }}
     >
-      {label && <label>{label}</label>}
+      {label && <InputLabel>{label}</InputLabel>}
       <ButtonWrapper>
         {prefix ? (
           <InputRow>

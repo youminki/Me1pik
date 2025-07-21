@@ -15,6 +15,8 @@ import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { schemaMyStyle } from '../../hooks/useValidationYup';
 import { theme } from '../../styles/Theme';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 interface FormData {
   height: string;
   size: string;
@@ -160,11 +162,13 @@ const MyStyle: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container>
+      <UnifiedHeader variant='threeDepth' title='내 스타일' />
+      <PageContainer>
         <FormWrapper>
           {/* 키, 몸무게 */}
           <Row>
             <CommonField
+              as='select'
               label='키'
               id='height'
               error={errors.height?.message}
@@ -180,6 +184,7 @@ const MyStyle: React.FC = () => {
             </CommonField>
 
             <CommonField
+              as='select'
               label='몸무게'
               id='size'
               error={errors.size?.message}
@@ -213,6 +218,7 @@ const MyStyle: React.FC = () => {
                   defaultValue=''
                   render={({ field: { value, onChange } }) => (
                     <CommonField
+                      as='select'
                       label={labels[field]}
                       id={field}
                       error={errors[field]?.message}
@@ -290,7 +296,7 @@ const MyStyle: React.FC = () => {
               )}
             />
           </Row>
-          <Row>
+          <Row style={{ marginTop: '10px' }}>
             <Controller
               name='waist'
               control={control}
@@ -350,7 +356,7 @@ const MyStyle: React.FC = () => {
         >
           <p>{feedbackMessage}</p>
         </ReusableModal>
-      </Container>
+      </PageContainer>
     </ThemeProvider>
   );
 };
@@ -358,12 +364,13 @@ const MyStyle: React.FC = () => {
 export default MyStyle;
 
 // Form 대신 div로 감싸기
-const Container = styled.div`
+const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   background: #fff;
   padding: 1rem;
+  padding-top: 70px;
   max-width: 600px;
   margin: 0 auto;
 `;

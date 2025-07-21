@@ -5,6 +5,8 @@ import styled, { keyframes } from 'styled-components';
 import CompleteIcon from '../../assets/completes/CompleteIcon.svg';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 interface PaymentCompleteProps {
   onClose?: () => void;
 }
@@ -26,22 +28,25 @@ const PaymentComplete: React.FC<PaymentCompleteProps> = ({ onClose }) => {
   };
 
   return (
-    <Container>
-      <Content>
-        <IconWrapper>
-          <CompleteImg src={CompleteIcon} alt='결제 완료 아이콘' />
-        </IconWrapper>
-        <Title>
-          결제가 <Strong>완료</Strong> 되었습니다.
-        </Title>
-        <Subtitle>
-          신청하신 제품을 신속하게 준비하여,
-          <br />
-          빠르게 전달 드리겠습니다.
-        </Subtitle>
-      </Content>
-      <FixedBottomBar text='확인' color='yellow' onClick={handleClose} />
-    </Container>
+    <>
+      <UnifiedHeader variant='twoDepth' title='결제완료' />
+      <Container>
+        <Content>
+          <IconWrapper>
+            <CompleteImg src={CompleteIcon} alt='결제 완료 아이콘' />
+          </IconWrapper>
+          <Title>
+            결제가 <Strong>완료</Strong> 되었습니다.
+          </Title>
+          <Subtitle>
+            신청하신 제품을 신속하게 준비하여,
+            <br />
+            빠르게 전달 드리겠습니다.
+          </Subtitle>
+        </Content>
+        <FixedBottomBar text='확인' color='yellow' onClick={handleClose} />
+      </Container>
+    </>
   );
 };
 
@@ -61,6 +66,7 @@ const Container = styled.div`
   position: fixed;
   inset: 0;
   background: #fff;
+  padding-top: 70px;
 `;
 
 const Content = styled.div`

@@ -15,6 +15,7 @@ const BannerWrapper = styled.div`
   position: relative;
   margin: 0 auto 26px auto;
   cursor: pointer;
+  margin-top: 70px;
 `;
 
 const IconBox = styled.div`

@@ -13,7 +13,19 @@ import {
 
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import EmptyState from '@/components/shared/EmptyState';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import AddressSearchModal from '@/components/shared/modals/AddressSearchModal';
+
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  padding: 1rem;
+  padding: 70px;
+  max-width: 600px;
+  margin: 0 auto;
+`;
 
 const DeliveryManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -137,7 +149,8 @@ const DeliveryManagement: React.FC = () => {
 
   return (
     <>
-      <Container>
+      <UnifiedHeader variant='threeDepth' title='내 정보 - 배송지 관리' />
+      <PageContainer>
         {isLoading ? (
           <p>주소를 불러오는 중...</p>
         ) : addresses.length === 0 ? (
@@ -256,7 +269,7 @@ const DeliveryManagement: React.FC = () => {
             onClick={handleRegister}
           />
         )}
-      </Container>
+      </PageContainer>
     </>
   );
 };
@@ -264,21 +277,13 @@ const DeliveryManagement: React.FC = () => {
 export default DeliveryManagement;
 
 /* Styled Components */
-const Container = styled.div`
-  max-width: 600px;
-  margin: 0 auto;
-  margin-bottom: 50px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-`;
-
 const Block = styled.div`
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 20px;
+  padding: 1rem;
   margin-bottom: 16px;
+  width: 80%;
 `;
 
 const Title = styled.div`

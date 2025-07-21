@@ -8,6 +8,7 @@ import {
 import { BrandList } from '../../components/brands/BrandList';
 import { ControlSection } from '../../components/brands/ControlSection';
 import StatsSection from '../../components/brands/StatsSection';
+import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import { theme } from '../../styles/Theme';
 
@@ -98,6 +99,7 @@ const Brand: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <UnifiedHeader variant='default' />
       <Container>
         <Header>
           <Title>브랜드</Title>
@@ -139,6 +141,8 @@ const Container = styled.div`
 
   background-color: #fff;
   padding: 1rem;
+  margin-top: 70px;
+  margin-bottom: 70px;
 `;
 
 const Header = styled.div`

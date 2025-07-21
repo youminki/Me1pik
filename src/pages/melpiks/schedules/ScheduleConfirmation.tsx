@@ -20,6 +20,8 @@ import Summary from '../../../components/melpiks/schedules/reservations/Summary'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import { theme } from '../../../styles/Theme';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 const MAX_SELECTION = 6;
 
 // 색상 상수
@@ -267,134 +269,141 @@ const ScheduleConfirmation: React.FC = () => {
   );
 
   return (
-    <Container>
-      <Content>
-        <Label>스케줄 타이틀</Label>
-        <TextBox>{detail.title}</TextBox>
+    <>
+      <UnifiedHeader variant='twoDepth' />
+      <Container>
+        <Content>
+          <Label>스케줄 타이틀</Label>
+          <TextBox>{detail.title}</TextBox>
 
-        <Label>스케줄 예약일자</Label>
-        <ClickableBox>
-          <span style={{ flex: 1 }}>
-            {detail.dateRange
-              .split('~')
-              .map((d) => formatDateWithDay(d.trim()))
-              .join(' ~ ')}
-          </span>
-          <ChangeBtn type='button' onClick={() => setShowModal(true)}>
-            변경
-          </ChangeBtn>
-        </ClickableBox>
+          <Label>스케줄 예약일자</Label>
+          <ClickableBox>
+            <span style={{ flex: 1 }}>
+              {detail.dateRange
+                .split('~')
+                .map((d) => formatDateWithDay(d.trim()))
+                .join(' ~ ')}
+            </span>
+            <ChangeBtn type='button' onClick={() => setShowModal(true)}>
+              변경
+            </ChangeBtn>
+          </ClickableBox>
 
-        <RowContainer>
-          <Column>
-            <Label>선택된 제품</Label>
-            <TextBox>
-              {reservedItems.length} / {MAX_SELECTION}개
-            </TextBox>
-          </Column>
-        </RowContainer>
+          <RowContainer>
+            <Column>
+              <Label>선택된 제품</Label>
+              <TextBox>
+                {reservedItems.length} / {MAX_SELECTION}개
+              </TextBox>
+            </Column>
+          </RowContainer>
 
-        <ConnectorLine />
+          <ConnectorLine />
 
-        <Label>예약된 제품목록</Label>
-        {reservedItems.length === 0 ? (
-          <TextBox>아직 예약된 제품이 없습니다.</TextBox>
-        ) : (
-          <ProductList>
-            {reservedItems.map((item) => (
-              <Product key={item.id}>
-                <ProductImage src={item.image} alt={item.description} />
-                <ProductLabel>{item.brand}</ProductLabel>
-                <ProductName>{truncateText(item.description, 15)}</ProductName>
-              </Product>
-            ))}
-          </ProductList>
-        )}
+          <Label>예약된 제품목록</Label>
+          {reservedItems.length === 0 ? (
+            <TextBox>아직 예약된 제품이 없습니다.</TextBox>
+          ) : (
+            <ProductList>
+              {reservedItems.map((item) => (
+                <Product key={item.id}>
+                  <ProductImage src={item.image} alt={item.description} />
+                  <ProductLabel>{item.brand}</ProductLabel>
+                  <ProductName>
+                    {truncateText(item.description, 15)}
+                  </ProductName>
+                </Product>
+              ))}
+            </ProductList>
+          )}
 
-        <Label>내 옷장 제품목록</Label>
-        {loadingCloset ? (
-          <LoadingSpinner label='로딩 중...' />
-        ) : (
-          <ListContainer>
-            <ItemsWrapper>
-              {closetItems.map((item) => {
-                const sel = selectedItems.includes(item.id);
-                return (
-                  <ItemCard
-                    key={item.id}
-                    id={item.id}
-                    image={item.image}
-                    brand={item.brand}
-                    description={truncateText(item.description, 12)}
-                    onSelect={toggleSelect}
-                    $isSelected={sel}
+          <Label>내 옷장 제품목록</Label>
+          {loadingCloset ? (
+            <LoadingSpinner label='로딩 중...' />
+          ) : (
+            <ListContainer>
+              <ItemsWrapper>
+                {closetItems.map((item) => {
+                  const sel = selectedItems.includes(item.id);
+                  return (
+                    <ItemCard
+                      key={item.id}
+                      id={item.id}
+                      image={item.image}
+                      brand={item.brand}
+                      description={truncateText(item.description, 12)}
+                      onSelect={toggleSelect}
+                      $isSelected={sel}
+                    />
+                  );
+                })}
+              </ItemsWrapper>
+            </ListContainer>
+          )}
+        </Content>
+
+        <BottomBar
+          imageSrc={DeleteButtonIcon}
+          cartOnClick={handleDelete}
+          buttonText='수정하기'
+          onClick={handleEdit}
+        />
+
+        {showModal && editRange && (
+          <ModalOverlay onClick={() => setShowModal(false)}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
+              <ModalHeader>
+                <ModalTitle>예약일자 변경</ModalTitle>
+              </ModalHeader>
+
+              <ModalBody>
+                <DateSelectionSection>
+                  <DateSelection
+                    year={modalYear}
+                    month={modalMonth}
+                    onYearChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setModalYear(Number(e.target.value))
+                    }
+                    onMonthChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      setModalMonth(Number(e.target.value))
+                    }
                   />
-                );
-              })}
-            </ItemsWrapper>
-          </ListContainer>
+                </DateSelectionSection>
+
+                <CalendarSection>
+                  <Calendar
+                    year={modalYear}
+                    month={modalMonth}
+                    startDate={editRange[0]}
+                    endDate={editRange[1]}
+                    onDateClick={handleDateClick}
+                    onIncrease={() => adjustEnd(1)}
+                    onDecrease={() => adjustEnd(-1)}
+                    today={today}
+                  />
+                </CalendarSection>
+
+                <SummarySection>
+                  <Summary
+                    range={editRange}
+                    seasonProgress={{ total: 6, completed: 2, pending: 0 }}
+                  />
+                </SummarySection>
+              </ModalBody>
+
+              <ModalFooter>
+                <ButtonGroup>
+                  <CancelBtn onClick={() => setShowModal(false)}>
+                    취소
+                  </CancelBtn>
+                  <ApplyBtn onClick={applyModal}>적용하기</ApplyBtn>
+                </ButtonGroup>
+              </ModalFooter>
+            </ModalContent>
+          </ModalOverlay>
         )}
-      </Content>
-
-      <BottomBar
-        imageSrc={DeleteButtonIcon}
-        cartOnClick={handleDelete}
-        buttonText='수정하기'
-        onClick={handleEdit}
-      />
-
-      {showModal && editRange && (
-        <ModalOverlay onClick={() => setShowModal(false)}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
-              <ModalTitle>예약일자 변경</ModalTitle>
-            </ModalHeader>
-
-            <ModalBody>
-              <DateSelectionSection>
-                <DateSelection
-                  year={modalYear}
-                  month={modalMonth}
-                  onYearChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setModalYear(Number(e.target.value))
-                  }
-                  onMonthChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setModalMonth(Number(e.target.value))
-                  }
-                />
-              </DateSelectionSection>
-
-              <CalendarSection>
-                <Calendar
-                  year={modalYear}
-                  month={modalMonth}
-                  startDate={editRange[0]}
-                  endDate={editRange[1]}
-                  onDateClick={handleDateClick}
-                  onIncrease={() => adjustEnd(1)}
-                  onDecrease={() => adjustEnd(-1)}
-                  today={today}
-                />
-              </CalendarSection>
-
-              <SummarySection>
-                <Summary
-                  range={editRange}
-                  seasonProgress={{ total: 6, completed: 2, pending: 0 }}
-                />
-              </SummarySection>
-            </ModalBody>
-
-            <ModalFooter>
-              <ButtonGroup>
-                <CancelBtn onClick={() => setShowModal(false)}>취소</CancelBtn>
-                <ApplyBtn onClick={applyModal}>적용하기</ApplyBtn>
-              </ButtonGroup>
-            </ModalFooter>
-          </ModalContent>
-        </ModalOverlay>
-      )}
-    </Container>
+      </Container>
+    </>
   );
 };
 

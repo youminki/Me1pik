@@ -12,6 +12,8 @@ import BottomBar from '../../../components/melpiks/schedules/reservations/Bottom
 import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 const MAX_SELECTION = 6;
 
 interface ItemCardProps {
@@ -192,63 +194,66 @@ const ScheduleReservation2: React.FC = () => {
   );
 
   return (
-    <Container>
-      <Stepper currentStep={2} />
+    <>
+      <UnifiedHeader variant='twoDepth' />
+      <Container>
+        <Stepper currentStep={2} />
 
-      <Summary>
-        <ScheduleInfo>
-          <Label>예약할 제품 목록</Label>
-          <InfoText>
-            <GrayText>선택 가능한 갯수 {MAX_SELECTION}개</GrayText>
-            <GrayDivider>/</GrayDivider>
-            선택한 제품 수 {selectedItems.length} 개
-          </InfoText>
-        </ScheduleInfo>
-      </Summary>
+        <Summary>
+          <ScheduleInfo>
+            <Label>예약할 제품 목록</Label>
+            <InfoText>
+              <GrayText>선택 가능한 갯수 {MAX_SELECTION}개</GrayText>
+              <GrayDivider>/</GrayDivider>
+              선택한 제품 수 {selectedItems.length} 개
+            </InfoText>
+          </ScheduleInfo>
+        </Summary>
 
-      <Content>
-        {loadingCloset ? (
-          <LoadingSpinner label='로딩 중...' />
-        ) : closetItems.length === 0 ? (
-          <EmptyState>
-            <EmptyMessage>내 옷장에 보관한 옷이 없습니다.</EmptyMessage>
-            <AddButton onClick={() => navigate('/home')}>
-              <FaTshirt size={48} />
-              <ButtonText>옷 추가하러 가기</ButtonText>
-            </AddButton>
-          </EmptyState>
-        ) : (
-          <ItemList
-            HeaderContainer={ItemContainer}
-            items={closetItems}
-            selectedItems={selectedItems}
-            onSelect={handleSelect}
-          />
-        )}
-      </Content>
+        <Content>
+          {loadingCloset ? (
+            <LoadingSpinner label='로딩 중...' />
+          ) : closetItems.length === 0 ? (
+            <EmptyState>
+              <EmptyMessage>내 옷장에 보관한 옷이 없습니다.</EmptyMessage>
+              <AddButton onClick={() => navigate('/home')}>
+                <FaTshirt size={48} />
+                <ButtonText>옷 추가하러 가기</ButtonText>
+              </AddButton>
+            </EmptyState>
+          ) : (
+            <ItemList
+              HeaderContainer={ItemContainer}
+              items={closetItems}
+              selectedItems={selectedItems}
+              onSelect={handleSelect}
+            />
+          )}
+        </Content>
 
-      <BottomBar onNext={handleBottomClick} />
+        <BottomBar onNext={handleBottomClick} />
 
-      {isModalOpen && (
-        <WarningModal>
-          <WarningModalContent>
-            <ModalHeader>
-              <ModalTitle>알림</ModalTitle>
+        {isModalOpen && (
+          <WarningModal>
+            <WarningModalContent>
+              <ModalHeader>
+                <ModalTitle>알림</ModalTitle>
+                <GrayLine />
+              </ModalHeader>
+              <WarningMessage>
+                최대 {MAX_SELECTION}개의 제품만 선택 가능합니다.
+              </WarningMessage>
               <GrayLine />
-            </ModalHeader>
-            <WarningMessage>
-              최대 {MAX_SELECTION}개의 제품만 선택 가능합니다.
-            </WarningMessage>
-            <GrayLine />
-            <ButtonRow>
-              <CancelButton onClick={closeWarningModal}>닫기</CancelButton>
-            </ButtonRow>
-          </WarningModalContent>
-        </WarningModal>
-      )}
+              <ButtonRow>
+                <CancelButton onClick={closeWarningModal}>닫기</CancelButton>
+              </ButtonRow>
+            </WarningModalContent>
+          </WarningModal>
+        )}
 
-      <BeenContainer />
-    </Container>
+        <BeenContainer />
+      </Container>
+    </>
   );
 };
 

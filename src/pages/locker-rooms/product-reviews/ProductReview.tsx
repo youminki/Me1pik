@@ -11,6 +11,7 @@ import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
 import sampleImage from '@/assets/sample-dress.svg';
 import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsSection from '@/components/stats-section';
 
 interface BasketItem {
@@ -74,140 +75,143 @@ const ProductReview: React.FC = () => {
   }
 
   return (
-    <ProductReviewContainer>
-      <Header>
-        <Title>제품평가</Title>
-        <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-      </Header>
+    <>
+      <UnifiedHeader variant='oneDepth' />
+      <ProductReviewContainer>
+        <Header>
+          <Title>제품평가</Title>
+          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
+        </Header>
 
-      <StatsSection
-        visits={'999'}
-        sales={'2025 1분기'}
-        dateRange={'SPRING'}
-        visitLabel={'제품 평가수'}
-        salesLabel={'시즌'}
-      />
-
-      <Divider />
-
-      <Section>
-        <PeriodSection
-          selectedPeriod={selectedPeriod}
-          setSelectedPeriod={setSelectedPeriod}
+        <StatsSection
+          visits={'999'}
+          sales={'2025 1분기'}
+          dateRange={'SPRING'}
+          visitLabel={'제품 평가수'}
+          salesLabel={'시즌'}
         />
 
-        <ItemList>
-          {filteredItems.map((item) => (
-            <Item key={item.id}>
-              <ContentWrapper>
-                <ItemDetails>
-                  <Brand>{item.brand}</Brand>
-                  <ItemName>
-                    <NameCode>{item.nameCode}</NameCode>
-                    <Slash>/</Slash>
-                    <ItemType>{item.nameType}</ItemType>
-                  </ItemName>
+        <Divider />
 
-                  {item.type === 'rental' ? (
+        <Section>
+          <PeriodSection
+            selectedPeriod={selectedPeriod}
+            setSelectedPeriod={setSelectedPeriod}
+          />
+
+          <ItemList>
+            {filteredItems.map((item) => (
+              <Item key={item.id}>
+                <ContentWrapper>
+                  <ItemDetails>
+                    <Brand>{item.brand}</Brand>
+                    <ItemName>
+                      <NameCode>{item.nameCode}</NameCode>
+                      <Slash>/</Slash>
+                      <ItemType>{item.nameType}</ItemType>
+                    </ItemName>
+
+                    {item.type === 'rental' ? (
+                      <InfoRowFlex>
+                        <IconArea>
+                          <Icon src={ServiceInfoIcon} alt='Service Info' />
+                        </IconArea>
+                        <TextContainer>
+                          <RowText>
+                            <LabelDetailText>진행 서비스 - </LabelDetailText>
+                            <DetailHighlight>{item.rentalDays}</DetailHighlight>
+                          </RowText>
+                          {item.servicePeriod && (
+                            <AdditionalText>
+                              <DetailText>{item.servicePeriod}</DetailText>
+                            </AdditionalText>
+                          )}
+                        </TextContainer>
+                      </InfoRowFlex>
+                    ) : (
+                      <InfoRowFlex>
+                        <IconArea>
+                          <Icon src={ServiceInfoIcon} alt='Service Info' />
+                        </IconArea>
+                        <TextContainer>
+                          <RowText>
+                            <DetailText>진행 서비스 - 구매</DetailText>
+                          </RowText>
+                          {item.deliveryDate && (
+                            <AdditionalText>
+                              <DetailText>{item.deliveryDate}</DetailText>
+                            </AdditionalText>
+                          )}
+                        </TextContainer>
+                      </InfoRowFlex>
+                    )}
+
                     <InfoRowFlex>
                       <IconArea>
-                        <Icon src={ServiceInfoIcon} alt='Service Info' />
+                        <Icon src={ProductInfoIcon} alt='Product Info' />
                       </IconArea>
                       <TextContainer>
                         <RowText>
-                          <LabelDetailText>진행 서비스 - </LabelDetailText>
-                          <DetailHighlight>{item.rentalDays}</DetailHighlight>
+                          <LabelDetailText>제품 정보</LabelDetailText>
                         </RowText>
-                        {item.servicePeriod && (
-                          <AdditionalText>
-                            <DetailText>{item.servicePeriod}</DetailText>
-                          </AdditionalText>
-                        )}
+                        <AdditionalText>
+                          <DetailText>사이즈 - </DetailText>
+                          <DetailHighlight>{item.size}</DetailHighlight>
+                          <Slash>/</Slash>
+                          <DetailText>색상 - </DetailText>
+                          <DetailHighlight>{item.color}</DetailHighlight>
+                        </AdditionalText>
                       </TextContainer>
                     </InfoRowFlex>
-                  ) : (
+
                     <InfoRowFlex>
                       <IconArea>
-                        <Icon src={ServiceInfoIcon} alt='Service Info' />
+                        <Icon src={EvaluationIcon} alt='평가' />
                       </IconArea>
                       <TextContainer>
                         <RowText>
-                          <DetailText>진행 서비스 - 구매</DetailText>
+                          <LabelDetailText>평가 -</LabelDetailText>
+                          <StarRow>
+                            {Array.from({ length: 5 }).map((_, i) => {
+                              const filled = i < (item.rating || 0);
+                              return (
+                                <StarIcon
+                                  key={i}
+                                  src={filled ? FilledStarIcon : EmptyStarIcon}
+                                  alt='별'
+                                />
+                              );
+                            })}
+                          </StarRow>
                         </RowText>
-                        {item.deliveryDate && (
-                          <AdditionalText>
-                            <DetailText>{item.deliveryDate}</DetailText>
-                          </AdditionalText>
-                        )}
                       </TextContainer>
                     </InfoRowFlex>
-                  )}
+                  </ItemDetails>
 
-                  <InfoRowFlex>
-                    <IconArea>
-                      <Icon src={ProductInfoIcon} alt='Product Info' />
-                    </IconArea>
-                    <TextContainer>
-                      <RowText>
-                        <LabelDetailText>제품 정보</LabelDetailText>
-                      </RowText>
-                      <AdditionalText>
-                        <DetailText>사이즈 - </DetailText>
-                        <DetailHighlight>{item.size}</DetailHighlight>
-                        <Slash>/</Slash>
-                        <DetailText>색상 - </DetailText>
-                        <DetailHighlight>{item.color}</DetailHighlight>
-                      </AdditionalText>
-                    </TextContainer>
-                  </InfoRowFlex>
+                  <RightSection>
+                    <ItemImageContainer>
+                      <ItemImage src={item.imageUrl} alt={item.nameCode} />
+                    </ItemImageContainer>
+                  </RightSection>
+                </ContentWrapper>
 
-                  <InfoRowFlex>
-                    <IconArea>
-                      <Icon src={EvaluationIcon} alt='평가' />
-                    </IconArea>
-                    <TextContainer>
-                      <RowText>
-                        <LabelDetailText>평가 -</LabelDetailText>
-                        <StarRow>
-                          {Array.from({ length: 5 }).map((_, i) => {
-                            const filled = i < (item.rating || 0);
-                            return (
-                              <StarIcon
-                                key={i}
-                                src={filled ? FilledStarIcon : EmptyStarIcon}
-                                alt='별'
-                              />
-                            );
-                          })}
-                        </StarRow>
-                      </RowText>
-                    </TextContainer>
-                  </InfoRowFlex>
-                </ItemDetails>
+                <ButtonContainer>
+                  <DeleteButton onClick={() => navigate(`/item/${item.id}`)}>
+                    제품상세
+                  </DeleteButton>
 
-                <RightSection>
-                  <ItemImageContainer>
-                    <ItemImage src={item.imageUrl} alt={item.nameCode} />
-                  </ItemImageContainer>
-                </RightSection>
-              </ContentWrapper>
-
-              <ButtonContainer>
-                <DeleteButton onClick={() => navigate(`/item/${item.id}`)}>
-                  제품상세
-                </DeleteButton>
-
-                <PurchaseButton
-                  onClick={() => navigate('/payment-review/Write')}
-                >
-                  작성
-                </PurchaseButton>
-              </ButtonContainer>
-            </Item>
-          ))}
-        </ItemList>
-      </Section>
-    </ProductReviewContainer>
+                  <PurchaseButton
+                    onClick={() => navigate('/payment-review/Write')}
+                  >
+                    작성
+                  </PurchaseButton>
+                </ButtonContainer>
+              </Item>
+            ))}
+          </ItemList>
+        </Section>
+      </ProductReviewContainer>
+    </>
   );
 };
 

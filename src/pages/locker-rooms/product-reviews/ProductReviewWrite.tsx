@@ -11,6 +11,8 @@ import sampleImage from '../../../assets/sample-dress.svg';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import ReusableModal from '../../../components/shared/modals/ReusableModal';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 interface BasketItem {
   id: number;
   brand: string;
@@ -86,161 +88,164 @@ const ProductReview: React.FC = () => {
   };
 
   return (
-    <ProductReviewContainer>
-      <Section>
-        {/* 기존 ItemList (건들지 말라고 하신 부분) */}
-        <ItemList>
-          {filteredItems.map((item) => (
-            <Item key={item.id}>
-              <ContentWrapper>
-                <ItemDetails>
-                  <Brand>{item.brand}</Brand>
-                  <ItemName>
-                    <NameCode>{item.nameCode}</NameCode>
-                    <Slash>/</Slash>
-                    <ItemType>{item.nameType}</ItemType>
-                  </ItemName>
+    <>
+      <UnifiedHeader variant='twoDepth' />
+      <ProductReviewContainer>
+        <Section>
+          {/* 기존 ItemList (건들지 말라고 하신 부분) */}
+          <ItemList>
+            {filteredItems.map((item) => (
+              <Item key={item.id}>
+                <ContentWrapper>
+                  <ItemDetails>
+                    <Brand>{item.brand}</Brand>
+                    <ItemName>
+                      <NameCode>{item.nameCode}</NameCode>
+                      <Slash>/</Slash>
+                      <ItemType>{item.nameType}</ItemType>
+                    </ItemName>
 
-                  {/* 진행 서비스 */}
-                  {item.type === 'rental' ? (
+                    {/* 진행 서비스 */}
+                    {item.type === 'rental' ? (
+                      <InfoRowFlex>
+                        <IconArea>
+                          <Icon src={ServiceInfoIcon} alt='Service Info' />
+                        </IconArea>
+                        <TextContainer>
+                          <RowText>
+                            <LabelDetailText>진행 서비스 - </LabelDetailText>
+                            <DetailHighlight>{item.rentalDays}</DetailHighlight>
+                          </RowText>
+                          {item.servicePeriod && (
+                            <AdditionalText>
+                              <DetailText>{item.servicePeriod}</DetailText>
+                            </AdditionalText>
+                          )}
+                        </TextContainer>
+                      </InfoRowFlex>
+                    ) : (
+                      <InfoRowFlex>
+                        <IconArea>
+                          <Icon src={ServiceInfoIcon} alt='Service Info' />
+                        </IconArea>
+                        <TextContainer>
+                          <RowText>
+                            <DetailText>진행 서비스 - 구매</DetailText>
+                          </RowText>
+                          {item.deliveryDate && (
+                            <AdditionalText>
+                              <DetailText>{item.deliveryDate}</DetailText>
+                            </AdditionalText>
+                          )}
+                        </TextContainer>
+                      </InfoRowFlex>
+                    )}
+
+                    {/* 제품 정보 */}
                     <InfoRowFlex>
                       <IconArea>
-                        <Icon src={ServiceInfoIcon} alt='Service Info' />
+                        <Icon src={ProductInfoIcon} alt='Product Info' />
                       </IconArea>
                       <TextContainer>
                         <RowText>
-                          <LabelDetailText>진행 서비스 - </LabelDetailText>
-                          <DetailHighlight>{item.rentalDays}</DetailHighlight>
+                          <LabelDetailText>제품 정보</LabelDetailText>
                         </RowText>
-                        {item.servicePeriod && (
-                          <AdditionalText>
-                            <DetailText>{item.servicePeriod}</DetailText>
-                          </AdditionalText>
-                        )}
+                        <AdditionalText>
+                          <DetailText>사이즈 - </DetailText>
+                          <DetailHighlight>{item.size}</DetailHighlight>
+                          <Slash>/</Slash>
+                          <DetailText>색상 - </DetailText>
+                          <DetailHighlight>{item.color}</DetailHighlight>
+                        </AdditionalText>
                       </TextContainer>
                     </InfoRowFlex>
-                  ) : (
-                    <InfoRowFlex>
-                      <IconArea>
-                        <Icon src={ServiceInfoIcon} alt='Service Info' />
-                      </IconArea>
-                      <TextContainer>
-                        <RowText>
-                          <DetailText>진행 서비스 - 구매</DetailText>
-                        </RowText>
-                        {item.deliveryDate && (
-                          <AdditionalText>
-                            <DetailText>{item.deliveryDate}</DetailText>
-                          </AdditionalText>
-                        )}
-                      </TextContainer>
-                    </InfoRowFlex>
-                  )}
+                  </ItemDetails>
 
-                  {/* 제품 정보 */}
-                  <InfoRowFlex>
-                    <IconArea>
-                      <Icon src={ProductInfoIcon} alt='Product Info' />
-                    </IconArea>
-                    <TextContainer>
-                      <RowText>
-                        <LabelDetailText>제품 정보</LabelDetailText>
-                      </RowText>
-                      <AdditionalText>
-                        <DetailText>사이즈 - </DetailText>
-                        <DetailHighlight>{item.size}</DetailHighlight>
-                        <Slash>/</Slash>
-                        <DetailText>색상 - </DetailText>
-                        <DetailHighlight>{item.color}</DetailHighlight>
-                      </AdditionalText>
-                    </TextContainer>
-                  </InfoRowFlex>
-                </ItemDetails>
+                  <RightSection>
+                    <ItemImageContainer>
+                      <ItemImage src={item.imageUrl} alt={item.nameCode} />
+                    </ItemImageContainer>
+                  </RightSection>
+                </ContentWrapper>
+              </Item>
+            ))}
+          </ItemList>
 
-                <RightSection>
-                  <ItemImageContainer>
-                    <ItemImage src={item.imageUrl} alt={item.nameCode} />
-                  </ItemImageContainer>
-                </RightSection>
-              </ContentWrapper>
-            </Item>
-          ))}
-        </ItemList>
+          {/* 위쪽 추가 섹션: 제품 평가, 후기작성, 후기사진 등록 */}
+          <AboveContentContainer>
+            {/* 제품 만족도 평가 */}
+            <StarSection>
+              <SectionTitle>제품 만족도 평가 *</SectionTitle>
+              <StarBox>
+                <StarBulletArea>
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const filled = i < starRating;
+                    return (
+                      <StarIcon
+                        key={i}
+                        src={filled ? FilledStarIcon : EmptyStarIcon}
+                        alt='별'
+                        onClick={() => handleStarClick(i)}
+                      />
+                    );
+                  })}
+                </StarBulletArea>
+              </StarBox>
+            </StarSection>
 
-        {/* 위쪽 추가 섹션: 제품 평가, 후기작성, 후기사진 등록 */}
-        <AboveContentContainer>
-          {/* 제품 만족도 평가 */}
-          <StarSection>
-            <SectionTitle>제품 만족도 평가 *</SectionTitle>
-            <StarBox>
-              <StarBulletArea>
-                {Array.from({ length: 5 }).map((_, i) => {
-                  const filled = i < starRating;
-                  return (
-                    <StarIcon
-                      key={i}
-                      src={filled ? FilledStarIcon : EmptyStarIcon}
-                      alt='별'
-                      onClick={() => handleStarClick(i)}
-                    />
-                  );
-                })}
-              </StarBulletArea>
-            </StarBox>
-          </StarSection>
+            {/* 후기작성 */}
+            <ReviewSection>
+              <SectionTitle>후기작성 (100자 내외) *</SectionTitle>
+              <TextareaContainer>
+                <ReviewTextarea
+                  maxLength={100}
+                  placeholder='후기를 작성 해주세요'
+                  value={reviewText}
+                  onChange={handleReviewChange}
+                />
+              </TextareaContainer>
+            </ReviewSection>
 
-          {/* 후기작성 */}
-          <ReviewSection>
-            <SectionTitle>후기작성 (100자 내외) *</SectionTitle>
-            <TextareaContainer>
-              <ReviewTextarea
-                maxLength={100}
-                placeholder='후기를 작성 해주세요'
-                value={reviewText}
-                onChange={handleReviewChange}
-              />
-            </TextareaContainer>
-          </ReviewSection>
+            {/* 후기사진 등록 */}
+            <PhotoSection>
+              <SectionTitle>후기사진 등록 (선택)</SectionTitle>
+              <PhotoBox>
+                <PhotoInputWrapper>
+                  <PlaceholderText>
+                    {fileName ? fileName : '등록할 이미지를 선택해주세요.'}
+                  </PlaceholderText>
+                </PhotoInputWrapper>
+                <FileButton htmlFor='fileInput'>파일선택</FileButton>
+                <FileInput
+                  id='fileInput'
+                  type='file'
+                  accept='image/*'
+                  onChange={handleFileChange}
+                />
+              </PhotoBox>
+            </PhotoSection>
+          </AboveContentContainer>
+        </Section>
 
-          {/* 후기사진 등록 */}
-          <PhotoSection>
-            <SectionTitle>후기사진 등록 (선택)</SectionTitle>
-            <PhotoBox>
-              <PhotoInputWrapper>
-                <PlaceholderText>
-                  {fileName ? fileName : '등록할 이미지를 선택해주세요.'}
-                </PlaceholderText>
-              </PhotoInputWrapper>
-              <FileButton htmlFor='fileInput'>파일선택</FileButton>
-              <FileInput
-                id='fileInput'
-                type='file'
-                accept='image/*'
-                onChange={handleFileChange}
-              />
-            </PhotoBox>
-          </PhotoSection>
-        </AboveContentContainer>
-      </Section>
+        {/* FixedBottomBar 클릭 시 모달을 열어 "리뷰를 등록하시겠습니까?" 메시지를 표시 */}
+        <FixedBottomBar
+          onClick={() => setIsModalOpen(true)}
+          text='평가등록'
+          color='yellow'
+        />
 
-      {/* FixedBottomBar 클릭 시 모달을 열어 "리뷰를 등록하시겠습니까?" 메시지를 표시 */}
-      <FixedBottomBar
-        onClick={() => setIsModalOpen(true)}
-        text='평가등록'
-        color='yellow'
-      />
-
-      {/* ReusableModal: 모달 내 "예" 선택 시 /product-review로 이동 */}
-      <ReusableModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmModal}
-        title='평가등록'
-        showConfirmButton={true}
-      >
-        리뷰를 등록하시겠습니까?
-      </ReusableModal>
-    </ProductReviewContainer>
+        {/* ReusableModal: 모달 내 "예" 선택 시 /product-review로 이동 */}
+        <ReusableModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleConfirmModal}
+          title='평가등록'
+          showConfirmButton={true}
+        >
+          리뷰를 등록하시겠습니까?
+        </ReusableModal>
+      </ProductReviewContainer>
+    </>
   );
 };
 

@@ -3,6 +3,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 // 타입 정의
@@ -89,74 +90,71 @@ const SalesSettlementDetail: React.FC = () => {
   }
 
   return (
-    <Container>
-      <Section>
-        <InputField>
-          <Label>정산회차</Label>
-          <Input readOnly value={settlement.date} />
-
+    <>
+      <UnifiedHeader variant='twoDepth' />
+      <Container>
+        <Section>
+          <InputField>
+            <Label>정산회차</Label>
+            <Input readOnly value={settlement.date} />
+          </InputField>
           <InputField>
             <Label>정산일시</Label>
             <Input readOnly value={settlement.time} />
           </InputField>
-
           <InputField>
             <Label>정산금액</Label>
             <Input readOnly value={settlement.amount} />
           </InputField>
-        </InputField>
-
+        </Section>
         <SectionRow>
           <InputField>
             <Label>정산금액</Label>
             <Input readOnly value={settlement.amount} />
           </InputField>
-
           <InputField>
             <Label>공제세액 (4%)</Label>
             <Input readOnly value={settlement.deduction} />
           </InputField>
         </SectionRow>
-      </Section>
-
-      <Note>
-        ※ 정산금액은 세액 공제 및 신고비용을 제외한 나머지 금액입니다.
-      </Note>
-
-      <Divider />
-
-      <TableWrapper>
-        <Table>
-          <thead>
-            <tr>
-              <ThRight>판매제품 / 구매자 정보</ThRight>
-              <ThLeft>결제금액 / 정산금액</ThLeft>
-            </tr>
-          </thead>
-          <tbody>
-            {settlement.salesList.map((sale, index) => (
-              <tr key={index}>
-                <TdLeft>
-                  <ProductName isBold={sale.product.includes('JNS2219')}>
-                    {sale.product}
-                  </ProductName>
-                  <SubInfo>{`${settlement.date} - (구매자: ${sale.buyer})`}</SubInfo>
-                </TdLeft>
-                <TdRight>
-                  {sale.price}
-                  <SubInfo isBold>{sale.settlement}</SubInfo>
-                </TdRight>
+        <Note>
+          ※ 정산금액은 세액 공제 및 신고비용을 제외한 나머지 금액입니다.
+        </Note>
+        <Divider />
+        <TableWrapper>
+          <Table>
+            <thead>
+              <tr>
+                <ThRight>판매제품 / 구매자 정보</ThRight>
+                <ThLeft>결제금액 / 정산금액</ThLeft>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </TableWrapper>
-    </Container>
+            </thead>
+            <tbody>
+              {settlement.salesList.map((sale, index) => (
+                <tr key={index}>
+                  <TdLeft>
+                    <ProductName isBold={sale.product.includes('JNS2219')}>
+                      {sale.product}
+                    </ProductName>
+                    <SubInfo>{`${settlement.date} - (구매자: ${sale.buyer})`}</SubInfo>
+                  </TdLeft>
+                  <TdRight>
+                    {sale.price}
+                    <SubInfo isBold>{sale.settlement}</SubInfo>
+                  </TdRight>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableWrapper>
+      </Container>
+    </>
   );
 };
 
 export default SalesSettlementDetail;
 
+// styled-components 정의를 컴포넌트 정의 위로 이동
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -253,7 +251,6 @@ const TdLeft = styled.td`
   padding: 20px;
   border: 1px solid #dddddd;
   text-align: left;
-
   font-weight: 800;
   font-size: 12px;
   line-height: 13px;
@@ -264,7 +261,6 @@ const TdRight = styled.td`
   white-space: nowrap;
   padding: 20px;
   border: 1px solid #dddddd;
-
   font-weight: 400;
   font-size: 12px;
   line-height: 13px;
@@ -278,7 +274,6 @@ const ProductName = styled.span<{ isBold?: boolean }>`
 
 const SubInfo = styled.p<{ isBold?: boolean }>`
   white-space: nowrap;
-
   font-weight: ${({ isBold }) => (isBold ? 800 : 400)};
   font-size: 12px;
   line-height: 13px;

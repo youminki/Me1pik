@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsSection from '@/components/stats-section';
 
 const visitLabel = '포인트';
@@ -86,62 +87,65 @@ const Point: React.FC = () => {
   }
 
   return (
-    <PointContainer>
-      <Header>
-        <Title>포인트</Title>
-        <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-      </Header>
+    <>
+      <UnifiedHeader variant='oneDepth' />
+      <PointContainer>
+        <Header>
+          <Title>포인트</Title>
+          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
+        </Header>
 
-      <StatsSection
-        visits={visits}
-        sales={sales}
-        dateRange={dateRange}
-        visitLabel={visitLabel}
-        salesLabel={salesLabel}
-      />
-      <Divider />
-
-      <Section>
-        <PeriodSection
-          selectedPeriod={selectedPeriod}
-          setSelectedPeriod={setSelectedPeriod}
+        <StatsSection
+          visits={visits}
+          sales={sales}
+          dateRange={dateRange}
+          visitLabel={visitLabel}
+          salesLabel={salesLabel}
         />
+        <Divider />
 
-        <HistoryContainer>
-          <HistoryHeader>
-            <LeftHeader>일자 / 내역정보</LeftHeader>
-            <RightHeader>변동 / 누적 (포인트)</RightHeader>
-          </HistoryHeader>
+        <Section>
+          <PeriodSection
+            selectedPeriod={selectedPeriod}
+            setSelectedPeriod={setSelectedPeriod}
+          />
 
-          {pointHistory.map((item, idx) => {
-            const splitted = item.date.split(' / ');
-            const datePart = splitted[0];
-            const slashPart = splitted[1] || '';
+          <HistoryContainer>
+            <HistoryHeader>
+              <LeftHeader>일자 / 내역정보</LeftHeader>
+              <RightHeader>변동 / 누적 (포인트)</RightHeader>
+            </HistoryHeader>
 
-            return (
-              <HistoryRow key={idx}>
-                <RowLeft>
-                  <DateRow>
-                    <DatePart>{datePart}</DatePart>
-                    {slashPart && <Slash> / </Slash>}
-                    {slashPart && <SlashPart>{slashPart}</SlashPart>}
-                  </DateRow>
+            {pointHistory.map((item, idx) => {
+              const splitted = item.date.split(' / ');
+              const datePart = splitted[0];
+              const slashPart = splitted[1] || '';
 
-                  <DetailText color={item.detailColor}>
-                    {item.detail}
-                  </DetailText>
-                </RowLeft>
+              return (
+                <HistoryRow key={idx}>
+                  <RowLeft>
+                    <DateRow>
+                      <DatePart>{datePart}</DatePart>
+                      {slashPart && <Slash> / </Slash>}
+                      {slashPart && <SlashPart>{slashPart}</SlashPart>}
+                    </DateRow>
 
-                <RowRight>
-                  <ChangeText>{item.change}</ChangeText>
-                  <TotalText>{item.total}</TotalText>
-                </RowRight>
-              </HistoryRow>
-            );
-          })}
-        </HistoryContainer>
-      </Section>
-    </PointContainer>
+                    <DetailText color={item.detailColor}>
+                      {item.detail}
+                    </DetailText>
+                  </RowLeft>
+
+                  <RowRight>
+                    <ChangeText>{item.change}</ChangeText>
+                    <TotalText>{item.total}</TotalText>
+                  </RowRight>
+                </HistoryRow>
+              );
+            })}
+          </HistoryContainer>
+        </Section>
+      </PointContainer>
+    </>
   );
 };
 

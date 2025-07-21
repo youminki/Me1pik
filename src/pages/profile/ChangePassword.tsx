@@ -3,13 +3,13 @@
 import React, { useState } from 'react';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import styled, { ThemeProvider } from 'styled-components';
+import styled from 'styled-components';
 
 import { changePassword } from '@/api-utils/user-managements/users/userApi';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import CommonField from '@/components/shared/forms/CommonField';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
-import { theme } from '@/styles/Theme';
 
 export interface ChangePasswordFormData {
   currentPassword: string;
@@ -76,7 +76,8 @@ const ChangePassword: React.FC = () => {
   const newPasswordValue = watch('newPassword');
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
+      <UnifiedHeader variant='threeDepth' title='내 정보 - 비밀번호 변경' />
       <FormProvider {...methods}>
         <Container>
           <Form onSubmit={(e) => e.preventDefault()}>
@@ -150,7 +151,7 @@ const ChangePassword: React.FC = () => {
           )}
         </Container>
       </FormProvider>
-    </ThemeProvider>
+    </>
   );
 };
 
@@ -162,6 +163,7 @@ const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
   padding: 1rem;
+  padding-top: 70px;
 `;
 
 const Form = styled.form`

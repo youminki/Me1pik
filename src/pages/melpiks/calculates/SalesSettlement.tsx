@@ -7,6 +7,7 @@ import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import PeriodSection from '../../../components/period-section';
 import StatsSection from '../../../components/stats-section';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 // 정산 내역 타입
@@ -109,75 +110,78 @@ const SalesSettlement: React.FC = () => {
     selectedPeriod === 3 ? settlements.slice(0, 3) : settlements;
 
   return (
-    <Container>
-      <Header>
-        <Title>판매정산</Title>
-        <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
-      </Header>
+    <>
+      <UnifiedHeader variant='twoDepth' />
+      <Container>
+        <Header>
+          <Title>판매정산</Title>
+          <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
+        </Header>
 
-      <StatsRow>
-        <StatsSection
-          visits={visits}
-          sales={sales}
-          dateRange={dateRange}
-          visitLabel={visitLabel}
-          salesLabel={salesLabel}
+        <StatsRow>
+          <StatsSection
+            visits={visits}
+            sales={sales}
+            dateRange={dateRange}
+            visitLabel={visitLabel}
+            salesLabel={salesLabel}
+          />
+        </StatsRow>
+
+        <Divider />
+
+        <Section>
+          <PeriodSection
+            selectedPeriod={selectedPeriod}
+            setSelectedPeriod={setSelectedPeriod}
+          />
+
+          <SettlementList>
+            {isLoading ? (
+              <LoadingSpinner label='정산 내역을 불러오는 중입니다...' />
+            ) : (
+              filteredSettlements.map((settlement) => (
+                <SettlementItem
+                  key={settlement.id}
+                  onClick={() =>
+                    navigate(`/sales-settlement-detail/${settlement.id}`)
+                  }
+                >
+                  <LeftSection>
+                    <StatusDate>
+                      <StatusTag
+                        pending={settlement.status === 'pending'}
+                        confirmed={settlement.status === 'confirmed'}
+                      >
+                        {settlement.status === 'pending'
+                          ? '정산예정'
+                          : '정산확정'}
+                      </StatusTag>
+                      <Date>{settlement.date}</Date>
+                    </StatusDate>
+                    <SubDate>{settlement.subDate}</SubDate>
+                  </LeftSection>
+                  <RightSection>
+                    <AmountWrapper>
+                      {settlement.status === 'pending' && (
+                        <PendingLabel>예정</PendingLabel>
+                      )}
+                      <Amount>{settlement.amount}</Amount>
+                    </AmountWrapper>
+                    <Deduction>{settlement.deduction}</Deduction>
+                  </RightSection>
+                </SettlementItem>
+              ))
+            )}
+          </SettlementList>
+        </Section>
+        <FixedBottomBar
+          text='정산 신청'
+          color='black'
+          onClick={() => alert('정산 신청이 완료되었습니다!')}
         />
-      </StatsRow>
-
-      <Divider />
-
-      <Section>
-        <PeriodSection
-          selectedPeriod={selectedPeriod}
-          setSelectedPeriod={setSelectedPeriod}
-        />
-
-        <SettlementList>
-          {isLoading ? (
-            <LoadingSpinner label='정산 내역을 불러오는 중입니다...' />
-          ) : (
-            filteredSettlements.map((settlement) => (
-              <SettlementItem
-                key={settlement.id}
-                onClick={() =>
-                  navigate(`/sales-settlement-detail/${settlement.id}`)
-                }
-              >
-                <LeftSection>
-                  <StatusDate>
-                    <StatusTag
-                      pending={settlement.status === 'pending'}
-                      confirmed={settlement.status === 'confirmed'}
-                    >
-                      {settlement.status === 'pending'
-                        ? '정산예정'
-                        : '정산확정'}
-                    </StatusTag>
-                    <Date>{settlement.date}</Date>
-                  </StatusDate>
-                  <SubDate>{settlement.subDate}</SubDate>
-                </LeftSection>
-                <RightSection>
-                  <AmountWrapper>
-                    {settlement.status === 'pending' && (
-                      <PendingLabel>예정</PendingLabel>
-                    )}
-                    <Amount>{settlement.amount}</Amount>
-                  </AmountWrapper>
-                  <Deduction>{settlement.deduction}</Deduction>
-                </RightSection>
-              </SettlementItem>
-            ))
-          )}
-        </SettlementList>
-      </Section>
-      <FixedBottomBar
-        text='정산 신청'
-        color='black'
-        onClick={() => alert('정산 신청이 완료되었습니다!')}
-      />
-    </Container>
+      </Container>
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import FrequentlyAskedQuestionsBox from '../../assets/customer-services/Frequent
 import NoticeBox from '../../assets/customer-services/Notice.svg';
 import PersonalInformationProcessingPolicyBox from '../../assets/customer-services/PersonalInformationProcessingPolicy.svg';
 import TermsAndConditionsOfUseBox from '../../assets/customer-services/TermsAndConditionsOfUse.svg';
+import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
 import StatsSection from '../../components/stats-section';
 
 import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
@@ -34,6 +35,7 @@ const CustomerService: React.FC = () => {
   const navigate = useNavigate();
   return (
     <ThemeProvider theme={theme}>
+      <UnifiedHeader variant='default' />
       <Container>
         <Header>
           <Title>고객센터</Title>
@@ -78,9 +80,6 @@ const Container = styled.div`
   padding: 1rem;
   background: #fff;
   box-sizing: border-box;
-  @media (min-width: 1024px) {
-    padding: 3rem;
-  }
 `;
 
 const Header = styled.div`
@@ -90,6 +89,7 @@ const Header = styled.div`
   @media (min-width: 1024px) {
     margin-bottom: 24px;
   }
+  margin-top: 70px;
 `;
 
 const Title = styled.h1`
