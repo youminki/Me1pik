@@ -245,18 +245,43 @@ const BrandDetail: React.FC = () => {
 
   // 안내 문구 딜레이 상태
   const [showNoResult, setShowNoResult] = useState(false);
+  const [countdown, setCountdown] = useState(3);
+
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
     if (!loadingProducts && filteredProducts.length === 0) {
       timer = setTimeout(() => setShowNoResult(true), 300);
     } else {
       setShowNoResult(false);
+      setCountdown(3);
       if (timer) clearTimeout(timer);
     }
     return () => {
       if (timer) clearTimeout(timer);
     };
   }, [loadingProducts, filteredProducts]);
+
+  // 카운트다운 효과
+  useEffect(() => {
+    if (!showNoResult) return;
+
+    if (countdown === 0) {
+      setSelectedCategory('All');
+      const params = new URLSearchParams(searchParams);
+      params.delete('search');
+      params.delete('category');
+      setSearchParams(params, { replace: true });
+      setShowNoResult(false);
+      setCountdown(3);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showNoResult, countdown, setSearchParams]);
 
   if (errorProducts) {
     return <ErrorMessage message={errorProducts} />;
@@ -423,7 +448,7 @@ const BrandDetail: React.FC = () => {
             <NoResultMessage>
               조건에 맞는 상품이 없습니다.
               <br />
-              3초 후 전체 상품으로 돌아갑니다.
+              {countdown}초 후 전체 상품으로 돌아갑니다.
             </NoResultMessage>
           </ContentWrapper>
           <ScrollToTopButton onClick={scrollToTop}>

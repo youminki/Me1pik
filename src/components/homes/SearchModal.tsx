@@ -66,7 +66,16 @@ const SearchModal: React.FC<SearchModalProps> = ({
   };
 
   return (
-    <ReusableModal isOpen={isOpen} onClose={onClose} title='제품 검색'>
+    <ReusableModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title='제품 검색'
+      actions={
+        <SearchButton onClick={handleSearch} aria-label='검색'>
+          검색
+        </SearchButton>
+      }
+    >
       <ModalSearchBar>
         <ModalSearchInput
           type='text'
@@ -122,7 +131,7 @@ const ModalSearchInput = styled.input`
   border-radius: 6px 0 0 6px;
   font-size: 17px;
   padding: 12px 16px;
-  width: 260px;
+  width: 100%;
   outline: none;
   box-sizing: border-box;
   background: #fafafa;
@@ -188,5 +197,22 @@ const HistoryItem = styled.li`
   &:hover {
     background: #ffe6b8;
     color: #f6ae24;
+  }
+`;
+
+const SearchButton = styled.button`
+  flex: 1;
+  height: 50px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.2s;
+  background-color: #ffbe4b;
+  color: white;
+
+  &:hover {
+    background-color: #f6ae24;
   }
 `;

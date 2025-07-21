@@ -290,29 +290,6 @@ const Home: React.FC = () => {
     []
   );
 
-  // 검색 결과 없음 카운트다운
-  const countdownRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (
-      !isLoading &&
-      uiItems.length === 0 &&
-      (searchQuery || selectedColors.length > 0)
-    ) {
-      if (countdownRef.current) clearInterval(countdownRef.current);
-      countdownRef.current = setInterval(() => {
-        setSearchQuery('');
-        setSelectedCategory('All');
-        setSelectedColors([]);
-        setSearchParams({ category: 'All' }, { replace: true });
-      }, 1000);
-    }
-    return () => {
-      if (countdownRef.current) clearInterval(countdownRef.current);
-    };
-    // eslint-disable-next-line
-  }, [isLoading, uiItems.length, searchQuery, selectedColors]);
-
   // 상세 모달 핸들러
   const handleOpenModal = useCallback(
     (id: string) => {
@@ -361,7 +338,7 @@ const Home: React.FC = () => {
     }
   }, [isFilterModalOpen, selectedColors]);
 
-  const [visibleCount, setVisibleCount] = useState(40); // 최초 40개로 다시 낮춤
+  const [visibleCount, setVisibleCount] = useState(40);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
   // 무한스크롤 IntersectionObserver
@@ -391,29 +368,46 @@ const Home: React.FC = () => {
 
   // 검색/필터 결과 없음일 때 3초 후 전체로 돌아가는 타이머
   const [countdown, setCountdown] = useState(3);
-  // 안내 문구 딜레이 상태
   const [showNoResult, setShowNoResult] = useState(false);
+
+  // 검색 결과 없음 감지
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
-    if (!isLoading && uiItems.length === 0) {
+    if (
+      !isLoading &&
+      uiItems.length === 0 &&
+      (searchQuery || selectedColors.length > 0)
+    ) {
       timer = setTimeout(() => setShowNoResult(true), 300);
     } else {
       setShowNoResult(false);
-      if (timer) clearTimeout(timer);
+      setCountdown(3);
     }
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [isLoading, uiItems]);
+  }, [isLoading, uiItems.length, searchQuery, selectedColors]);
 
-  // countdown이 0보다 크고 showNoResult가 true일 때만 interval 실행
+  // 카운트다운 및 초기화
   useEffect(() => {
-    if (!showNoResult || countdown === 0) return;
+    if (!showNoResult) return;
+
+    if (countdown === 0) {
+      setSearchQuery('');
+      setSelectedColors([]);
+      setSelectedCategory('All');
+      setSearchParams({ category: 'All' }, { replace: true });
+      setShowNoResult(false);
+      setCountdown(3);
+      return;
+    }
+
     const interval = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+      setCountdown((prev) => prev - 1);
     }, 1000);
+
     return () => clearInterval(interval);
-  }, [showNoResult, countdown]);
+  }, [showNoResult, countdown, setSearchParams]);
 
   // 에러 처리
   if (isError) {
