@@ -30,12 +30,12 @@ const PaypleTest: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const token = localStorage.getItem('accessToken');
-        if (!token) throw new Error('토큰이 없습니다.');
+        const ACCESS_TOKEN = localStorage.getItem('accessToken');
+        if (!ACCESS_TOKEN) throw new Error('토큰이 없습니다.');
 
         const res = await fetch('https://api.stylewh.com/user/me', {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
           },
         });
 
@@ -50,7 +50,7 @@ const PaypleTest: React.FC = () => {
       } catch (e: unknown) {
         if (e instanceof Error) {
           console.error('[🔥] 유저 정보 로딩 실패', e);
-          setError('로그인 정보를 불러오는 데 실패했습니다. ' + e.message);
+          setError(`로그인 정보를 불러오는 데 실패했습니다. ${e.message}`);
         } else {
           setError('로그인 정보를 불러오는 데 실패했습니다.');
         }
@@ -61,12 +61,12 @@ const PaypleTest: React.FC = () => {
   useEffect(() => {
     const fetchCards = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
-        if (!token) return;
+        const ACCESS_TOKEN = localStorage.getItem('accessToken');
+        if (!ACCESS_TOKEN) return;
 
         const res = await fetch('https://api.stylewh.com/card/me', {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
           },
         });
 
@@ -127,7 +127,7 @@ const PaypleTest: React.FC = () => {
     } catch (e: unknown) {
       if (e instanceof Error) {
         console.error('[🔥] 카드 등록 오류:', e);
-        setError('카드 등록 중 오류 발생: ' + e.message);
+        setError(`카드 등록 중 오류 발생: ${e.message}`);
       } else {
         console.error('[🔥] 카드 등록 오류:', e);
         setError('카드 등록 중 오류 발생');
@@ -143,12 +143,12 @@ const PaypleTest: React.FC = () => {
         return;
       }
 
-      const token = localStorage.getItem('accessToken');
+      const ACCESS_TOKEN = localStorage.getItem('accessToken');
       const res = await fetch('https://api.stylewh.com/payple/init-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
         },
         body: JSON.stringify({ payerId, goods: '테스트 상품', amount: 102 }),
       });
@@ -179,8 +179,8 @@ const PaypleTest: React.FC = () => {
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) throw new Error('토큰이 없습니다.');
+      const ACCESS_TOKEN = localStorage.getItem('accessToken');
+      if (!ACCESS_TOKEN) throw new Error('토큰이 없습니다.');
 
       // 앱카드 결제 초기화 요청 (서버에서 필요한 파라미터 받기)
       const res = await fetch(
@@ -189,7 +189,7 @@ const PaypleTest: React.FC = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
           },
           body: JSON.stringify({
             goods: '앱카드 테스트 상품',
@@ -229,7 +229,7 @@ const PaypleTest: React.FC = () => {
     } catch (e: unknown) {
       if (e instanceof Error) {
         console.error('[🔥] 앱카드 결제 오류:', e);
-        setError('앱카드 결제 중 오류 발생: ' + e.message);
+        setError(`앱카드 결제 중 오류 발생: ${e.message}`);
       } else {
         console.error('[🔥] 앱카드 결제 오류:', e);
         setError('앱카드 결제 중 오류 발생');
@@ -308,12 +308,12 @@ const PaypleTest: React.FC = () => {
             if (!res.ok || data.PCD_PAY_RST !== 'success') {
               throw new Error(data.PCD_PAY_MSG || '결제 실패');
             }
-            setSuccessMessage('✅ 결제 성공: ' + data.PCD_PAY_OID);
+            setSuccessMessage(`✅ 결제 성공: ${data.PCD_PAY_OID}`);
           }
         } catch (e: unknown) {
           if (e instanceof Error) {
             console.error('[🔥] 결제 승인 오류:', e);
-            setError('결제 승인 실패: ' + e.message);
+            setError(`결제 승인 실패: ${e.message}`);
           } else {
             console.error('[🔥] 결제 승인 오류:', e);
             setError('결제 승인 실패');
@@ -363,11 +363,11 @@ const PaypleTest: React.FC = () => {
             })
               .then((res) => res.json())
               .then((data) =>
-                alert('정기결제 성공! 주문번호: ' + data.PCD_PAY_OID)
+                alert(`정기결제 성공! 주문번호: ${data.PCD_PAY_OID}`)
               )
               .catch((err: unknown) => {
                 if (err instanceof Error) {
-                  alert('정기결제 실패: ' + err.message);
+                  alert(`정기결제 실패: ${err.message}`);
                 } else {
                   alert('정기결제 실패');
                 }

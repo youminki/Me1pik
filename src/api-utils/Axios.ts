@@ -38,13 +38,13 @@ Axios.interceptors.response.use(
 
       try {
         // sessionStorage도 확인
-        const localRefreshToken = localStorage.getItem('refreshToken');
-        const sessionRefreshToken = sessionStorage.getItem('refreshToken');
-        const cookieRefreshToken = Cookies.get('refreshToken');
-        const refreshToken =
-          localRefreshToken || sessionRefreshToken || cookieRefreshToken;
+        const LOCAL_REFRESH_TOKEN = localStorage.getItem('refreshToken');
+        const SESSION_REFRESH_TOKEN = sessionStorage.getItem('refreshToken');
+        const COOKIE_REFRESH_TOKEN = Cookies.get('refreshToken');
+        const REFRESH_TOKEN =
+          LOCAL_REFRESH_TOKEN || SESSION_REFRESH_TOKEN || COOKIE_REFRESH_TOKEN;
 
-        if (!refreshToken) {
+        if (!REFRESH_TOKEN) {
           console.log('리프레시 토큰이 없어 로그인 페이지로 이동');
           // 모든 토큰 제거
           localStorage.removeItem('accessToken');
@@ -63,7 +63,7 @@ Axios.interceptors.response.use(
         // 토큰 갱신 시도
         const { data } = await axios.post(
           'https://api.stylewh.com/auth/refresh',
-          { refreshToken },
+          { refreshToken: REFRESH_TOKEN },
           { withCredentials: true }
         );
 

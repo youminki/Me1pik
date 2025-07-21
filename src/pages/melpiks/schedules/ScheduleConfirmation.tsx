@@ -30,7 +30,7 @@ const COLOR_WHITE = '#ffffff';
 const COLOR_GRAY2 = '#757575';
 
 const truncateText = (text: string, limit: number): string =>
-  text.length > limit ? text.slice(0, limit) + '...' : text;
+  text.length > limit ? `${text.slice(0, limit)}...` : text;
 
 const formatDateWithDay = (dateStr: string): string => {
   const date = new Date(dateStr);

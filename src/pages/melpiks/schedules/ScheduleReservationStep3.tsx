@@ -90,7 +90,7 @@ const ItemList: React.FC<ItemListProps> = ({
 };
 
 const truncateText = (text: string, limit: number): string =>
-  text.length > limit ? text.slice(0, limit) + '...' : text;
+  text.length > limit ? `${text.slice(0, limit)}...` : text;
 
 const ScheduleReservation3: React.FC = () => {
   const navigate = useNavigate();

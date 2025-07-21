@@ -96,7 +96,7 @@ export const formatFileSize = (bytes: number): string => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };
 
 /**
@@ -137,15 +137,15 @@ export const formatCardNumber = (cardNumber: string): string => {
 /**
  * 텍스트를 줄임표로 자르기
  * @param text 텍스트
- * @param maxLength 최대 길이
+ * @param MAX_LENGTH 최대 길이
  * @returns 잘린 텍스트
  */
-export const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) {
+export const truncateText = (text: string, MAX_LENGTH: number): string => {
+  if (text.length <= MAX_LENGTH) {
     return text;
   }
 
-  return text.slice(0, maxLength) + '...';
+  return `${text.slice(0, MAX_LENGTH)}...`;
 };
 
 /**

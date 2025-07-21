@@ -100,7 +100,7 @@ const FindId: React.FC = () => {
   // 이메일 마스킹 함수
   const maskEmail = (email: string) => {
     const [local, domain] = email.split('@');
-    const masked = local.slice(0, 2) + '*****';
+    const masked = `${local.slice(0, 2)}*****`;
     return `${masked}@${domain}`;
   };
 

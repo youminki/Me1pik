@@ -154,8 +154,7 @@ const AddCard: React.FC = () => {
                       .slice(0, 4);
                     let formatted = rawValue;
                     if (rawValue.length > 2) {
-                      formatted =
-                        rawValue.slice(0, 2) + '/' + rawValue.slice(2);
+                      formatted = `${rawValue.slice(0, 2)}/${rawValue.slice(2)}`;
                     }
                     field.onChange(formatted);
                   };

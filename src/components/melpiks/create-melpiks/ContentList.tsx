@@ -17,6 +17,7 @@ interface ContentItem {
   brand: string;
   exposure: number;
   period: string;
+  id: string; // Added id to the interface
 }
 
 const Content: React.FC<{ item: ContentItem }> = ({ item }) => {
@@ -95,6 +96,7 @@ const ContentList: React.FC = () => {
         brand: 'MICHA, MAJE, SANDRO',
         exposure: 6,
         period: '2',
+        id: 'item1', // Added id for the first item
       },
       {
         image: CreateMelpik2,
@@ -106,9 +108,10 @@ const ContentList: React.FC = () => {
         brand: 'MICHA, MAJE, SANDRO',
         exposure: 6,
         period: '2',
+        id: 'item2', // Added id for the second item
       },
     ];
-    return data.map((item, index) => <Content key={index} item={item} />);
+    return data.map((item) => <Content key={item.id} item={item} />);
   }, []);
 
   return <ScrollableContent>{result}</ScrollableContent>;

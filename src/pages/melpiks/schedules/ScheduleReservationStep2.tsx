@@ -57,7 +57,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
 };
 
 const truncateText = (text: string, limit: number): string => {
-  return text.length > limit ? text.slice(0, limit) + '...' : text;
+  return text.length > limit ? `${text.slice(0, limit)}...` : text;
 };
 
 interface ItemListProps {

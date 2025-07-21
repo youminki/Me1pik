@@ -131,7 +131,7 @@ const SalesSettlementDetail: React.FC = () => {
             </thead>
             <tbody>
               {settlement.salesList.map((sale, index) => (
-                <tr key={index}>
+                <tr key={`${sale.product}-${sale.buyer}-${index}`}>
                   <TdLeft>
                     <ProductName isBold={sale.product.includes('JNS2219')}>
                       {sale.product}

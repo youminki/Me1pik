@@ -21,15 +21,15 @@ const AddCardPayple: React.FC = () => {
   // 사용자 정보 불러오기
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
+      const ACCESS_TOKEN = localStorage.getItem('accessToken');
+      if (!ACCESS_TOKEN) {
         setError('토큰이 없습니다. 로그인 후 다시 시도해주세요.');
         return;
       }
 
       try {
         const res = await fetch('https://api.stylewh.com/user/me', {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
         });
         if (!res.ok) throw new Error('로그인 정보 요청 실패');
 
