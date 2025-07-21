@@ -9,10 +9,10 @@ import MystyleBox from '@/assets/MystyleBox.svg';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { logout } from '@/utils/auth';
 
-type MypageModalProps = {
+interface MypageModalProps {
   isOpen: boolean;
   onClose: () => void;
-};
+}
 
 const MypageModal: React.FC<MypageModalProps> = ({ isOpen, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);

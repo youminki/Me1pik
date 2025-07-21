@@ -27,7 +27,8 @@ const StyledInput = styled(BaseStyledInput)`
   ${({ readOnly, disabled }) => (readOnly || disabled) && readonlyStyle}
 `;
 
-type InputFieldProps = {
+interface InputFieldProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix' | 'onChange'> {
   label?: string;
   id?: string;
   type?: string;
@@ -47,7 +48,7 @@ type InputFieldProps = {
   onChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
-} & Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix' | 'onChange'>;
+}
 
 function parsePrefixContent(content: string) {
   const tokens = content.split(/(해당없음|\(.*?\)|\|)/g);

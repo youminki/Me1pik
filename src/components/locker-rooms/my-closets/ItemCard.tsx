@@ -16,7 +16,7 @@ const sampleImages = [
   SampleMyCloset4,
 ];
 
-type ItemCardProps = {
+interface ItemCardProps {
   id: string;
   image: string;
   brand: string;
@@ -24,7 +24,7 @@ type ItemCardProps = {
   price: number;
   discount: number;
   onDelete: (id: string) => void;
-};
+}
 
 const ItemCard: React.FC<ItemCardProps> = ({
   id,

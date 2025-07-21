@@ -33,15 +33,15 @@ import { theme } from '../../styles/Theme';
 import { forceSaveAppToken } from '../../utils/auth';
 import { isNativeApp } from '../../utils/nativeApp';
 
-type LoginFormValues = {
+interface LoginFormValues {
   email: string;
   password: string;
-};
+}
 
-type LoginResponse = {
+interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-};
+}
 
 // 네이버 스타일 X(전체삭제) 아이콘
 const ClearIcon = () => (

@@ -10,11 +10,11 @@ import BottomBar from '../../components/bottom-navigation-mobile';
 import InputField from '../../components/shared/forms/InputField';
 import { schemaPassword } from '../../hooks/useValidationYup'; // 비밀번호 검증 스키마
 
-type FormData = {
+interface FormData {
   currentPassword: string;
   newPassword: string;
   confirmNewPassword: string;
-};
+}
 
 export default function PasswordChange() {
   const {

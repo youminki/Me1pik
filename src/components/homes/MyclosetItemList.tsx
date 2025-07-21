@@ -13,13 +13,13 @@ export interface UIItem {
   isLiked: boolean;
 }
 
-type MyclosetItemListProps = {
+interface MyclosetItemListProps {
   items: UIItem[];
   /** PC columns count (>=768px) */
   columns?: number;
   onItemClick?: (id: string) => void;
   onDelete?: (id: string) => void;
-};
+}
 
 const MyclosetItemList: React.FC<MyclosetItemListProps> = ({
   items,

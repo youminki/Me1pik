@@ -15,15 +15,15 @@ import InputField from '../../components/shared/forms/InputField';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 import { schemaLogin } from '../../hooks/useValidationYup';
 
-type LoginFormValues = {
+interface LoginFormValues {
   email: string;
   password: string;
-};
+}
 
-type LoginResponse = {
+interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-};
+}
 
 const Login: React.FC = () => {
   const navigate = useNavigate();

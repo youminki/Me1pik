@@ -3,10 +3,10 @@ import styled from 'styled-components';
 
 import SearchIcon from '../assets/customer-services/SearchIcon.svg';
 
-type PeriodSectionProps = {
+interface PeriodSectionProps {
   selectedPeriod: number;
   setSelectedPeriod: (period: number) => void;
-};
+}
 
 const PeriodSection: React.FC<PeriodSectionProps> = ({
   selectedPeriod,

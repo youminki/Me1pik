@@ -24,7 +24,7 @@ const loadDaumPostcode = (): Promise<void> =>
     document.head.appendChild(script);
   });
 
-type ModalProps = {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
@@ -32,7 +32,7 @@ type ModalProps = {
   width?: string;
   height?: string;
   actions?: React.ReactNode;
-};
+}
 
 const ReusableModal: React.FC<ModalProps> = ({
   isOpen,

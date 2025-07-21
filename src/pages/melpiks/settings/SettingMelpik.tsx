@@ -93,12 +93,12 @@ const LinkDeleteButton = styled.button`
   }
 `;
 
-type UserLink = {
+interface UserLink {
   id: number;
   label: string;
   url: string;
   title: string;
-};
+}
 
 const SettingMelpik: React.FC = () => {
   const visits = '@styleweex';

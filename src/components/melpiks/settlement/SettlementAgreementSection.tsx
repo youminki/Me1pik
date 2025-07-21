@@ -5,10 +5,10 @@ import ReusableModal from '../../../components/shared/modals/ReusableModal';
 
 type AgreementSectionProps = Record<string, never>;
 
-type IndividualChecks = {
+interface IndividualChecks {
   agree1: boolean;
   agree2: boolean;
-};
+}
 
 const AgreementSection: React.FC<AgreementSectionProps> = () => {
   const [allChecked, setAllChecked] = useState(false);

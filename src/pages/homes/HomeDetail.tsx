@@ -50,7 +50,9 @@ interface ProductDetail {
   size_label_guide?: Record<string, string>;
 }
 
-type HomeDetailProps = { id?: string };
+interface HomeDetailProps {
+  id?: string;
+}
 
 const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
   const [cartModalOpen, setCartModalOpen] = useState(false);

@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-type PeriodSectionProps = {
+interface PeriodSectionProps {
   selectedPeriod: number;
   setSelectedPeriod: (period: number) => void;
-};
+}
 
 const PeriodSection: React.FC<PeriodSectionProps> = ({
   selectedPeriod,

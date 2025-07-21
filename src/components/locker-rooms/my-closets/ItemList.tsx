@@ -3,19 +3,19 @@ import styled from 'styled-components';
 
 import ItemCard from './ItemCard';
 
-type Item = {
+interface Item {
   id: string;
   image: string;
   brand: string;
   description: string;
   price: number;
   discount: number;
-};
+}
 
-type ItemListProps = {
+interface ItemListProps {
   items: Item[];
   onDelete: (id: string) => void;
-};
+}
 
 const ItemList: React.FC<ItemListProps> = ({ items, onDelete }) => {
   const [itemList, setItemList] = useState<Item[]>([]);

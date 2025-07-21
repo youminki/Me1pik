@@ -10,7 +10,7 @@ import PickIconOff from '../../assets/homes/PickIconOff.svg';
 import PickIconOn from '../../assets/homes/PickIconOn.svg';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
 
-type ItemCardProps = {
+interface ItemCardProps {
   id: string;
   image: string;
   brand: string;
@@ -20,7 +20,7 @@ type ItemCardProps = {
   isLiked: boolean;
   onOpenModal: (id: string) => void;
   onDelete?: (id: string) => void;
-};
+}
 
 type ConfirmAction = 'add' | 'remove' | null;
 

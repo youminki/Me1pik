@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import styled from 'styled-components';
 
-type ModalProps = {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm?: () => void;
@@ -11,7 +11,7 @@ type ModalProps = {
   width?: string;
   actions?: React.ReactNode;
   showConfirmButton?: boolean;
-};
+}
 
 const ReusableModal: React.FC<ModalProps> = ({
   isOpen,
