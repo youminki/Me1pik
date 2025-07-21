@@ -231,7 +231,6 @@ const AddCard: React.FC = () => {
         onConfirm={handleRegistrationConfirm}
         title='카드 등록 확인'
         width='376px'
-        height='360px'
         showConfirmButton={true}
       >
         <>카드를 등록하시겠습니까?</>

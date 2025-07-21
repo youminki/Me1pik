@@ -347,7 +347,6 @@ const MyStyle: React.FC = () => {
           onClose={() => setFeedbackOpen(false)}
           title={feedbackTitle}
           width='260px'
-          height='200px'
         >
           <p>{feedbackMessage}</p>
         </ReusableModal>

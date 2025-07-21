@@ -464,7 +464,6 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
                   onClose={() => setErrorModalOpen(false)}
                   title='알림'
                   width='80%'
-                  height='200px'
                 >
                   <ErrorMsg>{errorMessage}</ErrorMsg>
                 </ReusableModal>

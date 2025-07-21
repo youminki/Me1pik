@@ -312,7 +312,6 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
           onClose={() => setWarnModalOpen(false)}
           title='알림'
           width='80%'
-          height='200px'
         >
           <ErrorMsg>{warnMessage}</ErrorMsg>
         </ReusableModal>
@@ -324,7 +323,6 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
           onClose={() => setCartModalOpen(false)}
           title='알림'
           width='80%'
-          height='200px'
         >
           <div
             style={{ textAlign: 'center', fontSize: '14px', padding: '20px' }}
