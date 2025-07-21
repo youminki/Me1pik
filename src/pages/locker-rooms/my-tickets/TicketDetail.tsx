@@ -7,12 +7,17 @@ import {
   getUserTickets,
   TicketItem,
 } from '@/api-utils/schedule-managements/tickets/ticket';
+import { useMembershipInfo } from '@/api-utils/user-managements/users/userApi';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 const TicketDetail: React.FC = () => {
   const { ticketId } = useParams<{ ticketId: string }>();
   const [ticket, setTicket] = useState<TicketItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const { data: membershipInfo } = useMembershipInfo();
+  const discountRate = membershipInfo
+    ? Math.max(0, parseFloat(membershipInfo.discountRate?.toString() || '0'))
+    : 0;
 
   useEffect(() => {
     (async () => {
@@ -58,6 +63,10 @@ const TicketDetail: React.FC = () => {
     autoRenewal,
     nextBillingDate,
   } = ticket;
+  const discountedPrice =
+    discountRate > 0 ? Math.round(price * (1 - discountRate / 100)) : price;
+  const formattedPrice = `${price.toLocaleString()}원`;
+  const formattedDiscountedPrice = `${discountedPrice.toLocaleString()}원`;
 
   return (
     <Container>
@@ -95,7 +104,22 @@ const TicketDetail: React.FC = () => {
         {/* 가격 */}
         <Section>
           <SectionTitle>가격 (원)</SectionTitle>
-          <ReadOnlyBox>{price.toLocaleString()}원</ReadOnlyBox>
+          {discountRate > 0 ? (
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}
+            >
+              <ReadOnlyBox
+                style={{ textDecoration: 'line-through', color: '#bbb' }}
+              >
+                {formattedPrice}
+              </ReadOnlyBox>
+              <ReadOnlyBox style={{ color: '#222', fontWeight: 'bold' }}>
+                {formattedDiscountedPrice}
+              </ReadOnlyBox>
+            </div>
+          ) : (
+            <ReadOnlyBox>{formattedPrice}</ReadOnlyBox>
+          )}
         </Section>
 
         {/* 잔여횟수: isUlimited가 false일 때만 */}

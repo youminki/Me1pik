@@ -17,7 +17,6 @@ const AppLayout: React.FC = () => {
     includeHeader4,
     includeBottomNav,
     headerTitle,
-    disablePadding,
   } = useHeaderConfig(location.pathname);
 
   // BottomNav 표시 대상 경로
@@ -31,24 +30,23 @@ const AppLayout: React.FC = () => {
 
   return (
     <AppContainer>
-      {includeHeader1 && <UnifiedHeader variant='default' />}
-      {includeHeader2 && <UnifiedHeader variant='oneDepth' />}
+      {includeHeader1 && <FixedHeader variant='default' />}
+      {includeHeader2 && <FixedHeader variant='oneDepth' />}
       {includeHeader3 && (
-        <UnifiedHeader
+        <FixedHeader
           variant='twoDepth'
           title={headerTitle}
           onBack={undefined}
         />
       )}
       {includeHeader4 && (
-        <UnifiedHeader
+        <FixedHeader
           variant='threeDepth'
           title={headerTitle}
           onBack={undefined}
         />
       )}
-      {/* transient prop으로 변경 */}
-      <ContentContainer $disablePadding={disablePadding}>
+      <ContentContainer>
         <Outlet />
       </ContentContainer>
       {includeBottomNav && bottomNavPaths.includes(location.pathname) && (
@@ -63,19 +61,23 @@ export default AppLayout;
 // --- Styled Components ---
 
 const AppContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  /* min-height: 100vh; */
+  height: 100vh;
+  overflow: hidden;
   background: #fff;
 `;
 
-const ContentContainer = styled.div<{
-  $disablePadding?: boolean;
-}>`
-  flex: 1;
-  padding: ${({ $disablePadding }) => ($disablePadding ? '0' : '70px 0')};
-  overflow: auto;
+const FixedHeader = styled(UnifiedHeader)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+`;
 
-  /* min-height: 100vh; */
+const ContentContainer = styled.div`
+  position: relative;
+  height: calc(100vh - 70px);
+  overflow-y: auto;
   background: #fff;
+  padding-top: 70px; // 헤더 높이만큼 패딩 추가!
 `;

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
 import { useUserTickets } from '@/api-utils/schedule-managements/tickets/ticket';
+import { useMembershipInfo } from '@/api-utils/user-managements/users/userApi';
 import AddTicketIllustration from '@/assets/locker-rooms/AddTicketIllustration.svg';
 import CardIcon from '@/assets/locker-rooms/AddTicketIllustrations.svg';
 import BarcodeImg from '@/assets/locker-rooms/barcodeIcon.svg';
@@ -34,6 +35,10 @@ const MyTicket: React.FC = () => {
   const navigate = useNavigate();
   // react-query로 티켓 데이터 패칭
   const { data: tickets = [], isLoading, error } = useUserTickets();
+  const { data: membershipInfo } = useMembershipInfo();
+  const discountRate = membershipInfo
+    ? Math.max(0, parseFloat(membershipInfo.discountRate?.toString() || '0'))
+    : 0;
 
   // 예시: 로딩/에러 상태 처리
   if (isLoading) {
@@ -45,84 +50,107 @@ const MyTicket: React.FC = () => {
 
   return (
     <MyTicketContainer>
-      <Header>
+      <HeaderSection>
         <Title>이용권</Title>
         <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-      </Header>
+      </HeaderSection>
 
-      <StatsSection
-        visits={String(tickets.length)}
-        sales={sales}
-        dateRange={dateRange}
-        visitLabel={visitLabel}
-        salesLabel={salesLabel}
-      />
+      <StatsSectionWrapper>
+        <StatsSection
+          visits={String(tickets.length)}
+          sales={sales}
+          dateRange={dateRange}
+          visitLabel={visitLabel}
+          salesLabel={salesLabel}
+        />
+      </StatsSectionWrapper>
       <Divider />
 
-      <TicketWrapper>
-        {tickets.length === 0 && (
-          <EmptyState message='보유한 이용권이 없습니다.' />
-        )}
-        {tickets.map((ticket) => {
-          const {
-            id,
-            startDate,
-            endDate,
-            remainingRentals,
-            ticketList: { id: tplId, name, price, isLongTerm, isUlimited },
-          } = ticket;
+      <TicketScrollContainer>
+        <TicketListSection>
+          {tickets.length === 0 && (
+            <EmptyState message='보유한 이용권이 없습니다.' />
+          )}
+          {tickets.map((ticket) => {
+            const {
+              id,
+              startDate,
+              endDate,
+              remainingRentals,
+              ticketList: { id: tplId, name, price, isLongTerm, isUlimited },
+            } = ticket;
 
-          const subtitle = isLongTerm ? '(매월결제)' : '(일반결제)';
-          const formattedPrice = `${price.toLocaleString()}원`;
-          const formattedDate = `${startDate.replace(/-/g, '.')} ~ ${endDate.replace(/-/g, '.')}`;
+            const subtitle = isLongTerm ? '[매월결제]' : '[일반결제]';
+            const discountedPrice =
+              discountRate > 0
+                ? Math.round(price * (1 - discountRate / 100))
+                : price;
+            const formattedPrice = `${price.toLocaleString()}원`;
+            const formattedDiscountedPrice = `${discountedPrice.toLocaleString()}원`;
+            const formattedDate = `${startDate.replace(/-/g, '.')} ~ ${endDate.replace(/-/g, '.')}`;
 
-          return (
-            <TicketCard
-              key={id}
-              onClick={() => navigate(`/ticketDetail/${tplId}`)}
-            >
-              <RemainingBadge>
-                {isUlimited ? '무제한' : `잔여횟수 ${remainingRentals}회`}
-              </RemainingBadge>
-              <Left>
-                <SeasonRow>
-                  <SeasonText>
-                    2025 <YellowText>SPRING</YellowText>
-                  </SeasonText>
-                  <CardIconImg src={CardIcon} alt='card icon' />
-                </SeasonRow>
-                <TicketTitle>{name}</TicketTitle>
-                <TicketSubtitle>{subtitle}</TicketSubtitle>
-                <TicketPrice>{formattedPrice}</TicketPrice>
-                <Barcode src={BarcodeImg} alt='barcode' />
-              </Left>
-              <Right>
-                <DateText>{formattedDate}</DateText>
-                <Illustration
-                  src={TicketIllustration}
-                  alt='ticket illustration'
-                />
-              </Right>
-            </TicketCard>
-          );
-        })}
-
-        {/* 항상 표시되는 "이용권 추가" 카드 */}
-        <TicketCardAdd onClick={() => navigate('/my-ticket/PurchaseOfPasses')}>
-          <AddLeft>
-            <PlusBox>
-              <PlusSign>＋</PlusSign>
-            </PlusBox>
-            <AddText>이용권 추가</AddText>
-          </AddLeft>
-          <AddRight>
-            <Illustration
-              src={AddTicketIllustration}
-              alt='Add ticket illustration'
-            />
-          </AddRight>
-        </TicketCardAdd>
-      </TicketWrapper>
+            return (
+              <TicketCard
+                key={id}
+                onClick={() => navigate(`/ticketDetail/${tplId}`)}
+              >
+                <RemainingBadge>
+                  {isUlimited ? '무제한' : `잔여횟수 ${remainingRentals}회`}
+                </RemainingBadge>
+                <Left>
+                  <SeasonRow>
+                    <SeasonText>
+                      2025 <YellowText>SPRING</YellowText>
+                    </SeasonText>
+                    <CardIconImg src={CardIcon} alt='card icon' />
+                  </SeasonRow>
+                  <TicketTitle>{name}</TicketTitle>
+                  <TicketSubtitle>{subtitle}</TicketSubtitle>
+                  {discountRate > 0 ? (
+                    <>
+                      <TicketPriceOriginal>
+                        {formattedPrice}
+                      </TicketPriceOriginal>
+                      <TicketPriceDiscounted>
+                        {formattedDiscountedPrice}
+                      </TicketPriceDiscounted>
+                    </>
+                  ) : (
+                    <TicketPrice>{formattedPrice}</TicketPrice>
+                  )}
+                  <Barcode src={BarcodeImg} alt='barcode' />
+                </Left>
+                <Right>
+                  <DateText>{formattedDate}</DateText>
+                  <Illustration
+                    src={TicketIllustration}
+                    alt='ticket illustration'
+                  />
+                </Right>
+              </TicketCard>
+            );
+          })}
+        </TicketListSection>
+        <AddTicketSection>
+          {/* 항상 표시되는 "이용권 추가" 카드 */}
+          <TicketCardAdd
+            onClick={() => navigate('/my-ticket/PurchaseOfPasses')}
+          >
+            <AddLeft>
+              <PlusBox>
+                <PlusSign>＋</PlusSign>
+              </PlusBox>
+              <AddText>이용권 추가</AddText>
+            </AddLeft>
+            <AddRight>
+              <Illustration
+                src={AddTicketIllustration}
+                alt='Add ticket illustration'
+              />
+            </AddRight>
+          </TicketCardAdd>
+        </AddTicketSection>
+      </TicketScrollContainer>
     </MyTicketContainer>
   );
 };
@@ -139,9 +167,48 @@ const MyTicketContainer = styled.div`
   padding: 1rem;
 `;
 
-const Header = styled.div`
+const HeaderSection = styled.div`
   width: 100%;
   margin-bottom: 6px;
+`;
+
+const StatsSectionWrapper = styled.div`
+  width: 100%;
+  margin-bottom: 30px;
+`;
+
+const TicketScrollContainer = styled.div`
+  width: 100%;
+  max-height: 800px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 8px;
+
+  @media (min-width: 1024px) {
+    padding: 0;
+  }
+`;
+
+const TicketListSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  min-height: 200px;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 24px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (min-width: 1024px) {
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+`;
+
+const AddTicketSection = styled.div`
+  width: 100%;
 `;
 
 const Title = styled.h1`
@@ -168,19 +235,12 @@ const Divider = styled.div`
   margin: 30px 0;
 `;
 
-const TicketWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-  min-height: 200px;
-`;
-
 const TicketCard = styled.div`
   position: relative;
   display: flex;
   width: 100%;
-  height: 160px;
+  max-width: 500px;
+  height: 16s0px;
   border: 1px solid #ddd;
   overflow: hidden;
   cursor: pointer;
@@ -191,7 +251,7 @@ const TicketCard = styled.div`
 
   &:hover {
     transform: scale(1.03);
-     0 8px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
   }
 
   &::before,
@@ -214,6 +274,7 @@ const TicketCard = styled.div`
   }
 
   @media (min-width: 1024px) {
+    width: 500px;
     height: 200px;
   }
 `;
@@ -223,13 +284,22 @@ const TicketCardAdd = styled(TicketCard)`
   position: relative;
   display: flex;
   width: 100%;
-  height: 160px;
+  max-width: 500px;
+  margin: 0 auto;
+  margin-top: 16px;
+  height: 140px;
+
   border: 1px solid #ddd;
   overflow: hidden;
   cursor: pointer;
   &:hover {
     transform: scale(1.02);
-     0 6px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (min-width: 1024px) {
+    height: 200px;
+    margin-top: 20px;
   }
 `;
 
@@ -333,7 +403,7 @@ const TicketPrice = styled.p`
 const Barcode = styled.img`
   width: 70px;
   height: auto;
-  margin-top: auto;
+  margin-top: 10px;
 
   @media (min-width: 1024px) {
     width: 90px;
@@ -433,4 +503,18 @@ const AddRight = styled.div`
     bottom: 16px;
     right: 16px;
   }
+`;
+
+const TicketPriceOriginal = styled.p`
+  font-size: 16px;
+  color: #bbb;
+  text-decoration: line-through;
+  margin: 0 0 2px 0;
+`;
+
+const TicketPriceDiscounted = styled.p`
+  font-size: 20px;
+  color: #222;
+  font-weight: bold;
+  margin: 0;
 `;
