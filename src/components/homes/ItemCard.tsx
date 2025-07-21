@@ -118,14 +118,17 @@ const ItemCard = React.memo(function ItemCard({
     <>
       <Card onClick={handleCardClick}>
         <ImageWrapper>
-          <SkeletonImage data-testid='skeleton-image' loaded={imgLoaded} />
+          <SkeletonImage
+            data-testid='skeleton-image'
+            className={imgLoaded ? 'loaded' : ''}
+          />
           <Image
             src={image.split('#')[0] || '/default.jpg'}
             alt={brand}
             loading='lazy'
             width={'100%'}
             height={'100%'}
-            loaded={imgLoaded}
+            className={imgLoaded ? 'loaded' : ''}
             onLoad={() => setImgLoaded(true)}
           />
           <HookButton
@@ -232,7 +235,7 @@ const ImageWrapper = styled.div`
   }
 `;
 
-const SkeletonImage = styled.div<{ loaded: boolean }>`
+const SkeletonImage = styled.div`
   width: 100%;
   height: 100%;
   min-height: 240px;
@@ -251,13 +254,17 @@ const SkeletonImage = styled.div<{ loaded: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
-  opacity: ${({ loaded }) => (loaded ? 0 : 1)};
+  opacity: 1;
   transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;
   pointer-events: none;
+
+  &.loaded {
+    opacity: 0;
+  }
 `;
 
-const Image = styled.img<{ loaded: boolean }>`
+const Image = styled.img`
   width: 100%;
   height: 100%;
   min-height: 240px;
@@ -265,12 +272,16 @@ const Image = styled.img<{ loaded: boolean }>`
   object-fit: cover;
   display: block;
   background: ${({ theme }) => theme.colors.gray0};
-  opacity: ${({ loaded }) => (loaded ? 1 : 0)};
+  opacity: 0;
   /* no transition: instant switch */
   position: absolute;
   top: 0;
   left: 0;
   z-index: 2;
+
+  &.loaded {
+    opacity: 1;
+  }
 `;
 
 const HookButton = styled.button<{ $isLiked: boolean; $animating: boolean }>`

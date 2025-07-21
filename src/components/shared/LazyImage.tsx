@@ -59,7 +59,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
             alt={alt}
             onLoad={handleLoad}
             onError={handleError}
-            isLoaded={isLoaded}
+            className={isLoaded ? 'loaded' : ''}
             loading='lazy'
             style={{ position: 'absolute', top: 0, left: 0 }}
           />
@@ -85,15 +85,19 @@ const ImageContainer = styled.div<{ width?: string; height?: string }>`
   background-color: #f6f6f6;
 `;
 
-const StyledImage = styled.img<{ isLoaded: boolean }>`
+const StyledImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: ${({ isLoaded }) => (isLoaded ? 1 : 0)};
+  opacity: 0;
   transition: opacity 0.3s ease-in-out;
   position: absolute;
   top: 0;
   left: 0;
+
+  &.loaded {
+    opacity: 1;
+  }
 `;
 
 const SpinnerWrapper = styled.div`
