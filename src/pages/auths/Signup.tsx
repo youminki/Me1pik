@@ -160,13 +160,10 @@ const Signup: React.FC = () => {
     useState<string>('중복확인');
   const [phoneVerificationButtonText, setPhoneVerificationButtonText] =
     useState<string>('인증');
-  const [melpickAddressButtonText, setMelpickAddressButtonText] =
-    useState<string>('체크');
 
   const [emailApiError, setEmailApiError] = useState<string>('');
   const [nicknameApiError, setNicknameApiError] = useState<string>('');
   const [phoneApiError, setPhoneApiError] = useState<string>('');
-  const [melpickApiError, setMelpickApiError] = useState<string>('');
 
   const [gender, setGender] = useState<string>('여성');
   const [selectedGenderButton, setSelectedGenderButton] =
@@ -207,8 +204,6 @@ const Signup: React.FC = () => {
     }
     if (field === 'melpickAddress') {
       setIsMelpickAddressChecked(false);
-      setMelpickAddressButtonText('체크');
-      setMelpickApiError('');
     }
   };
 
@@ -314,20 +309,12 @@ const Signup: React.FC = () => {
     try {
       const result = await checkWebpage(melpickAddress);
       if (result.isAvailable) {
-        setMelpickAddressButtonText('인증 완료');
         setIsMelpickAddressChecked(true);
-        setMelpickApiError('');
       } else {
-        setMelpickAddressButtonText('인증 실패');
         setIsMelpickAddressChecked(false);
-        setMelpickApiError('멜픽 주소 인증 실패');
       }
-    } catch (err: unknown) {
-      setMelpickAddressButtonText('인증 실패');
+    } catch {
       setIsMelpickAddressChecked(false);
-      setMelpickApiError(
-        err instanceof Error ? err.message : '멜픽 주소 인증 실패'
-      );
     }
   };
 
@@ -453,12 +440,6 @@ const Signup: React.FC = () => {
   const handleGenderChange = (selected: string): void => {
     setGender(selected);
     setSelectedGenderButton(selected);
-  };
-
-  // 인스타 아이디 중복확인 임시 핸들러
-  const handleInstaCheck = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    alert('중복확인');
   };
 
   return (
@@ -755,54 +736,58 @@ const Signup: React.FC = () => {
               />
             </RowLabel>
             <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    인스타 아이디*
-                  </span>
-                }
-                id='instar'
-                type='text'
-                placeholder='인스타 아이디를 입력하세요'
-                error={errors.instar?.message}
-                required
-                maxLength={50}
-                {...register('instar')}
-                onButtonClick={handleInstaCheck}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                <span style={{ fontWeight: 700, fontSize: 13, minWidth: 100 }}>
+                  instagram.com/
+                </span>
+                <CommonField
+                  id='instar'
+                  type='text'
+                  placeholder='인스타 아이디를 입력하세요'
+                  error={errors.instar?.message}
+                  required
+                  maxLength={50}
+                  style={{
+                    flex: 1,
+                    fontSize: 16,
+                    marginLeft: 3,
+                  }}
+                  {...register('instar')}
+                />
+              </div>
             </RowLabel>
+
             <RowLabel>
-              <CommonField
-                label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    멜픽 주소설정*(멜픽에서 제공되는 개인페이지)
-                  </span>
-                }
-                id='melpickAddress'
-                type='text'
-                placeholder='멜픽 주소를 입력하세요'
-                error={melpickApiError || errors.melpickAddress?.message}
-                {...register('melpickAddress', {
-                  onChange: (e) => {
-                    resetVerificationState('melpickAddress');
-                    setValue('melpickAddress', e.target.value);
-                  },
-                })}
-                buttonLabel={melpickAddressButtonText}
-                buttonColorType={
-                  melpickAddressButtonText === '인증 완료'
-                    ? 'blue'
-                    : melpickAddressButtonText === '인증 실패'
-                      ? 'red'
-                      : 'yellow'
-                }
-                required
-                maxLength={12}
-                onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  e.preventDefault();
-                  handleMelpickAddressCheck();
-                }}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                <span style={{ fontWeight: 700, fontSize: 13, minWidth: 100 }}>
+                  me1pik.com/
+                </span>
+                <CommonField
+                  id='melpickAddress'
+                  type='text'
+                  placeholder='멜픽 주소를 입력하세요'
+                  error={errors.melpickAddress?.message}
+                  required
+                  maxLength={12}
+                  style={{
+                    flex: 1,
+                    fontSize: 16,
+                    marginLeft: 3,
+                  }}
+                  {...register('melpickAddress', {
+                    onChange: (e) => {
+                      resetVerificationState('melpickAddress');
+                      setValue('melpickAddress', e.target.value);
+                    },
+                  })}
+                  buttonLabel='체크'
+                  buttonColorType='yellow'
+                  onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                    e.preventDefault();
+                    handleMelpickAddressCheck();
+                  }}
+                />
+              </div>
             </RowLabel>
             <RowLabel>
               <CommonField

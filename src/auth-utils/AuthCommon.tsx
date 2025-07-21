@@ -4,25 +4,35 @@ import { theme } from '@/styles/Theme';
 
 export const NaverLoginBg = styled.div`
   min-height: 100vh;
+  min-width: 320px;
+  width: 100vw;
+  max-width: 100vw;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: auto;
 `;
 export const NaverLoginBox = styled.div`
   background: #fff;
   border-radius: 12px;
   width: 100%;
+  min-width: 320px;
   max-width: 400px;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 64px;
+  box-sizing: border-box;
+  overflow-x: auto;
 `;
 export const FormSectionWrapper = styled.div`
   padding: 2rem;
+  min-width: 320px;
+  width: 100%;
   max-width: 400px;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,6 +42,8 @@ export const FormSectionWrapper = styled.div`
   bottom: 64px;
   margin-left: auto;
   margin-right: auto;
+  box-sizing: border-box;
+  overflow-x: auto;
 `;
 export const LogoWrap = styled.div`
   margin-bottom: 24px;
