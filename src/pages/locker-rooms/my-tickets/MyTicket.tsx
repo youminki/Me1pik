@@ -14,6 +14,7 @@ import EmptyState from '@/components/shared/EmptyState';
 import CommonErrorMessage from '@/components/shared/ErrorMessage';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
+import { hideScrollbar } from '@/styles/CommonStyles';
 
 const visitLabel = '사용중인 이용권';
 const salesLabel = '시즌';
@@ -183,6 +184,7 @@ const TicketScrollContainer = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 8px;
+  ${hideScrollbar}
 
   @media (min-width: 1024px) {
     padding: 0;

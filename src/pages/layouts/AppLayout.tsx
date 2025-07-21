@@ -7,6 +7,8 @@ import BottomNav from '../../components/bottom-navigation';
 import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
 import useHeaderConfig from '../../hooks/useHeaderConfig';
 
+import { hideScrollbar } from '@/styles/CommonStyles';
+
 const AppLayout: React.FC = () => {
   const location = useLocation();
 
@@ -80,4 +82,5 @@ const ContentContainer = styled.div`
   overflow-y: auto;
   background: #fff;
   padding-top: 70px; // 헤더 높이만큼 패딩 추가!
+  ${hideScrollbar}
 `;

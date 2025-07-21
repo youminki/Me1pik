@@ -11,6 +11,7 @@ import ItemList, { UIItem } from '@/components/homes/MyclosetItemList';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
 import HomeDetail from '@/pages/homes/HomeDetail';
+import { hideScrollbar } from '@/styles/CommonStyles';
 
 const salesLabel = '시즌';
 const sales = '2025 1분기';
@@ -202,10 +203,7 @@ const ModalBox = styled.div`
   height: 100%;
   position: relative;
   overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  ${hideScrollbar}
 `;
 
 const ModalHeaderWrapper = styled.div`

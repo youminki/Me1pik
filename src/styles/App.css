@@ -51,3 +51,14 @@ body {
 }
 
 /* 이하 추가 스타일은 필요에 따라 작성 */
+
+/* 모든 스크롤바 숨기기 */
+/* Chrome, Safari, Opera */
+*::-webkit-scrollbar {
+  display: none;
+}
+/* Firefox */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

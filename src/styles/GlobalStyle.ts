@@ -52,22 +52,15 @@ export const GlobalStyle = createGlobalStyle`
     height: auto;
   }
 
-  /* 스크롤바 스타일링 */
-  ::-webkit-scrollbar {
-    width: 6px;
+  /* 스크롤바 완전 숨김 */
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    background: transparent !important;
   }
-
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
   }
 
   /* 모바일 터치 하이라이트 제거 */

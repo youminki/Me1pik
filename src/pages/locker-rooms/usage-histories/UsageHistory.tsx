@@ -16,6 +16,7 @@ import EmptyState from '@/components/shared/EmptyState';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
 import HomeDetail from '@/pages/homes/HomeDetail';
+import { hideScrollbar } from '@/styles/CommonStyles';
 
 // 버튼 확대 애니메이션
 const hoverScale = keyframes`
@@ -639,9 +640,7 @@ const ModalBox = styled.div`
   height: 100%;
   position: relative;
   overflow-y: auto;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  ${hideScrollbar}
 `;
 
 const ModalHeaderWrapper = styled.div`

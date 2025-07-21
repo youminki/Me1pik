@@ -1,4 +1,15 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+
+// 스크롤바 숨김 믹스인
+export const hideScrollbar = css`
+  &::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    background: transparent !important;
+  }
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+`;
 
 // 공통 컨테이너 스타일
 export const Container = styled.div`
@@ -12,7 +23,7 @@ export const Container = styled.div`
 export const Card = styled.div`
   background: white;
   border-radius: 8px;
-   0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 16px;
   margin-bottom: 16px;
 `;

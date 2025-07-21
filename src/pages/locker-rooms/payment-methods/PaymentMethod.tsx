@@ -43,6 +43,8 @@ const fadeIn = keyframes`
   to   { opacity: 1; }
 `;
 
+// 중복 선언 및 불필요한 글로벌 스타일, ScrollHideWrapper 등 완전 삭제
+
 const PaymentMethod: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -119,60 +121,65 @@ const PaymentMethod: React.FC = () => {
   }, [userInfo]);
 
   return (
-    <Container>
-      <Header>
-        <Title>결제수단</Title>
-        <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-      </Header>
+    <>
+      {/* 글로벌하게 적용 */}
+      {/* <HideScrollbarStyle /> */}
+      {/* 또는 특정 영역만 */}
+      <Container>
+        <Header>
+          <Title>결제수단</Title>
+          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
+        </Header>
 
-      <StatsSection
-        visits={count}
-        sales={sales}
-        dateRange={dateRange}
-        visitLabel={visitLabel}
-        salesLabel={salesLabel}
-      />
+        <StatsSection
+          visits={count}
+          sales={sales}
+          dateRange={dateRange}
+          visitLabel={visitLabel}
+          salesLabel={salesLabel}
+        />
 
-      <Divider />
+        <Divider />
 
-      {isLoading ? (
-        <LoadingSpinner label='로딩 중...' />
-      ) : (
-        <>
-          <CardsList>
-            {cards.map((card, idx) => (
-              <CardItemBox key={idx}>
-                <Chip />
-                <Content>
-                  <BrandLogo>{card.brand}</BrandLogo>
-                  <CardNumber>{card.cardNumber}</CardNumber>
-                </Content>
-                <DateLabel>{card.registerDate}</DateLabel>
-              </CardItemBox>
-            ))}
-            <AddCardBox onClick={registerCard}>
-              <PlusWrapper>
-                <PlusBox>
-                  <PlusLineVert />
-                  <PlusLineHorz />
-                </PlusBox>
-                <AddText>카드 추가</AddText>
-              </PlusWrapper>
-            </AddCardBox>
-          </CardsList>
-
-          {error && <ErrorMsg>{error}</ErrorMsg>}
-
-          <DotsWrapper>
-            {Array(cards.length + 1)
-              .fill(0)
-              .map((_, idx) => (
-                <Dot key={idx} $active={idx === 0} />
+        {isLoading ? (
+          <LoadingSpinner label='로딩 중...' />
+        ) : (
+          <>
+            <CardsList>
+              {cards.map((card, idx) => (
+                <CardItemBox key={idx}>
+                  <Chip />
+                  <Content>
+                    <BrandLogo>{card.brand}</BrandLogo>
+                    <CardNumber>{card.cardNumber}</CardNumber>
+                  </Content>
+                  <DateLabel>{card.registerDate}</DateLabel>
+                </CardItemBox>
               ))}
-          </DotsWrapper>
-        </>
-      )}
-    </Container>
+              <AddCardBox onClick={registerCard}>
+                <PlusWrapper>
+                  <PlusBox>
+                    <PlusLineVert />
+                    <PlusLineHorz />
+                  </PlusBox>
+                  <AddText>카드 추가</AddText>
+                </PlusWrapper>
+              </AddCardBox>
+            </CardsList>
+
+            {error && <ErrorMsg>{error}</ErrorMsg>}
+
+            <DotsWrapper>
+              {Array(cards.length + 1)
+                .fill(0)
+                .map((_, idx) => (
+                  <Dot key={idx} $active={idx === 0} />
+                ))}
+            </DotsWrapper>
+          </>
+        )}
+      </Container>
+    </>
   );
 };
 
@@ -254,10 +261,11 @@ const Chip = styled.div`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
+
+  gap: 8px;
   align-items: left;
   margin-top: 100px;
   margin-right: 40px;
-  gap: 8px;
 `;
 
 const BrandLogo = styled.div`
