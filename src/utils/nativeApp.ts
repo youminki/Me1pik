@@ -1,4 +1,4 @@
-import { setToken, syncTokenWithApp } from './auth';
+import { setToken, syncTokenWithApp } from '@/utils/auth';
 
 // 네이티브 앱 타입 선언
 declare global {

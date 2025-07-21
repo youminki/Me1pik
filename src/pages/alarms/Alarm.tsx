@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import AlarmIcon from '../../assets/AlarmIcon.svg';
-import PeriodSection from '../../components/period-section';
-import EmptyState from '../../components/shared/EmptyState';
-
+import AlarmIcon from '@/assets/AlarmIcon.svg';
+import PeriodSection from '@/components/period-section';
+import EmptyState from '@/components/shared/EmptyState';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
 const Alarm: React.FC = () => {

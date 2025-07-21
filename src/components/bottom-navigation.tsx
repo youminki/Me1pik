@@ -3,11 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
-import BrandIcon from '../assets/bottom-navigations/BrandIcon.svg';
-import CustomerServiceIcon from '../assets/bottom-navigations/CustomerServiceIcon.svg';
-import HomeIcon from '../assets/bottom-navigations/HomeIcon.svg';
-import LockerRoomIcon from '../assets/bottom-navigations/LockerRoomIcon.svg';
-import MelpikIcon from '../assets/bottom-navigations/MelpikIcon.svg';
+import BrandIcon from '@/assets/bottom-navigations/BrandIcon.svg';
+import CustomerServiceIcon from '@/assets/bottom-navigations/CustomerServiceIcon.svg';
+import HomeIcon from '@/assets/bottom-navigations/HomeIcon.svg';
+import LockerRoomIcon from '@/assets/bottom-navigations/LockerRoomIcon.svg';
+import MelpikIcon from '@/assets/bottom-navigations/MelpikIcon.svg';
 
 interface Tab {
   key: string;
@@ -152,8 +152,7 @@ const Dock = styled.div`
   backdrop-filter: blur(16px);
   border-radius: 32px;
   padding: 12px 0;
-
-   0 8px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 768px) {
     border-radius: 0;

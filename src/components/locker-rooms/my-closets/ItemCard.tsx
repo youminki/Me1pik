@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import DeleteButton from '../../../assets/locker-rooms/DeleteButton.svg';
-import SampleMyCloset1 from '../../../assets/locker-rooms/SampleMyCloset1.svg';
-import SampleMyCloset2 from '../../../assets/locker-rooms/SampleMyCloset2.svg';
-import SampleMyCloset3 from '../../../assets/locker-rooms/SampleMyCloset3.svg';
-import SampleMyCloset4 from '../../../assets/locker-rooms/SampleMyCloset4.svg';
-import ReusableModal from '../../../components/shared/modals/ReusableModal';
+import DeleteButton from '@/assets/locker-rooms/DeleteButton.svg';
+import SampleMyCloset1 from '@/assets/locker-rooms/SampleMyCloset1.svg';
+import SampleMyCloset2 from '@/assets/locker-rooms/SampleMyCloset2.svg';
+import SampleMyCloset3 from '@/assets/locker-rooms/SampleMyCloset3.svg';
+import SampleMyCloset4 from '@/assets/locker-rooms/SampleMyCloset4.svg';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 const sampleImages = [
   SampleMyCloset1,

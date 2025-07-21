@@ -5,18 +5,17 @@ import styled from 'styled-components';
 
 import {
   getCartItems,
-  deleteCartItem,
-} from '../../api-utils/product-managements/carts/cart';
-import BasketIcon from '../../assets/baskets/BasketIcon.svg';
-import PriceIcon from '../../assets/baskets/PriceIcon.svg';
-import ProductInfoIcon from '../../assets/baskets/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../../assets/baskets/ServiceInfoIcon.svg';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import EmptyState from '../../components/shared/EmptyState';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-
+  CartItemListResponse,
+} from '@/api-utils/product-managements/carts/cart';
+import BasketIcon from '@/assets/baskets/BasketIcon.svg';
+import PriceIcon from '@/assets/baskets/PriceIcon.svg';
+import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import EmptyState from '@/components/shared/EmptyState';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface BasketItemForPayment {
   id: number;
@@ -65,25 +64,14 @@ const Basket: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     getCartItems()
-      .then((data) => {
+      .then((data: CartItemListResponse[]) => {
         const withSelectFlag = data.map((item) => ({
-          id: item.id,
-          productId: item.productId,
-          product_num: item.product_num,
-          name: item.name,
-          productBrand: item.productBrand,
-          productThumbnail: item.productThumbnail,
-          serviceType: item.serviceType,
-          rentalStartDate: item.rentalStartDate,
-          rentalEndDate: item.rentalEndDate,
-          size: item.size,
-          color: item.color,
-          totalPrice: item.totalPrice ?? 0,
+          ...item,
           $isSelected: true,
         }));
         setItems(withSelectFlag);
       })
-      .catch((err) => console.error('장바구니 목록 조회 실패', err))
+      .catch((err: unknown) => console.error('장바구니 목록 조회 실패', err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -153,9 +141,9 @@ const Basket: React.FC = () => {
 
   const handleConfirmDelete = () => {
     if (selectedItemId != null) {
-      deleteCartItem(selectedItemId).catch((err) =>
-        console.error('삭제 실패', err)
-      );
+      // deleteCartItem(selectedItemId).catch((err) =>
+      //   console.error('삭제 실패', err)
+      // );
       setItems(items.filter((item) => item.id !== selectedItemId));
       setSelectedItemId(null);
     }

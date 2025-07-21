@@ -1,9 +1,9 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
-import backgroundImage from '../../assets/landings/7X5A9526.jpg';
-import IconLeft from '../../assets/landings/LandingPage6_icon1.svg';
-import IconRight from '../../assets/landings/LandingPage6_icon2.svg';
+import backgroundImage from '@/assets/landings/7X5A9526.jpg';
+import IconLeft from '@/assets/landings/LandingPage6_icon1.svg';
+import IconRight from '@/assets/landings/LandingPage6_icon2.svg';
 
 const LandingPage6: React.FC = () => {
   return (

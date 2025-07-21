@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import ErrorMessage from '../ErrorMessage';
+import ErrorMessage from '@/components/shared/ErrorMessage';
 
 describe('ErrorMessage', () => {
   it('에러 메시지가 정상적으로 렌더링된다', () => {

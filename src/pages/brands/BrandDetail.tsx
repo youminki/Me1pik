@@ -5,26 +5,25 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
-  getBrandList,
   Brand as ApiBrand,
-} from '../../api-utils/product-managements/brands/brandApi';
+  getBrandList,
+} from '@/api-utils/product-managements/brands/brandApi';
 import {
   getProductsByBrand,
   Product as ApiProduct,
-} from '../../api-utils/product-managements/products/product';
-import ArrowIconSvg from '../../assets/ArrowIcon.svg';
-import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
-import HomeIcon from '../../assets/headers/HomeIcon.svg';
-import ShareIcon from '../../assets/headers/ShareIcon.svg';
-import StatsSection from '../../components/brands/StatsSection';
-import FilterContainer from '../../components/homes/FilterContainer';
-import ItemList, { UIItem } from '../../components/homes/ItemList';
-import SearchModal from '../../components/homes/SearchModal';
-import SubHeader from '../../components/homes/SubHeader';
-import ErrorMessage from '../../components/shared/ErrorMessage';
-import HomeDetail from '../homes/HomeDetail';
-
+} from '@/api-utils/product-managements/products/product';
+import ArrowIconSvg from '@/assets/ArrowIcon.svg';
+import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
+import HomeIcon from '@/assets/headers/HomeIcon.svg';
+import ShareIcon from '@/assets/headers/ShareIcon.svg';
+import StatsSection from '@/components/brands/StatsSection';
+import FilterContainer from '@/components/homes/FilterContainer';
+import ItemList, { UIItem } from '@/components/homes/ItemList';
+import SearchModal from '@/components/homes/SearchModal';
+import SubHeader from '@/components/homes/SubHeader';
+import ErrorMessage from '@/components/shared/ErrorMessage';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import HomeDetail from '@/pages/homes/HomeDetail';
 
 interface LocalBrand {
   id: number;
@@ -104,16 +103,16 @@ const BrandDetail: React.FC = () => {
     setErrorProducts('');
     (async () => {
       try {
-        const data: ApiBrand[] = await getBrandList();
-        const found = data.find((b) => b.id === idNum);
-        if (found) {
+        const list: ApiBrand[] = await getBrandList();
+        const data = list.find((b) => b.id === idNum) || null;
+        if (data) {
           setBrand({
-            id: found.id,
-            name: found.brandName,
-            category: found.brand_category || '',
-            group: found.groupName || '',
+            id: data.id,
+            name: data.brandName,
+            category: data.brand_category || '',
+            group: data.groupName || '',
             company: '',
-            productCount: found.productCount || 0,
+            productCount: data.productCount || 0,
           });
         } else {
           setErrorProducts('해당 브랜드를 찾을 수 없습니다.');
@@ -135,7 +134,7 @@ const BrandDetail: React.FC = () => {
     (async () => {
       try {
         const categoryKey =
-          selectedCategory === 'All' ? 'All' : selectedCategory;
+          selectedCategory === 'All' ? undefined : selectedCategory;
         const data = await getProductsByBrand(brand.id, categoryKey);
         setAllProducts(data);
       } catch (err) {

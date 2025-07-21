@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import ReusableModal from '../../../components/shared/modals/ReusableModal';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 type AgreementSectionProps = Record<string, never>;
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 
-import ItemCard from './ItemCard';
+import ItemCard from '@/components/locker-rooms/my-closets/ItemCard';
 
 interface Item {
   id: string;

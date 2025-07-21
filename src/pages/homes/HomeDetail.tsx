@@ -3,8 +3,6 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-
 import { addCartItem } from '@/api-utils/product-managements/carts/cart';
 import {
   useProductInfo,
@@ -22,6 +20,7 @@ import RentalOptions from '@/components/homes/home-details/RentalOptions';
 import ServiceSelection from '@/components/homes/home-details/ServiceSelection';
 import SizeInfo from '@/components/homes/home-details/SizeInfo';
 import ErrorMessage from '@/components/shared/ErrorMessage';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface HomeDetailProps {
   id?: string;

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import LoadingSpinner from './LoadingSpinner';
-
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { useLazyLoad } from '@/hooks/useIntersectionObserver';
 
 interface LazyImageProps {

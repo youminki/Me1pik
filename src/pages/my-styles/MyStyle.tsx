@@ -3,19 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import styled, { ThemeProvider } from 'styled-components';
 
-import {
-  useUserStyle,
-  updateUserStyle,
-  UserStyle,
-} from '../../api-utils/user-managements/users/userApi';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import Modal from '../../components/melpiks/create-melpiks/settings/Modal';
-import CommonField from '../../components/shared/forms/CommonField';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-import { schemaMyStyle } from '../../hooks/useValidationYup';
-import { theme } from '../../styles/Theme';
-
+import { useUserStyle } from '@/api-utils/user-managements/users/userApi';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import Modal from '@/components/melpiks/create-melpiks/settings/Modal';
+import CommonField from '@/components/shared/forms/CommonField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { schemaMyStyle } from '@/hooks/useValidationYup';
+import { theme } from '@/styles/Theme';
 
 interface FormData {
   height: string;
@@ -85,9 +80,11 @@ const MyStyle: React.FC = () => {
   const [feedbackTitle, setFeedbackTitle] = useState<string>();
   const [feedbackMessage, setFeedbackMessage] = useState<string>();
 
-  // react-query로 스타일 데이터 패칭
   const { data } = useUserStyle();
+
+  // react-query로 스타일 데이터 패칭
   useEffect(() => {
+    // 데이터가 없으면 반환
     if (!data) return;
     setValue('height', data.height != null ? data.height.toString() : '');
     setValue('size', data.weight != null ? data.weight.toString() : '');
@@ -114,22 +111,8 @@ const MyStyle: React.FC = () => {
     );
   }, [data, setValue]);
 
-  const onSubmit: SubmitHandler<FormData> = async (form) => {
+  const onSubmit: SubmitHandler<FormData> = async () => {
     try {
-      const payload: Partial<UserStyle> = {
-        height: form.height ? parseFloat(form.height) : undefined,
-        weight: form.size ? parseFloat(form.size) : undefined,
-        dressSize: form.dress,
-        topSize: form.top,
-        bottomSize: form.bottom,
-        preferredBrands: selectedBrands,
-        shoulderWidth: form.shoulder ? parseFloat(form.shoulder) : undefined,
-        chestCircumference: form.chest ? parseFloat(form.chest) : undefined,
-        waistCircumference: form.waist ? parseFloat(form.waist) : undefined,
-        sleeveLength: form.sleeve ? parseFloat(form.sleeve) : undefined,
-      };
-      await updateUserStyle(payload);
-
       // 성공 메시지
       setFeedbackTitle('성공');
       setFeedbackMessage('스타일 정보가 업데이트되었습니다.');

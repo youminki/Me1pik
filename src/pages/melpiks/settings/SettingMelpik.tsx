@@ -6,12 +6,11 @@ import {
   setUserPageAccount,
   addUserPageLink,
   deleteUserPageLink,
-} from '../../../api-utils/user-managements/admin-user-pages/AdminUserPage';
-import InputField from '../../../components/shared/forms/InputField';
-import CustomModal from '../../../components/shared/modals/CustomModal';
-import StatsSection from '../../../components/stats-section';
-
+} from '@/api-utils/user-managements/admin-user-pages/AdminUserPage';
+import InputField from '@/components/shared/forms/InputField';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import CustomModal from '@/components/shared/modals/CustomModal';
+import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
 // 링크 리스트 스타일 요소 const로 분리
@@ -183,7 +182,7 @@ const SettingMelpik: React.FC = () => {
         if (err?.response?.status === 404) {
           try {
             await import(
-              '../../../api-utils/user-managements/admin-user-pages/AdminUserPage'
+              '@/api-utils/user-managements/admin-user-pages/AdminUserPage'
             ).then((m) => m.activateUserPage());
             // 활성화 후 재조회
             const data = await getUserPageAdminInfo();

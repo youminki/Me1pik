@@ -4,13 +4,12 @@ import Holidays from 'date-holidays';
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 
-import { getUnavailableDates } from '../../../api-utils/schedule-managements/schedules/schedule';
-import RentalSelectDateIcon from '../../../assets/homes/home-details/RentalSelectDateIcon.svg';
-import ReusableModal2 from '../../../components/homes/home-details/HomeDetailModal';
-import { CustomSelect } from '../../../components/shared/forms/CustomSelect';
-import ReusableModal from '../../../components/shared/modals/ReusableModal';
-
-import Calendar from './Calendar';
+import { getUnavailableDates } from '@/api-utils/schedule-managements/schedules/schedule';
+import RentalSelectDateIcon from '@/assets/homes/home-details/RentalSelectDateIcon.svg';
+import Calendar from '@/components/homes/home-details/Calendar';
+import ReusableModal2 from '@/components/homes/home-details/HomeDetailModal';
+import { CustomSelect } from '@/components/shared/forms/CustomSelect';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 const hd = new Holidays('KR');
 

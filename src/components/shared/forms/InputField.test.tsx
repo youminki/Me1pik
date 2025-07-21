@@ -1,8 +1,7 @@
 import { render } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 
-import InputField from './InputField';
-
+import InputField from '@/components/shared/forms/InputField';
 import { theme } from '@/styles/Theme';
 
 describe('InputField', () => {

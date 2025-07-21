@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import BackButtonIcon from '../assets/BackButton.svg';
+import BackButtonIcon from '@/assets/BackButton.svg';
 
 interface BackButtonProps {
   onClick?: () => void;

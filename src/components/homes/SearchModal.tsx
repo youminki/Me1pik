@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import SearchIconSvg from '../../assets/homes/SearchIcon.svg';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
+import SearchIconSvg from '@/assets/homes/SearchIcon.svg';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface SearchModalProps {
   isOpen: boolean;

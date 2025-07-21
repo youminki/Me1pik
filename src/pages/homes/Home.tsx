@@ -10,24 +10,22 @@ import React, {
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { useProducts } from '../../api-utils/product-managements/uploads/productApi';
-import ArrowIconSvg from '../../assets/ArrowIcon.svg';
-import CancleIconIcon from '../../assets/headers/CancleIcon.svg';
-import HomeIcon from '../../assets/headers/HomeIcon.svg';
-import ShareIcon from '../../assets/headers/ShareIcon.svg';
-import FilterContainer from '../../components/homes/FilterContainer';
-import Footer from '../../components/homes/Footer';
-import ItemList, { UIItem } from '../../components/homes/ItemList';
-import SearchModal from '../../components/homes/SearchModal';
-import SubHeader from '../../components/homes/SubHeader';
-import MelpikGuideBanner from '../../components/melpik-guide-banner';
-import ErrorMessage from '../../components/shared/ErrorMessage';
-import FilterModal from '../../components/shared/modals/FilterModal';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-
-import HomeDetail from './HomeDetail';
-
+import { useProducts } from '@/api-utils/product-managements/uploads/productApi';
+import ArrowIconSvg from '@/assets/ArrowIcon.svg';
+import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
+import HomeIcon from '@/assets/headers/HomeIcon.svg';
+import ShareIcon from '@/assets/headers/ShareIcon.svg';
+import FilterContainer from '@/components/homes/FilterContainer';
+import Footer from '@/components/homes/Footer';
+import ItemList, { UIItem } from '@/components/homes/ItemList';
+import SearchModal from '@/components/homes/SearchModal';
+import SubHeader from '@/components/homes/SubHeader';
+import MelpikGuideBanner from '@/components/melpik-guide-banner';
+import ErrorMessage from '@/components/shared/ErrorMessage';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import FilterModal from '@/components/shared/modals/FilterModal';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
+import HomeDetail from '@/pages/homes/HomeDetail';
 
 /**
  * Home(상품 리스트) 페이지 - 최적화 버전ㄴ

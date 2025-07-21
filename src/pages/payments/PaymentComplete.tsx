@@ -2,9 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
-import CompleteIcon from '../../assets/completes/CompleteIcon.svg';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-
+import CompleteIcon from '@/assets/completes/CompleteIcon.svg';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
 interface PaymentCompleteProps {

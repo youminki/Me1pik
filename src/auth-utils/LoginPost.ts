@@ -1,4 +1,4 @@
-import { Axios } from '../api-utils/Axios';
+import { Axios } from '@/api-utils/Axios';
 
 interface LoginUser {
   id: string;

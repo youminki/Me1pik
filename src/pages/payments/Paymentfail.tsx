@@ -2,9 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import FailIcon from '../../assets/completes/FailIcon.svg';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-
+import FailIcon from '@/assets/completes/FailIcon.svg';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
 interface PaymentFailProps {

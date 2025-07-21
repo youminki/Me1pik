@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 import {
-  getBrandList,
   Brand as ApiBrand,
-} from '../../api-utils/product-managements/brands/brandApi';
-import { BrandList } from '../../components/brands/BrandList';
-import { ControlSection } from '../../components/brands/ControlSection';
-import StatsSection from '../../components/brands/StatsSection';
-import UnifiedHeader from '../../components/shared/headers/UnifiedHeader';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import { theme } from '../../styles/Theme';
+  getBrandList,
+} from '@/api-utils/product-managements/brands/brandApi';
+import { BrandList } from '@/components/brands/BrandList';
+import { ControlSection } from '@/components/brands/ControlSection';
+import StatsSection from '@/components/brands/StatsSection';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { theme } from '@/styles/Theme';
 
 interface LocalBrand {
   id: number;

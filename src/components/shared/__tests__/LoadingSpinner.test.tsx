@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 describe('LoadingSpinner', () => {
   it('스피너가 정상적으로 렌더링된다', () => {

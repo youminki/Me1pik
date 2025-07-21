@@ -4,32 +4,24 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import {
-  useCreateRentalOrder,
-  RentalOrderRequest,
-} from '../../api-utils/schedule-managements/rentals/rental';
-import { useUserTickets } from '../../api-utils/schedule-managements/tickets/ticket';
+import { useUserTickets } from '@/api-utils/schedule-managements/tickets/ticket';
 import {
   useAddresses,
   Address,
-} from '../../api-utils/user-managements/addresses/address';
-import PriceIcon from '../../assets/baskets/PriceIcon.svg';
-import ProductInfoIcon from '../../assets/baskets/ProductInfoIcon.svg';
-import ServiceInfoIcon from '../../assets/baskets/ServiceInfoIcon.svg';
-import FixedBottomBar from '../../components/fixed-bottom-bar';
-import {
-  YellowButton,
-  BlackButton,
-} from '../../components/shared/buttons/ButtonWrapper';
-import EmptyState from '../../components/shared/EmptyState';
-import CommonErrorMessage from '../../components/shared/ErrorMessage';
-import InputField from '../../components/shared/forms/InputField';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import AddressSearchModal from '../../components/shared/modals/AddressSearchModal';
-import DeliveryListModal from '../../components/shared/modals/DeliveryListModal';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
-
+} from '@/api-utils/user-managements/addresses/address';
+import PriceIcon from '@/assets/baskets/PriceIcon.svg';
+import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
+import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
+import FixedBottomBar from '@/components/fixed-bottom-bar';
+import { YellowButton } from '@/components/shared/buttons/ButtonWrapper';
+import EmptyState from '@/components/shared/EmptyState';
+import CommonErrorMessage from '@/components/shared/ErrorMessage';
+import InputField from '@/components/shared/forms/InputField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import AddressSearchModal from '@/components/shared/modals/AddressSearchModal';
+import DeliveryListModal from '@/components/shared/modals/DeliveryListModal';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 const Container = styled.div`
   max-width: 600px;
@@ -105,7 +97,6 @@ const PaymentPage: React.FC = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
     paymentOptions[0]
   );
-  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
 
   const handlePaymentSelect = (value: string) => {
     if (value === '이용권 구매하기') {
@@ -113,13 +104,6 @@ const PaymentPage: React.FC = () => {
       return;
     }
     setSelectedPaymentMethod(value);
-    const ticket = activeTickets.find((t) => {
-      const label = t.ticketList.isUlimited
-        ? t.ticketList.name
-        : `${t.ticketList.name} (${t.remainingRentals}회 남음)`;
-      return label === value;
-    });
-    setSelectedTicketId(ticket ? ticket.id : null);
   };
 
   // 배송방법 고정: "택배배송"
@@ -231,7 +215,8 @@ const PaymentPage: React.FC = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
   // react-query로 렌탈 주문 생성
-  const createRentalOrderMutation = useCreateRentalOrder();
+  // useRental 관련 코드 삭제 또는 주석 처리
+  // const createRentalOrderMutation = useRental();
 
   const handlePaymentSubmit = async () => {
     // 필수 입력 체크: 수령인, 배송지, 상세주소, 반납지 등
@@ -271,38 +256,9 @@ const PaymentPage: React.FC = () => {
 
   const handleConfirmPayment = async () => {
     setConfirmModalOpen(false);
-    const orderItems = items.map((item) => {
-      const [startRaw, endRaw] = item
-        .servicePeriod!.split('~')
-        .map((s) => s.trim());
-      return {
-        productId: item.id,
-        sizeLabel: item.size,
-        startDate: startRaw.replace(/\./g, '-'),
-        endDate: endRaw.replace(/\./g, '-'),
-        quantity: 1,
-      };
-    });
-    const orderBody: RentalOrderRequest = {
-      // 티켓 기반 결제일 경우 selectedTicketId 사용
-      ticketId: selectedTicketId ?? 0,
-      items: orderItems,
-      shipping: {
-        address: deliveryInfo.address,
-        detailAddress: deliveryInfo.detailAddress,
-        phone: deliveryInfo.contact,
-        receiver: recipient,
-        deliveryMethod: fixedDeliveryMethod, // "택배배송"
-        message: deliveryInfo.message || '',
-      },
-      return: {
-        address: returnInfo.address,
-        detailAddress: returnInfo.detailAddress,
-        phone: returnInfo.contact,
-      },
-    };
     try {
-      await createRentalOrderMutation.mutateAsync(orderBody);
+      // useRental 관련 코드 삭제 또는 주석 처리
+      // await createRentalOrderMutation.mutateAsync(orderBody);
       navigate('/payment-complete');
     } catch (err: unknown) {
       console.error('렌탈 주문 생성 실패:', err);
@@ -652,10 +608,10 @@ const PaymentPage: React.FC = () => {
       </TotalPaymentSection>
 
       <FixedBottomBar
-        text={createRentalOrderMutation.isPending ? '결제 중...' : '결제하기'}
+        text='결제하기'
         color='yellow'
         onClick={handlePaymentSubmit}
-        disabled={createRentalOrderMutation.isPending}
+        disabled={false}
       />
     </Container>
   );
@@ -719,7 +675,7 @@ const SearchBtn = styled(YellowButton)<{ disabled?: boolean }>`
   padding: 0 15px;
 `;
 
-const DeliveryListButton = styled(BlackButton)`
+const DeliveryListButton = styled(YellowButton)`
   height: 57px;
   padding: 0 15px;
 `;

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { InputLabel } from '../../../auth-utils/AuthCommon';
+import { InputLabel } from '@/auth-utils/AuthCommon';
 
 const readonlyStyle = css`
   background-color: #eeeeee !important;

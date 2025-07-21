@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
-import ItemCard from './ItemCard';
+import ItemCard from '@/components/homes/ItemCard';
 
 export interface UIItem {
   id: string;

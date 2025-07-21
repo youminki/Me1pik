@@ -2,9 +2,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import FilterIcon from '../../assets/FilterIcon.svg';
-import SearchIconSvg from '../../assets/homes/SearchIcon.svg';
-// import ReusableModal from '../../components/ReusableModal';
+import FilterIcon from '@/assets/FilterIcon.svg';
+import SearchIconSvg from '@/assets/homes/SearchIcon.svg';
+// import ReusableModal from '@/components/ReusableModal';
 
 interface FilterContainerProps {
   onSearchClick: () => void;

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import EmptyState from '../EmptyState';
+import EmptyState from '@/components/shared/EmptyState';
 
 describe('EmptyState', () => {
   it('메시지가 정상적으로 렌더링된다', () => {

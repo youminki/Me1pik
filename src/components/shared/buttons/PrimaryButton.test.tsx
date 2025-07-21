@@ -1,8 +1,7 @@
 import { render } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 
-import PrimaryButton from './PrimaryButton';
-
+import PrimaryButton from '@/components/shared/buttons/PrimaryButton';
 import { theme } from '@/styles/Theme';
 
 describe('PrimaryButton', () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Button02 from './SecondaryButton';
+import Button02 from '@/components/shared/buttons/SecondaryButton';
 
 type ButtonPropsWithoutColor = Omit<
   React.ComponentProps<typeof Button02>,

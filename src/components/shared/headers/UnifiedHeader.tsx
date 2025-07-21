@@ -6,18 +6,17 @@ import { FaUserCircle } from 'react-icons/fa';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { useHeaderInfo } from '../../../api-utils/user-managements/users/userApi';
-import AlarmIcon from '../../../assets/headers/AlarmIcon.svg';
-import BackButtonIcon from '../../../assets/headers/BackButton.svg';
-import BasketIcon from '../../../assets/headers/BasketIcon.svg';
-import CancleIconIcon from '../../../assets/headers/CancleIcon.svg';
-import HomeIcon from '../../../assets/headers/HomeIcon.svg';
-import MypageIcon from '../../../assets/headers/MypageIcon.svg';
-import ShareIcon from '../../../assets/headers/ShareIcon.svg';
-import Logo from '../../../assets/Logo.svg';
-import MypageModal from '../modals/MypageModal';
-import ReusableModal from '../modals/ReusableModal';
-
+import { useHeaderInfo } from '@/api-utils/user-managements/users/userApi';
+import AlarmIcon from '@/assets/headers/AlarmIcon.svg';
+import BackButtonIcon from '@/assets/headers/BackButton.svg';
+import BasketIcon from '@/assets/headers/BasketIcon.svg';
+import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
+import HomeIcon from '@/assets/headers/HomeIcon.svg';
+import MypageIcon from '@/assets/headers/MypageIcon.svg';
+import ShareIcon from '@/assets/headers/ShareIcon.svg';
+import Logo from '@/assets/Logo.svg';
+import MypageModal from '@/components/shared/modals/MypageModal';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
 
 interface HeaderContainerProps {

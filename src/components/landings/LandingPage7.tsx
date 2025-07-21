@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import Landing7Img1 from '../../assets/landings/Landing7Img1.svg';
-import Landing7Img2 from '../../assets/landings/Landing7Img2.svg';
-import Landing7Img3 from '../../assets/landings/Landing7Img3.svg';
+import Landing7Img1 from '@/assets/landings/Landing7Img1.svg';
+import Landing7Img2 from '@/assets/landings/Landing7Img2.svg';
+import Landing7Img3 from '@/assets/landings/Landing7Img3.svg';
 
 const LandingPage7: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);

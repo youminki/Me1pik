@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { Address } from '../../../api-utils/user-managements/addresses/address';
+import { Address } from '@/api-utils/user-managements/addresses/address';
 
 interface Props {
   isOpen: boolean;

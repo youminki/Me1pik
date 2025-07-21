@@ -5,10 +5,10 @@ import styled, { keyframes } from 'styled-components';
 import {
   addToCloset,
   removeFromCloset,
-} from '../../api-utils/product-managements/closets/closetApi';
-import PickIconOff from '../../assets/homes/PickIconOff.svg';
-import PickIconOn from '../../assets/homes/PickIconOn.svg';
-import ReusableModal from '../../components/shared/modals/ReusableModal';
+} from '@/api-utils/product-managements/closets/closetApi';
+import PickIconOff from '@/assets/homes/PickIconOff.svg';
+import PickIconOn from '@/assets/homes/PickIconOn.svg';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface ItemCardProps {
   id: string;

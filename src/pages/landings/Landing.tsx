@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import LandingBackground from '../../assets/landings/7X5A9526.jpg';
-import Footer from '../../components/landings/Footer';
-import Header from '../../components/landings/Header';
-import LandingPage1 from '../../components/landings/LandingPage1';
-import LandingPage2 from '../../components/landings/LandingPage2';
-import LandingPage3 from '../../components/landings/LandingPage3';
-import LandingPage4 from '../../components/landings/LandingPage4';
-import LandingPage5 from '../../components/landings/LandingPage5';
-import LandingPage6 from '../../components/landings/LandingPage6';
-import LandingPage7 from '../../components/landings/LandingPage7';
+import LandingBackground from '@/assets/landings/7X5A9526.jpg';
+import Footer from '@/components/landings/Footer';
+import Header from '@/components/landings/Header';
+import LandingPage1 from '@/components/landings/LandingPage1';
+import LandingPage2 from '@/components/landings/LandingPage2';
+import LandingPage3 from '@/components/landings/LandingPage3';
+import LandingPage4 from '@/components/landings/LandingPage4';
+import LandingPage5 from '@/components/landings/LandingPage5';
+import LandingPage6 from '@/components/landings/LandingPage6';
+import LandingPage7 from '@/components/landings/LandingPage7';
 
 interface ScrollFadeInProps {
   children: React.ReactNode;

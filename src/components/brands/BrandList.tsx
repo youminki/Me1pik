@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import BrandItem, { Brand as BrandType } from './BrandItem';
+import BrandItem, { Brand as BrandType } from '@/components/brands/BrandItem';
 
 interface BrandListProps {
   groupedBrands: Record<string, BrandType[]>;

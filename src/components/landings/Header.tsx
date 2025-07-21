@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import LandingLogoIcon from '../../assets/landings/LandingLogoIcon.svg';
-import ShareIcon from '../../assets/landings/ShareIcon.svg';
+import LandingLogoIcon from '@/assets/landings/LandingLogoIcon.svg';
+import ShareIcon from '@/assets/landings/ShareIcon.svg';
 
 const Header: React.FC = () => {
   const handleShare = async () => {
