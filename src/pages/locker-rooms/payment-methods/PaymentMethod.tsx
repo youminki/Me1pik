@@ -186,7 +186,6 @@ const Container = styled.div`
   align-items: center;
 
   padding: 1rem;
-  min-height: 100vh;
 `;
 
 const Header = styled.div`
