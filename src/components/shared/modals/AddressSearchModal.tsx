@@ -45,8 +45,14 @@ const ReusableModal: React.FC<ModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <StyledModal>
+    <StyledModal onClick={handleBackdropClick}>
       <ModalContent width={width} height={height}>
         {title && (
           <ModalHeader>
