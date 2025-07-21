@@ -32,7 +32,6 @@ export const FormSectionWrapper = styled.div`
   min-width: 320px;
   width: 100%;
   max-width: 400px;
-  min-height: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;

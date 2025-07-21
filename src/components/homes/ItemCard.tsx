@@ -8,7 +8,7 @@ import {
 } from '../../api-utils/product-managements/closets/closetApi';
 import PickIconOff from '../../assets/homes/PickIconOff.svg';
 import PickIconOn from '../../assets/homes/PickIconOn.svg';
-import ReusableModal from '../../components/shared/modals/ReusableModalV2';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 
 type ItemCardProps = {
   id: string;
@@ -179,6 +179,7 @@ const ItemCard = React.memo(function ItemCard({
         onClose={closeConfirm}
         onConfirm={handleConfirm}
         title={modalTitle}
+        showConfirmButton={true}
       >
         <p>{modalMessage}</p>
       </ReusableModal>

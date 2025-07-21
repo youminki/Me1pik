@@ -6,7 +6,7 @@ import styled, { keyframes, css } from 'styled-components';
 
 import MypageBox from '@/assets/MypageBox.svg';
 import MystyleBox from '@/assets/MystyleBox.svg';
-import ReusableModal2 from '@/components/shared/modals/ReusableModalV2';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { logout } from '@/utils/auth';
 
 type MypageModalProps = {
@@ -114,14 +114,15 @@ const MypageModal: React.FC<MypageModalProps> = ({ isOpen, onClose }) => {
       </Overlay>
 
       {isLogoutModalOpen && (
-        <ReusableModal2
+        <ReusableModal
           isOpen={isLogoutModalOpen}
           onClose={() => setLogoutModalOpen(false)}
           onConfirm={handleLogoutConfirm}
           title='알림'
+          showConfirmButton={true}
         >
           로그아웃을 하시겠습니까?
-        </ReusableModal2>
+        </ReusableModal>
       )}
     </>
   );

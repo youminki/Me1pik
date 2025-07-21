@@ -10,7 +10,7 @@ import { useMembershipInfo } from '@/api-utils/user-managements/users/userApi';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import EmptyState from '@/components/shared/EmptyState';
 import { CustomSelect } from '@/components/shared/forms/CustomSelect';
-import ReusableModal2 from '@/components/shared/modals/ReusableModalV2';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 // import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
 
 // 한국 시간 기준 오늘 0시 반환 함수
@@ -154,14 +154,15 @@ const PurchaseOfPasses: React.FC = () => {
         onClick={() => setIsModalOpen(true)}
       />
 
-      <ReusableModal2
+      <ReusableModal
         title='이용권 구매'
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmPayment}
+        showConfirmButton={true}
       >
         이용권을 결제하시겠습니까?
-      </ReusableModal2>
+      </ReusableModal>
     </Container>
   );
 };

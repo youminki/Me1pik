@@ -10,7 +10,7 @@ import { UIItem } from '../../../components/homes/MyclosetItemList'; // UIItem.i
 import BottomBar from '../../../components/melpiks/schedules/reservations/BottomBar';
 import Stepper from '../../../components/melpiks/schedules/reservations/Stepper';
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
-import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
+import ReusableModal from '../../../components/shared/modals/ReusableModal';
 
 interface ItemCardProps {
   id: string;
@@ -311,17 +311,18 @@ const ScheduleReservation3: React.FC = () => {
         disabled={submitting}
       />
 
-      {/* ReusableModal2 */}
-      <ReusableModal2
+      {/* ReusableModal */}
+      <ReusableModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleCreateSchedule}
         title='판매 스케줄 생성'
+        showConfirmButton={true}
       >
         <ModalMessage>
           선택하신 기간과 제품으로 판매 스케줄을 생성하시겠습니까?
         </ModalMessage>
-      </ReusableModal2>
+      </ReusableModal>
 
       <BeenContainer />
     </Container>

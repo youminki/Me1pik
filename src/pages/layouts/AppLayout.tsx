@@ -75,6 +75,7 @@ const ContentContainer = styled.div<{
   flex: 1;
   padding: ${({ $disablePadding }) => ($disablePadding ? '0' : '70px 0')};
   overflow: auto;
+
   /* min-height: 100vh; */
   background: #fff;
 `;

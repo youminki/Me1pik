@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
 import InputField from '../../../components/shared/forms/InputField';
 import ReusableModal from '../../../components/shared/modals/ReusableModal';
-import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
 import { schemaCardRegistration } from '../../../hooks/useValidationYup';
 
 interface CardFormValues {
@@ -226,16 +225,17 @@ const AddCard: React.FC = () => {
         onClick={handleSubmit(onSubmit)}
       />
 
-      <ReusableModal2
+      <ReusableModal
         isOpen={isRegistrationModalOpen}
         onClose={() => setIsRegistrationModalOpen(false)}
         onConfirm={handleRegistrationConfirm}
         title='카드 등록 확인'
         width='376px'
         height='360px'
+        showConfirmButton={true}
       >
         <>카드를 등록하시겠습니까?</>
-      </ReusableModal2>
+      </ReusableModal>
 
       <ReusableModal
         isOpen={isFinalModalOpen}

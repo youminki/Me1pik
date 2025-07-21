@@ -28,7 +28,6 @@ import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import AddressSearchModal from '../../components/shared/modals/AddressSearchModal';
 import DeliveryListModal from '../../components/shared/modals/DeliveryListModal';
 import ReusableModal from '../../components/shared/modals/ReusableModal';
-import ReusableModal2 from '../../components/shared/modals/ReusableModalV2';
 
 declare global {
   interface Window {
@@ -342,28 +341,23 @@ const PaymentPage: React.FC = () => {
     <Container>
       {/* 알림 모달 */}
       {modalAlert.isOpen && (
-        <ReusableModal
-          isOpen
-          onClose={closeAlertModal}
-          title='알림'
-          height='200px'
-        >
+        <ReusableModal isOpen onClose={closeAlertModal} title='알림'>
           <ModalBody>{modalAlert.message}</ModalBody>
         </ReusableModal>
       )}
 
       {/* 결제 확인 모달 */}
       {confirmModalOpen && (
-        <ReusableModal2
+        <ReusableModal
           isOpen
           onClose={() => setConfirmModalOpen(false)}
           onConfirm={handleConfirmPayment}
           title='결제 확인'
           width='376px'
-          height='360px'
+          showConfirmButton={true}
         >
           <ModalBody>결제를 진행하시겠습니까?</ModalBody>
-        </ReusableModal2>
+        </ReusableModal>
       )}
 
       {/* 신청제품 리스트 */}

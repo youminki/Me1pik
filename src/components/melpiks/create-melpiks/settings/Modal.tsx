@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import ReusableModal2 from '../../../../components/shared/modals/ReusableModalV2';
+import ReusableModal from '../../../../components/shared/modals/ReusableModal';
 import { theme } from '../../../../styles/Theme';
 
 interface ModalProps {
@@ -114,23 +114,24 @@ const Modal: React.FC<ModalProps> = ({
       )}
 
       {/* 경고 모달 */}
-      <ReusableModal2
+      <ReusableModal
         isOpen={warningModalVisible}
         onClose={() => setWarningModalVisible(false)}
         title='경고'
       >
         <p>3가지 브랜드를 선택해야 합니다.</p>
-      </ReusableModal2>
+      </ReusableModal>
 
       {/* 취소 확인 모달 */}
-      <ReusableModal2
+      <ReusableModal
         isOpen={cancelConfirmationVisible}
         onClose={() => setCancelConfirmationVisible(false)}
         onConfirm={onClose}
         title='선택 취소'
+        showConfirmButton={true}
       >
         <p>설정하신 내용을 취소 하시겠습니까?</p>
-      </ReusableModal2>
+      </ReusableModal>
     </>
   );
 };

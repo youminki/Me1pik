@@ -9,7 +9,7 @@ import ProductInfoIcon from '../../../assets/baskets/ProductInfoIcon.svg';
 import ServiceInfoIcon from '../../../assets/baskets/ServiceInfoIcon.svg';
 import sampleImage from '../../../assets/sample-dress.svg';
 import FixedBottomBar from '../../../components/fixed-bottom-bar';
-import ReusableModal2 from '../../../components/shared/modals/ReusableModalV2';
+import ReusableModal from '../../../components/shared/modals/ReusableModal';
 
 interface BasketItem {
   id: number;
@@ -230,15 +230,16 @@ const ProductReview: React.FC = () => {
         color='yellow'
       />
 
-      {/* ReusableModal2: 모달 내 "예" 선택 시 /product-review로 이동 */}
-      <ReusableModal2
+      {/* ReusableModal: 모달 내 "예" 선택 시 /product-review로 이동 */}
+      <ReusableModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmModal}
         title='평가등록'
+        showConfirmButton={true}
       >
         리뷰를 등록하시겠습니까?
-      </ReusableModal2>
+      </ReusableModal>
     </ProductReviewContainer>
   );
 };

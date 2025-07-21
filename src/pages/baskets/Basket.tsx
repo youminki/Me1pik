@@ -14,7 +14,7 @@ import ServiceInfoIcon from '../../assets/baskets/ServiceInfoIcon.svg';
 import FixedBottomBar from '../../components/fixed-bottom-bar';
 import EmptyState from '../../components/shared/EmptyState';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ReusableModal2 from '../../components/shared/modals/ReusableModalV2';
+import ReusableModal from '../../components/shared/modals/ReusableModal';
 
 interface BasketItemForPayment {
   id: number;
@@ -292,23 +292,25 @@ const Basket: React.FC = () => {
             color='yellow'
           />
 
-          <ReusableModal2
+          <ReusableModal
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={handleConfirmDelete}
             title='알림'
+            showConfirmButton={true}
           >
             해당 제품을 삭제하시겠습니까?
-          </ReusableModal2>
+          </ReusableModal>
 
-          <ReusableModal2
+          <ReusableModal
             isOpen={isBuyModalOpen}
             onClose={() => setIsBuyModalOpen(false)}
             onConfirm={handleConfirmBuy}
             title='알림'
+            showConfirmButton={true}
           >
             해당 제품을 바로 구매하시겠습니까?
-          </ReusableModal2>
+          </ReusableModal>
         </>
       )}
     </Container>
