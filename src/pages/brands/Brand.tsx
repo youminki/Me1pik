@@ -139,7 +139,6 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: #fff;
-  padding: 1rem;
 `;
 
 const Header = styled.div`

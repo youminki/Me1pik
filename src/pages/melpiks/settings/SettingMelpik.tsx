@@ -735,7 +735,6 @@ const Container = styled.div`
   align-items: center;
 
   background-color: #fff;
-  padding: 1rem;
 `;
 
 const Header = styled.div`

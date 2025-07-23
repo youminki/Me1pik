@@ -413,7 +413,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background-color: #fff;
-  padding: 1rem;
+
   max-width: 600px;
   margin: auto;
 `;

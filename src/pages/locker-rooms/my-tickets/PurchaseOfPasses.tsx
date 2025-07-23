@@ -176,7 +176,6 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   margin: 0 auto;
-  padding: 1rem;
   max-width: 600px;
   background-color: #ffffff;
 `;

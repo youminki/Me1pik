@@ -344,7 +344,6 @@ const COLOR_WHITE = '#ffffff';
 const COLOR_BLACK = '#000000';
 
 const Container = styled.div`
-  padding: 1rem;
   max-width: 600px;
   margin: auto;
 `;

@@ -32,7 +32,7 @@ const MelpikPage: React.FC = () => {
       <UnifiedHeader variant='default' />
       <Container>
         <Header>
-          <Title>멜픽</Title>
+          <Title>다이어리</Title>
           <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
         </Header>
 
@@ -73,21 +73,16 @@ export default MelpikPage;
 
 const Container = styled.div`
   width: 100%;
-  padding: 1rem;
+
   box-sizing: border-box;
   background: #fff;
-
-  @media (min-width: 1024px) {
-    max-width: 1000px;
-    margin: 0 auto;
-  }
 `;
 
 const Header = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 6px;
-  margin-top: 70px;
+
   @media (min-width: 1024px) {
     margin-bottom: 24px;
   }
@@ -152,7 +147,7 @@ const GridItem = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1rem;
+
   box-sizing: border-box;
   border: 1px solid #ddd;
   background: #fff;
@@ -165,7 +160,7 @@ const IconLabelRow = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-top: 10px;
+  padding: 1rem;
 `;
 
 const IconImage = styled.img`

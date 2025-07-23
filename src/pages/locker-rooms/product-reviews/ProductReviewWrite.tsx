@@ -297,7 +297,6 @@ const ProductReviewContainer = styled.div`
   align-items: center;
 
   background-color: #fff;
-  padding: 1rem;
 `;
 
 const Section = styled.div`
@@ -388,7 +387,7 @@ const ReviewTextarea = styled.textarea`
 
 /** 후기사진 등록 */
 const PhotoSection = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 150px;
 `;
 
 const PhotoBox = styled.div`
@@ -451,7 +450,6 @@ const Item = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid #ddd;
-  padding: 30px 0;
   margin-bottom: 15px;
   background-color: #fff;
 `;

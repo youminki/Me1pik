@@ -570,10 +570,8 @@ const Container = styled.div`
   flex-direction: column;
   background: #fff;
   margin: auto;
-  max-width: 1000px;
   width: 100%;
   position: relative;
-  padding: 1rem;
 `;
 
 const Header = styled.div`
@@ -712,8 +710,6 @@ const PageWrapper = styled.div`
   flex-direction: column;
   position: relative;
   margin: auto;
-  max-width: 1000px;
-  padding: 1rem;
 `;
 const MainContent = styled.div`
   flex: 1;

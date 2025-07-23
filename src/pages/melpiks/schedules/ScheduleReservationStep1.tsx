@@ -123,7 +123,6 @@ const ScheduleReservation1: React.FC = () => {
 export default ScheduleReservation1;
 
 const Container = styled.div`
-  padding: 1rem;
-  max-width: 400px;
+  max-width: 600px;
   margin: auto;
 `;

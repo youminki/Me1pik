@@ -334,7 +334,6 @@ const UsageHistoryContainer = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: #fff;
-  padding: 1rem;
 `;
 
 /* 이하 스타일 컴포넌트는 변경 없으므로 생략 */

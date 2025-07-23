@@ -173,7 +173,7 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 1rem;
+
   max-width: 600px;
   margin: 0 auto;
   background-color: #ffffff;

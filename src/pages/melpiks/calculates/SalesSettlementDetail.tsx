@@ -158,9 +158,8 @@ export default SalesSettlementDetail;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+
   background: #fff;
-  padding: 1rem;
 `;
 
 const SectionRow = styled.div`

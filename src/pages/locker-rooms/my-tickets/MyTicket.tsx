@@ -169,7 +169,7 @@ const MyTicketContainer = styled.div`
   flex-direction: column;
   align-items: center;
   background: #fff;
-  padding: 1rem;
+  padding-bottom: 30px;
 `;
 
 const HeaderSection = styled.div`
@@ -184,7 +184,9 @@ const StatsSectionWrapper = styled.div`
 
 const TicketScrollContainer = styled.div`
   width: 100%;
-  max-height: 800px;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 8px;
@@ -200,12 +202,9 @@ const TicketListSection = styled.div`
   flex-direction: column;
   gap: 16px;
   align-items: center;
-  min-height: 200px;
   width: 100%;
   max-width: 500px;
-  margin-bottom: 24px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto 24px auto;
 
   @media (min-width: 1024px) {
     gap: 20px;
@@ -215,6 +214,8 @@ const TicketListSection = styled.div`
 
 const AddTicketSection = styled.div`
   width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
 `;
 
 const Title = styled.h1`
@@ -246,7 +247,7 @@ const TicketCard = styled.div`
   display: flex;
   width: 100%;
   max-width: 500px;
-  height: 16s0px;
+  height: 160px;
   border: 1px solid #ddd;
   overflow: hidden;
   cursor: pointer;

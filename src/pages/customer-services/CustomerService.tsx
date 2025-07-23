@@ -76,7 +76,6 @@ export default CustomerService;
 
 const Container = styled.div`
   width: 100%;
-  padding: 1rem;
   background: #fff;
   box-sizing: border-box;
 `;
@@ -85,10 +84,6 @@ const Header = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 6px;
-  @media (min-width: 1024px) {
-    margin-bottom: 24px;
-  }
-  margin-top: 70px;
 `;
 
 const Title = styled.h1`
@@ -145,7 +140,7 @@ const GridItem = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 1rem;
+
   box-sizing: border-box;
   border: 1px solid #ddd;
   background: #fff;
@@ -158,7 +153,7 @@ const IconLabelRow = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-top: 10px;
+  padding: 1rem;
 `;
 
 const IconImage = styled.img`

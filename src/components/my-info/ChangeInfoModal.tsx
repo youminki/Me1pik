@@ -154,7 +154,7 @@ const ModalWrapper = styled.div`
   background: #fff;
 
   overflow: hidden;
-   0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 `;
 
 const Header = styled.div`
