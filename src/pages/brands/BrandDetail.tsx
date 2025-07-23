@@ -569,13 +569,11 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background: #fff;
-
   margin: auto;
   max-width: 1000px;
   width: 100%;
   position: relative;
-  margin-top: 70px;
-  margin-bottom: 70px;
+  padding: 1rem;
 `;
 
 const Header = styled.div`

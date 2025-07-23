@@ -353,7 +353,6 @@ const PageContainer = styled.div`
   align-items: center;
   background: #fff;
   padding: 1rem;
-  padding-top: 70px;
   max-width: 600px;
   margin: 0 auto;
 `;

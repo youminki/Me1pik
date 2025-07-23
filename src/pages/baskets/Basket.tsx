@@ -311,7 +311,8 @@ const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
   padding: 1rem;
-  padding-top: 70px; // 헤더 높이만큼 추가
+
+  padding-bottom: 180px;
 `;
 
 const Header = styled.div`
@@ -319,7 +320,6 @@ const Header = styled.div`
   align-items: center;
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 15px;
 `;
 
 const Checkbox = styled.input`

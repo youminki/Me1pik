@@ -138,11 +138,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-
   background-color: #fff;
   padding: 1rem;
-  margin-top: 70px;
-  margin-bottom: 70px;
 `;
 
 const Header = styled.div`

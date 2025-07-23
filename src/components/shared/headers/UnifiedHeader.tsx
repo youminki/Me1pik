@@ -26,14 +26,10 @@ interface UnifiedHeaderProps {
   variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
   title?: string;
   onBack?: () => void;
-  exit?: boolean;
 }
 
 const HISTORY_KEY = 'search_history';
 
-const AnimatedHeaderWrapper = styled.div<{ exit?: boolean }>`
-  will-change: transform;
-`;
 const HeaderWrapper = styled.div`
   position: fixed;
   top: 0;
@@ -188,7 +184,6 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
   variant = 'default',
   title,
   onBack,
-  exit,
 }) => {
   const navigate = useNavigate();
 
@@ -528,22 +523,20 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
 
   if (variant === 'threeDepth') {
     return (
-      <AnimatedHeaderWrapper exit={exit}>
-        <HeaderWrapper>
-          <HeaderContainer>
-            <LeftSection>
-              <BackButton
-                src={BackButtonIcon}
-                alt='뒤로가기'
-                onClick={handleBack}
-              />
-            </LeftSection>
-            <CenterSection>
-              <TitleText>{title}</TitleText>
-            </CenterSection>
-          </HeaderContainer>
-        </HeaderWrapper>
-      </AnimatedHeaderWrapper>
+      <HeaderWrapper>
+        <HeaderContainer>
+          <LeftSection>
+            <BackButton
+              src={BackButtonIcon}
+              alt='뒤로가기'
+              onClick={handleBack}
+            />
+          </LeftSection>
+          <CenterSection>
+            <TitleText>{title}</TitleText>
+          </CenterSection>
+        </HeaderContainer>
+      </HeaderWrapper>
     );
   }
 

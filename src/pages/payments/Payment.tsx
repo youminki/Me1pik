@@ -28,6 +28,9 @@ const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
   padding: 1rem;
+  min-height: 100%;
+  box-sizing: border-box;
+  padding-bottom: 180px;
 `;
 
 declare global {
