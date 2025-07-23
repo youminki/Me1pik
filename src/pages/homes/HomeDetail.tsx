@@ -20,6 +20,7 @@ import RentalOptions from '@/components/homes/home-details/RentalOptions';
 import ServiceSelection from '@/components/homes/home-details/ServiceSelection';
 import SizeInfo from '@/components/homes/home-details/SizeInfo';
 import ErrorMessage from '@/components/shared/ErrorMessage';
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface HomeDetailProps {
@@ -195,6 +196,7 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
 
   return (
     <DetailContainer>
+      <UnifiedHeader variant='oneDepth' title='상품 상세' />
       <ImageSlider
         images={images}
         currentImageIndex={currentImageIndex}

@@ -7,7 +7,6 @@ import {
   getCartItems,
   CartItemListResponse,
 } from '@/api-utils/product-managements/carts/cart';
-import BasketIcon from '@/assets/baskets/BasketIcon.svg';
 import PriceIcon from '@/assets/baskets/PriceIcon.svg';
 import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
 import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
@@ -161,150 +160,146 @@ const Basket: React.FC = () => {
     if (item) navigateToPayment(item);
   };
 
-  if (loading) {
-    return <LoadingSpinner label='장바구니를 불러오는 중입니다...' />;
-  }
-  if (!items.length) {
-    return <EmptyState message='장바구니에 담긴 상품이 없습니다.' />;
-  }
-
   return (
-    <Container>
+    <>
       <UnifiedHeader variant='threeDepth' title='장바구니' />
-      {items.length === 0 ? (
-        <EmptyContainer>
-          <Icon src={BasketIcon} alt='장바구니 아이콘' />
-          <EmptyText>장바구니가 비어있습니다</EmptyText>
-        </EmptyContainer>
-      ) : (
-        <>
-          <Header>
-            <Checkbox
-              type='checkbox'
-              checked={items.every((item) => item.$isSelected)}
-              onChange={handleSelectAll}
-            />
-            <span>전체선택</span>
-          </Header>
+      <Container>
+        {loading ? (
+          <LoadingSpinner label='장바구니를 불러오는 중입니다...' />
+        ) : !items.length ? (
+          <EmptyState message='장바구니에 담긴 상품이 없습니다.' />
+        ) : (
+          <>
+            <Header>
+              <Checkbox
+                type='checkbox'
+                checked={items.every((item) => item.$isSelected)}
+                onChange={handleSelectAll}
+              />
+              <span>전체선택</span>
+            </Header>
 
-          {items.map((item) => (
-            <Item key={item.id}>
-              <ContentWrapper>
-                <ItemDetails>
-                  <Brand>{item.productBrand}</Brand>
-                  <ItemName>
-                    <Code>{item.product_num}</Code>
-                    <Slash>/</Slash>
-                    <Name>{item.name}</Name>
-                  </ItemName>
+            {items.map((item) => (
+              <Item key={item.id}>
+                <ContentWrapper>
+                  <ItemDetails>
+                    <Brand>{item.productBrand}</Brand>
+                    <ItemName>
+                      <Code>{item.product_num}</Code>
+                      <Slash>/</Slash>
+                      <Name>{item.name}</Name>
+                    </ItemName>
 
-                  <InfoRowFlex>
-                    <IconArea>
-                      <Icon src={ServiceInfoIcon} alt='Service' />
-                    </IconArea>
-                    <TextContainer>
-                      <RowText>
-                        <LabelDetailText>진행 서비스 - </LabelDetailText>
-                        <DetailHighlight>
-                          {getServiceLabel(item.serviceType)}
-                        </DetailHighlight>
-                      </RowText>
-                      {item.rentalStartDate && item.rentalEndDate && (
+                    <InfoRowFlex>
+                      <IconArea>
+                        <Icon src={ServiceInfoIcon} alt='Service' />
+                      </IconArea>
+                      <TextContainer>
+                        <RowText>
+                          <LabelDetailText>진행 서비스 - </LabelDetailText>
+                          <DetailHighlight>
+                            {getServiceLabel(item.serviceType)}
+                          </DetailHighlight>
+                        </RowText>
+                        {item.rentalStartDate && item.rentalEndDate && (
+                          <AdditionalText>
+                            <DetailText>
+                              {item.rentalStartDate} ~ {item.rentalEndDate}
+                            </DetailText>
+                          </AdditionalText>
+                        )}
+                      </TextContainer>
+                    </InfoRowFlex>
+
+                    <InfoRowFlex>
+                      <IconArea>
+                        <Icon src={ProductInfoIcon} alt='Product' />
+                      </IconArea>
+                      <TextContainer>
+                        <RowText>
+                          <LabelDetailText>제품정보</LabelDetailText>
+                        </RowText>
                         <AdditionalText>
                           <DetailText>
-                            {item.rentalStartDate} ~ {item.rentalEndDate}
+                            사이즈 -{' '}
+                            <DetailHighlight>{item.size}</DetailHighlight>{' '}
+                            <br />
+                            색상 -{' '}
+                            <DetailHighlight>{item.color}</DetailHighlight>
                           </DetailText>
                         </AdditionalText>
-                      )}
-                    </TextContainer>
-                  </InfoRowFlex>
+                      </TextContainer>
+                    </InfoRowFlex>
 
-                  <InfoRowFlex>
-                    <IconArea>
-                      <Icon src={ProductInfoIcon} alt='Product' />
-                    </IconArea>
-                    <TextContainer>
-                      <RowText>
-                        <LabelDetailText>제품정보</LabelDetailText>
-                      </RowText>
-                      <AdditionalText>
-                        <DetailText>
-                          사이즈 -{' '}
-                          <DetailHighlight>{item.size}</DetailHighlight> <br />
-                          색상 - <DetailHighlight>{item.color}</DetailHighlight>
-                        </DetailText>
-                      </AdditionalText>
-                    </TextContainer>
-                  </InfoRowFlex>
+                    <InfoRowFlex>
+                      <IconArea>
+                        <Icon src={PriceIcon} alt='Price' />
+                      </IconArea>
+                      <TextContainer>
+                        <RowText>
+                          <LabelDetailText>결제금액 - </LabelDetailText>
+                          <DetailHighlight>
+                            {item.totalPrice.toLocaleString()}원
+                          </DetailHighlight>
+                        </RowText>
+                      </TextContainer>
+                    </InfoRowFlex>
+                  </ItemDetails>
 
-                  <InfoRowFlex>
-                    <IconArea>
-                      <Icon src={PriceIcon} alt='Price' />
-                    </IconArea>
-                    <TextContainer>
-                      <RowText>
-                        <LabelDetailText>결제금액 - </LabelDetailText>
-                        <DetailHighlight>
-                          {item.totalPrice.toLocaleString()}원
-                        </DetailHighlight>
-                      </RowText>
-                    </TextContainer>
-                  </InfoRowFlex>
-                </ItemDetails>
+                  <RightSection>
+                    <ItemImageContainer>
+                      <CheckboxOverlay>
+                        <Checkbox
+                          type='checkbox'
+                          checked={item.$isSelected}
+                          onChange={() => handleSelectItem(item.id)}
+                        />
+                      </CheckboxOverlay>
+                      <ItemImage src={item.productThumbnail} alt={item.name} />
+                    </ItemImageContainer>
+                  </RightSection>
+                </ContentWrapper>
 
-                <RightSection>
-                  <ItemImageContainer>
-                    <CheckboxOverlay>
-                      <Checkbox
-                        type='checkbox'
-                        checked={item.$isSelected}
-                        onChange={() => handleSelectItem(item.id)}
-                      />
-                    </CheckboxOverlay>
-                    <ItemImage src={item.productThumbnail} alt={item.name} />
-                  </ItemImageContainer>
-                </RightSection>
-              </ContentWrapper>
+                <ButtonContainer>
+                  <DeleteButton onClick={() => handleDeleteClick(item.id)}>
+                    삭제
+                  </DeleteButton>
+                  <PurchaseButton onClick={() => handleBuyClick(item.id)}>
+                    바로구매
+                  </PurchaseButton>
+                </ButtonContainer>
+              </Item>
+            ))}
 
-              <ButtonContainer>
-                <DeleteButton onClick={() => handleDeleteClick(item.id)}>
-                  삭제
-                </DeleteButton>
-                <PurchaseButton onClick={() => handleBuyClick(item.id)}>
-                  바로구매
-                </PurchaseButton>
-              </ButtonContainer>
-            </Item>
-          ))}
+            <FixedBottomBar
+              onClick={handleConfirmPayment}
+              text='결제하기'
+              color='yellow'
+            />
 
-          <FixedBottomBar
-            onClick={handleConfirmPayment}
-            text='결제하기'
-            color='yellow'
-          />
+            <ReusableModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              onConfirm={handleConfirmDelete}
+              title='알림'
+              showConfirmButton={true}
+            >
+              해당 제품을 삭제하시겠습니까?
+            </ReusableModal>
 
-          <ReusableModal
-            isOpen={isDeleteModalOpen}
-            onClose={() => setIsDeleteModalOpen(false)}
-            onConfirm={handleConfirmDelete}
-            title='알림'
-            showConfirmButton={true}
-          >
-            해당 제품을 삭제하시겠습니까?
-          </ReusableModal>
-
-          <ReusableModal
-            isOpen={isBuyModalOpen}
-            onClose={() => setIsBuyModalOpen(false)}
-            onConfirm={handleConfirmBuy}
-            title='알림'
-            showConfirmButton={true}
-          >
-            해당 제품을 바로 구매하시겠습니까?
-          </ReusableModal>
-        </>
-      )}
-    </Container>
+            <ReusableModal
+              isOpen={isBuyModalOpen}
+              onClose={() => setIsBuyModalOpen(false)}
+              onConfirm={handleConfirmBuy}
+              title='알림'
+              showConfirmButton={true}
+            >
+              해당 제품을 바로 구매하시겠습니까?
+            </ReusableModal>
+          </>
+        )}
+      </Container>
+    </>
   );
 };
 
@@ -316,26 +311,7 @@ const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
   padding: 1rem;
-`;
-
-const EmptyContainer = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  color: #888;
-  pointer-events: none;
-`;
-
-const EmptyText = styled.p`
-  margin-top: 16px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 15px;
-  text-align: center;
-
-  color: #aaaaaa;
+  padding-top: 70px; // 헤더 높이만큼 추가
 `;
 
 const Header = styled.div`
@@ -344,7 +320,6 @@ const Header = styled.div`
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 15px;
-  margin-top: 70px;
 `;
 
 const Checkbox = styled.input`
