@@ -58,6 +58,11 @@ const Basket: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isNoSelectionModalOpen, setIsNoSelectionModalOpen] = useState(false);
+  const [pendingPaymentPayloads, setPendingPaymentPayloads] = useState<
+    BasketItemForPayment[]
+  >([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -111,8 +116,10 @@ const Basket: React.FC = () => {
   // 수정된 부분: 선택된 모든 아이템을 payment로 보내도록 함
   const handleConfirmPayment = () => {
     const toPay = items.filter((item) => item.$isSelected);
-    if (toPay.length === 0) return;
-
+    if (toPay.length === 0) {
+      setIsNoSelectionModalOpen(true);
+      return;
+    }
     const payloads: BasketItemForPayment[] = toPay.map((item) => ({
       id: item.productId,
       brand: item.productBrand,
@@ -129,8 +136,16 @@ const Basket: React.FC = () => {
       imageUrl: item.productThumbnail,
       $isSelected: true,
     }));
-    const firstId = payloads[0].id;
-    navigate(`/payment/${firstId}`, { state: payloads });
+    setPendingPaymentPayloads(payloads);
+    setIsPaymentModalOpen(true);
+  };
+
+  const handlePaymentModalConfirm = () => {
+    if (pendingPaymentPayloads.length > 0) {
+      const firstId = pendingPaymentPayloads[0].id;
+      navigate(`/payment/${firstId}`, { state: pendingPaymentPayloads });
+    }
+    setIsPaymentModalOpen(false);
   };
 
   const handleDeleteClick = (id: number) => {
@@ -276,6 +291,71 @@ const Basket: React.FC = () => {
               text='결제하기'
               color='yellow'
             />
+
+            {/* 결제할 아이템이 없을 때 모달 */}
+            <ReusableModal
+              isOpen={isNoSelectionModalOpen}
+              onClose={() => setIsNoSelectionModalOpen(false)}
+              title='알림'
+              actions={
+                <button
+                  style={{
+                    width: '100%',
+                    height: '50px',
+                    background: '#000',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setIsNoSelectionModalOpen(false)}
+                >
+                  확인
+                </button>
+              }
+            >
+              결제할 상품을 선택해주세요.
+            </ReusableModal>
+
+            {/* 결제할 아이템 정보 확인 모달 */}
+            <ReusableModal
+              isOpen={isPaymentModalOpen}
+              onClose={() => setIsPaymentModalOpen(false)}
+              title='결제 상품 확인'
+              showConfirmButton={true}
+              onConfirm={handlePaymentModalConfirm}
+            >
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>
+                총 {pendingPaymentPayloads.length}개 상품 결제
+              </div>
+              <ul
+                style={{
+                  maxHeight: 200,
+                  overflowY: 'auto',
+                  padding: 0,
+                  margin: 0,
+                }}
+              >
+                {pendingPaymentPayloads.map((item, idx) => (
+                  <li
+                    key={item.id + item.size + item.color + idx}
+                    style={{ fontSize: 14, marginBottom: 4, listStyle: 'none' }}
+                  >
+                    <span style={{ color: '#888', fontWeight: 700 }}>
+                      {item.nameCode}
+                    </span>
+                    <span style={{ marginLeft: 8, color: '#333' }}>
+                      ({item.size}, {item.color})
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div style={{ marginTop: 12, fontSize: 13, color: '#666' }}>
+                결제하기를 누르면 선택한 상품이 결제 페이지로 이동합니다.
+              </div>
+            </ReusableModal>
 
             <ReusableModal
               isOpen={isDeleteModalOpen}
