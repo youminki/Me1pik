@@ -99,7 +99,8 @@ const BottomNav: React.FC = () => {
           const enabled =
             tab.key === 'home' ||
             tab.key === 'brand' ||
-            tab.key === 'lockerRoom';
+            tab.key === 'lockerRoom' ||
+            tab.key === 'customerService';
           return (
             <NavItem
               key={tab.key}
