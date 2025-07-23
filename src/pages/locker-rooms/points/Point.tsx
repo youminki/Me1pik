@@ -193,6 +193,8 @@ const Section = styled.div`
   flex-direction: column;
   width: 100%;
   padding-bottom: 80px;
+  max-width: 600px;
+  margin: 0 auto;
   margin-top: 30px;
 `;
 

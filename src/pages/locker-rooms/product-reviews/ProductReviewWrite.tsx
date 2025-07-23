@@ -297,6 +297,8 @@ const ProductReviewContainer = styled.div`
   align-items: center;
 
   background-color: #fff;
+  max-width: 600px;
+  margin: 0 auto;
 `;
 
 const Section = styled.div`

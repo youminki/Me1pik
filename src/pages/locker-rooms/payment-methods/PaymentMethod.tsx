@@ -221,7 +221,8 @@ const CardsList = styled.div`
   gap: 24px;
   justify-content: center;
   width: 100%;
-  max-width: 800px;
+  max-width: 600px;
+  margin: 0 auto;
 `;
 
 const CardItemBox = styled.div`

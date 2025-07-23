@@ -239,6 +239,7 @@ const Section = styled.div`
   width: 100%;
   padding-bottom: 80px;
   margin-top: 30px;
+  max-width: 600px;
 `;
 
 const ItemList = styled.div`
