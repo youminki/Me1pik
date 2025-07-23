@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { addToCloset } from '@/api-utils/product-managements/closets/closetApi';
-import AddTekImage from '@/assets/locker-rooms/ClosetIcon.svg';
+import AddTekIcon from '@/assets/homes/home-details/AddTek.svg';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 export interface ProductInfoProps {
@@ -62,7 +62,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ item, productId }) => {
         </PriceContainer>
 
         <TekImageContainer onClick={handleAddTekClick}>
-          <TekImage src={AddTekImage} alt='찜 추가' />
+          <img src={AddTekIcon} alt='찜 추가' width={80} height={80} />
         </TekImageContainer>
       </ContentContainer>
 
@@ -139,8 +139,4 @@ const DiscountPrice = styled.span`
 
 const TekImageContainer = styled.div`
   cursor: pointer;
-`;
-const TekImage = styled.img`
-  width: 80px;
-  height: 80px;
 `;
