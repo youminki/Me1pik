@@ -14,8 +14,8 @@ interface ItemCardProps {
   id: string;
   image: string;
   brand: string;
-  description: string; // 상품 코드
-  name: string; // 상품명
+  description: string;
+  price: number;
   discount: number;
   isLiked: boolean;
   onOpenModal: (id: string) => void;
@@ -29,8 +29,8 @@ const ItemCard = React.memo(function ItemCard({
   id,
   image,
   brand,
-  description, // 상품 코드
-  name, // 상품명
+  description,
+  price,
   discount,
   isLiked: initialLiked,
   onOpenModal,
@@ -42,6 +42,10 @@ const ItemCard = React.memo(function ItemCard({
   const [errorMsg, setErrorMsg] = useState('');
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  const displayDescription = description.includes('/')
+    ? description.split('/')[1]
+    : description;
 
   const handleCardClick = () => onOpenModal(id);
   const handleLikeClick = (e: React.MouseEvent) => {
@@ -160,10 +164,10 @@ const ItemCard = React.memo(function ItemCard({
         ) : (
           <>
             <Brand data-testid='brand'>{brand}</Brand>
-            <Description>{name}</Description>
+            <Description>{displayDescription}</Description>
             <PriceWrapper>
               <PointBar />
-              <OriginalPrice>{description}</OriginalPrice>
+              <OriginalPrice>{price.toLocaleString()}원</OriginalPrice>
               <SubPrice>
                 <NowLabel>NOW</NowLabel>
                 <DiscountLabel>{discount}%</DiscountLabel>
