@@ -3,6 +3,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import {
+  getReviewPresignedUrl,
+  createReview,
+} from '@/api-utils/product-managements/reviews/reviewApi';
 import EmptyStarIcon from '@/assets/baskets/EmptyStarIcon.svg'; // 빈 별
 import FilledStarIcon from '@/assets/baskets/FilledStarIcon.svg'; // 채워진 별
 import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
@@ -59,9 +63,9 @@ const ProductReview: React.FC = () => {
   const [starRating, setStarRating] = useState(items[0].rating || 0); // 별점
   const [reviewText, setReviewText] = useState(''); // 후기 텍스트
   const [fileName, setFileName] = useState(''); // 업로드 파일명
-
-  // 모달 제어 상태
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined); // 업로드된 이미지 URL
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // 별점 선택
   const handleStarClick = (idx: number) => {
@@ -73,10 +77,41 @@ const ProductReview: React.FC = () => {
     setReviewText(e.target.value);
   };
 
-  // 파일 업로드
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 파일 업로드 (presigned URL + S3 업로드)
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFileName(e.target.files[0].name);
+      const file = e.target.files[0];
+      setFileName(file.name);
+      // 1. presigned URL 요청
+      const { url, key } = await getReviewPresignedUrl(file.name, file.type);
+      // 2. S3에 직접 업로드
+      await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      // 3. 업로드된 이미지 URL 저장
+      setImageUrl(`https://melpik-static.s3.us-east-2.amazonaws.com/${key}`);
+    }
+  };
+
+  // 리뷰 등록
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      await createReview({
+        productId: items[0].id, // 실제 상품 ID로 교체 필요
+        rentalScheduleId: 1, // 실제 스케줄 ID로 교체 필요
+        productRating: starRating,
+        serviceRating: starRating, // 별점 하나만 쓰는 경우 임시로 동일하게
+        content: reviewText,
+        imageUrl,
+      });
+      setIsModalOpen(true);
+    } catch {
+      alert('리뷰 등록에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -228,9 +263,10 @@ const ProductReview: React.FC = () => {
 
         {/* FixedBottomBar 클릭 시 모달을 열어 "리뷰를 등록하시겠습니까?" 메시지를 표시 */}
         <FixedBottomBar
-          onClick={() => setIsModalOpen(true)}
-          text='평가등록'
+          onClick={handleSubmit}
+          text={submitting ? '등록 중...' : '평가등록'}
           color='yellow'
+          disabled={submitting}
         />
 
         {/* ReusableModal: 모달 내 "예" 선택 시 /product-review로 이동 */}

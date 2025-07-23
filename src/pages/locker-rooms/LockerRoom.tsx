@@ -37,7 +37,7 @@ const menuItems = [
     icon: ReviewIcon,
     label: '상품리뷰',
     path: '/product-review',
-    disabled: true,
+    disabled: false,
   },
 ];
 

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
+import { createRentalOrder } from '@/api-utils/schedule-managements/rentals/rental';
 import { useUserTickets } from '@/api-utils/schedule-managements/tickets/ticket';
 import {
   useAddresses,
@@ -257,8 +258,42 @@ const PaymentPage: React.FC = () => {
   const handleConfirmPayment = async () => {
     setConfirmModalOpen(false);
     try {
-      // useRental 관련 코드 삭제 또는 주석 처리
-      // await createRentalOrderMutation.mutateAsync(orderBody);
+      // 주문 정보 구성
+      const orderBody = {
+        ticketId:
+          tickets.find((t) => t.ticketList.name === selectedPaymentMethod)
+            ?.id || tickets[0]?.id,
+        items: items.map((item) => ({
+          productId: item.id,
+          sizeLabel: item.size,
+          startDate: item.servicePeriod
+            ? item.servicePeriod.split('~')[0].trim().replace(/\./g, '-')
+            : '',
+          endDate: item.servicePeriod
+            ? item.servicePeriod.split('~')[1].trim().replace(/\./g, '-')
+            : '',
+          quantity: 1,
+        })),
+        shipping: {
+          address: deliveryInfo.address,
+          detailAddress: deliveryInfo.detailAddress,
+          phone: deliveryInfo.contact.replace(/-/g, ''),
+          receiver: recipient,
+          deliveryMethod: fixedDeliveryMethod,
+          message: deliveryInfo.message,
+        },
+        return: {
+          address: isSameAsDelivery ? deliveryInfo.address : returnInfo.address,
+          detailAddress: isSameAsDelivery
+            ? deliveryInfo.detailAddress
+            : returnInfo.detailAddress,
+          phone: (isSameAsDelivery
+            ? deliveryInfo.contact
+            : returnInfo.contact
+          ).replace(/-/g, ''),
+        },
+      };
+      await createRentalOrder(orderBody);
       navigate('/payment-complete');
     } catch (err: unknown) {
       console.error('렌탈 주문 생성 실패:', err);

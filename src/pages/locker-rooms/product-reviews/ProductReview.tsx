@@ -5,9 +5,6 @@ import styled from 'styled-components';
 import EmptyStarIcon from '@/assets/baskets/EmptyStarIcon.svg';
 import EvaluationIcon from '@/assets/baskets/EvaluationIcon.svg';
 import FilledStarIcon from '@/assets/baskets/FilledStarIcon.svg';
-import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
-import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
-import sampleImage from '@/assets/sample-dress.svg';
 import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
@@ -45,7 +42,7 @@ const ProductReview: React.FC = () => {
       size: 'M (55)',
       color: '블랙',
       price: 50000,
-      imageUrl: sampleImage,
+      imageUrl: '',
       $isSelected: true,
       rentalDays: '대여 (3일)',
       rating: 3,
@@ -60,7 +57,7 @@ const ProductReview: React.FC = () => {
       size: 'M (55)',
       color: '블랙',
       price: '489,000',
-      imageUrl: sampleImage,
+      imageUrl: '',
       $isSelected: true,
       rentalDays: '구매',
       rating: 5,
@@ -113,7 +110,7 @@ const ProductReview: React.FC = () => {
                     {item.type === 'rental' ? (
                       <InfoRowFlex>
                         <IconArea>
-                          <Icon src={ServiceInfoIcon} alt='Service Info' />
+                          <Icon src={EvaluationIcon} alt='Service Info' />
                         </IconArea>
                         <TextContainer>
                           <RowText>
@@ -130,7 +127,7 @@ const ProductReview: React.FC = () => {
                     ) : (
                       <InfoRowFlex>
                         <IconArea>
-                          <Icon src={ServiceInfoIcon} alt='Service Info' />
+                          <Icon src={EvaluationIcon} alt='Service Info' />
                         </IconArea>
                         <TextContainer>
                           <RowText>
@@ -144,24 +141,6 @@ const ProductReview: React.FC = () => {
                         </TextContainer>
                       </InfoRowFlex>
                     )}
-
-                    <InfoRowFlex>
-                      <IconArea>
-                        <Icon src={ProductInfoIcon} alt='Product Info' />
-                      </IconArea>
-                      <TextContainer>
-                        <RowText>
-                          <LabelDetailText>제품 정보</LabelDetailText>
-                        </RowText>
-                        <AdditionalText>
-                          <DetailText>사이즈 - </DetailText>
-                          <DetailHighlight>{item.size}</DetailHighlight>
-                          <Slash>/</Slash>
-                          <DetailText>색상 - </DetailText>
-                          <DetailHighlight>{item.color}</DetailHighlight>
-                        </AdditionalText>
-                      </TextContainer>
-                    </InfoRowFlex>
 
                     <InfoRowFlex>
                       <IconArea>
@@ -189,7 +168,9 @@ const ProductReview: React.FC = () => {
 
                   <RightSection>
                     <ItemImageContainer>
-                      <ItemImage src={item.imageUrl} alt={item.nameCode} />
+                      {item.imageUrl && (
+                        <ItemImage src={item.imageUrl} alt={item.nameCode} />
+                      )}
                     </ItemImageContainer>
                   </RightSection>
                 </ContentWrapper>
@@ -198,7 +179,6 @@ const ProductReview: React.FC = () => {
                   <DeleteButton onClick={() => navigate(`/item/${item.id}`)}>
                     제품상세
                   </DeleteButton>
-
                   <PurchaseButton
                     onClick={() => navigate('/payment-review/Write')}
                   >
@@ -369,7 +349,7 @@ const DetailText = styled.span`
 `;
 
 const DetailHighlight = styled.span`
-  font-weight: 900;
+  font-weight: 700;
   font-size: 14px;
   line-height: 22px;
   color: #000;
