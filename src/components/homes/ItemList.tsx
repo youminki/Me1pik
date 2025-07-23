@@ -9,6 +9,7 @@ export interface UIItem {
   image: string;
   brand: string;
   description: string;
+  name: string;
   price: number;
   discount: number;
   isLiked: boolean;

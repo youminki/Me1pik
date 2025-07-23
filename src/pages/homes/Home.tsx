@@ -238,15 +238,20 @@ const Home: React.FC = () => {
         price: number;
         discount?: number;
         isLiked?: boolean;
-      }) => ({
-        id: p.id.toString(),
-        image: p.image,
-        brand: p.brand,
-        description: p.description,
-        price: p.price,
-        discount: p.discount || 0,
-        isLiked: p.isLiked || false,
-      })
+      }) => {
+        // description 예시: 'D252MSA047 / 플리츠 린넨 팬츠'
+        const [code, name] = p.description.split(' / ');
+        return {
+          id: p.id.toString(),
+          image: p.image,
+          brand: p.brand,
+          description: code, // 코드만
+          name: name || '', // 제품명만
+          price: p.price,
+          discount: p.discount || 0,
+          isLiked: p.isLiked || false,
+        };
+      }
     );
     console.timeEnd('uiItems');
     return result;
