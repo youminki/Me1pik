@@ -44,9 +44,8 @@ const PageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   background: #fff;
-  padding: 1rem;
-  padding-top: 70px;
-  max-width: 400px;
+
+  max-width: 600px;
 
   margin: 0 auto;
 `;
@@ -258,11 +257,15 @@ const MenuList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 600px;
 `;
 
 const MenuItem = styled.div<{ disabled?: boolean }>`
   display: grid;
   grid-template-columns: 70px 1fr 124px;
+  width: 100%;
+  max-width: 600px;
   align-items: center;
   border: 1px solid ${({ disabled }) => (disabled ? '#eee' : '#ccc')};
   border-radius: 0 0 30px 0;

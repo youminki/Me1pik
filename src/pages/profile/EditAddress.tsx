@@ -115,8 +115,8 @@ export default EditAddress;
 const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
-  margin-bottom: 50px;
-  padding: 1rem;
+  margin-bottom: 70px;
+
   display: flex;
   flex-direction: column;
 `;
@@ -124,7 +124,6 @@ const Container = styled.div`
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 70px;
   width: 100%;
 `;
 

@@ -162,8 +162,6 @@ export default ChangePassword;
 const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
-  padding: 1rem;
-  padding-top: 70px;
 `;
 
 const Form = styled.form`

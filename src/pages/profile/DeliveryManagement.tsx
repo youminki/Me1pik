@@ -20,10 +20,9 @@ const PageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   background: #fff;
-  padding: 1rem;
-  padding: 70px;
   max-width: 600px;
   margin: 0 auto;
+  padding-bottom: 170px;
 `;
 
 const DeliveryManagement: React.FC = () => {
@@ -282,7 +281,7 @@ const Block = styled.div`
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 16px;
-  width: 80%;
+  width: 90%;
 `;
 
 const Title = styled.div`
