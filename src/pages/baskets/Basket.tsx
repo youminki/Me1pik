@@ -403,17 +403,17 @@ const Header = styled.div`
 `;
 
 const Checkbox = styled.input`
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   margin-right: 8px;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   background-color: #ffffff;
-  border: 1px solid #cccccc;
-
+  border: 1.5px solid #cccccc;
   cursor: pointer;
   position: relative;
+  transition: border-color 0.2s;
 
   &:checked {
     background-color: #ffffff;
@@ -423,8 +423,8 @@ const Checkbox = styled.input`
   &:checked::after {
     content: '';
     position: absolute;
-    top: 3px;
-    left: 3px;
+    top: 6px;
+    left: 6px;
     width: 10px;
     height: 5px;
     border-left: 3px solid orange;
