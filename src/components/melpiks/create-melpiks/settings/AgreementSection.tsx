@@ -86,7 +86,7 @@ export default AgreementSection;
 const AgreementWrapper = styled.div`
   background-color: ${({ theme }) => theme.colors.white};
   margin-bottom: 20px;
-  z-index: 110;
+  z-index: 99999;
 `;
 
 const CheckboxWrapper = styled.div`
@@ -99,7 +99,6 @@ const ContentContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.lightgray};
   border: 1px solid ${({ theme }) => theme.colors.gray0};
   padding: 20px;
-  width: 100%;
 `;
 
 const InputWrapper = styled.div`

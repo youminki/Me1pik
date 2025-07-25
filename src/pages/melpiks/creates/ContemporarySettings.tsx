@@ -54,30 +54,31 @@ const ContemporarySettings: React.FC = () => {
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <AgreementSection />
-
           <Row>
             <InputField
-              label='기본정보'
-              id='height'
+              label='상품 노출수 설정'
+              id='productCount'
               as={CustomSelect}
-              error={errors.height}
-              {...register('height', { required: true })}
+              value={productCount}
+              error={errors.productCount}
+              {...register('productCount')}
+              required
             >
-              <option value='160'>160 cm</option>
-              <option value='165'>165 cm</option>
-              <option value='170'>170 cm</option>
-              <option value='175'>175 cm</option>
+              <option value='상품 6개'>상품 6개</option>
+              <option value='상품 12개'>상품 12개</option>
             </InputField>
+
             <InputField
-              label='사이즈'
-              id='size'
+              label='노출기간 설정'
+              id='exposureFrequency'
               as={CustomSelect}
-              error={errors.size}
-              {...register('size', { required: true })}
+              value={exposureFrequency}
+              error={errors.exposureFrequency}
+              {...register('exposureFrequency')}
+              required
             >
-              <option value='S'>S</option>
-              <option value='M'>M</option>
-              <option value='L'>L</option>
+              <option value='월 1회'>월 1회</option>
+              <option value='월 2회'>월 2회</option>
             </InputField>
           </Row>
           <GrayLine />
@@ -126,34 +127,6 @@ const ContemporarySettings: React.FC = () => {
               buttonLabel='선택하기'
               onButtonClick={openModal}
             />
-          </Row>
-          <GrayLine />
-          <Row>
-            <InputField
-              label='상품 노출수 설정'
-              id='productCount'
-              as={CustomSelect}
-              value={productCount}
-              error={errors.productCount}
-              {...register('productCount')}
-              required
-            >
-              <option value='상품 6개'>상품 6개</option>
-              <option value='상품 12개'>상품 12개</option>
-            </InputField>
-
-            <InputField
-              label='노출기간 설정'
-              id='exposureFrequency'
-              as={CustomSelect}
-              value={exposureFrequency}
-              error={errors.exposureFrequency}
-              {...register('exposureFrequency')}
-              required
-            >
-              <option value='월 1회'>월 1회</option>
-              <option value='월 2회'>월 2회</option>
-            </InputField>
           </Row>
 
           <BottomBar buttonText='설정완료' onClick={handleSubmit(onSubmit)} />
