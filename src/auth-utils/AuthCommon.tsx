@@ -9,7 +9,7 @@ export const LoginContainer = styled.div`
   justify-content: center;
   flex: 1;
   background: #fff;
-  padding-top: 70px;
+  height: 100%;
 `;
 export const LoginInfoBox = styled.div`
   background: #fff;
