@@ -160,7 +160,7 @@ const FindId: React.FC = () => {
                   placeholder='이름(한글)'
                   value={name}
                   onChange={handleNameChange}
-                  hasError={!!errors.name}
+                  $hasError={!!errors.name}
                   autoComplete='off'
                 />
                 {name && (
@@ -187,7 +187,7 @@ const FindId: React.FC = () => {
                   id='birthYear'
                   value={birthYear}
                   onChange={handleBirthYearChange}
-                  hasError={!!errors.birthYear}
+                  $hasError={!!errors.birthYear}
                 >
                   <option value=''>태어난 해 선택</option>
                   {years.map((year) => (
@@ -207,7 +207,7 @@ const FindId: React.FC = () => {
                   placeholder='010-1234-5678'
                   value={phone}
                   onChange={handlePhoneChange}
-                  hasError={!!errors.phone}
+                  $hasError={!!errors.phone}
                   autoComplete='off'
                 />
                 {phone && (

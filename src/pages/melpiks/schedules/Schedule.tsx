@@ -126,11 +126,11 @@ const Schedule: React.FC = () => {
                   return (
                     <ScheduleItemContainer
                       key={item.id}
-                      scheduleStatus={uiStatus}
+                      $scheduleStatus={uiStatus}
                       onClick={() => handleItemClick(item.id)}
                     >
                       <IconContainer>
-                        <IconWrapper scheduleStatus={uiStatus}>
+                        <IconWrapper $scheduleStatus={uiStatus}>
                           <Icon src={ScheduleIcon} alt={`${item.title} Icon`} />
                         </IconWrapper>
                         <ConnectorLine />
@@ -247,7 +247,7 @@ const IconContainer = styled.div`
   margin: 30px 20px 0 0;
 `;
 interface ScheduleItemProps {
-  scheduleStatus: 'reserved' | 'inProgress' | 'notStarted';
+  $scheduleStatus: 'reserved' | 'inProgress' | 'notStarted';
 }
 const ScheduleItemContainer = styled.div<ScheduleItemProps>`
   display: flex;
@@ -258,10 +258,10 @@ const IconWrapper = styled.div<ScheduleItemProps>`
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: ${({ scheduleStatus }) =>
-    scheduleStatus === 'reserved'
+  background-color: ${({ $scheduleStatus }) =>
+    $scheduleStatus === 'reserved'
       ? theme.colors.gray
-      : scheduleStatus === 'inProgress'
+      : $scheduleStatus === 'inProgress'
         ? theme.colors.yellow
         : theme.colors.gray4};
   display: flex;

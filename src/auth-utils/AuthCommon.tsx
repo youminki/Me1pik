@@ -89,11 +89,11 @@ export const InputIconBtn = styled.button`
   align-items: center;
   z-index: 2;
 `;
-export const StyledInput = styled.input<{ hasError?: boolean }>`
+export const StyledInput = styled.input<{ $hasError?: boolean }>`
   width: 100%;
   height: 51px;
   border: 1px solid
-    ${({ hasError }) => (hasError ? theme.colors.error : theme.colors.border)};
+    ${({ $hasError }) => ($hasError ? theme.colors.error : theme.colors.border)};
   font-size: 16px;
   padding: 0 ${theme.spacing.lg} 0 ${theme.spacing.md};
   background: ${theme.colors.inputBg};
@@ -122,11 +122,11 @@ export const StyledInput = styled.input<{ hasError?: boolean }>`
     pointer-events: none;
   }
 `;
-export const StyledSelect = styled.select<{ hasError?: boolean }>`
+export const StyledSelect = styled.select<{ $hasError?: boolean }>`
   width: 100%;
   height: 51px;
   border: 1.5px solid
-    ${({ hasError }) => (hasError ? theme.colors.error : '#000000')};
+    ${({ $hasError }) => ($hasError ? theme.colors.error : '#000000')};
   font-size: 16px;
   padding: 0 ${theme.spacing.lg} 0 ${theme.spacing.md};
   background:

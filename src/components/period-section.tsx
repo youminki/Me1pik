@@ -20,13 +20,13 @@ const PeriodSection: React.FC<PeriodSectionProps> = ({
       <DateRange>{dateRangeText}</DateRange>
       <PeriodSelector>
         <PeriodButton
-          active={selectedPeriod === 3}
+          $active={selectedPeriod === 3}
           onClick={() => setSelectedPeriod(3)}
         >
           3개월
         </PeriodButton>
         <PeriodButton
-          active={selectedPeriod === 6}
+          $active={selectedPeriod === 6}
           onClick={() => setSelectedPeriod(6)}
         >
           6개월
@@ -63,7 +63,7 @@ const PeriodSelector = styled.div`
   flex-shrink: 0;
 `;
 
-const PeriodButton = styled.button<{ active: boolean }>`
+const PeriodButton = styled.button<{ $active: boolean }>`
   padding: 8px 12px;
 
   height: 36px;
@@ -73,9 +73,9 @@ const PeriodButton = styled.button<{ active: boolean }>`
   font-weight: 700;
   font-size: 12px;
   line-height: 11px;
-  color: ${({ active }) => (active ? '#fff' : '#000')};
-  background: ${({ active }) => (active ? '#000' : '#fff')};
-  border: 1px solid ${({ active }) => (active ? '#000' : '#ccc')};
+  color: ${({ $active }) => ($active ? '#fff' : '#000')};
+  background: ${({ $active }) => ($active ? '#000' : '#fff')};
+  border: 1px solid ${({ $active }) => ($active ? '#000' : '#ccc')};
   cursor: pointer;
   white-space: nowrap;
 `;

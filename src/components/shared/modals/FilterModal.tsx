@@ -134,7 +134,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   <ColorButton
                     key={color}
                     selected={selectedColors.includes(color)}
-                    colorName={color}
+                    $colorName={color}
                     onClick={() => handleColorClick(color)}
                   >
                     {color}
@@ -288,20 +288,20 @@ const ButtonRow = styled.div`
 
 // ColorButton에 colorName prop 추가
 interface ColorButtonPropsStyled extends FilterButtonProps {
-  colorName: string;
+  $colorName: string;
 }
 const ColorButton = styled(FilterButton)<ColorButtonPropsStyled>`
   background: ${({ selected }) => (selected ? '#000' : '#fff')};
   color: ${({ selected }) => (selected ? '#fff' : '#000')};
   border: 1px solid #000;
   &:hover {
-    background: ${({ selected, colorName }) => {
+    background: ${({ selected, $colorName }) => {
       if (selected) return '#000';
-      return colorMap[colorName] || '#fff';
+      return colorMap[$colorName] || '#fff';
     }};
-    color: ${({ selected, colorName }) => {
+    color: ${({ selected, $colorName }) => {
       if (selected) return '#fff';
-      const hex = colorMap[colorName] || '#fff';
+      const hex = colorMap[$colorName] || '#fff';
       function getContrastColor(hex: string) {
         hex = hex.replace('#', '');
         const r = parseInt(hex.substring(0, 2), 16);

@@ -412,7 +412,7 @@ const Login: React.FC = () => {
                     placeholder='아이디(이메일)'
                     value={email}
                     onChange={handleEmailChange}
-                    hasError={!!errors.email}
+                    $hasError={!!errors.email}
                     autoComplete='username'
                   />
                   {email && (
@@ -431,7 +431,7 @@ const Login: React.FC = () => {
                     placeholder='비밀번호'
                     value={password}
                     onChange={handlePwChange}
-                    hasError={!!errors.password}
+                    $hasError={!!errors.password}
                     autoComplete='current-password'
                     onKeyDown={handlePwKeyDown}
                     onBlur={handlePwBlur}

@@ -227,7 +227,7 @@ const FindPassword: React.FC = () => {
                     placeholder='이름(한글)'
                     value={name}
                     onChange={handleNameChange}
-                    hasError={!!errors.name}
+                    $hasError={!!errors.name}
                     autoComplete='off'
                   />
                   {name && (
@@ -256,7 +256,7 @@ const FindPassword: React.FC = () => {
                     placeholder='이메일'
                     value={email}
                     onChange={handleEmailChange}
-                    hasError={!!errors.email}
+                    $hasError={!!errors.email}
                     autoComplete='off'
                   />
                   {email && (
@@ -285,7 +285,7 @@ const FindPassword: React.FC = () => {
                     placeholder='010-1234-5678'
                     value={phone}
                     onChange={handlePhoneChange}
-                    hasError={!!errors.phone}
+                    $hasError={!!errors.phone}
                     autoComplete='off'
                   />
                   {phone && (
@@ -314,7 +314,7 @@ const FindPassword: React.FC = () => {
                     placeholder='새 비밀번호를 입력하세요'
                     value={newPassword}
                     onChange={handleNewPasswordChange}
-                    hasError={!!errors.newPassword}
+                    $hasError={!!errors.newPassword}
                     autoComplete='new-password'
                   />
                   {newPassword && (
@@ -359,7 +359,7 @@ const FindPassword: React.FC = () => {
                     placeholder='비밀번호를 다시 입력하세요'
                     value={confirmPassword}
                     onChange={handleConfirmPasswordChange}
-                    hasError={!!errors.confirmPassword}
+                    $hasError={!!errors.confirmPassword}
                     autoComplete='new-password'
                   />
                   {confirmPassword && (
