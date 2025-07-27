@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import {
   getCartItems,
   CartItemListResponse,
+  deleteCartItem,
 } from '@/api-utils/product-managements/carts/cart';
 import PriceIcon from '@/assets/baskets/PriceIcon.svg';
 import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
@@ -72,6 +73,9 @@ const Basket: React.FC = () => {
   const [editingItem, setEditingItem] = useState<BasketItem | null>(null);
   const [isUpdateSuccessModalOpen, setIsUpdateSuccessModalOpen] =
     useState(false);
+  // 전체 삭제 모달 관련 상태 추가
+  const [isDeleteAllModalOpen, setIsDeleteAllModalOpen] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -223,6 +227,35 @@ const Basket: React.FC = () => {
       .finally(() => setLoading(false));
   };
 
+  const handleDeleteAllClick = () => {
+    setIsDeleteAllModalOpen(true);
+  };
+
+  const handleConfirmDeleteAll = async () => {
+    // 선택된 모든 아이템 삭제
+    const selectedItems = items.filter((item) => item.$isSelected);
+    if (selectedItems.length === 0) {
+      setIsDeleteAllModalOpen(false);
+      return;
+    }
+
+    setIsDeletingAll(true);
+    try {
+      // 선택된 아이템들을 각각 삭제
+      await Promise.all(selectedItems.map((item) => deleteCartItem(item.id)));
+
+      // 삭제 성공 시 선택된 아이템들을 목록에서 제거
+      setItems(items.filter((item) => !item.$isSelected));
+      setIsDeleteAllModalOpen(false);
+    } catch (err) {
+      console.error('전체 삭제 실패', err);
+      // 에러 발생 시에도 모달은 닫기
+      setIsDeleteAllModalOpen(false);
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+
   return (
     <>
       <UnifiedHeader variant='threeDepth' title='장바구니' />
@@ -234,12 +267,24 @@ const Basket: React.FC = () => {
         ) : (
           <>
             <Header>
-              <Checkbox
-                type='checkbox'
-                checked={items.every((item) => item.$isSelected)}
-                onChange={handleSelectAll}
-              />
-              <span>전체선택</span>
+              <HeaderLeftSection>
+                <Checkbox
+                  type='checkbox'
+                  checked={items.every((item) => item.$isSelected)}
+                  onChange={handleSelectAll}
+                />
+                <span>전체선택</span>
+              </HeaderLeftSection>
+              <HeaderRightSection>
+                <DeleteAllButton
+                  onClick={handleDeleteAllClick}
+                  disabled={
+                    items.filter((item) => item.$isSelected).length === 0
+                  }
+                >
+                  전체 삭제
+                </DeleteAllButton>
+              </HeaderRightSection>
             </Header>
 
             {items.map((item) => (
@@ -390,6 +435,30 @@ const Basket: React.FC = () => {
               </ModalOverlay>
             )}
 
+            {/* 전체 삭제 확인 모달 */}
+            <ReusableModal
+              isOpen={isDeleteAllModalOpen}
+              onClose={() => !isDeletingAll && setIsDeleteAllModalOpen(false)}
+              title='전체 삭제'
+              showConfirmButton={true}
+              onConfirm={handleConfirmDeleteAll}
+            >
+              <div style={{ marginBottom: 16 }}>
+                선택된 상품 {items.filter((item) => item.$isSelected).length}
+                개를 장바구니에서 삭제하시겠습니까?
+              </div>
+              <div style={{ fontSize: 14, color: '#666' }}>
+                삭제된 상품은 복구할 수 없습니다.
+              </div>
+              {isDeletingAll && (
+                <div
+                  style={{ marginTop: 16, textAlign: 'center', color: '#666' }}
+                >
+                  삭제 중...
+                </div>
+              )}
+            </ReusableModal>
+
             {/* 수정 성공 모달 */}
             <ReusableModal
               isOpen={isUpdateSuccessModalOpen}
@@ -522,9 +591,42 @@ const Container = styled.div`
 
 const Header = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
   font-size: 16px;
   font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+const HeaderLeftSection = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const HeaderRightSection = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const DeleteAllButton = styled.button`
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #cc3333;
+  }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 `;
 
 const Checkbox = styled.input`
@@ -710,51 +812,106 @@ const ItemImage = styled.img`
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 12px;
+  margin-top: 24px;
   align-self: flex-end;
   @media (max-width: 600px) {
-    margin-top: 10px;
+    gap: 8px;
+    margin-top: 16px;
   }
 `;
 
 const DeleteButton = styled.button`
   background-color: #fff;
-  color: #888;
-  width: 91px;
-  height: 46px;
+  color: #ff4444;
+  width: 80px;
+  height: 44px;
   white-space: nowrap;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  border: 1px solid #ddd;
-  font-weight: 800;
-  font-size: 14px;
-  line-height: 15px;
+  border: 2px solid #ff4444;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
   text-align: center;
-  color: #999999;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #ff4444;
+    color: white;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
   @media (max-width: 600px) {
-    width: 60px;
+    width: 70px;
     height: 40px;
+    font-size: 12px;
+  }
+`;
+
+const EditButton = styled.button`
+  background-color: #fff;
+  color: #666;
+  width: 80px;
+  height: 44px;
+  white-space: nowrap;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #666;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #666;
+    color: white;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 600px) {
+    width: 70px;
+    height: 40px;
+    font-size: 12px;
   }
 `;
 
 const PurchaseButton = styled.button`
-  background-color: black;
+  background-color: #000;
   color: white;
   border: none;
-  width: 91px;
-  height: 46px;
+  width: 100px;
+  height: 44px;
   white-space: nowrap;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  border: 1px solid #ddd;
-  font-weight: 800;
-  font-size: 14px;
-  line-height: 15px;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
   text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
   @media (max-width: 600px) {
-    width: 60px;
+    width: 85px;
     height: 40px;
+    font-size: 12px;
   }
 `;
 
@@ -786,20 +943,6 @@ const Name = styled.span`
   @media (max-width: 480px) {
     margin-top: 4px;
     font-size: 14px;
-  }
-`;
-
-const EditButton = styled.button`
-  background: #666;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  margin: 0 4px;
-  &:hover {
-    background: #555;
   }
 `;
 
