@@ -532,22 +532,49 @@ const Basket: React.FC = () => {
                   margin: 0,
                 }}
               >
-                {pendingPaymentPayloads.map((item, idx) => (
-                  <li
-                    key={item.id + item.size + item.color + idx}
-                    style={{ fontSize: 14, marginBottom: 4, listStyle: 'none' }}
-                  >
-                    <span style={{ color: '#888', fontWeight: 700 }}>
-                      {item.nameCode}
-                    </span>
-                    <span style={{ marginLeft: 8, color: '#333' }}>
-                      ({item.size}, {item.color})
-                    </span>
-                  </li>
-                ))}
+                {pendingPaymentPayloads.map((item, idx) => {
+                  const name =
+                    item.nameCode.split('/')[1]?.trim() || item.nameCode;
+                  const sizeNumber = item.size.match(/\d+/)?.[0] || item.size;
+                  return (
+                    <li
+                      key={item.id + item.size + item.color + idx}
+                      style={{
+                        fontSize: 15,
+                        marginBottom: 8,
+                        listStyle: 'none',
+                        fontWeight: 600,
+                        color: '#222',
+                      }}
+                    >
+                      {name}(SIZE {sizeNumber}, {item.color})
+                    </li>
+                  );
+                })}
               </ul>
-              <div style={{ marginTop: 12, fontSize: 13, color: '#666' }}>
-                결제하기를 누르면 선택한 상품이 결제 페이지로 이동합니다.
+              <div
+                style={{
+                  position: 'sticky',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  background: '#fff',
+                  padding: '18px 0 0 0',
+                  marginTop: 18,
+                  textAlign: 'center',
+                  fontSize: 15,
+                  color: '#444',
+                  fontWeight: 500,
+                  lineHeight: 1.6,
+                  letterSpacing: '-0.01em',
+                  borderTop: '1px solid #eee',
+                  zIndex: 2,
+                  boxSizing: 'border-box',
+                }}
+              >
+                결제하기 버튼을 누르면
+                <br />
+                선택한 상품이 결제 페이지로 이동합니다.
               </div>
             </ReusableModal>
 
