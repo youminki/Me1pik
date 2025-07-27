@@ -139,6 +139,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: #fff;
+  padding-bottom: 200px;
 `;
 
 const Header = styled.div`
