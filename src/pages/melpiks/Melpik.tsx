@@ -182,7 +182,8 @@ const PickButton = styled.div`
   display: inline-flex;
   align-items: center;
   padding: 6px 12px;
-  border: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
   background: #fafafa;
   font-size: 12px;
   font-weight: 600;
