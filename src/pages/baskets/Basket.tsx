@@ -10,11 +10,15 @@ import {
 import PriceIcon from '@/assets/baskets/PriceIcon.svg';
 import ProductInfoIcon from '@/assets/baskets/ProductInfoIcon.svg';
 import ServiceInfoIcon from '@/assets/baskets/ServiceInfoIcon.svg';
+import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
+import HomeIcon from '@/assets/headers/HomeIcon.svg';
+import ShareIcon from '@/assets/headers/ShareIcon.svg';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import EmptyState from '@/components/shared/EmptyState';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
+import HomeDetail from '@/pages/homes/HomeDetail';
 
 interface BasketItemForPayment {
   id: number;
@@ -63,6 +67,11 @@ const Basket: React.FC = () => {
   const [pendingPaymentPayloads, setPendingPaymentPayloads] = useState<
     BasketItemForPayment[]
   >([]);
+  // 수정 모달 관련 상태 추가
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<BasketItem | null>(null);
+  const [isUpdateSuccessModalOpen, setIsUpdateSuccessModalOpen] =
+    useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,6 +86,13 @@ const Basket: React.FC = () => {
       })
       .catch((err: unknown) => console.error('장바구니 목록 조회 실패', err))
       .finally(() => setLoading(false));
+  }, []);
+
+  // 컴포넌트 언마운트 시 body 스크롤 해제
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   const handleSelectAll = () => {
@@ -175,6 +191,38 @@ const Basket: React.FC = () => {
     if (item) navigateToPayment(item);
   };
 
+  const handleEditClick = (item: BasketItem) => {
+    setEditingItem(item);
+    setIsEditModalOpen(true);
+    // 모달이 열릴 때 body 스크롤 잠금
+    document.body.style.overflow = 'hidden';
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditingItem(null);
+    // 모달이 닫힐 때 body 스크롤 해제
+    document.body.style.overflow = '';
+  };
+
+  const handleUpdateSuccess = () => {
+    setIsUpdateSuccessModalOpen(false);
+    // 모달이 닫힐 때 body 스크롤 해제
+    document.body.style.overflow = '';
+    // 장바구니 목록 새로고침
+    setLoading(true);
+    getCartItems()
+      .then((data: CartItemListResponse[]) => {
+        const withSelectFlag = data.map((item) => ({
+          ...item,
+          $isSelected: true,
+        }));
+        setItems(withSelectFlag);
+      })
+      .catch((err: unknown) => console.error('장바구니 목록 조회 실패', err))
+      .finally(() => setLoading(false));
+  };
+
   return (
     <>
       <UnifiedHeader variant='threeDepth' title='장바구니' />
@@ -207,7 +255,7 @@ const Basket: React.FC = () => {
 
                     <InfoRowFlex>
                       <IconArea>
-                        <Icon src={ServiceInfoIcon} alt='Service' />
+                        <img src={ServiceInfoIcon} alt='Service' />
                       </IconArea>
                       <TextContainer>
                         <RowText>
@@ -228,7 +276,7 @@ const Basket: React.FC = () => {
 
                     <InfoRowFlex>
                       <IconArea>
-                        <Icon src={ProductInfoIcon} alt='Product' />
+                        <img src={ProductInfoIcon} alt='Product' />
                       </IconArea>
                       <TextContainer>
                         <RowText>
@@ -248,7 +296,7 @@ const Basket: React.FC = () => {
 
                     <InfoRowFlex>
                       <IconArea>
-                        <Icon src={PriceIcon} alt='Price' />
+                        <img src={PriceIcon} alt='Price' />
                       </IconArea>
                       <TextContainer>
                         <RowText>
@@ -261,7 +309,7 @@ const Basket: React.FC = () => {
                     </InfoRowFlex>
                   </ItemDetails>
 
-                  <RightSection>
+                  <ItemRightSection>
                     <ItemImageContainer>
                       <CheckboxOverlay>
                         <Checkbox
@@ -272,13 +320,16 @@ const Basket: React.FC = () => {
                       </CheckboxOverlay>
                       <ItemImage src={item.productThumbnail} alt={item.name} />
                     </ItemImageContainer>
-                  </RightSection>
+                  </ItemRightSection>
                 </ContentWrapper>
 
                 <ButtonContainer>
                   <DeleteButton onClick={() => handleDeleteClick(item.id)}>
                     삭제
                   </DeleteButton>
+                  <EditButton onClick={() => handleEditClick(item)}>
+                    수정하기
+                  </EditButton>
                   <PurchaseButton onClick={() => handleBuyClick(item.id)}>
                     바로구매
                   </PurchaseButton>
@@ -291,6 +342,80 @@ const Basket: React.FC = () => {
               text='결제하기'
               color='yellow'
             />
+
+            {/* 수정 모달 */}
+            {isEditModalOpen && editingItem && (
+              <ModalOverlay>
+                <ModalBox>
+                  <ModalHeaderWrapper>
+                    <ModalHeaderContainer>
+                      <LeftSection>
+                        <CancleIcon
+                          src={CancleIconIcon}
+                          alt='취소'
+                          onClick={handleEditModalClose}
+                        />
+                      </LeftSection>
+                      <CenterSection />
+                      <RightSection>
+                        <ModalIcon src={ShareIcon} alt='공유' />
+                        <ModalIcon
+                          src={HomeIcon}
+                          alt='홈'
+                          onClick={() => navigate('/home')}
+                        />
+                      </RightSection>
+                    </ModalHeaderContainer>
+                  </ModalHeaderWrapper>
+                  <ModalBody>
+                    <HomeDetail
+                      id={String(editingItem.productId)}
+                      isEditMode={true}
+                      cartItemId={editingItem.id}
+                      initialData={{
+                        serviceType: editingItem.serviceType,
+                        rentalStartDate: editingItem.rentalStartDate,
+                        rentalEndDate: editingItem.rentalEndDate,
+                        size: editingItem.size,
+                        color: editingItem.color,
+                        quantity: 1,
+                      }}
+                      onUpdateSuccess={() => {
+                        setIsEditModalOpen(false);
+                        setIsUpdateSuccessModalOpen(true);
+                      }}
+                    />
+                  </ModalBody>
+                </ModalBox>
+              </ModalOverlay>
+            )}
+
+            {/* 수정 성공 모달 */}
+            <ReusableModal
+              isOpen={isUpdateSuccessModalOpen}
+              onClose={handleUpdateSuccess}
+              title='알림'
+              actions={
+                <button
+                  style={{
+                    width: '100%',
+                    height: '50px',
+                    background: '#000',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                  }}
+                  onClick={handleUpdateSuccess}
+                >
+                  확인
+                </button>
+              }
+            >
+              장바구니 정보가 수정되었습니다.
+            </ReusableModal>
 
             {/* 결제할 아이템이 없을 때 모달 */}
             <ReusableModal
@@ -556,7 +681,7 @@ const AdditionalText = styled.div`
   white-space: nowrap;
 `;
 
-const RightSection = styled.div`
+const ItemRightSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -664,7 +789,83 @@ const Name = styled.span`
   }
 `;
 
-const Icon = styled.img`
-  width: auto;
-  height: auto;
+const EditButton = styled.button`
+  background: #666;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 0 4px;
+  &:hover {
+    background: #555;
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  /* 모달 바깥으로 스크롤 전파되지 않도록 */
+  overscroll-behavior: contain;
+`;
+
+const ModalBox = styled.div`
+  background: #fff;
+  width: 100%;
+  max-width: 1000px;
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  /* 모달 내 스크롤이 바깥으로 전파되지 않도록 막음 */
+  overscroll-behavior: contain;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const ModalHeaderWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #fff;
+  z-index: 2100;
+`;
+
+const ModalHeaderContainer = styled.header`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+`;
+
+const ModalBody = styled.div`
+  padding-top: 70px;
+`;
+
+const LeftSection = styled.div`
+  cursor: pointer;
+`;
+
+const CenterSection = styled.div`
+  flex: 1;
+`;
+
+const RightSection = styled.div`
+  display: flex;
+  gap: 19px;
+`;
+
+const CancleIcon = styled.img`
+  cursor: pointer;
+`;
+
+const ModalIcon = styled.img`
+  cursor: pointer;
 `;

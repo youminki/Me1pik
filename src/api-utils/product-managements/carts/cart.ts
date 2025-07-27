@@ -61,6 +61,19 @@ export interface CartItemListResponse {
   createdAt: string; // ISO 8601
 }
 
+/**
+ * Cart 아이템 수정 요청 정보
+ */
+export interface CartItemUpdateRequest {
+  serviceType: 'rental' | 'purchase';
+  rentalStartDate?: string; // YYYY-MM-DD
+  rentalEndDate?: string; // YYYY-MM-DD
+  size: string;
+  color: string;
+  quantity: number;
+  isSelected?: boolean;
+}
+
 // --- API Calls ---
 /**
  * 장바구니에 아이템 추가
@@ -86,4 +99,19 @@ export const getCartItems = async (): Promise<CartItemListResponse[]> => {
  */
 export const deleteCartItem = async (cartItemId: number): Promise<void> => {
   await Axios.delete(`/cart/${cartItemId}`);
+};
+
+/**
+ * 장바구니 아이템 수정
+ * PATCH /cart/{id}
+ */
+export const updateCartItem = async (
+  cartItemId: number,
+  updateData: CartItemUpdateRequest
+): Promise<CartItemListResponse> => {
+  const response = await Axios.patch<CartItemListResponse>(
+    `/cart/${cartItemId}`,
+    updateData
+  );
+  return response.data;
 };

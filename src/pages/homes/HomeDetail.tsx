@@ -1,9 +1,12 @@
 // src/pages/homesDetail.tsx
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
-import { addCartItem } from '@/api-utils/product-managements/carts/cart';
+import {
+  addCartItem,
+  updateCartItem,
+} from '@/api-utils/product-managements/carts/cart';
 import {
   useProductInfo,
   ProductDetail as APIProductDetail,
@@ -25,10 +28,28 @@ import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface HomeDetailProps {
   id?: string;
+  isEditMode?: boolean;
+  cartItemId?: number;
+  initialData?: {
+    serviceType: 'rental' | 'purchase';
+    rentalStartDate?: string;
+    rentalEndDate?: string;
+    size: string;
+    color: string;
+    quantity: number;
+  };
+  onUpdateSuccess?: () => void;
 }
 
-const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
+const HomeDetail: React.FC<HomeDetailProps> = ({
+  id: propId,
+  isEditMode = false,
+  cartItemId,
+  initialData,
+  onUpdateSuccess,
+}) => {
   const [cartModalOpen, setCartModalOpen] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
   const id = propId || params.id;
@@ -53,6 +74,83 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
   const [warnModalOpen, setWarnModalOpen] = useState(false);
   const [warnMessage, setWarnMessage] = useState('');
   const [servicePeriod, setServicePeriod] = useState<string>('');
+
+  // 초기 데이터 추적을 위한 상태
+  const [initialFormData, setInitialFormData] = useState<{
+    size: string;
+    color: string;
+    serviceType: 'rental' | 'purchase' | '';
+    servicePeriod: string;
+  } | null>(null);
+
+  // 수정 모드일 때 초기 데이터 설정
+  useEffect(() => {
+    if (isEditMode && initialData) {
+      const formattedServicePeriod =
+        initialData.rentalStartDate && initialData.rentalEndDate
+          ? (() => {
+              const startDate = new Date(initialData.rentalStartDate);
+              const endDate = new Date(initialData.rentalEndDate);
+              const formattedStart = `${startDate.getFullYear()}.${String(startDate.getMonth() + 1).padStart(2, '0')}.${String(startDate.getDate()).padStart(2, '0')}`;
+              const formattedEnd = `${endDate.getFullYear()}.${String(endDate.getMonth() + 1).padStart(2, '0')}.${String(endDate.getDate()).padStart(2, '0')}`;
+              return `${formattedStart} ~ ${formattedEnd}`;
+            })()
+          : '';
+
+      setSelectedSize(initialData.size);
+      setSelectedColor(initialData.color);
+      setSelectedService(initialData.serviceType);
+      setServicePeriod(formattedServicePeriod);
+
+      // 초기 데이터 저장
+      setInitialFormData({
+        size: initialData.size,
+        color: initialData.color,
+        serviceType: initialData.serviceType,
+        servicePeriod: formattedServicePeriod,
+      });
+    }
+  }, [isEditMode, initialData]);
+
+  // 변경사항 감지
+  const hasChanges = useMemo(() => {
+    if (!isEditMode || !initialFormData) return false;
+
+    return (
+      selectedSize !== initialFormData.size ||
+      selectedColor !== initialFormData.color ||
+      selectedService !== initialFormData.serviceType ||
+      servicePeriod !== initialFormData.servicePeriod
+    );
+  }, [
+    isEditMode,
+    initialFormData,
+    selectedSize,
+    selectedColor,
+    selectedService,
+    servicePeriod,
+  ]);
+
+  // 수정완료 버튼 활성화 조건
+  const canUpdate = useMemo(() => {
+    if (!isEditMode) return true;
+
+    // 필수 필드 검증
+    if (!selectedService || !selectedSize || !selectedColor) return false;
+
+    // 대여 서비스인 경우 대여 기간 필수
+    if (selectedService === 'rental' && !servicePeriod) return false;
+
+    // 변경사항이 있는 경우에만 활성화
+    return hasChanges;
+  }, [
+    isEditMode,
+    selectedService,
+    selectedSize,
+    selectedColor,
+    servicePeriod,
+    hasChanges,
+  ]);
 
   // 이미지 슬라이드
   const images = useMemo<string[]>(() => {
@@ -141,23 +239,46 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
     const [start, end] = servicePeriod
       ? servicePeriod.split(' ~ ').map((d) => d.replace(/\./g, '-'))
       : [undefined, undefined];
-    const cartReq = {
-      productId: product.id,
-      serviceType: selectedService,
-      rentalStartDate: selectedService === 'rental' ? start : undefined,
-      rentalEndDate: selectedService === 'rental' ? end : undefined,
-      size: selectedSize,
-      color: selectedColor,
-      quantity: 1,
-      totalPrice: selectedService === 'purchase' ? product.retailPrice : 0, // 필요 시 다르게 계산
-    };
-    try {
-      await addCartItem(cartReq);
-      setCartModalOpen(true);
-    } catch (err) {
-      console.error('장바구니 추가 실패', err);
-      setWarnMessage('장바구니에 추가하는데 실패했습니다.');
-      setWarnModalOpen(true);
+
+    if (isEditMode && cartItemId) {
+      // 수정 모드: 장바구니 업데이트
+      const updateReq = {
+        serviceType: selectedService,
+        rentalStartDate: selectedService === 'rental' ? start : undefined,
+        rentalEndDate: selectedService === 'rental' ? end : undefined,
+        size: selectedSize,
+        color: selectedColor,
+        quantity: 1,
+        isSelected: true,
+      };
+      try {
+        await updateCartItem(cartItemId, updateReq);
+        setUpdateModalOpen(true);
+      } catch (err) {
+        console.error('장바구니 수정 실패', err);
+        setWarnMessage('장바구니 수정에 실패했습니다.');
+        setWarnModalOpen(true);
+      }
+    } else {
+      // 일반 모드: 장바구니 추가
+      const cartReq = {
+        productId: product.id,
+        serviceType: selectedService,
+        rentalStartDate: selectedService === 'rental' ? start : undefined,
+        rentalEndDate: selectedService === 'rental' ? end : undefined,
+        size: selectedSize,
+        color: selectedColor,
+        quantity: 1,
+        totalPrice: selectedService === 'purchase' ? product.retailPrice : 0, // 필요 시 다르게 계산
+      };
+      try {
+        await addCartItem(cartReq);
+        setCartModalOpen(true);
+      } catch (err) {
+        console.error('장바구니 추가 실패', err);
+        setWarnMessage('장바구니에 추가하는데 실패했습니다.');
+        setWarnModalOpen(true);
+      }
     }
   };
 
@@ -298,11 +419,30 @@ const HomeDetail: React.FC<HomeDetailProps> = ({ id: propId }) => {
         </ReusableModal>
       )}
 
+      {updateModalOpen && (
+        <ReusableModal
+          isOpen
+          onClose={() => {
+            setUpdateModalOpen(false);
+            onUpdateSuccess?.();
+          }}
+          title='알림'
+          width='80%'
+        >
+          <div
+            style={{ textAlign: 'center', fontSize: '14px', padding: '20px' }}
+          >
+            장바구니 정보가 수정되었습니다.
+          </div>
+        </ReusableModal>
+      )}
+
       <BottomBar
         cartIconSrc={ShoppingBasket}
-        orderButtonLabel='제품 주문하기'
-        onOrderClick={handleOrderClick}
+        orderButtonLabel={isEditMode ? '수정 완료' : '제품 주문하기'}
+        onOrderClick={isEditMode ? handleCartIconClick : handleOrderClick}
         onCartClick={handleCartIconClick}
+        orderButtonDisabled={isEditMode ? !canUpdate : false}
       />
     </DetailContainer>
   );
