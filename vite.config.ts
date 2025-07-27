@@ -1,34 +1,15 @@
 // vite.config.ts
+import path from 'path';
+
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import javascriptObfuscator from 'vite-plugin-javascript-obfuscator';
 
-export default defineConfig(({ mode }) => {
-  const isProduction = mode === 'production';
-
+export default defineConfig(() => {
   return {
-    plugins: [
-      react(),
-      // 프로덕션 빌드에서만 난독화 적용
-      ...(isProduction
-        ? [
-            javascriptObfuscator({
-              options: {
-                compact: true,
-                controlFlowFlattening: false, // 성능 향상을 위해 비활성화
-                deadCodeInjection: false, // 성능 향상을 위해 비활성화
-                stringArray: true,
-                rotateStringArray: true,
-                stringArrayEncoding: ['base64'],
-                stringArrayThreshold: 0.75,
-              },
-            }),
-          ]
-        : []),
-    ],
+    plugins: [react()],
     resolve: {
       alias: {
-        '@': '/src',
+        '@': path.resolve(__dirname, './src'),
       },
     },
     build: {
@@ -68,17 +49,6 @@ export default defineConfig(({ mode }) => {
       },
       chunkSizeWarningLimit: 1000,
       sourcemap: false,
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-          pure_funcs: ['console.log', 'console.info', 'console.debug'],
-        },
-        mangle: {
-          toplevel: true,
-        },
-      },
       // CSS 최적화
       cssCodeSplit: true,
       // 에셋 최적화
