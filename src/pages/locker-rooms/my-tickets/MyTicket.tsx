@@ -92,14 +92,16 @@ const MyTicket: React.FC = () => {
               const formattedPrice = `${price.toLocaleString()}원`;
               const formattedDiscountedPrice = `${discountedPrice.toLocaleString()}원`;
               const formattedDate = `${startDate.replace(/-/g, '.')} ~ ${endDate.replace(/-/g, '.')}`;
+              const isUnlimited = isUlimited === 'Y';
 
               return (
                 <TicketCard
                   key={id}
                   onClick={() => navigate(`/ticketDetail/${id}`)}
+                  $isUlimited={isUnlimited}
                 >
                   <RemainingBadge>
-                    {isUlimited ? '무제한' : `잔여횟수 ${remainingRentals}회`}
+                    {isUnlimited ? '무제한' : `잔여횟수 ${remainingRentals}회`}
                   </RemainingBadge>
                   <Left>
                     <SeasonRow>
@@ -241,7 +243,7 @@ const Divider = styled.div`
   margin: 30px 0;
 `;
 
-const TicketCard = styled.div`
+const TicketCard = styled.div<{ $isUlimited?: boolean }>`
   position: relative;
   display: flex;
   width: 100%;

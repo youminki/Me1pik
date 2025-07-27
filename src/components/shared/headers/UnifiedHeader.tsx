@@ -20,7 +20,7 @@ import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
 
 interface HeaderContainerProps {
-  variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
+  $variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
 }
 interface UnifiedHeaderProps {
   variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
@@ -486,7 +486,7 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
     return (
       <>
         <HeaderWrapper>
-          <HeaderContainer variant='twoDepth'>
+          <HeaderContainer $variant='twoDepth'>
             <LeftSection>
               <CancelIcon
                 src={CancleIconIcon}
