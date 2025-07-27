@@ -13,8 +13,9 @@ interface LazyImageProps {
   height?: string;
   onLoad?: () => void;
   onError?: () => void;
-  priority?: boolean; // LCP 최적화를 위한 우선순위 플래그
+  priority?: boolean;
   sizes?: string; // 반응형 이미지 크기
+  quality?: number; // 이미지 품질 (1-100)
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -28,6 +29,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   onError,
   priority = false,
   sizes = '100vw',
+  quality = 80,
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -42,7 +44,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       const link = document.createElement('link');
       link.rel = 'preload';
       link.as = 'image';
-      link.href = src;
+      link.href = getOptimizedSrc(src);
       document.head.appendChild(link);
 
       return () => {
@@ -82,7 +84,18 @@ const LazyImage: React.FC<LazyImageProps> = ({
     return originalSrc;
   };
 
+  // 적응형 이미지 srcset 생성
+  const generateSrcSet = (baseSrc: string) => {
+    const optimizedSrc = getOptimizedSrc(baseSrc);
+    const sizes = [320, 640, 768, 1024, 1280];
+
+    return sizes
+      .map((size) => `${optimizedSrc}?w=${size}&q=${quality} ${size}w`)
+      .join(', ');
+  };
+
   const optimizedSrc = getOptimizedSrc(src);
+  const srcSet = generateSrcSet(src);
 
   return (
     <ImageContainer
@@ -100,11 +113,13 @@ const LazyImage: React.FC<LazyImageProps> = ({
           )}
           <StyledImage
             src={optimizedSrc}
+            srcSet={srcSet}
             alt={alt}
             onLoad={handleLoad}
             onError={handleError}
             className={isLoaded ? 'loaded' : ''}
             loading={priority ? 'eager' : 'lazy'}
+            decoding={priority ? 'sync' : 'async'}
             sizes={sizes}
             style={{ position: 'absolute', top: 0, left: 0 }}
             fetchPriority={priority ? 'high' : 'auto'}

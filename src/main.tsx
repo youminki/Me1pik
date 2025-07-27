@@ -31,21 +31,27 @@ const queryClient = new QueryClient({
       // 백그라운드 업데이트 비활성화로 성능 향상
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      refetchOnMount: true,
-
-      // 네트워크 상태에 따른 최적화
-      networkMode: 'online',
     },
     mutations: {
       // 뮤테이션 재시도 비활성화
       retry: false,
-      // 뮤테이션 완료 후 캐시 무효화 최적화
-      onSuccess: () => {
-        // 필요한 경우에만 캐시 무효화
-      },
     },
   },
 });
+
+// Service Worker 등록
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((registration) => {
+        console.log('✅ Service Worker 등록 성공:', registration.scope);
+      })
+      .catch((error) => {
+        console.log('❌ Service Worker 등록 실패:', error);
+      });
+  });
+}
 
 // 성능 모니터링 설정
 setupPerformanceObservers();

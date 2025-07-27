@@ -260,3 +260,51 @@ export const logApplicationError = (
     ...context,
   });
 };
+
+/**
+ * 로깅 유틸리티
+ */
+
+// 환경별 로깅 설정
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+/**
+ * 개발 환경에서만 로그 출력
+ */
+export const devLog = (...args: unknown[]) => {
+  if (isDevelopment) {
+    console.log(...args);
+  }
+};
+
+/**
+ * 개발 환경에서만 에러 로그 출력
+ */
+export const devError = (...args: unknown[]) => {
+  if (isDevelopment) {
+    console.error(...args);
+  }
+};
+
+/**
+ * 개발 환경에서만 경고 로그 출력
+ */
+export const devWarn = (...args: unknown[]) => {
+  if (isDevelopment) {
+    console.warn(...args);
+  }
+};
+
+/**
+ * 프로덕션에서도 출력할 중요한 로그
+ */
+export const prodLog = (...args: unknown[]) => {
+  console.log(...args);
+};
+
+/**
+ * 프로덕션에서도 출력할 중요한 에러
+ */
+export const prodError = (...args: unknown[]) => {
+  console.error(...args);
+};

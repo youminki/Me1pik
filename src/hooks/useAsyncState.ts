@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 interface AsyncState<T> {
   data: T | null;
@@ -173,17 +173,17 @@ export const useAutoAsyncState = <T>(
     }
   }, [execute]);
 
-  // 컴포넌트 마운트 시 실행
-  useState(() => {
+  // 컴포넌트 마운트 시 자동 실행
+  useEffect(() => {
     executeOnMount();
-  });
+  }, [executeOnMount]);
 
   // 의존성 변경 시 실행
-  useState(() => {
+  useEffect(() => {
     if (deps.length > 0) {
       executeOnDepsChange();
     }
-  });
+  }, [executeOnDepsChange, deps]);
 
   return {
     ...asyncState,
