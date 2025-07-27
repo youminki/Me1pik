@@ -166,27 +166,36 @@ export const schemaSignup = yup
     shoulder: yup
       .string()
       .notRequired()
+      .default('')
       .transform((value, originalValue) =>
         originalValue === null ? undefined : value
       ),
     chest: yup
       .string()
       .notRequired()
+      .default('')
       .transform((value, originalValue) =>
         originalValue === null ? undefined : value
       ),
     waist: yup
       .string()
       .notRequired()
+      .default('')
       .transform((value, originalValue) =>
         originalValue === null ? undefined : value
       ),
     sleeve: yup
       .string()
       .notRequired()
+      .default('')
       .transform((value, originalValue) =>
         originalValue === null ? undefined : value
       ),
+    mebershipCode: yup
+      .string()
+      .notRequired()
+      .default('')
+      .max(20, '맴버쉽 코드는 최대 20자까지 입력 가능합니다.'),
   })
   .required();
 

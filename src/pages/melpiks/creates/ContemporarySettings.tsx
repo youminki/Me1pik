@@ -38,9 +38,7 @@ const ContemporarySettings: React.FC = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const brandButtonLabel = '선택하기';
 
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    console.log('Form Data: ', data);
-  };
+  const onSubmit: SubmitHandler<FormData> = () => {};
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);

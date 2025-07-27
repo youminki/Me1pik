@@ -21,7 +21,7 @@ export const CustomSelect = styled.select`
   z-index: ${({ theme }) => theme.zIndex.header};
   &:focus {
     outline: none;
-    border-color: #000000;
+    border: 1px solid #000000;
     background:
       url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
       #fff !important;

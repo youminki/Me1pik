@@ -89,20 +89,20 @@ class Logger {
       logData.context = entry.context;
     }
 
-    switch (entry.level) {
-      case LogLevel.DEBUG:
-        console.debug(logData);
-        break;
-      case LogLevel.INFO:
-        console.info(logData);
-        break;
-      case LogLevel.WARN:
-        console.warn(logData);
-        break;
-      case LogLevel.ERROR:
-        console.error(logData);
-        break;
-    }
+    // switch (entry.level) {
+    //   case LogLevel.DEBUG:
+    //     console.debug(logData);
+    //     break;
+    //   case LogLevel.INFO:
+    //     console.info(logData);
+    //     break;
+    //   case LogLevel.WARN:
+    //     console.warn(logData);
+    //     break;
+    //   case LogLevel.ERROR:
+    //     console.error(logData);
+    //     break;
+    // }
   }
 
   /**

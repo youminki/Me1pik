@@ -42,8 +42,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       return;
     }
 
-    console.log({ name, phone, newPassword });
-
     // 제출 후 모달 닫고 입력 초기화
     onClose();
     setName('');

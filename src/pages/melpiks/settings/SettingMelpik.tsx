@@ -9,7 +9,7 @@ import {
 } from '@/api-utils/user-managements/admin-user-pages/AdminUserPage';
 import InputField from '@/components/shared/forms/InputField';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import CustomModal from '@/components/shared/modals/CustomModal';
+import ReusableModal from '@/components/shared/modals/ReusableModal';
 import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
@@ -90,6 +90,219 @@ const LinkDeleteButton = styled.button`
   &:hover {
     background: #f5f5f5;
   }
+`;
+
+// 토글 UI 스타일 컴포넌트들을 외부로 이동
+const ToggleSwitch = styled.div<{ $on: boolean }>`
+  width: 60px;
+  height: 30px;
+  background: ${({ $on }) => ($on ? '#222' : '#D9D9D9')};
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+`;
+
+const ToggleCircle = styled.div<{ $on: boolean }>`
+  width: 28px;
+  height: 28px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 1px;
+  left: ${({ $on }) => ($on ? '31px' : '1px')};
+
+  transition: left 0.2s;
+`;
+
+const ToggleText = styled.span<{ $on: boolean }>`
+  position: absolute;
+  top: 9px;
+  left: ${({ $on }) => ($on ? '12px' : '35px')};
+  font-size: 10px;
+  font-weight: 700;
+  color: ${({ $on }) => ($on ? '#fff' : '#222')};
+  z-index: 2;
+  user-select: none;
+  pointer-events: none;
+`;
+
+// 커스텀 InputField Wrapper 스타일 컴포넌트들을 외부로 이동
+const CustomInputField = styled.div<{
+  $yellow?: boolean;
+  $readonly?: boolean;
+}>`
+  width: 100%;
+  max-width: 430px;
+  min-height: 50px;
+  background: ${({ $readonly }) => ($readonly ? '#f5f5f5' : '#fff')};
+  border: 1px solid ${({ $yellow }) => ($yellow ? '#F6AE24' : '#000')};
+
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0 16px;
+
+  margin-bottom: 16px;
+  ${(props) =>
+    props.$yellow &&
+    css`
+      border: 1px solid #f6ae24;
+    `}
+`;
+
+const CustomLabel = styled.div`
+  width: 100%;
+  max-width: 430px;
+
+  font-size: 10px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 6px;
+  margin-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const CustomPrefix = styled.div`
+  font-size: 14px;
+  font-weight: 800;
+  color: #000;
+
+  min-width: 94px;
+`;
+
+const CustomButton = styled.button<{ $gray?: boolean; $yellow?: boolean }>`
+  width: 69px;
+  height: 34px;
+  background: ${({ $gray, $yellow }) =>
+    $yellow ? '#F6AE24' : $gray ? '#999' : '#000'};
+  border-radius: 5px;
+  border: none;
+  color: #fff;
+
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 13px;
+  text-align: center;
+  margin-left: auto;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:active {
+    opacity: 0.8;
+  }
+`;
+
+const CustomInput = styled.input<{ readOnly?: boolean }>`
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-weight: 800;
+  color: #000;
+  background: ${({ readOnly }) => (readOnly ? '#f5f5f5' : 'transparent')};
+  &::placeholder {
+    color: #ccc;
+    font-weight: 400;
+  }
+`;
+
+// 프로필 이미지 관련 스타일 컴포넌트들을 외부로 이동
+const ProfileImageSection = styled.div`
+  width: 100%;
+  max-width: 430px;
+  background: #fafafa;
+  border: 1px solid #000;
+
+  padding: 24px 0 28px 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-bottom: 20px;
+`;
+
+const ProfileImageLabelRow = styled.div`
+  font-size: 13px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 18px;
+`;
+
+const ProfileImageUploadBox = styled.label`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+`;
+
+const ProfileImageDisplay = styled.img`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #ccc;
+  background: #fff;
+  transition: filter 0.2s;
+  &:hover {
+    filter: brightness(0.85);
+  }
+`;
+
+const PlaceholderText = styled.div`
+  width: 80px;
+  height: 80px;
+  border: 1.5px dashed #ccc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 13px;
+  text-align: center;
+  background: #fff;
+`;
+
+const Overlay = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 2;
+  user-select: none;
+  ${ProfileImageUploadBox}:hover & {
+    opacity: 1;
+    pointer-events: auto;
+  }
+`;
+
+const HiddenFileInput = styled.input`
+  display: none;
+`;
+
+const ImageGuide = styled.div`
+  font-size: 11px;
+  color: #888;
+  margin-top: 10px;
+  text-align: center;
 `;
 
 interface UserLink {
@@ -227,206 +440,6 @@ const SettingMelpik: React.FC = () => {
       .then(() => {})
       .catch(() => {});
   };
-
-  // 토글 UI
-  const ToggleSwitch = styled.div<{ $on: boolean }>`
-    width: 60px;
-    height: 30px;
-    background: ${({ $on }) => ($on ? '#222' : '#D9D9D9')};
-    border-radius: 15px;
-    position: relative;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 8px;
-  `;
-  const ToggleCircle = styled.div<{ $on: boolean }>`
-    width: 28px;
-    height: 28px;
-    background: #fff;
-    border-radius: 50%;
-    position: absolute;
-    top: 1px;
-    left: ${({ $on }) => ($on ? '31px' : '1px')};
-
-    transition: left 0.2s;
-  `;
-  const ToggleText = styled.span<{ $on: boolean }>`
-    position: absolute;
-    top: 9px;
-    left: ${({ $on }) => ($on ? '12px' : '35px')};
-    font-size: 10px;
-    font-weight: 700;
-    color: ${({ $on }) => ($on ? '#fff' : '#222')};
-    z-index: 2;
-    user-select: none;
-    pointer-events: none;
-  `;
-
-  // 커스텀 InputField Wrapper
-  const CustomInputField = styled.div<{
-    $yellow?: boolean;
-    $readonly?: boolean;
-  }>`
-    width: 100%;
-    max-width: 430px;
-    min-height: 50px;
-    background: ${({ $readonly }) => ($readonly ? '#f5f5f5' : '#fff')};
-    border: 1px solid ${({ $yellow }) => ($yellow ? '#F6AE24' : '#000')};
-
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    padding: 0 16px;
-
-    margin-bottom: 16px;
-    ${(props) =>
-      props.$yellow &&
-      css`
-        border: 1px solid #f6ae24;
-      `}
-  `;
-  const CustomLabel = styled.div`
-    width: 100%;
-    max-width: 430px;
-
-    font-size: 10px;
-    font-weight: 700;
-    color: #000;
-    margin-bottom: 6px;
-    margin-left: 2px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  `;
-  const CustomPrefix = styled.div`
-    font-size: 14px;
-    font-weight: 800;
-    color: #000;
-
-    min-width: 94px;
-  `;
-
-  const CustomButton = styled.button<{ $gray?: boolean; $yellow?: boolean }>`
-    width: 69px;
-    height: 34px;
-    background: ${({ $gray, $yellow }) =>
-      $yellow ? '#F6AE24' : $gray ? '#999' : '#000'};
-    border-radius: 5px;
-    border: none;
-    color: #fff;
-
-    font-size: 12px;
-    font-weight: 800;
-    line-height: 13px;
-    text-align: center;
-    margin-left: auto;
-    cursor: pointer;
-    transition: background 0.2s;
-    &:active {
-      opacity: 0.8;
-    }
-  `;
-  const CustomInput = styled.input<{ readOnly?: boolean }>`
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 13px;
-    font-weight: 800;
-    color: #000;
-    background: ${({ readOnly }) => (readOnly ? '#f5f5f5' : 'transparent')};
-    &::placeholder {
-      color: #ccc;
-      font-weight: 400;
-    }
-  `;
-
-  const ProfileImageSection = styled.div`
-    width: 100%;
-    max-width: 430px;
-    background: #fafafa;
-    border: 1px solid #000;
-
-    padding: 24px 0 28px 0;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    margin-bottom: 20px;
-  `;
-  const ProfileImageLabelRow = styled.div`
-    font-size: 13px;
-    font-weight: 700;
-    color: #222;
-    margin-bottom: 18px;
-  `;
-  const ProfileImageUploadBox = styled.label`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    position: relative;
-  `;
-  const ProfileImageDisplay = styled.img`
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid #ccc;
-    background: #fff;
-    transition: filter 0.2s;
-    &:hover {
-      filter: brightness(0.85);
-    }
-  `;
-  const PlaceholderText = styled.div`
-    width: 80px;
-    height: 80px;
-    border: 1.5px dashed #ccc;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    font-size: 13px;
-    text-align: center;
-    background: #fff;
-  `;
-  const Overlay = styled.div`
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.35);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-    z-index: 2;
-    user-select: none;
-    ${ProfileImageUploadBox}:hover & {
-      opacity: 1;
-      pointer-events: auto;
-    }
-  `;
-  const HiddenFileInput = styled.input`
-    display: none;
-  `;
-  const ImageGuide = styled.div`
-    font-size: 11px;
-    color: #888;
-    margin-top: 10px;
-    text-align: center;
-  `;
 
   const [tempAccountInfo, setTempAccountInfo] = useState(accountInfo);
   const [tempLinkInfo, setTempLinkInfo] = useState(linkInfo);
@@ -705,23 +718,27 @@ const SettingMelpik: React.FC = () => {
           )}
         </LinkListWrapper>
 
-        <CustomModal
+        <ReusableModal
           isOpen={isAccountModalOpen}
           onClose={() => setAccountModalOpen(false)}
           onConfirm={handleAccountModalConfirm}
           title='정산 계좌등록'
+          showConfirmButton={true}
+          width='500px'
         >
-          <ModalContent>{memoizedAccountInputs}</ModalContent>
-        </CustomModal>
+          {memoizedAccountInputs}
+        </ReusableModal>
 
-        <CustomModal
+        <ReusableModal
           isOpen={isLinkModalOpen}
           onClose={() => setLinkModalOpen(false)}
           onConfirm={handleLinkModalConfirm}
           title='개인 링크등록'
+          showConfirmButton={true}
+          width='500px'
         >
-          <ModalContent>{memoizedLinkInputs}</ModalContent>
-        </CustomModal>
+          {memoizedLinkInputs}
+        </ReusableModal>
       </Container>
     </ThemeProvider>
   );
@@ -758,12 +775,6 @@ const Divider = styled.div`
   height: 1px;
   background: #ddd;
   margin: 20px 0;
-`;
-
-const ModalContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
 `;
 
 const StatsRow = styled.div`

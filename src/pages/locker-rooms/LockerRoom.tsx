@@ -50,8 +50,8 @@ const LockerRoom: React.FC = () => {
       .then((res: MembershipInfo) => {
         setMembership(res);
       })
-      .catch((err: Error) => {
-        console.error('멤버십 정보 조회 실패', err);
+      .catch(() => {
+        // console.error('멤버십 정보 조회 실패', err);
       });
   }, []);
 

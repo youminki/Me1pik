@@ -12,61 +12,6 @@ import { ThemeProvider } from 'styled-components';
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
 import PaypleTest from '@/__tests__/development/PaypleTest';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import Alarm from '@/pages/alarms/Alarm';
-import Analysis from '@/pages/analyses/Analysis';
-import FindId from '@/pages/auths/FindId';
-import FindPassword from '@/pages/auths/FindPassword';
-import Login from '@/pages/auths/Login';
-import ReadyLogin from '@/pages/auths/LoginReady';
-import TestLogin from '@/pages/auths/LoginTest';
-import PasswordChange from '@/pages/auths/PasswordChange';
-import Signup from '@/pages/auths/Signup';
-import Basket from '@/pages/baskets/Basket';
-import Brand from '@/pages/brands/Brand';
-import BrandDetail from '@/pages/brands/BrandDetail';
-import CustomerService from '@/pages/customer-services/CustomerService';
-import DocumentDetail from '@/pages/customer-services/documents/DocumentDetail';
-import DocumentList from '@/pages/customer-services/documents/DocumentList';
-import NotFound from '@/pages/errors/NotFound';
-import Home from '@/pages/homes/Home';
-import HomeDetail from '@/pages/homes/HomeDetail';
-import Landing from '@/pages/landings/Landing';
-import AppLayout from '@/pages/layouts/AppLayout';
-import Link from '@/pages/links/Link';
-import PersonalLink from '@/pages/links/PersonalLink';
-import LockerRoom from '@/pages/locker-rooms/LockerRoom';
-import MyCloset from '@/pages/locker-rooms/my-closets/MyCloset';
-import MyTicket from '@/pages/locker-rooms/my-tickets/MyTicket';
-import PurchaseOfPasses from '@/pages/locker-rooms/my-tickets/PurchaseOfPasses';
-import TicketDetail from '@/pages/locker-rooms/my-tickets/TicketDetail';
-import TicketPayment from '@/pages/locker-rooms/my-tickets/TicketPayment.tsx';
-import AddCard from '@/pages/locker-rooms/payment-methods/AddCard';
-import PaymentMethod from '@/pages/locker-rooms/payment-methods/PaymentMethod';
-import Point from '@/pages/locker-rooms/points/Point';
-import ProductReview from '@/pages/locker-rooms/product-reviews/ProductReview';
-import ProductReviewWrite from '@/pages/locker-rooms/product-reviews/ProductReviewWrite';
-import UsageHistory from '@/pages/locker-rooms/usage-histories/UsageHistory';
-import SalesSettlement from '@/pages/melpiks/calculates/SalesSettlement';
-import SalesSettlementDetail from '@/pages/melpiks/calculates/SalesSettlementDetail';
-import SettlementRequest from '@/pages/melpiks/calculates/SettlementRequest';
-import ContemporarySettings from '@/pages/melpiks/creates/ContemporarySettings';
-import CreateMelpik from '@/pages/melpiks/creates/CreateMelpik';
-import Melpik from '@/pages/melpiks/Melpik';
-import Schedule from '@/pages/melpiks/schedules/Schedule';
-import ScheduleConfirmation from '@/pages/melpiks/schedules/ScheduleConfirmation';
-import ScheduleReservation1 from '@/pages/melpiks/schedules/ScheduleReservationStep1';
-import ScheduleReservation2 from '@/pages/melpiks/schedules/ScheduleReservationStep2';
-import ScheduleReservation3 from '@/pages/melpiks/schedules/ScheduleReservationStep3';
-import Setting from '@/pages/melpiks/settings/SettingMelpik';
-import MyInfoList from '@/pages/my-info/MyInfoList';
-import MyStyle from '@/pages/my-styles/MyStyle';
-import Payment from '@/pages/payments/Payment';
-import PaymentComplete from '@/pages/payments/PaymentComplete';
-import PaymentFail from '@/pages/payments/Paymentfail';
-import ChangePassword from '@/pages/profile/ChangePassword';
-import DeliveryManagement from '@/pages/profile/DeliveryManagement';
-import EditAddress from '@/pages/profile/EditAddress';
-import UpdateProfile from '@/pages/profile/UpdateProfile';
 import { theme } from '@/styles/Theme';
 import {
   checkTokenAndRedirect,
@@ -74,6 +19,115 @@ import {
   saveTokens,
 } from '@/utils/auth';
 import { isNativeApp } from '@/utils/nativeApp';
+
+// 지연 로딩을 위한 컴포넌트들
+const Alarm = React.lazy(() => import('@/pages/alarms/Alarm'));
+const Analysis = React.lazy(() => import('@/pages/analyses/Analysis'));
+const FindId = React.lazy(() => import('@/pages/auths/FindId'));
+const FindPassword = React.lazy(() => import('@/pages/auths/FindPassword'));
+const Login = React.lazy(() => import('@/pages/auths/Login'));
+const ReadyLogin = React.lazy(() => import('@/pages/auths/LoginReady'));
+const TestLogin = React.lazy(() => import('@/pages/auths/LoginTest'));
+const PasswordChange = React.lazy(() => import('@/pages/auths/PasswordChange'));
+const Signup = React.lazy(() => import('@/pages/auths/Signup'));
+const Basket = React.lazy(() => import('@/pages/baskets/Basket'));
+const Brand = React.lazy(() => import('@/pages/brands/Brand'));
+const BrandDetail = React.lazy(() => import('@/pages/brands/BrandDetail'));
+const CustomerService = React.lazy(
+  () => import('@/pages/customer-services/CustomerService')
+);
+const DocumentDetail = React.lazy(
+  () => import('@/pages/customer-services/documents/DocumentDetail')
+);
+const DocumentList = React.lazy(
+  () => import('@/pages/customer-services/documents/DocumentList')
+);
+const NotFound = React.lazy(() => import('@/pages/errors/NotFound'));
+const Home = React.lazy(() => import('@/pages/homes/Home'));
+const HomeDetail = React.lazy(() => import('@/pages/homes/HomeDetail'));
+const Landing = React.lazy(() => import('@/pages/landings/Landing'));
+const AppLayout = React.lazy(() => import('@/pages/layouts/AppLayout'));
+const Link = React.lazy(() => import('@/pages/links/Link'));
+const PersonalLink = React.lazy(() => import('@/pages/links/PersonalLink'));
+const LockerRoom = React.lazy(() => import('@/pages/locker-rooms/LockerRoom'));
+const MyCloset = React.lazy(
+  () => import('@/pages/locker-rooms/my-closets/MyCloset')
+);
+const MyTicket = React.lazy(
+  () => import('@/pages/locker-rooms/my-tickets/MyTicket')
+);
+const PurchaseOfPasses = React.lazy(
+  () => import('@/pages/locker-rooms/my-tickets/PurchaseOfPasses')
+);
+const TicketDetail = React.lazy(
+  () => import('@/pages/locker-rooms/my-tickets/TicketDetail')
+);
+const TicketPayment = React.lazy(
+  () => import('@/pages/locker-rooms/my-tickets/TicketPayment.tsx')
+);
+const AddCard = React.lazy(
+  () => import('@/pages/locker-rooms/payment-methods/AddCard')
+);
+const PaymentMethod = React.lazy(
+  () => import('@/pages/locker-rooms/payment-methods/PaymentMethod')
+);
+const Point = React.lazy(() => import('@/pages/locker-rooms/points/Point'));
+const ProductReview = React.lazy(
+  () => import('@/pages/locker-rooms/product-reviews/ProductReview')
+);
+const ProductReviewWrite = React.lazy(
+  () => import('@/pages/locker-rooms/product-reviews/ProductReviewWrite')
+);
+const UsageHistory = React.lazy(
+  () => import('@/pages/locker-rooms/usage-histories/UsageHistory')
+);
+const SalesSettlement = React.lazy(
+  () => import('@/pages/melpiks/calculates/SalesSettlement')
+);
+const SalesSettlementDetail = React.lazy(
+  () => import('@/pages/melpiks/calculates/SalesSettlementDetail')
+);
+const SettlementRequest = React.lazy(
+  () => import('@/pages/melpiks/calculates/SettlementRequest')
+);
+const ContemporarySettings = React.lazy(
+  () => import('@/pages/melpiks/creates/ContemporarySettings')
+);
+const CreateMelpik = React.lazy(
+  () => import('@/pages/melpiks/creates/CreateMelpik')
+);
+const Melpik = React.lazy(() => import('@/pages/melpiks/Melpik'));
+const Schedule = React.lazy(() => import('@/pages/melpiks/schedules/Schedule'));
+const ScheduleConfirmation = React.lazy(
+  () => import('@/pages/melpiks/schedules/ScheduleConfirmation')
+);
+const ScheduleReservation1 = React.lazy(
+  () => import('@/pages/melpiks/schedules/ScheduleReservationStep1')
+);
+const ScheduleReservation2 = React.lazy(
+  () => import('@/pages/melpiks/schedules/ScheduleReservationStep2')
+);
+const ScheduleReservation3 = React.lazy(
+  () => import('@/pages/melpiks/schedules/ScheduleReservationStep3')
+);
+const Setting = React.lazy(
+  () => import('@/pages/melpiks/settings/SettingMelpik')
+);
+const MyInfoList = React.lazy(() => import('@/pages/my-info/MyInfoList'));
+const MyStyle = React.lazy(() => import('@/pages/my-styles/MyStyle'));
+const Payment = React.lazy(() => import('@/pages/payments/Payment'));
+const PaymentComplete = React.lazy(
+  () => import('@/pages/payments/PaymentComplete')
+);
+const PaymentFail = React.lazy(() => import('@/pages/payments/Paymentfail'));
+const ChangePassword = React.lazy(
+  () => import('@/pages/profile/ChangePassword')
+);
+const DeliveryManagement = React.lazy(
+  () => import('@/pages/profile/DeliveryManagement')
+);
+const EditAddress = React.lazy(() => import('@/pages/profile/EditAddress'));
+const UpdateProfile = React.lazy(() => import('@/pages/profile/UpdateProfile'));
 
 const AuthGuard: React.FC = () => {
   const location = useLocation();

@@ -135,9 +135,6 @@ const InputFieldBase = forwardRef<HTMLInputElement, InputFieldProps>(
 
     // as와 options가 동시에 전달되는 경우 경고
     if (as && options) {
-      console.warn(
-        'InputField: as와 options를 동시에 사용하지 마세요. 하나만 사용하세요.'
-      );
       // as와 options가 동시에 오면 as를 무시합니다.
       // 실제 렌더링은 options가 있으면 select, 없으면 input
     }
@@ -198,7 +195,7 @@ const InputFieldBase = forwardRef<HTMLInputElement, InputFieldProps>(
                 ref={ref}
                 readOnly={readOnly}
                 onChange={onChange}
-                hasError={!!error}
+                $hasError={!!error}
                 {...ariaProps}
                 {...rest}
               />

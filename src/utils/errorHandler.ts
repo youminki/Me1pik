@@ -75,14 +75,13 @@ export const parsePaypleError = (error: unknown): PaypleError => {
 /**
  * 에러 로깅을 위한 유틸리티
  */
-export const logError = (error: unknown, context?: string): void => {
-  const errorMessage = getErrorMessage(error);
-  const timestamp = new Date().toISOString();
-
-  console.error(
-    `[${timestamp}] ${context ? `[${context}] ` : ''}${errorMessage}`,
-    error
-  );
+export const logError = (): void => {
+  // const errorMessage = getErrorMessage(error);
+  // const timestamp = new Date().toISOString();
+  // console.error(
+  //   `[${timestamp}] ${context ? `[${context}] ` : ''}${errorMessage}`,
+  //   error
+  // );
 };
 
 /**

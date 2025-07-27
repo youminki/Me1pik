@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { InferType } from 'yup';
 
 import type { AxiosError } from 'axios';
 
@@ -17,7 +18,6 @@ import {
 } from '@/api-utils/user-managements/users/userApi';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import Modal from '@/components/melpiks/create-melpiks/settings/Modal';
-import CommonErrorMessage from '@/components/shared/ErrorMessage';
 import CommonField from '@/components/shared/forms/CommonField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -26,30 +26,7 @@ import AgreementSection from '@/components/signups/AgreementSection';
 import { regionDistrictData } from '@/components/signups/regionDistrictData';
 import { schemaSignup } from '@/hooks/useValidationYup';
 
-export type SignupFormData = {
-  email: string;
-  password: string;
-  passwordConfirm: string;
-  nickname: string;
-  name: string;
-  birthYear: string;
-  phoneNumber: string;
-  region: string;
-  district: string;
-  melpickAddress: string;
-  height: string;
-  size: string;
-  dress: string;
-  top: string;
-  bottom: string;
-  brand: string;
-  instar: string;
-  shoulder?: string | null;
-  chest?: string | null;
-  waist?: string | null;
-  sleeve?: string | null;
-  mebershipCode?: string | null;
-};
+export type SignupFormData = InferType<typeof schemaSignup>;
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -78,7 +55,6 @@ const Signup: React.FC = () => {
       chest: '',
       waist: '',
       sleeve: '',
-      mebershipCode: '',
     },
   });
 
@@ -848,10 +824,18 @@ const Signup: React.FC = () => {
                   <option value='' disabled hidden key='default'>
                     원피스
                   </option>,
-                  <option value='44'>44 (XS)</option>,
-                  <option value='55'>55 (S)</option>,
-                  <option value='66'>66 (M)</option>,
-                  <option value='77'>77 (L)</option>,
+                  <option key='44' value='44'>
+                    44 (XS)
+                  </option>,
+                  <option key='55' value='55'>
+                    55 (S)
+                  </option>,
+                  <option key='66' value='66'>
+                    66 (M)
+                  </option>,
+                  <option key='77' value='77'>
+                    77 (L)
+                  </option>,
                 ]}
               />
               <CommonField
@@ -867,10 +851,18 @@ const Signup: React.FC = () => {
                   <option value='' disabled hidden key='default'>
                     상의
                   </option>,
-                  <option value='44'>44 (XS)</option>,
-                  <option value='55'>55 (S)</option>,
-                  <option value='66'>66 (M)</option>,
-                  <option value='77'>77 (L)</option>,
+                  <option key='44' value='44'>
+                    44 (XS)
+                  </option>,
+                  <option key='55' value='55'>
+                    55 (S)
+                  </option>,
+                  <option key='66' value='66'>
+                    66 (M)
+                  </option>,
+                  <option key='77' value='77'>
+                    77 (L)
+                  </option>,
                 ]}
               />
               <CommonField
@@ -886,10 +878,18 @@ const Signup: React.FC = () => {
                   <option value='' disabled hidden key='default'>
                     하의
                   </option>,
-                  <option value='44'>44 (XS)</option>,
-                  <option value='55'>55 (S)</option>,
-                  <option value='66'>66 (M)</option>,
-                  <option value='77'>77 (L)</option>,
+                  <option key='44' value='44'>
+                    44 (XS)
+                  </option>,
+                  <option key='55' value='55'>
+                    55 (S)
+                  </option>,
+                  <option key='66' value='66'>
+                    66 (M)
+                  </option>,
+                  <option key='77' value='77'>
+                    77 (L)
+                  </option>,
                 ]}
               />
             </RowLabel>
@@ -994,15 +994,6 @@ const Signup: React.FC = () => {
           )}
           <BlackContainer>
             {isSubmitting && <LoadingSpinner label='회원가입 처리 중...' />}
-            {signupResult && !isSignupSuccess && (
-              <CommonErrorMessage
-                message={
-                  typeof signupResult === 'string'
-                    ? signupResult
-                    : '회원가입에 실패했습니다.'
-                }
-              />
-            )}
           </BlackContainer>
         </FormProvider>
 

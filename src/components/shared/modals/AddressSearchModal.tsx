@@ -123,7 +123,7 @@ const AddressSearchModal: React.FC<AddressSearchModalProps> = ({
           }).embed(containerRef.current);
         }
       })
-      .catch(console.error);
+      .catch(() => {});
     // cleanup에서 ref를 지역 변수로 저장
     const ref = containerRef.current;
     return () => {

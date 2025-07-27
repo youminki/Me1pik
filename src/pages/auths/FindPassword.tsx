@@ -402,7 +402,7 @@ const FindPassword: React.FC = () => {
               <FindBtn
                 type='submit'
                 disabled={!isValid || isSubmitting}
-                active={isValid && !isSubmitting}
+                $active={isValid && !isSubmitting}
               >
                 {isSubmitting ? '조회 중...' : '비밀번호 변경'}
               </FindBtn>

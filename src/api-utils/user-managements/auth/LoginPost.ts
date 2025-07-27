@@ -47,8 +47,6 @@ export const LoginPost = async (
       autoLogin, // 자동로그인 여부를 서버에 전달
     });
 
-    console.log('✅ 로그인 성공:', response.data);
-
     const isHttps = window.location.protocol === 'https:';
     Cookies.set('accessToken', response.data.accessToken, {
       secure: isHttps,
@@ -67,8 +65,6 @@ export const LoginPost = async (
 
     return response.data;
   } catch (error) {
-    console.error('❌ 로그인 실패:', error);
-
     let errorMessage: LoginError = { message: '로그인 요청에 실패했습니다.' };
     if (isLoginError(error)) {
       errorMessage = error;

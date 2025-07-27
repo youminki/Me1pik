@@ -49,8 +49,7 @@ const AddCard: React.FC = () => {
     }
   };
 
-  const onSubmit = (data: CardFormValues) => {
-    console.log('Form Submit Data:', data);
+  const onSubmit = () => {
     setIsRegistrationModalOpen(true);
   };
 
@@ -105,7 +104,7 @@ const AddCard: React.FC = () => {
             options={['신한카드', '국민카드', '우리카드', '하나카드']}
             error={errors.cardIssuer}
             {...register('cardIssuer')}
-            onSelectChange={(val: string) => console.log('카드사 선택:', val)}
+            onSelectChange={() => {}}
           />
 
           <Controller

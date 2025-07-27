@@ -37,7 +37,6 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log({ name, birthDate, gender, phone, serviceArea });
     onClose();
     setName('');
     setBirthDate('');

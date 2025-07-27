@@ -234,7 +234,7 @@ const FindId: React.FC = () => {
             <FindBtn
               type='submit'
               disabled={!isValid || isSubmitting}
-              active={isValid && !isSubmitting}
+              $active={isValid && !isSubmitting}
             >
               {isSubmitting ? '조회 중...' : '아이디 찾기'}
             </FindBtn>

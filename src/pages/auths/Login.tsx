@@ -90,10 +90,10 @@ const HidePasswordIcon = () => (
   </svg>
 );
 
-const LoginBtn = styled.button<{ active?: boolean }>`
+const LoginBtn = styled.button<{ $active?: boolean }>`
   width: 100%;
   height: 52px;
-  background: ${({ active }) => (active ? '#222' : '#F6AE24')};
+  background: ${({ $active }) => ($active ? '#222' : '#F6AE24')};
   color: #fff;
   font-size: 18px;
   font-weight: 800;
@@ -104,7 +104,7 @@ const LoginBtn = styled.button<{ active?: boolean }>`
   cursor: pointer;
   transition: background 0.2s;
   &:hover:enabled {
-    background: ${({ active }) => (active ? '#111' : '#e09e1f')};
+    background: ${({ $active }) => ($active ? '#111' : '#e09e1f')};
   }
   &:disabled {
     background: #f6ae24;
@@ -291,8 +291,6 @@ const Login: React.FC = () => {
 
   const handleLoginClick = async (data: LoginFormValues) => {
     try {
-      console.log('로그인 시도:', { email: data.email, keepLogin });
-
       const response = (await LoginPost(
         data.email,
         data.password,
@@ -302,11 +300,10 @@ const Login: React.FC = () => {
 
       // 토큰 디코딩하여 만료시간 확인
       try {
-        const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        const expiresAt = new Date(payload.exp * 1000);
-        console.log('토큰 만료시간:', expiresAt.toLocaleString());
-      } catch (e) {
-        console.error('토큰 디코딩 실패:', e);
+        JSON.parse(atob(accessToken.split('.')[1]));
+        // const expiresAt = new Date(payload.exp * 1000);
+      } catch {
+        // do nothing
       }
 
       // 앱에서는 항상 localStorage에 저장 (영구 보관)
@@ -320,12 +317,9 @@ const Login: React.FC = () => {
         // 자동로그인 여부 저장
         if (keepLogin) {
           localStorage.setItem('autoLogin', 'true');
-          console.log('자동로그인 활성화됨');
         } else {
           localStorage.removeItem('autoLogin');
-          console.log('일반 로그인 (자동로그인 비활성화)');
         }
-        console.log('localStorage에 토큰 저장됨');
       }
 
       const membership: MembershipInfo = await getMembershipInfo();
@@ -495,7 +489,7 @@ const Login: React.FC = () => {
               <LoginBtn
                 type='submit'
                 disabled={!isValid || isSubmitting}
-                active={isValid && !isSubmitting}
+                $active={isValid && !isSubmitting}
               >
                 {isSubmitting ? '로그인 중...' : '로그인'}
               </LoginBtn>

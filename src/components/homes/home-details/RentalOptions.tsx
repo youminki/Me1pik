@@ -209,7 +209,7 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
         const unique = Array.from(new Set(allTime)).map((t) => new Date(t));
         setReservedDates(unique);
       })
-      .catch(console.error);
+      .catch(() => {});
   }, [productId, selectedSize]);
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {

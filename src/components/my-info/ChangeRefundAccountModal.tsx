@@ -28,7 +28,6 @@ const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log({ bankName, accountNumber, accountHolder });
     onClose();
     setBankName('');
     setAccountNumber('');

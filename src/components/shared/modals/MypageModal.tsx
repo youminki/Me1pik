@@ -39,8 +39,6 @@ const MypageModal: React.FC<MypageModalProps> = ({ isOpen, onClose }) => {
 
   const handleLogoutConfirm = async () => {
     try {
-      console.log('로그아웃 시작');
-
       // 인스타그램 방식: 웹뷰 통신 스크립트 호출
       if (
         typeof (window as unknown as { handleWebLogout?: () => void })
@@ -52,15 +50,13 @@ const MypageModal: React.FC<MypageModalProps> = ({ isOpen, onClose }) => {
       }
 
       await logout();
-      console.log('로그아웃 완료, 로그인 페이지로 이동');
 
       setLogoutModalOpen(false);
       onClose();
 
       // 로그인 페이지로 이동 (무신사 스타일)
       navigate('/login', { replace: true });
-    } catch (error) {
-      console.error('로그아웃 중 오류:', error);
+    } catch {
       // 오류가 발생해도 로그인 페이지로 이동
       setLogoutModalOpen(false);
       onClose();

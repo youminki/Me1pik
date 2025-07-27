@@ -203,7 +203,7 @@ const DocumentList: React.FC = () => {
             {categoryTabs.map((tab) => (
               <TabButton
                 key={tab.label}
-                active={
+                $active={
                   selectedCategory === tab.value ||
                   (!selectedCategory && !tab.value)
                 }
@@ -241,10 +241,10 @@ const DocumentList: React.FC = () => {
                   </IconRight>
                 </ListItem>
                 <DetailWrapper
-                  isOpen={openId === item.id}
-                  isLast={idx === list.length - 1}
+                  $isOpen={openId === item.id}
+                  $isLast={idx === list.length - 1}
                 >
-                  <DetailInner isOpen={openId === item.id}>
+                  <DetailInner $isOpen={openId === item.id}>
                     {detail[item.id] || (openId === item.id && '로딩 중...')}
                   </DetailInner>
                 </DetailWrapper>
@@ -273,12 +273,12 @@ const TabSection = styled.div`
   }
 `;
 
-const TabButton = styled.button<{ active: boolean }>`
+const TabButton = styled.button<{ $active: boolean }>`
   padding: 8px 18px;
   border-radius: 18px;
-  border: 1.5px solid ${({ active }) => (active ? '#222' : '#ccc')};
-  background: ${({ active }) => (active ? '#222' : '#fff')};
-  color: ${({ active }) => (active ? '#fff' : '#222')};
+  border: 1.5px solid ${({ $active }) => ($active ? '#222' : '#ccc')};
+  background: ${({ $active }) => ($active ? '#222' : '#fff')};
+  color: ${({ $active }) => ($active ? '#fff' : '#222')};
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
@@ -362,28 +362,28 @@ const CategoryOrange = styled.span`
   }
 `;
 
-const DetailWrapper = styled.div<{ isOpen: boolean; isLast?: boolean }>`
-  max-height: ${({ isOpen }) => (isOpen ? '350px' : '0')};
+const DetailWrapper = styled.div<{ $isOpen: boolean; $isLast?: boolean }>`
+  max-height: ${({ $isOpen }) => ($isOpen ? '350px' : '0')};
   overflow: hidden;
   transition: max-height 0.45s ease;
   background: #f5f5f5;
-  border-bottom: ${({ isLast }) => (isLast ? 'none' : '1px solid #eeeeee')};
+  border-bottom: ${({ $isLast }) => ($isLast ? 'none' : '1px solid #eeeeee')};
 `;
 
-const DetailInner = styled.div<{ isOpen: boolean }>`
-  opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
-  transform: translateY(${({ isOpen }) => (isOpen ? '0' : '12px')});
+const DetailInner = styled.div<{ $isOpen: boolean }>`
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+  transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '12px')});
   transition:
     opacity 0.45s ease,
     transform 0.45s ease,
     padding 0.45s ease;
-  padding: ${({ isOpen }) => (isOpen ? '20px 16px' : '0 16px')};
+  padding: ${({ $isOpen }) => ($isOpen ? '20px 16px' : '0 16px')};
   font-size: 15px;
   color: #333;
   white-space: pre-wrap;
   @media (max-width: 600px) {
     font-size: 13px;
-    padding: ${({ isOpen }) => (isOpen ? '14px 8px' : '0 8px')};
+    padding: ${({ $isOpen }) => ($isOpen ? '14px 8px' : '0 8px')};
   }
 `;
 

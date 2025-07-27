@@ -72,7 +72,6 @@ const ChangeProfileImageModal: React.FC<ChangeProfileImageModalProps> = ({
       alert('이미지를 선택해주세요.');
       return;
     }
-    console.log({ file });
     onClose();
     setFile(null);
     setPreviewUrl(null);

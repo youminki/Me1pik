@@ -78,7 +78,6 @@ const PaymentMethod: React.FC = () => {
           userEmail: data.email,
         });
       } catch (e: unknown) {
-        console.error('유저 정보 로딩 실패', e);
         setError(e instanceof Error ? e.message : '알 수 없는 오류');
       }
     })();

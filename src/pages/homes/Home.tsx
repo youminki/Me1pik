@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useCallback,
   useRef,
+  memo,
 } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -28,7 +29,7 @@ import ReusableModal from '@/components/shared/modals/ReusableModal';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
 /**
- * Home(상품 리스트) 페이지 - 최적화 버전ㄴ
+ * Home(상품 리스트) 페이지 - 최적화 버전
  * - react-query로 상품 데이터 관리(캐싱/중복방지)
  * - 검색/필터 useMemo 적용
  * - 무한스크롤 IntersectionObserver 적용
@@ -105,6 +106,19 @@ const ChipClose = styled.button`
   padding: 0;
 `;
 
+// 메모이제이션된 Chip 컴포넌트
+const MemoizedChip = memo<{
+  label: string;
+  onRemove: () => void;
+}>(({ label, onRemove }) => (
+  <Chip>
+    {label}
+    <ChipClose onClick={onRemove}>&times;</ChipClose>
+  </Chip>
+));
+
+MemoizedChip.displayName = 'MemoizedChip';
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -119,14 +133,17 @@ const Home: React.FC = () => {
 
   // 모바일 뷰 여부
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
-  useEffect(() => {
-    const onResize = () => setIsMobileView(window.innerWidth < 768);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+  const handleResize = useCallback(() => {
+    setIsMobileView(window.innerWidth < 768);
   }, []);
 
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
+
   // viewCols 상태 및 관련 로직 제거, 아래처럼 고정값으로 대체
-  const viewCols = isMobileView ? 2 : 4;
+  const viewCols = useMemo(() => (isMobileView ? 2 : 4), [isMobileView]);
 
   // 카테고리/검색
   const [selectedCategory, setSelectedCategory] = useState(
@@ -135,6 +152,7 @@ const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get('search') || ''
   );
+
   // 검색 모달 노출 상태
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
 
@@ -167,7 +185,7 @@ const Home: React.FC = () => {
     // 쉼표로 분리된 여러 검색어 처리
     const terms = term
       .split(',')
-      .map((t) => t.trim())
+      .map((t: string) => t.trim())
       .filter(Boolean);
 
     // 색상 매핑: 한글 <-> 영문
@@ -180,7 +198,7 @@ const Home: React.FC = () => {
     // 검색어 중 색상 키워드와 일반 키워드 분리
     const searchColors: string[] = [];
     const searchKeywords: string[] = [];
-    terms.forEach((t) => {
+    terms.forEach((t: string) => {
       if (allColorKeywords.includes(t)) {
         searchColors.push(t);
       } else if (t) {

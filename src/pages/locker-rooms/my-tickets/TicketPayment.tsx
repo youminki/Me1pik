@@ -109,8 +109,8 @@ const TicketPayment: React.FC = () => {
         setCards(items);
         setOptions(opts);
         setSelectedPaymentMethod(opts[0]);
-      } catch (e) {
-        console.error('[🔥] 카드 목록 조회 실패', e);
+      } catch {
+        // console.error('[🔥] 카드 목록 조회 실패', e);
         setOptions(['등록된 카드가 없습니다', '카드 추가하기']);
         setSelectedPaymentMethod('등록된 카드가 없습니다');
       }
@@ -175,7 +175,7 @@ const TicketPayment: React.FC = () => {
         setIsProcessing(false);
       }
     } catch (error: unknown) {
-      console.error('결제 실패:', error);
+      // console.error('결제 실패:', error);
       const errMsg = getErrorMessage(error);
       alert(`결제 실패: ${errMsg}`);
       navigate('/payment-fail');
@@ -211,7 +211,7 @@ const TicketPayment: React.FC = () => {
       localStorage.setItem('userId', userId);
       localStorage.setItem('userEmail', userEmail);
       localStorage.setItem('userName', userName);
-      updateLoginState(true);
+      updateLoginState();
     };
 
     document.addEventListener(
@@ -466,15 +466,15 @@ function showWebCardAddForm() {
 // refreshCardList, showErrorMessage, updateLoginState 함수 간단 정의 추가
 function refreshCardList() {
   // 카드 목록 새로고침 로직 구현
-  console.log('카드 목록 새로고침');
+  // console.log('카드 목록 새로고침');
 }
 function showErrorMessage(message: string) {
   // 에러 메시지 표시 로직 구현
   alert(message);
 }
-function updateLoginState(isLoggedIn: boolean) {
+function updateLoginState() {
   // 로그인 상태 UI 업데이트 로직 구현
-  console.log('로그인 상태:', isLoggedIn);
+  // console.log('로그인 상태: 로그인 성공');
 }
 
 // error에서 메시지를 추출하는 타입 가드 함수

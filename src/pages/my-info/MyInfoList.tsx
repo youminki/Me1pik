@@ -164,8 +164,8 @@ const MyinfoList: React.FC = () => {
               상태 | <StrongText>알림 받기</StrongText>
             </StatusText>
             <ToggleWrapper onClick={() => setNotifyOn((v) => !v)}>
-              <ToggleBg on={notifyOn} />
-              <ToggleCircle on={notifyOn}>
+              <ToggleBg $on={notifyOn} />
+              <ToggleCircle $on={notifyOn}>
                 <ToggleText>{notifyOn ? 'ON' : 'OFF'}</ToggleText>
               </ToggleCircle>
             </ToggleWrapper>
@@ -356,17 +356,17 @@ const ToggleWrapper = styled.div`
   height: 30px;
   cursor: pointer;
 `;
-const ToggleBg = styled.div<{ on: boolean }>`
+const ToggleBg = styled.div<{ $on: boolean }>`
   position: absolute;
   width: 60px;
   height: 30px;
-  background: ${({ on }) => (on ? '#222' : '#ccc')};
+  background: ${({ $on }) => ($on ? '#222' : '#ccc')};
   border-radius: 15px;
 `;
-const ToggleCircle = styled.div<{ on: boolean }>`
+const ToggleCircle = styled.div<{ $on: boolean }>`
   position: absolute;
   top: 1px;
-  left: ${({ on }) => (on ? '30px' : '2px')};
+  left: ${({ $on }) => ($on ? '30px' : '2px')};
   width: 28px;
   height: 28px;
   background: #fff;

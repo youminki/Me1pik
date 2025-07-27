@@ -28,7 +28,6 @@ const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log({ addressName, postalCode, detailAddress });
     onClose();
     setAddressName('');
     setPostalCode('');

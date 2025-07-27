@@ -20,7 +20,6 @@ const ChangeNicknameModal: React.FC<ChangeNicknameModalProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log({ nickname });
     onClose();
     setNickname('');
   };
@@ -91,7 +90,7 @@ const ModalWrapper = styled.div`
   max-width: 300px;
   background: #fff;
   overflow: hidden;
-   0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 `;
 
 const Header = styled.div`

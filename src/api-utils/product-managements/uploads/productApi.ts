@@ -53,7 +53,28 @@ export interface GetProductInfoResponse {
   product: ProductDetail;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5173';
+export const getProducts = async (
+  category?: string
+): Promise<ProductListItem[]> => {
+  const response = await Axios.get('/admin/product/product/list', {
+    params: { category },
+  });
+
+  return (response.data || []).map(
+    (p: RawProductListItem & { color?: string }) => ({
+      id: p.id,
+      image: p.image && !p.image.startsWith('http') ? `${p.image}` : p.image,
+      brand: p.brand,
+      description: p.description,
+      category: p.category,
+      price: p.price,
+      discount: p.discount,
+      isLiked: Boolean(p.isLiked),
+      color: p.color,
+      sizes: p.sizes || [],
+    })
+  );
+};
 
 interface RawProductListItem {
   id: number;
@@ -67,32 +88,6 @@ interface RawProductListItem {
   color?: string;
   sizes?: string[];
 }
-
-export const getProducts = async (
-  category?: string
-): Promise<ProductListItem[]> => {
-  const response = await Axios.get('/admin/product/product/list', {
-    params: { category },
-  });
-
-  return (response.data || []).map(
-    (p: RawProductListItem & { color?: string }) => ({
-      id: p.id,
-      image:
-        p.image && !p.image.startsWith('http')
-          ? `${API_BASE_URL}${p.image}`
-          : p.image,
-      brand: p.brand,
-      description: p.description,
-      category: p.category,
-      price: p.price,
-      discount: p.discount,
-      isLiked: Boolean(p.isLiked),
-      color: p.color,
-      sizes: p.sizes || [],
-    })
-  );
-};
 
 interface RawProductDetail extends Omit<ProductDetail, 'fabricComposition'> {
   fabricComposition: string[];
@@ -112,16 +107,16 @@ export const getProductInfo = async (
 
   // --- URL 보정 ---
   if (raw.mainImage && !raw.mainImage.startsWith('http')) {
-    raw.mainImage = `${API_BASE_URL}${raw.mainImage}`;
+    raw.mainImage = `${raw.mainImage}`;
   }
   raw.product_img = (raw.product_img || []).map((img: string) =>
-    img && !img.startsWith('http') ? `${API_BASE_URL}${img}` : img
+    img && !img.startsWith('http') ? `${img}` : img
   );
   if (raw.size_picture && !raw.size_picture.startsWith('http')) {
-    raw.size_picture = `${API_BASE_URL}${raw.size_picture}`;
+    raw.size_picture = `${raw.size_picture}`;
   }
   if (raw.product_url && !raw.product_url.startsWith('http')) {
-    raw.product_url = `${API_BASE_URL}${raw.product_url}`;
+    raw.product_url = `${raw.product_url}`;
   }
 
   // --- 가격 계산 ---

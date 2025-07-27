@@ -79,8 +79,7 @@ const UsageHistory: React.FC = () => {
           }
         );
         setItems(mapped);
-      } catch (err) {
-        console.error(err);
+      } catch {
         setError('대여/구매 내역을 불러오는 데 실패했습니다.');
       } finally {
         setLoading(false);
@@ -119,8 +118,7 @@ const UsageHistory: React.FC = () => {
           ? '최종 취소가 완료되었습니다.'
           : '취소 요청이 완료되었습니다.'
       );
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert(
         isRequested
           ? '최종 취소에 실패했습니다. 다시 시도해주세요.'

@@ -25,8 +25,8 @@ const TicketDetail: React.FC = () => {
         const items = await getUserTickets();
         const found = items.find((t) => t.id === Number(ticketId)) ?? null;
         setTicket(found);
-      } catch (err) {
-        console.error('티켓 조회 실패:', err);
+      } catch {
+        // console.error('티켓 조회 실패:', err);
       } finally {
         setLoading(false);
       }

@@ -45,7 +45,6 @@ Axios.interceptors.response.use(
           LOCAL_REFRESH_TOKEN || SESSION_REFRESH_TOKEN || COOKIE_REFRESH_TOKEN;
 
         if (!REFRESH_TOKEN) {
-          console.log('리프레시 토큰이 없어 로그인 페이지로 이동');
           // 모든 토큰 제거
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
@@ -82,7 +81,6 @@ Axios.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return Axios(originalRequest);
       } catch {
-        console.log('토큰 갱신 실패, 로그인 페이지로 이동');
         // 모든 토큰 제거
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');

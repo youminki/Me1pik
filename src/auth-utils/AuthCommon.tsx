@@ -107,8 +107,8 @@ export const StyledInput = styled.input<{ $hasError?: boolean }>`
   z-index: ${theme.zIndex.header};
   &:focus {
     background: ${theme.colors.inputBg};
-    outline: 2px solid ${theme.colors.primary};
-    outline-offset: 1px;
+    outline: none;
+    border: 1px solid ${theme.colors.border};
   }
   &::placeholder {
     color: ${theme.colors.placeholder};
@@ -146,8 +146,8 @@ export const StyledSelect = styled.select<{ $hasError?: boolean }>`
     background:
       url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
       ${theme.colors.inputBg};
-    outline: 2px solid ${theme.colors.primary};
-    outline-offset: 1px;
+    outline: none;
+    border: 1.5px solid #000000;
   }
   &[readonly],
   &:disabled {
@@ -163,10 +163,10 @@ export const ErrorMessage = styled.div`
   margin-top: 2px;
   margin-bottom: 2px;
 `;
-export const FindBtn = styled.button<{ active?: boolean }>`
+export const FindBtn = styled.button<{ $active?: boolean }>`
   width: 100%;
   height: 52px;
-  background: ${({ active }) => (active ? '#222' : '#F6AE24')};
+  background: ${({ $active }) => ($active ? '#222' : '#F6AE24')};
   color: #fff;
   font-size: 18px;
   font-weight: 800;
@@ -177,7 +177,7 @@ export const FindBtn = styled.button<{ active?: boolean }>`
   cursor: pointer;
   transition: background 0.2s;
   &:hover:enabled {
-    background: ${({ active }) => (active ? '#111' : '#e09e1f')};
+    background: ${({ $active }) => ($active ? '#111' : '#e09e1f')};
   }
   &:disabled {
     background: #f6ae24;
