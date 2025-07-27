@@ -17,7 +17,7 @@ import FixedBottomBar from '@/components/fixed-bottom-bar';
 import { YellowButton } from '@/components/shared/buttons/ButtonWrapper';
 import EmptyState from '@/components/shared/EmptyState';
 import CommonErrorMessage from '@/components/shared/ErrorMessage';
-import InputField from '@/components/shared/forms/InputField';
+import CommonField from '@/components/shared/forms/CommonField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import AddressSearchModal from '@/components/shared/modals/AddressSearchModal';
@@ -438,7 +438,7 @@ const PaymentPage: React.FC = () => {
       <Section>
         <Row>
           <InputGroup>
-            <InputField
+            <CommonField
               id='recipient'
               label='수령인 *'
               placeholder='이름을 입력 하세요'
@@ -447,7 +447,7 @@ const PaymentPage: React.FC = () => {
             />
           </InputGroup>
           <InputGroup>
-            <InputField
+            <CommonField
               id='delivery-method'
               label='배송방법'
               value={fixedDeliveryMethod}
@@ -488,7 +488,7 @@ const PaymentPage: React.FC = () => {
           />
         </Row>
         <Row>
-          <InputField
+          <CommonField
             id='delivery-message'
             label='배송 메시지 (선택)'
             placeholder='예: 문 앞에 두고 벨 눌러주세요.'
@@ -502,7 +502,7 @@ const PaymentPage: React.FC = () => {
           />
         </Row>
         <Row>
-          <InputField
+          <CommonField
             id='contact'
             label='연락처'
             placeholder='나머지 8자리 입력'
@@ -565,7 +565,7 @@ const PaymentPage: React.FC = () => {
           />
         </Row>
         <Row>
-          <InputField
+          <CommonField
             id='return-delivery-message'
             label='배송 메시지 (선택)'
             placeholder='예: 문 앞에 두고 벨 눌러주세요.'
@@ -580,7 +580,7 @@ const PaymentPage: React.FC = () => {
           />
         </Row>
         <Row>
-          <InputField
+          <CommonField
             id='return-contact'
             label='연락처'
             placeholder='나머지 8자리 입력'
@@ -616,13 +616,21 @@ const PaymentPage: React.FC = () => {
       <Section>
         <Row>
           <InputGroup>
-            <InputField
+            <CommonField
               id='payment-method'
               label='결제방식'
-              options={paymentOptions}
+              as='select'
               value={selectedPaymentMethod}
-              onSelectChange={handlePaymentSelect}
-            />
+              onChange={(e) =>
+                handlePaymentSelect((e.target as HTMLSelectElement).value)
+              }
+            >
+              {paymentOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </CommonField>
           </InputGroup>
         </Row>
       </Section>
