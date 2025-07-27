@@ -10,7 +10,7 @@
     "build:prod": "tsc -b && vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview",
-    "analyze": "vite-bundle-analyzer dist",
+    "analyze": "npm run build:analyze && npx vite-bundle-analyzer dist",
     "performance": "lighthouse http://localhost:5173 --output=json --output-path=./lighthouse-report.json"
   },
   "dependencies": {
@@ -70,10 +70,12 @@
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
     "react-router-dom": "^7.7.1",
+    "rollup-plugin-visualizer": "^6.0.3",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^7.0.6",
+    "vite-bundle-analyzer": "^1.1.0",
     "vite-plugin-javascript-obfuscator": "^3.1.0"
   },
   "lint-staged": {
