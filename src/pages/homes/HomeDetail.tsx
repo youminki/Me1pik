@@ -49,7 +49,6 @@ const HomeDetail: React.FC<HomeDetailProps> = ({
   onUpdateSuccess,
 }) => {
   const [cartModalOpen, setCartModalOpen] = useState(false);
-  const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
   const id = propId || params.id;
@@ -253,7 +252,7 @@ const HomeDetail: React.FC<HomeDetailProps> = ({
       };
       try {
         await updateCartItem(cartItemId, updateReq);
-        setUpdateModalOpen(true);
+        onUpdateSuccess?.(); // 성공 시 콜백만 호출
       } catch (err) {
         console.error('장바구니 수정 실패', err);
         setWarnMessage('장바구니 수정에 실패했습니다.');
@@ -419,6 +418,8 @@ const HomeDetail: React.FC<HomeDetailProps> = ({
         </ReusableModal>
       )}
 
+      {/* updateModalOpen 관련 모달 삭제 */}
+      {/*
       {updateModalOpen && (
         <ReusableModal
           isOpen
@@ -436,6 +437,7 @@ const HomeDetail: React.FC<HomeDetailProps> = ({
           </div>
         </ReusableModal>
       )}
+      */}
 
       <BottomBar
         cartIconSrc={ShoppingBasket}
