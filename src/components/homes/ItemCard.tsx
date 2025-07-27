@@ -1,5 +1,5 @@
 // src/components/ItemCard.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import {
@@ -20,6 +20,7 @@ interface ItemCardProps {
   isLiked: boolean;
   onOpenModal: (id: string) => void;
   onDelete?: (id: string) => void;
+  isFirstItem?: boolean; // 첫 번째 아이템 여부 추가
 }
 
 type ConfirmAction = 'add' | 'remove' | null;
@@ -35,6 +36,7 @@ const ItemCard = React.memo(function ItemCard({
   isLiked: initialLiked,
   onOpenModal,
   onDelete,
+  isFirstItem = false, // 첫 번째 아이템 여부 추가
 }: ItemCardProps) {
   const [liked, setLiked] = useState(initialLiked);
   const [animating, setAnimating] = useState(false);
@@ -42,6 +44,14 @@ const ItemCard = React.memo(function ItemCard({
   const [errorMsg, setErrorMsg] = useState('');
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
+
+  // 첫 번째 이미지 프리로드
+  useEffect(() => {
+    if (isFirstItem && image) {
+      const img = new window.Image();
+      img.src = image.split('#')[0] || '/default.jpg';
+    }
+  }, [isFirstItem, image]);
 
   const displayDescription = description.includes('/')
     ? description.split('/')[1]
@@ -125,11 +135,12 @@ const ItemCard = React.memo(function ItemCard({
           <Image
             src={image.split('#')[0] || '/default.jpg'}
             alt={brand}
-            loading='lazy'
+            loading={isFirstItem ? 'eager' : 'lazy'}
             width={'100%'}
             height={'100%'}
             className={imgLoaded ? 'loaded' : ''}
             onLoad={() => setImgLoaded(true)}
+            decoding={isFirstItem ? 'sync' : 'async'}
           />
           <HookButton
             $isLiked={liked}

@@ -292,6 +292,16 @@ const Home: React.FC = () => {
         isLiked: p.isLiked || false,
       })
     );
+
+    // 첫 번째 이미지 프리로드 (간단하게)
+    if (result.length > 0) {
+      const firstImage = result[0].image.split('#')[0];
+      if (firstImage && !document.querySelector(`link[href="${firstImage}"]`)) {
+        const img = new window.Image();
+        img.src = firstImage;
+      }
+    }
+
     return result;
   }, [filteredProducts]);
 

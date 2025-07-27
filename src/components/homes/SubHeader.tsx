@@ -150,7 +150,7 @@ const SubHeader: React.FC<SubHeaderProps> = ({
               </IconContainer>
             );
           })}
-          <Indicator position={indicatorPos} />
+          <Indicator $position={indicatorPos} />
         </IconsWrapper>
 
         <ArrowButtonWrapper onClick={() => scroll('right')}>
@@ -215,10 +215,10 @@ const IconText = styled.span<{ selected: boolean }>`
   font-size: 11px;
   color: ${({ selected }) => (selected ? '#000' : '#666')};
 `;
-const Indicator = styled.div<{ position: number }>`
+const Indicator = styled.div<{ $position: number }>`
   position: absolute;
   bottom: 0px;
-  left: ${({ position }) => position}px;
+  left: ${({ $position }) => $position}px;
   width: ${INDICATOR_WIDTH}px;
   height: 4px;
   background-color: #000;

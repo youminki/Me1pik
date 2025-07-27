@@ -124,7 +124,67 @@ export const setupPerformanceObservers = () => {
     const lcpObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries();
       const lastEntry = entries[entries.length - 1];
-      console.log('LCP:', lastEntry.startTime);
+      const lcpTime = lastEntry.startTime;
+
+      console.log('🚀 LCP 측정:', lcpTime, 'ms');
+
+      // LCP 성능 분석 및 제안
+      if (lcpTime > 2500) {
+        // LCP 요소가 이미지인 경우 최적화 제안
+        const lcpEntry = lastEntry as PerformanceEntry & { element?: Element };
+        if (lcpEntry.element && lcpEntry.element instanceof HTMLImageElement) {
+          console.log('🎯 LCP 요소:', lcpEntry.element);
+          console.log('📸 LCP 이미지 src:', lcpEntry.element.src);
+          console.log(
+            '📏 이미지 크기:',
+            lcpEntry.element.naturalWidth,
+            'x',
+            lcpEntry.element.naturalHeight
+          );
+          console.log(
+            '🖼️ 표시 크기:',
+            lcpEntry.element.width,
+            'x',
+            lcpEntry.element.height
+          );
+
+          // 이미지 로딩 상태 확인
+          console.log('✅ 이미지 완전히 로드됨:', lcpEntry.element.complete);
+          console.log(
+            '⏱️ 이미지 로딩 시간:',
+            performance.now() - lcpEntry.startTime,
+            'ms'
+          );
+
+          console.log('🔧 이미지 최적화 제안:');
+          console.log('- loading="eager" 속성 추가');
+          console.log('- decoding="sync" 속성 추가');
+          console.log('- 이미지 크기 최적화');
+          console.log('- WebP/AVIF 포맷 사용');
+          console.log('- 이미지 프리로드 추가');
+          console.log('- 이미지 서버 응답 시간 최적화');
+          console.log('- CDN 사용 고려');
+
+          // 구체적인 최적화 제안
+          const imgSrc = lcpEntry.element.src;
+          if (imgSrc.includes('.jpg') || imgSrc.includes('.jpeg')) {
+            console.log('- JPEG 이미지를 WebP로 변환 고려');
+          }
+          if (imgSrc.includes('.png')) {
+            console.log('- PNG 이미지를 WebP로 변환 고려');
+          }
+
+          // 이미지 크기 분석
+          const img = lcpEntry.element;
+          if (img.naturalWidth > 800 || img.naturalHeight > 800) {
+            console.log('- 이미지 크기가 큽니다. 적절한 크기로 리사이징 고려');
+          }
+        }
+      } else if (lcpTime > 4000) {
+        console.error('❌ LCP가 4초를 초과했습니다. 즉시 최적화가 필요합니다.');
+      } else {
+        console.log('✅ LCP 성능이 양호합니다.');
+      }
     });
     lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
 
@@ -140,7 +200,13 @@ export const setupPerformanceObservers = () => {
           clsValue += layoutShiftEntry.value || 0;
         }
       }
-      console.log('CLS:', clsValue);
+      console.log('📐 CLS:', clsValue);
+
+      if (clsValue > 0.1) {
+        console.warn(
+          '⚠️ CLS가 0.1을 초과했습니다. 레이아웃 안정성을 개선해야 합니다.'
+        );
+      }
     });
     clsObserver.observe({ entryTypes: ['layout-shift'] });
 
@@ -151,15 +217,131 @@ export const setupPerformanceObservers = () => {
           processingStart?: number;
         };
         if (firstInputEntry.processingStart) {
-          console.log(
-            'FID:',
-            firstInputEntry.processingStart - entry.startTime
-          );
+          const fidTime = firstInputEntry.processingStart - entry.startTime;
+          console.log('⚡ FID:', fidTime, 'ms');
+
+          if (fidTime > 100) {
+            console.warn(
+              '⚠️ FID가 100ms를 초과했습니다. 메인 스레드 블로킹을 줄여야 합니다.'
+            );
+          }
         }
       }
     });
     fidObserver.observe({ entryTypes: ['first-input'] });
+
+    // 이미지 로딩 성능 모니터링
+    const imageObserver = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.entryType === 'resource' && entry.name.includes('image')) {
+          const resourceEntry = entry as PerformanceEntry & {
+            transferSize?: number;
+            encodedBodySize?: number;
+          };
+
+          console.log(`🖼️ 이미지 로딩: ${entry.name}`, {
+            duration: Math.round(entry.duration),
+            transferSize: resourceEntry.transferSize
+              ? Math.round(resourceEntry.transferSize / 1024) + 'KB'
+              : 'N/A',
+            encodedBodySize: resourceEntry.encodedBodySize
+              ? Math.round(resourceEntry.encodedBodySize / 1024) + 'KB'
+              : 'N/A',
+          });
+
+          // 큰 이미지 경고
+          if (
+            resourceEntry.transferSize &&
+            resourceEntry.transferSize > 500000
+          ) {
+            console.warn(
+              `⚠️ 큰 이미지 감지: ${entry.name} (${Math.round(resourceEntry.transferSize / 1024)}KB)`
+            );
+          }
+
+          // 느린 이미지 로딩 경고
+          if (entry.duration > 2000) {
+            console.warn(
+              `⚠️ 느린 이미지 로딩: ${entry.name} (${Math.round(entry.duration)}ms)`
+            );
+          }
+        }
+      }
+    });
+    imageObserver.observe({ entryTypes: ['resource'] });
   }
+};
+
+/**
+ * 이미지 로딩 성능 분석
+ */
+export const analyzeImagePerformance = () => {
+  const images = document.querySelectorAll('img');
+  const imageLoadTimes: Array<{ src: string; loadTime: number }> = [];
+
+  images.forEach((img) => {
+    const startTime = performance.now();
+
+    if (img.complete) {
+      // 이미 로드된 이미지
+      imageLoadTimes.push({ src: img.src, loadTime: 0 });
+    } else {
+      // 로딩 중인 이미지
+      img.addEventListener('load', () => {
+        const loadTime = performance.now() - startTime;
+        imageLoadTimes.push({ src: img.src, loadTime });
+
+        if (loadTime > 1000) {
+          console.warn(
+            `⚠️ 이미지 로딩이 느립니다: ${img.src} (${loadTime.toFixed(0)}ms)`
+          );
+        }
+      });
+    }
+  });
+
+  return imageLoadTimes;
+};
+
+/**
+ * 성능 최적화 제안
+ */
+export const getPerformanceRecommendations = () => {
+  const recommendations = [];
+
+  // 이미지 최적화 제안
+  const images = document.querySelectorAll('img');
+  const largeImages = Array.from(images).filter((img) => {
+    const rect = img.getBoundingClientRect();
+    return rect.width > 300 || rect.height > 300;
+  });
+
+  if (largeImages.length > 0) {
+    recommendations.push({
+      category: '이미지 최적화',
+      suggestions: [
+        '큰 이미지에 loading="lazy" 적용',
+        'WebP/AVIF 포맷 사용',
+        '적절한 이미지 크기로 리사이징',
+        '이미지 압축 최적화',
+      ],
+    });
+  }
+
+  // 폰트 최적화 제안
+  const fonts = document.querySelectorAll('link[rel="preload"][as="font"]');
+  if (fonts.length === 0) {
+    recommendations.push({
+      category: '폰트 최적화',
+      suggestions: [
+        '중요한 폰트에 preload 적용',
+        'font-display: swap 사용',
+        '폰트 서브셋 최적화',
+      ],
+    });
+  }
+
+  return recommendations;
 };
 
 /**

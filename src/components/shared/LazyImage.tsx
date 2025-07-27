@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -13,6 +13,8 @@ interface LazyImageProps {
   height?: string;
   onLoad?: () => void;
   onError?: () => void;
+  priority?: boolean; // LCP 최적화를 위한 우선순위 플래그
+  sizes?: string; // 반응형 이미지 크기
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -24,10 +26,30 @@ const LazyImage: React.FC<LazyImageProps> = ({
   height,
   onLoad,
   onError,
+  priority = false,
+  sizes = '100vw',
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const { ref, shouldLoad } = useLazyLoad();
+
+  // 우선순위 이미지는 즉시 로딩
+  const shouldLoadImage = priority || shouldLoad;
+
+  // 이미지 프리로드 (우선순위가 높은 경우)
+  useEffect(() => {
+    if (priority && src) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = src;
+      document.head.appendChild(link);
+
+      return () => {
+        document.head.removeChild(link);
+      };
+    }
+  }, [priority, src]);
 
   const handleLoad = () => {
     setIsLoaded(true);
@@ -39,6 +61,29 @@ const LazyImage: React.FC<LazyImageProps> = ({
     onError?.();
   };
 
+  // 이미지 URL 최적화 (WebP 지원 확인 후 적용)
+  const getOptimizedSrc = (originalSrc: string) => {
+    // WebP 지원 확인
+    const supportsWebP =
+      document
+        .createElement('canvas')
+        .toDataURL('image/webp')
+        .indexOf('data:image/webp') === 0;
+
+    if (supportsWebP && originalSrc.includes('.')) {
+      const extension = originalSrc.split('.').pop();
+      if (
+        extension &&
+        ['jpg', 'jpeg', 'png'].includes(extension.toLowerCase())
+      ) {
+        return originalSrc.replace(`.${extension}`, '.webp');
+      }
+    }
+    return originalSrc;
+  };
+
+  const optimizedSrc = getOptimizedSrc(src);
+
   return (
     <ImageContainer
       ref={ref}
@@ -46,7 +91,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       width={width}
       height={height}
     >
-      {shouldLoad && !hasError ? (
+      {shouldLoadImage && !hasError ? (
         <>
           {!isLoaded && (
             <SpinnerWrapper>
@@ -54,13 +99,15 @@ const LazyImage: React.FC<LazyImageProps> = ({
             </SpinnerWrapper>
           )}
           <StyledImage
-            src={src}
+            src={optimizedSrc}
             alt={alt}
             onLoad={handleLoad}
             onError={handleError}
             className={isLoaded ? 'loaded' : ''}
-            loading='lazy'
+            loading={priority ? 'eager' : 'lazy'}
+            sizes={sizes}
             style={{ position: 'absolute', top: 0, left: 0 }}
+            fetchPriority={priority ? 'high' : 'auto'}
           />
         </>
       ) : hasError && placeholder ? (

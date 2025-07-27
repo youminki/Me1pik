@@ -42,19 +42,20 @@ const ItemList: React.FC<ItemListProps> = ({
         <SkeletonItemCard key={`skeleton-${i}`} />
       ));
     }
-    return items.map((item) => (
+    return items.map((item, index) => (
       <ItemCard
         key={item.id}
         {...item}
         onOpenModal={handleOpen}
         onDelete={handleDelete}
+        isFirstItem={index === 0} // 첫 번째 아이템에 우선순위 적용
       />
     ));
   }, [isLoading, items, visibleCount, onItemClick, onDelete]);
 
   return (
     <ListContainer>
-      <ItemsWrapper columns={columns}>
+      <ItemsWrapper $columns={columns}>
         {renderedItems}
         {observerRef && <div ref={observerRef} style={{ height: 1 }} />}
       </ItemsWrapper>
@@ -71,8 +72,8 @@ const ListContainer = styled.div`
   width: 100%;
 `;
 
-const ItemsWrapper = styled.div<{ columns: number }>`
+const ItemsWrapper = styled.div<{ $columns: number }>`
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(${({ columns }) => columns}, minmax(0, 1fr));
+  grid-template-columns: repeat(${({ $columns }) => $columns}, minmax(0, 1fr));
 `;
