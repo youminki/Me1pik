@@ -1,6 +1,6 @@
 // src/pages/brands/BrandDetail.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -23,6 +23,7 @@ import SearchModal from '@/components/homes/SearchModal';
 import SubHeader from '@/components/homes/SubHeader';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import FilterModal from '@/components/shared/modals/FilterModal';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
 interface LocalBrand {
@@ -34,6 +35,33 @@ interface LocalBrand {
   productCount: number;
 }
 
+const colorMap: Record<string, string> = {
+  화이트: 'WHITE',
+  블랙: 'BLACK',
+  그레이: 'GRAY',
+  네이비: 'NAVY',
+  아이보리: 'IVORY',
+  베이지: 'BEIGE',
+  브라운: 'BROWN',
+  카키: 'KHAKI',
+  그린: 'GREEN',
+  블루: 'BLUE',
+  퍼플: 'PURPLE',
+  버건디: 'BURGUNDY',
+  레드: 'RED',
+  핑크: 'PINK',
+  옐로우: 'YELLOW',
+  오렌지: 'ORANGE',
+  마젠타: 'MAGENTA',
+  민트: 'MINT',
+};
+const sizeMap: Record<string, string[]> = {
+  '44(S)': ['44'],
+  '55(M)': ['55'],
+  '66(L)': ['66'],
+  '77(XL)': ['77'],
+};
+
 const BrandDetail: React.FC = () => {
   const { brandId } = useParams<{ brandId: string }>();
   const idNum = brandId ? parseInt(brandId, 10) : NaN;
@@ -43,12 +71,16 @@ const BrandDetail: React.FC = () => {
   // UnifiedHeader 검색창에서 ?search=... 이 설정되면 여기서 읽어옴
   const searchTerm = searchParams.get('search')?.trim().toLowerCase() || '';
 
+  // 검색어 상태 (searchTerm → searchQuery로 네이밍 통일)
+  const [searchQuery, setSearchQuery] = useState(searchTerm || '');
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+
   // 브랜드 정보 상태
   const [brand, setBrand] = useState<LocalBrand | null>(null);
 
   // 제품 목록 상태
   const [allProducts, setAllProducts] = useState<ApiProduct[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<ApiProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
   const [errorProducts, setErrorProducts] = useState<string>('');
 
@@ -147,19 +179,110 @@ const BrandDetail: React.FC = () => {
     })();
   }, [brand, selectedCategory]);
 
-  // 검색어(searchTerm) 또는 allProducts 변경 시 filteredProducts 업데이트
-  useEffect(() => {
-    if (!searchTerm) {
-      setFilteredProducts(allProducts);
-    } else {
-      const filtered = allProducts.filter((p) => {
-        const name = (p.name || '').toLowerCase();
-        const desc = (p.description || '').toLowerCase();
-        return name.includes(searchTerm) || desc.includes(searchTerm);
-      });
-      setFilteredProducts(filtered);
-    }
-  }, [allProducts, searchTerm]);
+  // 검색어(searchTerm) 또는 allProducts 변경 시 filteredProducts 업데이트 useEffect 전체 삭제
+
+  const filteredProducts = useMemo(() => {
+    if (!allProducts) return [];
+    const term = searchQuery.trim().toLowerCase();
+    // 쉼표로 분리된 여러 검색어 처리
+    const terms = term
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    // 색상 매핑: 한글 <-> 영문
+    const colorMapEntries = Object.entries(colorMap);
+    const allColorKeywords = [
+      ...colorMapEntries.map(([kor]) => kor.toLowerCase()),
+      ...colorMapEntries.map(([, eng]) => eng.toLowerCase()),
+    ];
+
+    // 검색어 중 색상 키워드와 일반 키워드 분리
+    const searchColors: string[] = [];
+    const searchKeywords: string[] = [];
+    terms.forEach((t) => {
+      if (allColorKeywords.includes(t)) {
+        searchColors.push(t);
+      } else if (t) {
+        searchKeywords.push(t);
+      }
+    });
+
+    const filtered = allProducts.filter((item) => {
+      const name = (item.name || '').toLowerCase();
+      const desc = (item.description || '').toLowerCase();
+      const color = item.color?.toLowerCase() || '';
+      const sizes = item.sizes || [];
+
+      // 이름/설명 검색: 모든 일반 키워드가 이름/설명에 하나라도 포함되면 true
+      const matchesNameOrDesc =
+        searchKeywords.length === 0 ||
+        searchKeywords.some((kw) => name.includes(kw) || desc.includes(kw));
+
+      // 색상 검색: 검색어에 색상 키워드가 있으면, 상품 색상에 하나라도 포함되면 true
+      let matchesSearchColors = true;
+      if (searchColors.length > 0) {
+        matchesSearchColors = searchColors.some((searchColor) => {
+          // 한글로 입력한 경우 영문도 체크, 영문으로 입력한 경우 한글도 체크
+          const found = colorMapEntries.find(
+            ([kor, eng]) =>
+              kor.toLowerCase() === searchColor ||
+              eng.toLowerCase() === searchColor
+          );
+          if (found) {
+            const [kor, eng] = found;
+            return (
+              color.includes(kor.toLowerCase()) ||
+              color.includes(eng.toLowerCase()) ||
+              color.toUpperCase().includes(eng.toUpperCase())
+            );
+          }
+          return color.includes(searchColor);
+        });
+      }
+
+      // 여러 색상 필터(필터 모달): selectedColors 중 하나라도 포함되면 true
+      let matchesSelectedColors = true;
+      if (selectedColors.length > 0) {
+        matchesSelectedColors = selectedColors.some((selected) => {
+          const engColor = colorMap[selected] || selected;
+          return (
+            color.toUpperCase().includes(engColor) || color.includes(selected)
+          );
+        });
+      }
+
+      // 사이즈 필터: selectedSizes 중 하나라도 상품의 sizes에 포함되면 true
+      let matchesSelectedSizes = true;
+      if (selectedSizes.length > 0) {
+        matchesSelectedSizes = selectedSizes.some((selectedSize) => {
+          // 사이즈 매핑 테이블에서 해당하는 숫자 사이즈들 가져오기
+          const mappedSizes = sizeMap[selectedSize] || [selectedSize];
+          // 상품 사이즈와 매핑된 사이즈들 중 하나라도 일치하는지 확인
+          return mappedSizes.some((mappedSize) => {
+            return sizes.some((productSize) => {
+              // FREE 사이즈 특별 처리
+              if (selectedSize === 'FREE') {
+                return /free/i.test(productSize);
+              }
+              // 숫자 사이즈 매칭 - 정확한 숫자 비교
+              return productSize === mappedSize;
+            });
+          });
+        });
+      }
+
+      return (
+        matchesNameOrDesc &&
+        matchesSearchColors &&
+        matchesSelectedColors &&
+        matchesSelectedSizes
+      );
+    });
+    return filtered;
+  }, [allProducts, searchQuery, selectedColors, selectedSizes]);
+
+  // 상품 필터링 (홈과 동일하게) useEffect 전체 삭제
 
   // 상세 모달 ID
   const modalId = searchParams.get('id');
@@ -208,6 +331,45 @@ const BrandDetail: React.FC = () => {
 
   // 검색 모달 상태
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
+  const [isFilterModalOpen, setFilterModalOpen] = useState(false);
+  const [tempSelectedColors, setTempSelectedColors] = useState<string[]>([]);
+  const [tempSelectedSizes, setTempSelectedSizes] = useState<string[]>([]);
+
+  // 필터/검색 chip 삭제 핸들러
+  const handleDeleteChip = (type: 'search' | 'color' | 'size', idx: number) => {
+    if (type === 'search') {
+      const terms = searchQuery
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+      const newTerms = terms.filter((_, i) => i !== idx);
+      setSearchQuery(newTerms.join(', '));
+      setSearchParams(
+        (prev) => {
+          const params = new URLSearchParams(prev);
+          if (newTerms.length > 0) {
+            params.set('search', newTerms.join(', '));
+          } else {
+            params.delete('search');
+          }
+          return params;
+        },
+        { replace: true }
+      );
+    } else if (type === 'color') {
+      setSelectedColors(selectedColors.filter((_, i) => i !== idx));
+    } else if (type === 'size') {
+      setSelectedSizes(selectedSizes.filter((_, i) => i !== idx));
+    }
+  };
+
+  // 필터 모달이 열릴 때 임시 상태 동기화
+  useEffect(() => {
+    if (isFilterModalOpen) {
+      setTempSelectedColors(selectedColors);
+      setTempSelectedSizes(selectedSizes);
+    }
+  }, [isFilterModalOpen, selectedColors, selectedSizes]);
 
   // UIItem 매핑 (filteredProducts 기준)
   const uiItems: UIItem[] = filteredProducts.map((it) => ({
@@ -314,9 +476,7 @@ const BrandDetail: React.FC = () => {
             <RowAlignBox>
               <FilterContainer
                 onSearchClick={() => setSearchModalOpen(true)}
-                onFilterClick={() => {
-                  /* 필터 모달 열기 등 구현 */
-                }}
+                onFilterClick={() => setFilterModalOpen(true)}
               />
             </RowAlignBox>
             <SearchModal
@@ -331,6 +491,23 @@ const BrandDetail: React.FC = () => {
               }}
               historyKey='brandSearchHistory'
               initialValue={searchTerm}
+            />
+            {/* 필터 모달 */}
+            <FilterModal
+              isOpen={isFilterModalOpen}
+              onClose={() => setFilterModalOpen(false)}
+              onColorSelect={(colors) => {
+                setSelectedColors(colors);
+                setFilterModalOpen(false);
+              }}
+              onSizeSelect={(sizes) => {
+                setSelectedSizes(sizes);
+                setFilterModalOpen(false);
+              }}
+              selectedColors={tempSelectedColors}
+              setSelectedColors={setTempSelectedColors}
+              selectedSizes={tempSelectedSizes}
+              setSelectedSizes={setTempSelectedSizes}
             />
           </ControlsContainer>
           <MainContent>
@@ -370,9 +547,7 @@ const BrandDetail: React.FC = () => {
             <RowAlignBox>
               <FilterContainer
                 onSearchClick={() => setSearchModalOpen(true)}
-                onFilterClick={() => {
-                  /* 필터 모달 열기 등 구현 */
-                }}
+                onFilterClick={() => setFilterModalOpen(true)}
               />
             </RowAlignBox>
             <SearchModal
@@ -387,6 +562,23 @@ const BrandDetail: React.FC = () => {
               }}
               historyKey='brandSearchHistory'
               initialValue={searchTerm}
+            />
+            {/* 필터 모달 */}
+            <FilterModal
+              isOpen={isFilterModalOpen}
+              onClose={() => setFilterModalOpen(false)}
+              onColorSelect={(colors) => {
+                setSelectedColors(colors);
+                setFilterModalOpen(false);
+              }}
+              onSizeSelect={(sizes) => {
+                setSelectedSizes(sizes);
+                setFilterModalOpen(false);
+              }}
+              selectedColors={tempSelectedColors}
+              setSelectedColors={setTempSelectedColors}
+              selectedSizes={tempSelectedSizes}
+              setSelectedSizes={setTempSelectedSizes}
             />
           </ControlsContainer>
           <MainContent>
@@ -426,9 +618,7 @@ const BrandDetail: React.FC = () => {
             <RowAlignBox>
               <FilterContainer
                 onSearchClick={() => setSearchModalOpen(true)}
-                onFilterClick={() => {
-                  /* 필터 모달 열기 등 구현 */
-                }}
+                onFilterClick={() => setFilterModalOpen(true)}
               />
             </RowAlignBox>
             <SearchModal
@@ -443,6 +633,23 @@ const BrandDetail: React.FC = () => {
               }}
               historyKey='brandSearchHistory'
               initialValue={searchTerm}
+            />
+            {/* 필터 모달 */}
+            <FilterModal
+              isOpen={isFilterModalOpen}
+              onClose={() => setFilterModalOpen(false)}
+              onColorSelect={(colors) => {
+                setSelectedColors(colors);
+                setFilterModalOpen(false);
+              }}
+              onSizeSelect={(sizes) => {
+                setSelectedSizes(sizes);
+                setFilterModalOpen(false);
+              }}
+              selectedColors={tempSelectedColors}
+              setSelectedColors={setTempSelectedColors}
+              selectedSizes={tempSelectedSizes}
+              setSelectedSizes={setTempSelectedSizes}
             />
           </ControlsContainer>
           <ContentWrapper>
@@ -487,13 +694,50 @@ const BrandDetail: React.FC = () => {
 
           {/* 필터 및 검색 아이콘 */}
           <ControlsContainer>
+            {/* Chip 리스트 */}
+            <ChipList>
+              {/* 검색어 Chip */}
+              {searchQuery.trim() &&
+                searchQuery.split(',').map((kw, idx) => (
+                  <Chip key={kw + idx}>
+                    {kw.trim()}
+                    <ChipClose
+                      aria-label='검색어 삭제'
+                      onClick={() => handleDeleteChip('search', idx)}
+                    >
+                      ×
+                    </ChipClose>
+                  </Chip>
+                ))}
+              {/* 색상 Chip */}
+              {selectedColors.map((color, idx) => (
+                <Chip key={color + idx}>
+                  {color}
+                  <ChipClose
+                    aria-label='색상 삭제'
+                    onClick={() => handleDeleteChip('color', idx)}
+                  >
+                    ×
+                  </ChipClose>
+                </Chip>
+              ))}
+              {/* 사이즈 Chip */}
+              {selectedSizes.map((size, idx) => (
+                <Chip key={size + idx}>
+                  {size}
+                  <ChipClose
+                    aria-label='사이즈 삭제'
+                    onClick={() => handleDeleteChip('size', idx)}
+                  >
+                    ×
+                  </ChipClose>
+                </Chip>
+              ))}
+            </ChipList>
             <RowAlignBox>
-              {/* 검색 및 필터 아이콘 */}
               <FilterContainer
                 onSearchClick={() => setSearchModalOpen(true)}
-                onFilterClick={() => {
-                  /* 필터 모달 열기 등 구현 */
-                }}
+                onFilterClick={() => setFilterModalOpen(true)}
               />
             </RowAlignBox>
             {/* 검색 모달 */}
@@ -501,14 +745,32 @@ const BrandDetail: React.FC = () => {
               isOpen={isSearchModalOpen}
               onClose={() => setSearchModalOpen(false)}
               onSearch={(searchTerm) => {
+                setSearchQuery(searchTerm);
+                setSelectedCategory('All');
                 setSearchParams(
                   { category: 'All', search: searchTerm },
                   { replace: true }
                 );
-                setSelectedCategory('All');
               }}
               historyKey='brandSearchHistory'
-              initialValue={searchTerm}
+              initialValue={searchQuery}
+            />
+            {/* 필터 모달 */}
+            <FilterModal
+              isOpen={isFilterModalOpen}
+              onClose={() => setFilterModalOpen(false)}
+              onColorSelect={(colors) => {
+                setSelectedColors(colors);
+                setFilterModalOpen(false);
+              }}
+              onSizeSelect={(sizes) => {
+                setSelectedSizes(sizes);
+                setFilterModalOpen(false);
+              }}
+              selectedColors={tempSelectedColors}
+              setSelectedColors={setTempSelectedColors}
+              selectedSizes={tempSelectedSizes}
+              setSelectedSizes={setTempSelectedSizes}
             />
           </ControlsContainer>
 
@@ -742,4 +1004,40 @@ const NoResultMessage = styled.div`
   justify-content: center;
   background: #fff;
   border-radius: 12px;
+`;
+
+const ChipList = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  max-width: 100vw;
+  overflow-x: auto;
+  white-space: nowrap;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+const Chip = styled.div`
+  display: flex;
+  align-items: center;
+  background: #f6f6f6;
+  border-radius: 16px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #333;
+  height: 28px;
+  font-weight: 600;
+  border: 1px solid #e0e0e0;
+`;
+const ChipClose = styled.button`
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 16px;
+  margin-left: 4px;
+  cursor: pointer;
+  padding: 0;
 `;
