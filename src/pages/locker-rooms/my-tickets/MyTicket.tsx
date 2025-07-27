@@ -81,7 +81,7 @@ const MyTicket: React.FC = () => {
                 startDate,
                 endDate,
                 remainingRentals,
-                ticketList: { id: tplId, name, price, isLongTerm, isUlimited },
+                ticketList: { name, price, isLongTerm, isUlimited },
               } = ticket;
 
               const subtitle = isLongTerm ? '[매월결제]' : '[일반결제]';
@@ -96,7 +96,7 @@ const MyTicket: React.FC = () => {
               return (
                 <TicketCard
                   key={id}
-                  onClick={() => navigate(`/ticketDetail/${tplId}`)}
+                  onClick={() => navigate(`/ticketDetail/${id}`)}
                 >
                   <RemainingBadge>
                     {isUlimited ? '무제한' : `잔여횟수 ${remainingRentals}회`}
@@ -169,7 +169,6 @@ const MyTicketContainer = styled.div`
   flex-direction: column;
   align-items: center;
   background: #fff;
-  padding-bottom: 30px;
 `;
 
 const HeaderSection = styled.div`

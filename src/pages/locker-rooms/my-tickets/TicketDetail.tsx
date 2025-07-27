@@ -23,11 +23,7 @@ const TicketDetail: React.FC = () => {
     (async () => {
       try {
         const items = await getUserTickets();
-        const tplId = Number(ticketId);
-        const found =
-          items.find(
-            (t: { ticketList: { id: number } }) => t.ticketList.id === tplId
-          ) ?? null;
+        const found = items.find((t) => t.id === Number(ticketId)) ?? null;
         setTicket(found);
       } catch (err) {
         console.error('티켓 조회 실패:', err);
@@ -55,7 +51,7 @@ const TicketDetail: React.FC = () => {
   }
 
   const {
-    ticketList: { name, durationMonths, price, isUlimited },
+    ticketList: { name, durationMonths, price },
     startDate,
     endDate,
     purchasedAt,
@@ -67,6 +63,7 @@ const TicketDetail: React.FC = () => {
     discountRate > 0 ? Math.round(price * (1 - discountRate / 100)) : price;
   const formattedPrice = `${price.toLocaleString()}원`;
   const formattedDiscountedPrice = `${discountedPrice.toLocaleString()}원`;
+  const isUnlimited = ticket.ticketList.isUlimited === 'Y';
 
   return (
     <Container>
@@ -123,7 +120,7 @@ const TicketDetail: React.FC = () => {
         </Section>
 
         {/* 잔여횟수: isUlimited가 false일 때만 */}
-        {!isUlimited && (
+        {!isUnlimited && (
           <Section>
             <SectionTitle>잔여횟수</SectionTitle>
             <ReadOnlyBoxGray>
@@ -177,6 +174,7 @@ const Container = styled.div`
   max-width: 600px;
   margin: 0 auto;
   background-color: #ffffff;
+  margin-bottom: 100px;
 `;
 
 const ContentArea = styled.div`
