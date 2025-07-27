@@ -18,6 +18,8 @@ const menuItems = [
   { icon: MelpikOptionIcon, label: '티켓', path: '/melpik-settings' },
 ];
 
+const disabledMenuIndexes = [0, 2]; // 0: 내 옷장, 2: 포인트
+
 const MelpikPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -53,12 +55,22 @@ const MelpikPage: React.FC = () => {
 
         <GridMenu>
           {menuItems.map((item, idx) => (
-            <GridItem key={idx} onClick={() => navigate(item.path)}>
+            <GridItem
+              key={idx}
+              onClick={
+                disabledMenuIndexes.includes(idx)
+                  ? undefined
+                  : () => navigate(item.path)
+              }
+              $disabled={disabledMenuIndexes.includes(idx)}
+            >
               <IconLabelRow>
                 <IconImage src={item.icon} alt={item.label} />
-                <Label>{item.label}</Label>
+                <Label $disabled={disabledMenuIndexes.includes(idx)}>
+                  {item.label}
+                </Label>
               </IconLabelRow>
-              <PickButton>
+              <PickButton $disabled={disabledMenuIndexes.includes(idx)}>
                 PICK <Arrow>→</Arrow>
               </PickButton>
             </GridItem>
@@ -143,7 +155,7 @@ const GridMenu = styled.div`
   }
 `;
 
-const GridItem = styled.div`
+const GridItem = styled.div<{ $disabled?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -151,9 +163,11 @@ const GridItem = styled.div`
   box-sizing: border-box;
   border: 1px solid #ddd;
   background: #fff;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   width: 100%;
   height: 100%;
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
+  pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
 `;
 
 const IconLabelRow = styled.div`
@@ -167,17 +181,17 @@ const IconImage = styled.img`
   object-fit: contain;
 `;
 
-const Label = styled.div`
+const Label = styled.div<{ $disabled?: boolean }>`
   font-weight: 700;
   font-size: 14px;
-  color: #000;
+  color: ${({ $disabled }) => ($disabled ? '#aaa' : '#000')};
   @media (min-width: 1024px) {
     font-size: 18px;
     margin-left: 1rem;
   }
 `;
 
-const PickButton = styled.div`
+const PickButton = styled.div<{ $disabled?: boolean }>`
   align-self: flex-end;
   display: inline-flex;
   align-items: center;
@@ -187,6 +201,7 @@ const PickButton = styled.div`
   background: #fafafa;
   font-size: 12px;
   font-weight: 600;
+  color: ${({ $disabled }) => ($disabled ? '#aaa' : '#222')};
   @media (min-width: 1024px) {
     padding: 10px 16px;
     font-size: 14px;
