@@ -282,7 +282,7 @@ const BrandDetail: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [showNoResult, countdown, setSearchParams]);
+  }, [showNoResult, countdown, setSearchParams, searchParams]);
 
   if (errorProducts) {
     return <ErrorMessage message={errorProducts} />;

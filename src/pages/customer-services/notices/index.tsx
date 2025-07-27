@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
@@ -10,137 +9,23 @@ import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsSection from '@/components/stats-section';
 
-// 스켈레톤 UI용 styled-components (불필요한 것 삭제)
-const shimmer = `
-  0% { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-`;
-
-// SkeletonTitle, SkeletonMeta 선언부 완전히 삭제
-
-const typeToTitle: Record<string, string> = {
-  notice: '공지사항',
-  faq: '자주 묻는 질문',
-  terms: '이용약관',
-  privacy: '개인정보처리방침',
-};
-
-const typeToApiType: Record<string, string> = {
-  notice: '공지사항', // 실제 API type/category에 맞게 조정 필요
-  faq: 'FAQ',
-  terms: '이용약관',
-  privacy: '개인정보보호',
-};
-
-const typeToCategoryTabs: Record<string, { label: string; value?: string }[]> =
-  {
-    faq: [
-      { label: '전체', value: undefined },
-      { label: '서비스', value: '서비스' },
-      { label: '주문/결제', value: '주문/결제' },
-      { label: '배송/반품', value: '배송/반품' },
-      { label: '이용권', value: '이용권' },
-    ],
-    notice: [
-      { label: '전체', value: undefined },
-      { label: '공지', value: '공지' },
-      { label: '안내', value: '안내' },
-    ],
-    terms: [
-      { label: '전체', value: undefined },
-      { label: '서비스정책', value: '서비스정책' },
-      { label: '판매정책', value: '판매정책' },
-      { label: '환불정책', value: '환불정책' },
-      { label: '기타', value: '기타' },
-    ],
-    privacy: [
-      { label: '전체', value: undefined },
-      { label: '수집항목', value: '수집항목' },
-      { label: '이용목적', value: '이용목적' },
-      { label: '보유기간', value: '보유기간' },
-      { label: '동의/거부', value: '동의/거부' },
-      { label: '기타', value: '기타' },
-    ],
-  };
-
-interface TermsPolicyItem {
+interface NoticeItem {
   id: number;
   title: string;
   type: string;
   category: string;
   content: string;
-  author: string;
   createdAt: string;
 }
 
-// 스켈레톤 UI 컴포넌트 (실제 리스트 구조와 유사하게 개선)
-const SkeletonList = () => (
-  <ListContainer>
-    {[1, 2, 3, 4].map((i) => (
-      <SkeletonListItem key={i}>
-        <div style={{ flex: 1 }}>
-          <SkeletonQ>Q.</SkeletonQ>
-          <SkeletonTitleBlock />
-          <SkeletonMetaBlock />
-        </div>
-        <SkeletonIcon />
-      </SkeletonListItem>
-    ))}
-  </ListContainer>
-);
+const categoryTabs = [
+  { label: '전체', value: undefined },
+  { label: '공지', value: '공지' },
+  { label: '안내', value: '안내' },
+];
 
-const SkeletonListItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 16px 16px 16px;
-  border-bottom: 1px solid #eeeeee;
-  background: #fff;
-`;
-
-const SkeletonQ = styled.div`
-  display: inline-block;
-  width: 22px;
-  height: 18px;
-  border-radius: 4px;
-  background: #f3f3f3;
-  margin-bottom: 8px;
-`;
-
-const SkeletonTitleBlock = styled.div`
-  width: 70%;
-  height: 18px;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  background: #eee;
-  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
-  background-size: 400px 100%;
-  animation: shimmer 1.2s infinite linear;
-  @keyframes shimmer {
-    ${shimmer}
-  }
-`;
-
-const SkeletonMetaBlock = styled.div`
-  width: 40%;
-  height: 14px;
-  border-radius: 6px;
-  background: #eee;
-  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
-  background-size: 400px 100%;
-  animation: shimmer 1.2s infinite linear;
-`;
-
-const SkeletonIcon = styled.div`
-  width: 32px;
-  height: 20px;
-  border-radius: 50%;
-  background: #f3f3f3;
-`;
-
-const DocumentList: React.FC = () => {
-  const { type } = useParams<{ type: string }>();
-  const [list, setList] = useState<TermsPolicyItem[]>([]);
+const Notice: React.FC = () => {
+  const [list, setList] = useState<NoticeItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [openId, setOpenId] = useState<number | null>(null);
   const [detail, setDetail] = useState<{ [id: number]: string }>({});
@@ -148,18 +33,15 @@ const DocumentList: React.FC = () => {
     undefined
   );
 
-  const categoryTabs = type ? typeToCategoryTabs[type] : [];
-
   React.useEffect(() => {
-    if (!type) return;
     setLoading(true);
     getTermsPolicyList({
-      type: typeToApiType[type] || '',
+      type: '공지사항',
       category: selectedCategory,
     })
       .then(setList)
       .finally(() => setLoading(false));
-  }, [type, selectedCategory]);
+  }, [selectedCategory]);
 
   const handleClick = async (id: number) => {
     if (openId === id) {
@@ -173,14 +55,12 @@ const DocumentList: React.FC = () => {
     }
   };
 
-  const title = typeToTitle[type || ''] || '문서';
-
   return (
     <>
-      <UnifiedHeader variant='oneDepth' />
+      <UnifiedHeader variant='twoDepth' title='공지사항' />
       <ResponsiveContainer>
         <Header>
-          <ResponsiveTitle>{title}</ResponsiveTitle>
+          <ResponsiveTitle>공지사항</ResponsiveTitle>
           <Subtitle>새로운 소식 및 서비스 안내를 드립니다.</Subtitle>
         </Header>
         <StatsRow>
@@ -198,26 +78,24 @@ const DocumentList: React.FC = () => {
           />
         </StatsRow>
         <Divider />
-        {categoryTabs.length > 0 && (
-          <TabSection>
-            {categoryTabs.map((tab) => (
-              <TabButton
-                key={tab.label}
-                active={
-                  selectedCategory === tab.value ||
-                  (!selectedCategory && !tab.value)
-                }
-                onClick={() => setSelectedCategory(tab.value)}
-              >
-                {tab.label}
-              </TabButton>
-            ))}
-          </TabSection>
-        )}
+        <TabSection>
+          {categoryTabs.map((tab) => (
+            <TabButton
+              key={tab.label}
+              active={
+                selectedCategory === tab.value ||
+                (!selectedCategory && !tab.value)
+              }
+              onClick={() => setSelectedCategory(tab.value)}
+            >
+              {tab.label}
+            </TabButton>
+          ))}
+        </TabSection>
         {loading ? (
-          <SkeletonList />
+          <LoadingContainer>로딩 중...</LoadingContainer>
         ) : !list.length ? (
-          <EmptyContainer>데이터가 없습니다.</EmptyContainer>
+          <EmptyContainer>공지사항이 없습니다.</EmptyContainer>
         ) : (
           <ListContainer>
             {list.map((item, idx) => (
@@ -226,18 +104,19 @@ const DocumentList: React.FC = () => {
                   <div style={{ flex: 1 }}>
                     <ItemTitle>
                       <span style={{ fontWeight: 700, color: '#222' }}>
-                        Q.{' '}
+                        📢{' '}
                       </span>
                       {item.title}
                     </ItemTitle>
                     <ItemMeta>
                       <CategoryOrange>{item.category}</CategoryOrange>
+                      <DateText>
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </DateText>
                     </ItemMeta>
                   </div>
                   <IconRight>
-                    {/* <ArrowToggleIcon
-                    direction={openId === item.id ? 'up' : 'down'}
-                  /> */}
+                    <ArrowIcon>{openId === item.id ? '▲' : '▼'}</ArrowIcon>
                   </IconRight>
                 </ListItem>
                 <DetailWrapper
@@ -257,12 +136,11 @@ const DocumentList: React.FC = () => {
   );
 };
 
-export default DocumentList;
+export default Notice;
 
 const TabSection = styled.div`
   display: flex;
   gap: 8px;
-
   border: 1px solid #dddddd;
   background-color: #f3f3f3;
   padding: 20px;
@@ -294,12 +172,19 @@ const ListContainer = styled.div`
   width: 100%;
   background: #fff;
   border: 1px solid #dddddd;
-
   box-sizing: border-box;
   margin-top: 8px;
   margin-bottom: 24px;
   padding: 0;
   overflow: hidden;
+`;
+
+const LoadingContainer = styled(ListContainer)`
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px 16px 16px;
 `;
 
 const EmptyContainer = styled(ListContainer)`
@@ -362,6 +247,14 @@ const CategoryOrange = styled.span`
   }
 `;
 
+const DateText = styled.span`
+  color: #888;
+  font-size: 12px;
+  @media (max-width: 600px) {
+    font-size: 10px;
+  }
+`;
+
 const DetailWrapper = styled.div<{ isOpen: boolean; isLast?: boolean }>`
   max-height: ${({ isOpen }) => (isOpen ? '350px' : '0')};
   overflow: hidden;
@@ -392,6 +285,11 @@ const IconRight = styled.span`
   display: flex;
   justify-content: flex-end;
   align-items: center;
+`;
+
+const ArrowIcon = styled.span`
+  font-size: 12px;
+  color: #888;
 `;
 
 const Header = styled.div`
