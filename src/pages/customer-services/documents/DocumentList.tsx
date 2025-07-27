@@ -25,7 +25,7 @@ const typeToTitle: Record<string, string> = {
 };
 
 const typeToApiType: Record<string, string> = {
-  notice: 'FAQ', // 실제 API type/category에 맞게 조정 필요
+  notice: '공지사항', // 실제 API type/category에 맞게 조정 필요
   faq: 'FAQ',
   terms: '이용약관',
   privacy: '개인정보보호',
