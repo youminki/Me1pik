@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
@@ -19,6 +20,39 @@ import {
   saveTokens,
 } from '@/utils/auth';
 import { isNativeApp } from '@/utils/nativeApp';
+
+// React Query 클라이언트 설정 - 성능 최적화
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // 캐시 시간 최적화
+      staleTime: 1000 * 60 * 10, // 10분 (기존 5분에서 증가)
+      gcTime: 1000 * 60 * 30, // 30분 (기존 5분에서 증가)
+
+      // 재시도 로직 최적화
+      retry: (failureCount, error: unknown) => {
+        // 401 오류는 재시도하지 않음
+        if (error && typeof error === 'object' && 'response' in error) {
+          const axiosError = error as { response?: { status?: number } };
+          if (axiosError.response?.status === 401) {
+            return false;
+          }
+        }
+        // 네트워크 오류는 2번만 재시도 (기존 3번에서 감소)
+        return failureCount < 2;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // 최대 10초
+
+      // 백그라운드 업데이트 비활성화로 성능 향상
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+    },
+    mutations: {
+      // 뮤테이션 재시도 비활성화
+      retry: false,
+    },
+  },
+});
 
 // 지연 로딩을 위한 컴포넌트들
 const Alarm = React.lazy(() => import('@/pages/alarms/Alarm'));
@@ -205,157 +239,162 @@ const AuthGuard: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <AuthGuard />
-        {/* 전체 페이지 라우트 로딩에는 원형 스피너, 명확한 안내 문구 */}
-        <Suspense
-          fallback={
-            <LoadingSpinner
-              label='페이지를 불러오는 중입니다...'
-              size={48}
-              color='#f7c600'
-            />
-          }
-        >
-          <Routes>
-            {/* Landing & Auth */}
-            <Route path='/landing' element={<Landing />} />
-            <Route path='/' element={<Navigate to='/home' replace />} />
-            <Route path='/login' element={<Login />} />
-            <Route path='/ladyLogin' element={<ReadyLogin />} />
-            <Route path='/TestLogin' element={<TestLogin />} />
-            <Route path='/PersonalLink' element={<PersonalLink />} />
-            <Route path='/test/payple' element={<PaypleTest />} />
-            <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
-            <Route path='/Link' element={<Link />} />
-            <Route path='/signup' element={<Signup />} />
-            {/* <Route path='/findid' element={<FindId />} />
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <AuthGuard />
+          {/* 전체 페이지 라우트 로딩에는 원형 스피너, 명확한 안내 문구 */}
+          <Suspense
+            fallback={
+              <LoadingSpinner
+                label='페이지를 불러오는 중입니다...'
+                size={48}
+                color='#f7c600'
+              />
+            }
+          >
+            <Routes>
+              {/* Landing & Auth */}
+              <Route path='/landing' element={<Landing />} />
+              <Route path='/' element={<Navigate to='/home' replace />} />
+              <Route path='/login' element={<Login />} />
+              <Route path='/ladyLogin' element={<ReadyLogin />} />
+              <Route path='/TestLogin' element={<TestLogin />} />
+              <Route path='/PersonalLink' element={<PersonalLink />} />
+              <Route path='/test/payple' element={<PaypleTest />} />
+              <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
+              <Route path='/Link' element={<Link />} />
+              <Route path='/signup' element={<Signup />} />
+              {/* <Route path='/findid' element={<FindId />} />
             <Route path='/findPassword' element={<FindPassword />} /> */}
 
-            <Route element={<AppLayout />}>
-              <Route path='/UpdateProfile' element={<UpdateProfile />} />
-              <Route path='/ChangePassword' element={<ChangePassword />} />
-              <Route
-                path='/DeliveryManagement'
-                element={<DeliveryManagement />}
-              />
-              <Route path='/EditAddress' element={<EditAddress />} />
-              {/* User Pages */}
-              <Route path='/MyinfoList' element={<MyInfoList />} />
-              <Route path='/MyStyle' element={<MyStyle />} />
+              <Route element={<AppLayout />}>
+                <Route path='/UpdateProfile' element={<UpdateProfile />} />
+                <Route path='/ChangePassword' element={<ChangePassword />} />
+                <Route
+                  path='/DeliveryManagement'
+                  element={<DeliveryManagement />}
+                />
+                <Route path='/EditAddress' element={<EditAddress />} />
+                {/* User Pages */}
+                <Route path='/MyinfoList' element={<MyInfoList />} />
+                <Route path='/MyStyle' element={<MyStyle />} />
 
-              {/* Main */}
-              <Route path='/home' element={<Home />} />
-              <Route path='/item/:id' element={<HomeDetail />} />
-              <Route path='/analysis' element={<Analysis />} />
-              <Route path='/basket' element={<Basket />} />
-              <Route path='/alarm' element={<Alarm />} />
-              {/* <Route path='/payment/:id' element={<Payment />} /> */}
-              <Route path='/payment/:id' element={<Payment />} />
-              <Route path='/payment/complete' element={<PaymentComplete />} />
-              <Route path='/payment/fail' element={<PaymentFail />} />
+                {/* Main */}
+                <Route path='/home' element={<Home />} />
+                <Route path='/item/:id' element={<HomeDetail />} />
+                <Route path='/analysis' element={<Analysis />} />
+                <Route path='/basket' element={<Basket />} />
+                <Route path='/alarm' element={<Alarm />} />
+                {/* <Route path='/payment/:id' element={<Payment />} /> */}
+                <Route path='/payment/:id' element={<Payment />} />
+                <Route path='/payment/complete' element={<PaymentComplete />} />
+                <Route path='/payment/fail' element={<PaymentFail />} />
 
-              {/* Brand */}
-              <Route path='/brand' element={<Brand />} />
-              <Route path='/brand/:brandId' element={<BrandDetail />} />
+                {/* Brand */}
+                <Route path='/brand' element={<Brand />} />
+                <Route path='/brand/:brandId' element={<BrandDetail />} />
 
-              {/* Melpik */}
-              <Route path='/melpik' element={<Melpik />} />
-              <Route path='/create-melpik' element={<CreateMelpik />} />
-              <Route
-                path='/createMelpik/settings'
-                element={<ContemporarySettings />}
-              />
-              <Route path='/melpik-settings' element={<Setting />} />
+                {/* Melpik */}
+                <Route path='/melpik' element={<Melpik />} />
+                <Route path='/create-melpik' element={<CreateMelpik />} />
+                <Route
+                  path='/createMelpik/settings'
+                  element={<ContemporarySettings />}
+                />
+                <Route path='/melpik-settings' element={<Setting />} />
 
-              {/* Settlement */}
-              <Route path='/sales-settlement' element={<SalesSettlement />} />
-              <Route
-                path='/sales-settlement-detail/:id'
-                element={<SalesSettlementDetail />}
-              />
-              <Route
-                path='/settlement-request'
-                element={<SettlementRequest />}
-              />
+                {/* Settlement */}
+                <Route path='/sales-settlement' element={<SalesSettlement />} />
+                <Route
+                  path='/sales-settlement-detail/:id'
+                  element={<SalesSettlementDetail />}
+                />
+                <Route
+                  path='/settlement-request'
+                  element={<SettlementRequest />}
+                />
 
-              {/* Schedule */}
-              <Route path='/sales-schedule' element={<Schedule />} />
-              <Route
-                path='/schedule/confirmation/:scheduleId'
-                element={<ScheduleConfirmation />}
-              />
-              <Route
-                path='/schedule/reservation1'
-                element={<ScheduleReservation1 />}
-              />
-              <Route
-                path='/schedule/reservation2'
-                element={<ScheduleReservation2 />}
-              />
-              <Route
-                path='/schedule/reservation3'
-                element={<ScheduleReservation3 />}
-              />
+                {/* Schedule */}
+                <Route path='/sales-schedule' element={<Schedule />} />
+                <Route
+                  path='/schedule/confirmation/:scheduleId'
+                  element={<ScheduleConfirmation />}
+                />
+                <Route
+                  path='/schedule/reservation1'
+                  element={<ScheduleReservation1 />}
+                />
+                <Route
+                  path='/schedule/reservation2'
+                  element={<ScheduleReservation2 />}
+                />
+                <Route
+                  path='/schedule/reservation3'
+                  element={<ScheduleReservation3 />}
+                />
 
-              {/* FindId, FindPassword를 AppLayout 내부로 이동 */}
-              <Route path='/findid' element={<FindId />} />
-              <Route path='/findPassword' element={<FindPassword />} />
+                {/* FindId, FindPassword를 AppLayout 내부로 이동 */}
+                <Route path='/findid' element={<FindId />} />
+                <Route path='/findPassword' element={<FindPassword />} />
 
-              {/* LockerRoom */}
-              <Route path='/lockerRoom' element={<LockerRoom />} />
-              <Route path='/usage-history' element={<UsageHistory />} />
-              <Route path='/point' element={<Point />} />
-              <Route path='/my-closet' element={<MyCloset />} />
-              <Route path='/my-ticket' element={<MyTicket />} />
-              <Route
-                path='/my-ticket/PurchaseOfPasses'
-                element={<PurchaseOfPasses />}
-              />
+                {/* LockerRoom */}
+                <Route path='/lockerRoom' element={<LockerRoom />} />
+                <Route path='/usage-history' element={<UsageHistory />} />
+                <Route path='/point' element={<Point />} />
+                <Route path='/my-closet' element={<MyCloset />} />
+                <Route path='/my-ticket' element={<MyTicket />} />
+                <Route
+                  path='/my-ticket/PurchaseOfPasses'
+                  element={<PurchaseOfPasses />}
+                />
 
-              <Route
-                path='/my-ticket/PurchaseOfPasses/TicketPayment'
-                element={<TicketPayment />}
-              />
+                <Route
+                  path='/my-ticket/PurchaseOfPasses/TicketPayment'
+                  element={<TicketPayment />}
+                />
 
-              {/* <Route
+                {/* <Route
           path='/my-ticket/SubscriptionPass'
           element={<SubscriptionPass />}
         />
         <Route path='/my-ticket/OnetimePass' element={<OnetimePass />} /> */}
 
-              {/* PaymentMethod & Reviews */}
-              <Route path='/payment-method' element={<PaymentMethod />} />
-              <Route path='/payment-method/addcard' element={<AddCard />} />
+                {/* PaymentMethod & Reviews */}
+                <Route path='/payment-method' element={<PaymentMethod />} />
+                <Route path='/payment-method/addcard' element={<AddCard />} />
 
-              <Route path='/product-review' element={<ProductReview />} />
-              <Route
-                path='/payment-review/Write'
-                element={<ProductReviewWrite />}
-              />
+                <Route path='/product-review' element={<ProductReview />} />
+                <Route
+                  path='/payment-review/Write'
+                  element={<ProductReviewWrite />}
+                />
 
-              {/* CustomerService */}
-              <Route path='/customerService' element={<CustomerService />} />
-              <Route path='/customerService/:type' element={<DocumentList />} />
-              <Route
-                path='/customerService/:type/:id'
-                element={<DocumentDetail />}
-              />
-              <Route path='/password-change' element={<PasswordChange />} />
-              <Route path='/payment-complete' element={<PaymentComplete />} />
-              <Route path='/payment-fail' element={<PaymentFail />} />
+                {/* CustomerService */}
+                <Route path='/customerService' element={<CustomerService />} />
+                <Route
+                  path='/customerService/:type'
+                  element={<DocumentList />}
+                />
+                <Route
+                  path='/customerService/:type/:id'
+                  element={<DocumentDetail />}
+                />
+                <Route path='/password-change' element={<PasswordChange />} />
+                <Route path='/payment-complete' element={<PaymentComplete />} />
+                <Route path='/payment-fail' element={<PaymentFail />} />
 
-              <Route
-                path='/ticketDetail/:ticketId'
-                element={<TicketDetail />}
-              />
-            </Route>
-            <Route path='*' element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </Router>
-    </ThemeProvider>
+                <Route
+                  path='/ticketDetail/:ticketId'
+                  element={<TicketDetail />}
+                />
+              </Route>
+              <Route path='*' element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </Router>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 

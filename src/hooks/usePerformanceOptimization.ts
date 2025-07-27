@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 
 interface PerformanceOptimizationOptions {
   debounceMs?: number;
@@ -6,6 +6,11 @@ interface PerformanceOptimizationOptions {
   enableIntersectionObserver?: boolean;
   enableResizeObserver?: boolean;
   enableMemoryMonitoring?: boolean;
+  enableNetworkMonitoring?: boolean;
+  enableBatteryMonitoring?: boolean;
+  enableVirtualization?: boolean;
+  enableCaching?: boolean;
+  cacheSize?: number;
 }
 
 interface PerformanceMetrics {
@@ -17,6 +22,20 @@ interface PerformanceMetrics {
   };
   isVisible: boolean;
   isInViewport: boolean;
+  networkInfo?: {
+    effectiveType: string;
+    downlink: number;
+    rtt: number;
+    saveData: boolean;
+  };
+  batteryInfo?: {
+    level: number;
+    charging: boolean;
+    chargingTime: number;
+    dischargingTime: number;
+  };
+  fps?: number;
+  domNodes?: number;
 }
 
 // Performance API의 memory 속성을 위한 타입 확장
@@ -26,6 +45,44 @@ interface PerformanceWithMemory extends Performance {
     totalJSHeapSize: number;
     jsHeapSizeLimit: number;
   };
+}
+
+// 네트워크 정보 타입 (사용하지 않는 인터페이스 제거)
+interface NavigatorWithConnection extends Navigator {
+  connection?: {
+    effectiveType: string;
+    downlink: number;
+    rtt: number;
+    saveData: boolean;
+  };
+  mozConnection?: {
+    effectiveType: string;
+    downlink: number;
+    rtt: number;
+    saveData: boolean;
+  };
+  webkitConnection?: {
+    effectiveType: string;
+    downlink: number;
+    rtt: number;
+    saveData: boolean;
+  };
+  getBattery?: () => Promise<{
+    level: number;
+    charging: boolean;
+    chargingTime: number;
+    dischargingTime: number;
+    addEventListener: (event: string, handler: () => void) => void;
+    removeEventListener: (event: string, handler: () => void) => void;
+  }>;
+}
+
+// 캐시 인터페이스
+interface CacheItem<T> {
+  key: string;
+  value: T;
+  timestamp: number;
+  ttl: number;
 }
 
 /**
@@ -40,6 +97,11 @@ export const usePerformanceOptimization = (
     enableIntersectionObserver = true,
     enableResizeObserver = true,
     enableMemoryMonitoring = true,
+    enableNetworkMonitoring = true,
+    enableBatteryMonitoring = true,
+    enableVirtualization = false,
+    enableCaching = false,
+    cacheSize = 100,
   } = options;
 
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
@@ -52,6 +114,48 @@ export const usePerformanceOptimization = (
   const renderStartTime = useRef<number>(0);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const throttleTimer = useRef<NodeJS.Timeout | null>(null);
+  const fpsTimer = useRef<number>(0);
+  const frameCount = useRef<number>(0);
+  const lastTime = useRef<number>(0);
+
+  // 캐시 시스템
+  const cache = useMemo(() => {
+    if (!enableCaching) return null;
+
+    const cacheMap = new Map<string, CacheItem<unknown>>();
+
+    return {
+      get: <T>(key: string): T | null => {
+        const item = cacheMap.get(key);
+        if (!item) return null;
+
+        if (Date.now() - item.timestamp > item.ttl) {
+          cacheMap.delete(key);
+          return null;
+        }
+
+        return item.value as T;
+      },
+      set: <T>(key: string, value: T, ttl: number = 60000): void => {
+        if (cacheMap.size >= cacheSize) {
+          const firstKey = cacheMap.keys().next().value;
+          if (firstKey) {
+            cacheMap.delete(firstKey);
+          }
+        }
+
+        cacheMap.set(key, {
+          key,
+          value,
+          timestamp: Date.now(),
+          ttl,
+        });
+      },
+      clear: (): void => {
+        cacheMap.clear();
+      },
+    };
+  }, [enableCaching, cacheSize]);
 
   // 렌더링 시간 측정
   const startRenderTimer = useCallback(() => {
@@ -61,6 +165,31 @@ export const usePerformanceOptimization = (
   const endRenderTimer = useCallback(() => {
     const renderTime = performance.now() - renderStartTime.current;
     setMetrics((prev) => ({ ...prev, renderTime }));
+  }, []);
+
+  // FPS 측정
+  const measureFPS = useCallback(() => {
+    const now = performance.now();
+    frameCount.current++;
+
+    if (now - lastTime.current >= 1000) {
+      const fps = Math.round(
+        (frameCount.current * 1000) / (now - lastTime.current)
+      );
+      setMetrics((prev) => ({ ...prev, fps }));
+      frameCount.current = 0;
+      lastTime.current = now;
+    }
+
+    fpsTimer.current = requestAnimationFrame(measureFPS);
+  }, []);
+
+  // DOM 노드 수 측정
+  const measureDOMNodes = useCallback(() => {
+    if (!elementRef.current) return;
+
+    const count = elementRef.current.querySelectorAll('*').length;
+    setMetrics((prev) => ({ ...prev, domNodes: count }));
   }, []);
 
   // 디바운스 함수
@@ -164,6 +293,113 @@ export const usePerformanceOptimization = (
     return () => clearInterval(interval);
   }, [enableMemoryMonitoring]);
 
+  // 네트워크 상태 모니터링
+  useEffect(() => {
+    if (!enableNetworkMonitoring) return;
+
+    const updateNetworkInfo = () => {
+      const nav = navigator as NavigatorWithConnection;
+      const connection =
+        nav.connection || nav.mozConnection || nav.webkitConnection;
+
+      if (connection) {
+        setMetrics((prev) => ({
+          ...prev,
+          networkInfo: {
+            effectiveType: connection.effectiveType || 'unknown',
+            downlink: connection.downlink || 0,
+            rtt: connection.rtt || 0,
+            saveData: connection.saveData || false,
+          },
+        }));
+      }
+    };
+
+    updateNetworkInfo();
+
+    const nav = navigator as NavigatorWithConnection;
+    const connection =
+      nav.connection || nav.mozConnection || nav.webkitConnection;
+    if (connection && 'addEventListener' in connection) {
+      (connection as unknown as EventTarget).addEventListener(
+        'change',
+        updateNetworkInfo
+      );
+      return () =>
+        (connection as unknown as EventTarget).removeEventListener(
+          'change',
+          updateNetworkInfo
+        );
+    }
+  }, [enableNetworkMonitoring]);
+
+  // 배터리 상태 모니터링
+  useEffect(() => {
+    if (!enableBatteryMonitoring) return;
+
+    const updateBatteryInfo = async () => {
+      try {
+        const nav = navigator as NavigatorWithConnection;
+        if (!nav.getBattery) {
+          console.warn('Battery API not supported');
+          return;
+        }
+
+        const battery = await nav.getBattery();
+
+        const updateBattery = () => {
+          setMetrics((prev) => ({
+            ...prev,
+            batteryInfo: {
+              level: battery.level,
+              charging: battery.charging,
+              chargingTime: battery.chargingTime,
+              dischargingTime: battery.dischargingTime,
+            },
+          }));
+        };
+
+        updateBattery();
+        battery.addEventListener('levelchange', updateBattery);
+        battery.addEventListener('chargingchange', updateBattery);
+        battery.addEventListener('chargingtimechange', updateBattery);
+        battery.addEventListener('dischargingtimechange', updateBattery);
+
+        return () => {
+          battery.removeEventListener('levelchange', updateBattery);
+          battery.removeEventListener('chargingchange', updateBattery);
+          battery.removeEventListener('chargingtimechange', updateBattery);
+          battery.removeEventListener('dischargingtimechange', updateBattery);
+        };
+      } catch (error) {
+        console.warn('Battery API not supported:', error);
+      }
+    };
+
+    updateBatteryInfo();
+  }, [enableBatteryMonitoring]);
+
+  // FPS 모니터링 시작
+  useEffect(() => {
+    if (enableVirtualization) {
+      fpsTimer.current = requestAnimationFrame(measureFPS);
+
+      return () => {
+        if (fpsTimer.current) {
+          cancelAnimationFrame(fpsTimer.current);
+        }
+      };
+    }
+  }, [enableVirtualization, measureFPS]);
+
+  // DOM 노드 수 측정
+  useEffect(() => {
+    if (enableVirtualization) {
+      const interval = setInterval(measureDOMNodes, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [enableVirtualization, measureDOMNodes]);
+
   // 컴포넌트 언마운트 시 정리
   useEffect(() => {
     return () => {
@@ -172,6 +408,9 @@ export const usePerformanceOptimization = (
       }
       if (throttleTimer.current) {
         clearTimeout(throttleTimer.current);
+      }
+      if (fpsTimer.current) {
+        cancelAnimationFrame(fpsTimer.current);
       }
     };
   }, []);
@@ -183,6 +422,7 @@ export const usePerformanceOptimization = (
     endRenderTimer,
     debounce,
     throttle,
+    cache,
   };
 };
 
@@ -266,4 +506,206 @@ export const useScrollOptimization = (
       return () => window.removeEventListener('scroll', handleScroll);
     }
   }, [handleScroll, enablePassive, enableThrottle]);
+};
+
+/**
+ * 가상화 훅 (대용량 리스트 최적화)
+ */
+export const useVirtualization = <T>(
+  items: T[],
+  itemHeight: number,
+  containerHeight: number,
+  overscan = 5
+) => {
+  const [scrollTop, setScrollTop] = useState(0);
+
+  const visibleRange = useMemo(() => {
+    const start = Math.floor(scrollTop / itemHeight);
+    const visibleCount = Math.ceil(containerHeight / itemHeight);
+    const end = Math.min(start + visibleCount + overscan, items.length);
+    const startIndex = Math.max(0, start - overscan);
+
+    return { start: startIndex, end };
+  }, [scrollTop, itemHeight, containerHeight, overscan, items.length]);
+
+  const visibleItems = useMemo(() => {
+    return items
+      .slice(visibleRange.start, visibleRange.end)
+      .map((item, index) => ({
+        item,
+        index: visibleRange.start + index,
+        style: {
+          position: 'absolute' as const,
+          top: (visibleRange.start + index) * itemHeight,
+          height: itemHeight,
+          width: '100%',
+        },
+      }));
+  }, [items, visibleRange, itemHeight]);
+
+  const totalHeight = items.length * itemHeight;
+
+  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    setScrollTop(event.currentTarget.scrollTop);
+  }, []);
+
+  return {
+    visibleItems,
+    totalHeight,
+    handleScroll,
+  };
+};
+
+/**
+ * 웹 워커 훅 (무거운 계산 최적화)
+ */
+export const useWebWorker = <T, R>(
+  workerFunction: (data: T) => R,
+  options: {
+    enableWorker?: boolean;
+    timeout?: number;
+  } = {}
+) => {
+  const { enableWorker = true, timeout = 30000 } = options;
+  const [result, setResult] = useState<R | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const workerRef = useRef<Worker | null>(null);
+
+  const executeTask = useCallback(
+    (data: T): Promise<R> => {
+      return new Promise((resolve, reject) => {
+        if (!enableWorker) {
+          // 워커가 비활성화된 경우 메인 스레드에서 실행
+          try {
+            const result = workerFunction(data);
+            resolve(result);
+          } catch (err) {
+            reject(err);
+          }
+          return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        // 워커 생성
+        const workerCode = `
+          self.onmessage = function(e) {
+            try {
+              const result = (${workerFunction.toString()})(e.data);
+              self.postMessage({ type: 'success', result });
+            } catch (error) {
+              self.postMessage({ type: 'error', error: error.message });
+            }
+          };
+        `;
+
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(blob));
+        workerRef.current = worker;
+
+        const timeoutId = setTimeout(() => {
+          worker.terminate();
+          reject(new Error('Worker timeout'));
+        }, timeout);
+
+        worker.onmessage = (e) => {
+          clearTimeout(timeoutId);
+          worker.terminate();
+
+          if (e.data.type === 'success') {
+            setResult(e.data.result);
+            resolve(e.data.result);
+          } else {
+            const error = new Error(e.data.error);
+            setError(error);
+            reject(error);
+          }
+
+          setIsLoading(false);
+        };
+
+        worker.onerror = () => {
+          clearTimeout(timeoutId);
+          worker.terminate();
+          const error = new Error('Worker error');
+          setError(error);
+          setIsLoading(false);
+          reject(error);
+        };
+
+        worker.postMessage(data);
+      });
+    },
+    [workerFunction, enableWorker, timeout]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+    };
+  }, []);
+
+  return {
+    executeTask,
+    result,
+    isLoading,
+    error,
+  };
+};
+
+/**
+ * 메모이제이션 훅 (계산 결과 캐싱)
+ */
+export const useMemoization = <T, R>(
+  computeFunction: (input: T) => R,
+  options: {
+    maxSize?: number;
+    ttl?: number;
+  } = {}
+) => {
+  const { maxSize = 100, ttl = 60000 } = options;
+  const cache = useRef(new Map<string, { value: R; timestamp: number }>());
+
+  const memoizedCompute = useCallback(
+    (input: T): R => {
+      const key = JSON.stringify(input);
+      const cached = cache.current.get(key);
+
+      if (cached && Date.now() - cached.timestamp < ttl) {
+        return cached.value;
+      }
+
+      const result = computeFunction(input);
+
+      // 캐시 크기 제한
+      if (cache.current.size >= maxSize) {
+        const firstKey = cache.current.keys().next().value;
+        if (firstKey) {
+          cache.current.delete(firstKey);
+        }
+      }
+
+      cache.current.set(key, {
+        value: result,
+        timestamp: Date.now(),
+      });
+
+      return result;
+    },
+    [computeFunction, maxSize, ttl]
+  );
+
+  const clearCache = useCallback(() => {
+    cache.current.clear();
+  }, []);
+
+  return {
+    compute: memoizedCompute,
+    clearCache,
+    cacheSize: cache.current.size,
+  };
 };

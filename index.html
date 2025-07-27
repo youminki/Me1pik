@@ -21,12 +21,12 @@
     <!-- PWA 매니페스트 -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#f7c600" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Melpik" />
     <link rel="apple-touch-icon" href="/src/assets/favicon.svg" />
 
-    <!-- 폰트 프리로드 최적화 -->
+    <!-- 폰트 프리로드 최적화 - 실제 사용되는 폰트만 프리로드 -->
     <link
       rel="preload"
       href="/fonts/woff2/NanumSquareNeo-Variable.woff2"
@@ -34,18 +34,19 @@
       type="font/woff2"
       crossorigin
     />
+    <!-- 주요 TTF 폰트들 프리로드 -->
     <link
       rel="preload"
-      href="/fonts/OTF/NanumSquareB.otf"
+      href="/fonts/TTF/NanumSquare_acR.ttf"
       as="font"
-      type="font/otf"
+      type="font/ttf"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/OTF/NanumSquareEB.otf"
+      href="/fonts/TTF/NanumSquare_acB.ttf"
       as="font"
-      type="font/otf"
+      type="font/ttf"
       crossorigin
     />
 

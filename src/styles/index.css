@@ -1,22 +1,15 @@
-/* Variable Font (woff2 & woff) */
+/* Variable Font (woff2 & woff) - 우선 사용 */
 @font-face {
-  font-family: 'NanumSquareNeoVariable';
+  font-family: 'NanumSquare Neo';
   src:
-    url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('font-woff2'),
+    url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('woff2'),
     url('/fonts/woff/NanumSquareNeo-Variable.woff') format('woff');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
-/* Static TTF Fonts (굵기별로 정의) */
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/TTF/NanumSquareNeo-aLt.ttf') format('truetype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
+/* Static TTF Fonts (Variable 폰트 미지원 브라우저용 대체) */
 @font-face {
   font-family: 'NanumSquare Neo';
   src: url('/fonts/TTF/NanumSquare_acR.ttf') format('truetype');
@@ -27,72 +20,14 @@
 @font-face {
   font-family: 'NanumSquare Neo';
   src: url('/fonts/TTF/NanumSquare_acB.ttf') format('truetype');
-  font-weight: 500;
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'NanumSquare Neo';
   src: url('/fonts/TTF/NanumSquare_acEB.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/TTF/NanumSquareEB.ttf') format('truetype');
   font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/TTF/NanumSquare_acL.ttf') format('truetype');
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/TTF/NanumSquareL.ttf') format('truetype');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/TTF/NanumSquareB.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* OTF 대체 버전 (지원 브라우저용) */
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/OTF/NanumSquareR.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/OTF/NanumSquareB.otf') format('opentype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/OTF/NanumSquareEB.otf') format('opentype');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'NanumSquare Neo';
-  src: url('/fonts/OTF/NanumSquareL.otf') format('opentype');
-  font-weight: 200;
   font-style: normal;
   font-display: swap;
 }

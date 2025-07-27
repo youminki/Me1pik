@@ -10,12 +10,10 @@ interface NetworkConnection {
   saveData: boolean;
 }
 
-// Navigator 확장 타입 정의
 interface NavigatorWithConnection extends Navigator {
   connection?: NetworkConnection;
 }
 
-// PerformanceEntry 확장 타입 정의
 interface PerformanceEntryWithElement extends PerformanceEntry {
   element?: Element;
   hadRecentInput?: boolean;
@@ -53,6 +51,18 @@ interface PerformanceWithMemory extends Performance {
 // 성능 데이터 저장소
 const performanceData: Record<string, number> = {};
 
+// 성능 경고 시스템
+interface PerformanceWarning {
+  type: 'warning' | 'error' | 'info';
+  message: string;
+  metric: string;
+  value: number;
+  threshold: number;
+  timestamp: number;
+}
+
+const performanceWarnings: PerformanceWarning[] = [];
+
 /**
  * 성능 메트릭 수집 및 저장
  */
@@ -67,18 +77,11 @@ export const collectPerformanceMetrics = () => {
     performanceData.domContentLoaded =
       navigation.domContentLoadedEventEnd -
       navigation.domContentLoadedEventStart;
+    performanceData.firstPaint =
+      navigation.responseStart - navigation.requestStart;
+    performanceData.firstContentfulPaint =
+      navigation.responseEnd - navigation.requestStart;
   }
-
-  // Paint Timing API
-  const paintEntries = performance.getEntriesByType('paint');
-  paintEntries.forEach((entry) => {
-    if (entry.name === 'first-paint') {
-      performanceData.firstPaint = entry.startTime;
-    }
-    if (entry.name === 'first-contentful-paint') {
-      performanceData.firstContentfulPaint = entry.startTime;
-    }
-  });
 
   return performanceData;
 };
@@ -92,18 +95,18 @@ export const measurePageLoadPerformance = (): PerformanceMetrics => {
   )[0] as PerformanceNavigationTiming;
 
   return {
-    loadTime: navigation?.loadEventEnd - navigation?.loadEventStart || 0,
+    loadTime: navigation.loadEventEnd - navigation.loadEventStart,
     domContentLoaded:
-      navigation?.domContentLoadedEventEnd -
-        navigation?.domContentLoadedEventStart || 0,
-    firstPaint: 0,
-    firstContentfulPaint: 0,
-    largestContentfulPaint: 0,
-    cumulativeLayoutShift: 0,
-    firstInputDelay: 0,
-    timeToInteractive: 0,
-    totalBlockingTime: 0,
-    speedIndex: 0,
+      navigation.domContentLoadedEventEnd -
+      navigation.domContentLoadedEventStart,
+    firstPaint: navigation.responseStart - navigation.requestStart,
+    firstContentfulPaint: navigation.responseEnd - navigation.requestStart,
+    largestContentfulPaint: performanceData.largestContentfulPaint || 0,
+    cumulativeLayoutShift: performanceData.cumulativeLayoutShift || 0,
+    firstInputDelay: performanceData.firstInputDelay || 0,
+    timeToInteractive: performanceData.timeToInteractive || 0,
+    totalBlockingTime: performanceData.totalBlockingTime || 0,
+    speedIndex: performanceData.speedIndex || 0,
   };
 };
 
@@ -160,12 +163,14 @@ export const getNetworkInfo = (): NetworkConnection | null => {
 export const exportPerformanceData = () => {
   const memoryInfo = getMemoryUsage();
   const nav = navigator as NavigatorWithConnection;
+
   return {
     ...performanceData,
     memory: memoryInfo,
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
     connection: nav.connection?.effectiveType || 'unknown',
+    warnings: performanceWarnings,
   };
 };
 
@@ -233,6 +238,15 @@ export const setupPerformanceObservers = () => {
           if (img.naturalWidth > 800 || img.naturalHeight > 800) {
             console.log('- 이미지 크기가 큽니다. 적절한 크기로 리사이징 고려');
           }
+
+          // 성능 경고 추가
+          addPerformanceWarning(
+            'warning',
+            'LCP 이미지 최적화 필요',
+            'lcp',
+            lcpTime,
+            2500
+          );
         }
       } else {
         console.log('✅ LCP 성능이 양호합니다:', lcpTime, 'ms');
@@ -259,6 +273,13 @@ export const setupPerformanceObservers = () => {
         console.log('- 이미지에 width/height 속성 추가');
         console.log('- 광고/임베드 요소에 고정 크기 설정');
         console.log('- 동적 콘텐츠 로딩 시 레이아웃 시프트 방지');
+        addPerformanceWarning(
+          'error',
+          'CLS 성능 개선 필요',
+          'cls',
+          clsValue,
+          0.1
+        );
       } else {
         console.log('✅ CLS 성능이 양호합니다:', clsValue);
       }
@@ -278,8 +299,15 @@ export const setupPerformanceObservers = () => {
           console.warn('⚠️ FID가 높습니다:', fid, 'ms');
           console.log('🔧 FID 최적화 제안:');
           console.log('- JavaScript 번들 크기 줄이기');
-          console.log('- 코드 스플리팅 적용');
-          console.log('- 메인 스레드 블로킹 작업 최소화');
+          console.log('- 긴 작업 분할하기');
+          console.log('- 메인 스레드 블로킹 방지');
+          addPerformanceWarning(
+            'warning',
+            'FID 성능 개선 필요',
+            'fid',
+            fid,
+            100
+          );
         } else {
           console.log('✅ FID 성능이 양호합니다:', fid, 'ms');
         }
@@ -291,20 +319,25 @@ export const setupPerformanceObservers = () => {
     const tbtObserver = new PerformanceObserver((list) => {
       let totalBlockingTime = 0;
       for (const entry of list.getEntries()) {
-        if (entry.duration > 50) {
-          totalBlockingTime += entry.duration - 50;
-        }
+        const blockingTime = Math.max(0, entry.duration - 50);
+        totalBlockingTime += blockingTime;
       }
 
-      // TBT 데이터 저장
       performanceData.totalBlockingTime = totalBlockingTime;
 
       if (totalBlockingTime > 300) {
         console.warn('⚠️ TBT가 높습니다:', totalBlockingTime, 'ms');
         console.log('🔧 TBT 최적화 제안:');
-        console.log('- 긴 태스크 분할');
-        console.log('- Web Workers 활용');
-        console.log('- 비동기 처리 최적화');
+        console.log('- 긴 JavaScript 작업 분할');
+        console.log('- Web Workers 사용');
+        console.log('- 코드 스플리팅 적용');
+        addPerformanceWarning(
+          'error',
+          'TBT 성능 개선 필요',
+          'tbt',
+          totalBlockingTime,
+          300
+        );
       } else {
         console.log('✅ TBT 성능이 양호합니다:', totalBlockingTime, 'ms');
       }
@@ -314,73 +347,227 @@ export const setupPerformanceObservers = () => {
 };
 
 /**
- * 이미지 로딩 성능 분석
+ * 성능 경고 추가
  */
-export const analyzeImagePerformance = () => {
+const addPerformanceWarning = (
+  type: 'warning' | 'error' | 'info',
+  message: string,
+  metric: string,
+  value: number,
+  threshold: number
+) => {
+  performanceWarnings.push({
+    type,
+    message,
+    metric,
+    value,
+    threshold,
+    timestamp: Date.now(),
+  });
+};
+
+interface ImageAnalysis {
+  src: string;
+  naturalWidth: number;
+  naturalHeight: number;
+  displayWidth: number;
+  displayHeight: number;
+  loading: string | null;
+  decoding: string | null;
+  complete: boolean;
+  fileSize: number;
+  suggestions: string[];
+}
+
+/**
+ * 이미지 성능 분석
+ */
+export const analyzeImagePerformance = (): ImageAnalysis[] => {
   const images = document.querySelectorAll('img');
-  const imageLoadTimes: Array<{ src: string; loadTime: number }> = [];
+  const imageAnalysis: ImageAnalysis[] = [];
 
   images.forEach((img) => {
-    const startTime = performance.now();
+    const analysis: ImageAnalysis = {
+      src: img.src,
+      naturalWidth: img.naturalWidth,
+      naturalHeight: img.naturalHeight,
+      displayWidth: img.width,
+      displayHeight: img.height,
+      loading: img.loading,
+      decoding: img.decoding,
+      complete: img.complete,
+      fileSize: 0, // 실제 파일 크기는 네트워크 탭에서 확인 필요
+      suggestions: [],
+    };
 
-    if (img.complete) {
-      // 이미 로드된 이미지
-      imageLoadTimes.push({ src: img.src, loadTime: 0 });
-    } else {
-      // 로딩 중인 이미지
-      img.addEventListener('load', () => {
-        const loadTime = performance.now() - startTime;
-        imageLoadTimes.push({ src: img.src, loadTime });
+    // 이미지 최적화 제안
+    if (img.naturalWidth > 800 || img.naturalHeight > 800) {
+      analysis.suggestions.push('이미지 크기 최적화 필요');
+    }
 
-        if (loadTime > 1000) {
-          console.warn(
-            `⚠️ 이미지 로딩이 느립니다: ${img.src} (${loadTime.toFixed(0)}ms)`
-          );
+    if (!img.loading || img.loading === 'lazy') {
+      if (img === document.querySelector('img[loading="eager"]')) {
+        analysis.suggestions.push('LCP 이미지에 eager 로딩 적용됨');
+      } else {
+        analysis.suggestions.push('lazy 로딩 적용됨');
+      }
+    }
+
+    if (
+      img.src.includes('.jpg') ||
+      img.src.includes('.jpeg') ||
+      img.src.includes('.png')
+    ) {
+      analysis.suggestions.push('WebP 포맷 변환 고려');
+    }
+
+    imageAnalysis.push(analysis);
+  });
+
+  return imageAnalysis;
+};
+
+interface FontAnalysis {
+  family: string;
+  weight: string;
+  style: string;
+  status: string;
+  loaded: Promise<FontFace>;
+}
+
+/**
+ * 폰트 성능 분석
+ */
+export const analyzeFontPerformance = (): FontAnalysis[] => {
+  const fontAnalysis: FontAnalysis[] = [];
+
+  // 폰트 로딩 상태 확인
+  if ('fonts' in document) {
+    document.fonts.ready.then(() => {
+      const loadedFonts = Array.from(document.fonts);
+
+      loadedFonts.forEach((font) => {
+        const analysis: FontAnalysis = {
+          family: font.family,
+          weight: font.weight,
+          style: font.style,
+          status: font.status,
+          loaded: font.loaded,
+        };
+
+        if (font.status === 'loading') {
+          addPerformanceWarning('warning', '폰트 로딩 지연', 'font', 0, 0);
         }
+
+        fontAnalysis.push(analysis);
       });
+    });
+  }
+
+  return fontAnalysis;
+};
+
+interface UnusedPreload {
+  href: string | null;
+  as: string | null;
+  reason: string;
+}
+
+/**
+ * 리소스 프리로딩 최적화
+ */
+export const optimizeResourcePreloading = (): UnusedPreload[] => {
+  const preloadLinks = document.querySelectorAll('link[rel="preload"]');
+  const unusedPreloads: UnusedPreload[] = [];
+
+  preloadLinks.forEach((link) => {
+    const href = link.getAttribute('href');
+    const as = link.getAttribute('as');
+
+    // 프리로드된 리소스가 실제로 사용되었는지 확인
+    if (as === 'font') {
+      const fontFamily = href
+        ?.split('/')
+        .pop()
+        ?.replace('.woff2', '')
+        .replace('.otf', '');
+      const isUsed = document.fonts.check(`12px ${fontFamily}`);
+
+      if (!isUsed) {
+        unusedPreloads.push({ href, as, reason: '폰트 미사용' });
+      }
+    } else if (as === 'image') {
+      const img = document.querySelector(`img[src="${href}"]`);
+      if (!img) {
+        unusedPreloads.push({ href, as, reason: '이미지 미사용' });
+      }
     }
   });
 
-  return imageLoadTimes;
+  if (unusedPreloads.length > 0) {
+    console.warn('⚠️ 사용되지 않는 프리로드 리소스:', unusedPreloads);
+    addPerformanceWarning(
+      'info',
+      '사용되지 않는 프리로드 리소스 발견',
+      'preload',
+      unusedPreloads.length,
+      0
+    );
+  }
+
+  return unusedPreloads;
 };
 
 /**
- * 성능 최적화 권장사항 생성
+ * 성능 권장사항 생성
  */
 export const getPerformanceRecommendations = () => {
-  const recommendations: Array<{
-    category: string;
-    suggestions: string[];
-  }> = [];
+  const recommendations = [];
+  const metrics = measurePageLoadPerformance();
 
-  // 이미지 최적화 제안
-  const images = document.querySelectorAll('img');
-  const largeImages = Array.from(images).filter((img) => {
-    const rect = img.getBoundingClientRect();
-    return rect.width > 300 || rect.height > 300;
-  });
-
-  if (largeImages.length > 0) {
+  // LCP 최적화
+  if (metrics.largestContentfulPaint > 2500) {
     recommendations.push({
-      category: '이미지 최적화',
-      suggestions: [
-        '큰 이미지에 loading="lazy" 적용',
-        'WebP/AVIF 포맷 사용',
-        '적절한 이미지 크기로 리사이징',
-        '이미지 압축 최적화',
+      priority: 'high',
+      category: 'lcp',
+      title: 'LCP 최적화',
+      description: 'Largest Contentful Paint를 2.5초 이하로 개선하세요',
+      actions: [
+        '이미지 최적화 (WebP 변환, 적절한 크기)',
+        '중요한 이미지에 loading="eager" 적용',
+        '이미지 프리로딩',
+        'CDN 사용',
       ],
     });
   }
 
-  // 폰트 최적화 제안
-  const fonts = document.querySelectorAll('link[rel="preload"][as="font"]');
-  if (fonts.length === 0) {
+  // CLS 최적화
+  if (metrics.cumulativeLayoutShift > 0.1) {
     recommendations.push({
-      category: '폰트 최적화',
-      suggestions: [
-        '중요한 폰트에 preload 적용',
-        'font-display: swap 사용',
-        '폰트 서브셋 최적화',
+      priority: 'high',
+      category: 'cls',
+      title: 'CLS 최적화',
+      description: 'Cumulative Layout Shift를 0.1 이하로 개선하세요',
+      actions: [
+        '이미지에 width/height 속성 추가',
+        '광고/임베드 요소에 고정 크기 설정',
+        '동적 콘텐츠 로딩 시 레이아웃 시프트 방지',
+      ],
+    });
+  }
+
+  // TBT 최적화
+  if (metrics.totalBlockingTime > 300) {
+    recommendations.push({
+      priority: 'medium',
+      category: 'tbt',
+      title: 'TBT 최적화',
+      description: 'Total Blocking Time을 300ms 이하로 개선하세요',
+      actions: [
+        '긴 JavaScript 작업 분할',
+        'Web Workers 사용',
+        '코드 스플리팅 적용',
+        '번들 크기 최적화',
       ],
     });
   }
@@ -392,66 +579,137 @@ export const getPerformanceRecommendations = () => {
  * 성능 리포트 생성
  */
 export const generatePerformanceReport = () => {
-  const metrics = collectPerformanceMetrics();
+  const metrics = measurePageLoadPerformance();
   const memoryInfo = getMemoryUsage();
-  const nav = navigator as NavigatorWithConnection;
+  const networkInfo = getNetworkInfo();
+  const imageAnalysis = analyzeImagePerformance();
+  const fontAnalysis = analyzeFontPerformance();
+  const unusedPreloads = optimizeResourcePreloading();
+  const recommendations = getPerformanceRecommendations();
 
-  const report = {
+  return {
     timestamp: new Date().toISOString(),
-    url: window.location.href,
     metrics,
     memory: memoryInfo,
-    userAgent: navigator.userAgent,
-    connection: nav.connection?.effectiveType || 'unknown',
-    recommendations: [] as string[],
+    network: networkInfo,
+    images: imageAnalysis,
+    fonts: fontAnalysis,
+    unusedPreloads,
+    recommendations,
+    warnings: performanceWarnings,
+    score: calculatePerformanceScore(metrics),
   };
+};
 
-  // 성능 권장사항 생성
-  if (metrics.largestContentfulPaint > 2500) {
-    report.recommendations.push(
-      'LCP 최적화 필요: 이미지 최적화, 서버 응답 시간 개선'
-    );
-  }
-  if (metrics.cumulativeLayoutShift > 0.1) {
-    report.recommendations.push('CLS 최적화 필요: 레이아웃 시프트 방지');
-  }
-  if (metrics.firstInputDelay > 100) {
-    report.recommendations.push('FID 최적화 필요: JavaScript 최적화');
-  }
-  if (metrics.totalBlockingTime > 300) {
-    report.recommendations.push('TBT 최적화 필요: 긴 태스크 분할');
-  }
+/**
+ * 성능 점수 계산
+ */
+const calculatePerformanceScore = (metrics: PerformanceMetrics): number => {
+  let score = 100;
 
-  return report;
+  // LCP 점수 (40% 가중치)
+  if (metrics.largestContentfulPaint > 4000) score -= 40;
+  else if (metrics.largestContentfulPaint > 2500) score -= 20;
+  else if (metrics.largestContentfulPaint > 1500) score -= 10;
+
+  // CLS 점수 (30% 가중치)
+  if (metrics.cumulativeLayoutShift > 0.25) score -= 30;
+  else if (metrics.cumulativeLayoutShift > 0.1) score -= 15;
+  else if (metrics.cumulativeLayoutShift > 0.05) score -= 5;
+
+  // TBT 점수 (20% 가중치)
+  if (metrics.totalBlockingTime > 600) score -= 20;
+  else if (metrics.totalBlockingTime > 300) score -= 10;
+  else if (metrics.totalBlockingTime > 150) score -= 5;
+
+  // FID 점수 (10% 가중치)
+  if (metrics.firstInputDelay > 300) score -= 10;
+  else if (metrics.firstInputDelay > 100) score -= 5;
+
+  return Math.max(0, score);
 };
 
 /**
  * 성능 데이터 수집 및 전송
- * @param endpoint 전송할 엔드포인트
  */
 export const collectAndSendPerformanceData = async (endpoint: string) => {
   try {
-    const metrics = measurePageLoadPerformance();
-    const memory = getMemoryUsage();
-    const network = getNetworkInfo();
+    const report = generatePerformanceReport();
 
-    const performanceData = {
-      timestamp: Date.now(),
-      url: window.location.href,
-      userAgent: navigator.userAgent,
-      metrics,
-      memory,
-      network,
-    };
-
-    await fetch(endpoint, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(performanceData),
+      body: JSON.stringify(report),
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    console.log('✅ 성능 데이터 전송 완료');
+    return await response.json();
   } catch (error) {
-    console.error('성능 데이터 전송 실패:', error);
+    console.error('❌ 성능 데이터 전송 실패:', error);
+    throw error;
   }
+};
+
+/**
+ * 실시간 성능 모니터링 시작
+ */
+export const startPerformanceMonitoring = () => {
+  // 초기 성능 데이터 수집
+  collectPerformanceMetrics();
+
+  // 성능 관찰자 설정
+  setupPerformanceObservers();
+
+  // 주기적 성능 체크
+  setInterval(() => {
+    const memoryInfo = getMemoryUsage();
+    if (
+      memoryInfo &&
+      memoryInfo.usedJSHeapSize > memoryInfo.jsHeapSizeLimit * 0.8
+    ) {
+      addPerformanceWarning(
+        'error',
+        '메모리 사용량 높음',
+        'memory',
+        memoryInfo.usedJSHeapSize,
+        memoryInfo.jsHeapSizeLimit * 0.8
+      );
+    }
+  }, 10000); // 10초마다 체크
+
+  console.log('🚀 성능 모니터링 시작됨');
+};
+
+/**
+ * 성능 최적화 자동 적용
+ */
+export const applyPerformanceOptimizations = () => {
+  // 이미지 최적화
+  const images = document.querySelectorAll('img');
+  images.forEach((img) => {
+    // LCP 이미지에 eager 로딩 적용
+    if (img === document.querySelector('img[loading="eager"]')) {
+      img.loading = 'eager';
+      img.decoding = 'sync';
+    } else {
+      // 나머지 이미지는 lazy 로딩
+      if (!img.loading) {
+        img.loading = 'lazy';
+      }
+    }
+  });
+
+  // 폰트 최적화
+  const fontLinks = document.querySelectorAll('link[rel="preload"][as="font"]');
+  fontLinks.forEach((link) => {
+    link.setAttribute('crossorigin', 'anonymous');
+  });
+
+  console.log('🔧 성능 최적화 자동 적용 완료');
 };
