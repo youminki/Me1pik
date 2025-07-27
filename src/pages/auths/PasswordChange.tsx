@@ -71,6 +71,14 @@ export default function PasswordChange() {
       {/* 1단계: 현재 비밀번호 인증 */}
       {!isVerified ? (
         <form onSubmit={handleSubmit(onVerify)}>
+          {/* 접근성을 위한 숨겨진 사용자명 필드 */}
+          <input
+            type='text'
+            name='username'
+            autoComplete='username'
+            style={{ display: 'none' }}
+            aria-hidden='true'
+          />
           <Field>
             <Controller
               name='currentPassword'
@@ -85,6 +93,7 @@ export default function PasswordChange() {
                   buttonLabel='인증'
                   buttonColor={verifyButtonColor}
                   onButtonClick={handleSubmit(onVerify)}
+                  autoComplete='current-password'
                 />
               )}
             />
@@ -94,6 +103,14 @@ export default function PasswordChange() {
       ) : (
         /* 2단계: 새 비밀번호 입력 폼 */
         <form onSubmit={handleSubmit(onSubmit)}>
+          {/* 접근성을 위한 숨겨진 사용자명 필드 */}
+          <input
+            type='text'
+            name='username'
+            autoComplete='username'
+            style={{ display: 'none' }}
+            aria-hidden='true'
+          />
           <Field>
             <Controller
               name='newPassword'
@@ -105,6 +122,7 @@ export default function PasswordChange() {
                   label='새 비밀번호'
                   placeholder='새 비밀번호를 입력하세요'
                   error={errors.newPassword}
+                  autoComplete='new-password'
                 />
               )}
             />
@@ -121,6 +139,7 @@ export default function PasswordChange() {
                   label='새 비밀번호 확인'
                   placeholder='새 비밀번호를 다시 입력하세요'
                   error={errors.confirmNewPassword}
+                  autoComplete='new-password'
                 />
               )}
             />

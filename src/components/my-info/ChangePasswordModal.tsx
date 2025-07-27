@@ -76,6 +76,14 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         </Header>
         <Body>
           <FormContainer onSubmit={handleSubmit}>
+            {/* 접근성을 위한 숨겨진 사용자명 필드 */}
+            <input
+              type='text'
+              name='username'
+              autoComplete='username'
+              style={{ display: 'none' }}
+              aria-hidden='true'
+            />
             <Label htmlFor='cp-name'>이름</Label>
             <Input
               id='cp-name'
@@ -103,6 +111,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               value={newPassword}
               onChange={handleNewPasswordChange}
               placeholder='새 비밀번호를 입력하세요'
+              autoComplete='new-password'
               required
             />
 
@@ -113,6 +122,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
               placeholder='비밀번호를 한 번 더 입력하세요'
+              autoComplete='new-password'
               required
             />
 
@@ -149,7 +159,7 @@ const ModalWrapper = styled.div`
   max-width: 300px;
   background: #fff;
   overflow: hidden;
-   0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 `;
 
 const Header = styled.div`

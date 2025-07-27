@@ -83,6 +83,15 @@ const Login: React.FC = () => {
         {/* ... 로고 아래 설명 영역 생략 ... */}
 
         <LoginForm onSubmit={handleSubmit(handleLoginClick)}>
+          {/* 접근성을 위한 숨겨진 사용자명 필드 */}
+          <input
+            type='text'
+            name='username'
+            autoComplete='username'
+            style={{ display: 'none' }}
+            aria-hidden='true'
+          />
+
           <InputFieldRow>
             <Controller
               control={control}
@@ -93,6 +102,7 @@ const Login: React.FC = () => {
                   type='text'
                   placeholder='이메일을 입력하세요'
                   error={error}
+                  autoComplete='username'
                   {...field}
                 />
               )}
@@ -108,6 +118,7 @@ const Login: React.FC = () => {
                   type='password'
                   placeholder='비밀번호를 입력하세요'
                   error={error}
+                  autoComplete='current-password'
                   {...field}
                 />
               )}

@@ -428,6 +428,15 @@ const Signup: React.FC = () => {
               e.preventDefault()
             }
           >
+            {/* 접근성을 위한 숨겨진 사용자명 필드 */}
+            <input
+              type='text'
+              name='username'
+              autoComplete='username'
+              style={{ display: 'none' }}
+              aria-hidden='true'
+            />
+
             <AgreementSection />
             <CommonField
               label={
@@ -447,6 +456,7 @@ const Signup: React.FC = () => {
                     ? 'red'
                     : 'yellow'
               }
+              autoComplete='username'
               {...register('email', {
                 onChange: (e) => {
                   resetVerificationState('email');
@@ -473,7 +483,7 @@ const Signup: React.FC = () => {
               {...register('password')}
               required
               maxLength={20}
-              autoComplete='current-password'
+              autoComplete='new-password'
             />
             <CommonField
               label={
@@ -485,6 +495,7 @@ const Signup: React.FC = () => {
               type='password'
               placeholder='비밀번호를 한번 더 입력하세요'
               error={errors.passwordConfirm?.message}
+              autoComplete='new-password'
               {...register('passwordConfirm')}
               required
               maxLength={20}

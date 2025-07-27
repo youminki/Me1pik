@@ -81,6 +81,15 @@ const ChangePassword: React.FC = () => {
       <FormProvider {...methods}>
         <Container>
           <Form onSubmit={(e) => e.preventDefault()}>
+            {/* 접근성을 위한 숨겨진 사용자명 필드 */}
+            <input
+              type='text'
+              name='username'
+              autoComplete='username'
+              style={{ display: 'none' }}
+              aria-hidden='true'
+            />
+
             {/* 현재 비밀번호 */}
             <CommonField
               label='현재 비밀번호*'
@@ -88,6 +97,7 @@ const ChangePassword: React.FC = () => {
               type='password'
               placeholder='현재 비밀번호를 입력하세요'
               error={errors.currentPassword?.message}
+              autoComplete='current-password'
               {...register('currentPassword', {
                 required: '현재 비밀번호를 입력하세요.',
               })}
@@ -100,6 +110,7 @@ const ChangePassword: React.FC = () => {
               type='password'
               placeholder='새 비밀번호를 입력하세요'
               error={errors.newPassword?.message}
+              autoComplete='new-password'
               {...register('newPassword', {
                 required: '새 비밀번호를 입력하세요.',
                 minLength: { value: 8, message: '8자리 이상 입력하세요.' },
@@ -122,6 +133,7 @@ const ChangePassword: React.FC = () => {
               type='password'
               placeholder='새 비밀번호를 다시 입력하세요'
               error={errors.confirmPassword?.message}
+              autoComplete='new-password'
               {...register('confirmPassword', {
                 required: '비밀번호 확인을 입력하세요.',
                 validate: (value) =>

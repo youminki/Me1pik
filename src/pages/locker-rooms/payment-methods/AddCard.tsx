@@ -179,6 +179,7 @@ const AddCard: React.FC = () => {
                 maxLength={2}
                 type='password'
                 error={errors.cardPassword}
+                autoComplete='cc-csc'
                 {...register('cardPassword')}
                 onKeyPress={handleNumberKeyPress}
                 onInput={handleNumberInput}
