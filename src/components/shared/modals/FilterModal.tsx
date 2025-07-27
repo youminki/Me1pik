@@ -22,7 +22,7 @@ const SectionTitleWithParen: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const sizeData = ['44(S)', '55(M)', '66(L)', '77(XL)'];
+const sizeData = ['FREE', '44(S)', '55(M)', '66(L)', '77(XL)'];
 const colorMap: Record<string, string> = {
   화이트: '#FFFFFF',
   블랙: '#000000',
@@ -46,16 +46,22 @@ interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onColorSelect?: (colors: string[]) => void;
+  onSizeSelect?: (sizes: string[]) => void;
   selectedColors: string[];
   setSelectedColors: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedSizes: string[];
+  setSelectedSizes: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const FilterModal: React.FC<FilterModalProps> = ({
   isOpen,
   onClose,
   onColorSelect,
+  onSizeSelect,
   selectedColors,
   setSelectedColors,
+  selectedSizes,
+  setSelectedSizes,
 }) => {
   const [isClosing, setIsClosing] = useState(false);
 
@@ -89,10 +95,18 @@ const FilterModal: React.FC<FilterModalProps> = ({
     toggleSelected(selectedColors, color, setSelectedColors);
   };
 
+  // 사이즈 선택 핸들러: 상태만 변경
+  const handleSizeClick = (size: string) => {
+    toggleSelected(selectedSizes, size, setSelectedSizes);
+  };
+
   // 설정 적용 버튼 클릭 시
   const handleApply = () => {
     if (onColorSelect) {
       onColorSelect(selectedColors);
+    }
+    if (onSizeSelect) {
+      onSizeSelect(selectedSizes);
     }
     onClose();
   };
@@ -118,7 +132,11 @@ const FilterModal: React.FC<FilterModalProps> = ({
             <SectionTitleWithParen text='사이즈 (셋팅 : 없음)' />
             <ButtonRow>
               {sizeData.map((size) => (
-                <FilterButton key={size} selected={false} disabled>
+                <FilterButton
+                  key={size}
+                  selected={selectedSizes.includes(size)}
+                  onClick={() => handleSizeClick(size)}
+                >
                   {size}
                 </FilterButton>
               ))}

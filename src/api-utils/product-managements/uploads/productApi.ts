@@ -13,6 +13,7 @@ export interface ProductListItem {
   discount: number;
   isLiked: boolean;
   color?: string;
+  sizes?: string[];
 }
 
 export interface ProductSize {
@@ -64,6 +65,7 @@ interface RawProductListItem {
   discount: number;
   isLiked?: boolean;
   color?: string;
+  sizes?: string[];
 }
 
 export const getProducts = async (
@@ -72,6 +74,7 @@ export const getProducts = async (
   const response = await Axios.get('/admin/product/product/list', {
     params: { category },
   });
+
   return (response.data || []).map(
     (p: RawProductListItem & { color?: string }) => ({
       id: p.id,
@@ -86,6 +89,7 @@ export const getProducts = async (
       discount: p.discount,
       isLiked: Boolean(p.isLiked),
       color: p.color,
+      sizes: p.sizes || [],
     })
   );
 };

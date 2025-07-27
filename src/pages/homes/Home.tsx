@@ -57,6 +57,15 @@ const colorMap: Record<string, string> = {
   민트: 'MINT',
 };
 
+// 사이즈 매핑 테이블
+const sizeMap: Record<string, string[]> = {
+  FREE: ['FREE'],
+  '44(S)': ['44'],
+  '55(M)': ['55'],
+  '66(L)': ['66'],
+  '77(XL)': ['77'],
+};
+
 // Chip 스타일 컴포넌트
 const ChipList = styled.div`
   display: flex;
@@ -133,8 +142,10 @@ const Home: React.FC = () => {
   // 필터 모달 상태
   const [isFilterModalOpen, setFilterModalOpen] = useState(false);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  // 필터모달 임시 색상 상태
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  // 필터모달 임시 상태
   const [tempSelectedColors, setTempSelectedColors] = useState<string[]>([]);
+  const [tempSelectedSizes, setTempSelectedSizes] = useState<string[]>([]);
 
   // react-query 상품 데이터
   const {
@@ -144,10 +155,15 @@ const Home: React.FC = () => {
     error,
   } = useProducts(selectedCategory === 'All' ? 'all' : selectedCategory);
 
+  // 실제 API 데이터 사용 (sizes 필드가 포함되어 있음)
+  const productsWithSizes = useMemo(() => {
+    if (!products) return [];
+    return products;
+  }, [products]);
+
   // 검색/필터된 상품 목록 (useMemo로 연산 최소화)
   const filteredProducts = useMemo(() => {
-    console.time('filteredProducts');
-    if (!products) return [];
+    if (!productsWithSizes) return [];
     const term = searchQuery.trim().toLowerCase();
     // 쉼표로 분리된 여러 검색어 처리
     const terms = term
@@ -173,11 +189,18 @@ const Home: React.FC = () => {
       }
     });
 
-    const filtered = products.filter(
-      (item: { brand?: string; description?: string; color?: string }) => {
+    const filtered = productsWithSizes.filter(
+      (item: {
+        id: number;
+        brand?: string;
+        description?: string;
+        color?: string;
+        sizes?: string[];
+      }) => {
         const brand = item.brand?.toLowerCase() || '';
         const desc = item.description?.toLowerCase() || '';
         const color = item.color?.toLowerCase() || '';
+        const sizes = item.sizes || [];
 
         // 브랜드/설명 검색: 모든 일반 키워드가 브랜드/설명에 하나라도 포함되면 true
         const matchesBrandOrDesc =
@@ -217,18 +240,41 @@ const Home: React.FC = () => {
           });
         }
 
+        // 사이즈 필터: selectedSizes 중 하나라도 상품의 sizes에 포함되면 true
+        let matchesSelectedSizes = true;
+        if (selectedSizes.length > 0) {
+          matchesSelectedSizes = selectedSizes.some((selectedSize) => {
+            // 사이즈 매핑 테이블에서 해당하는 숫자 사이즈들 가져오기
+            const mappedSizes = sizeMap[selectedSize] || [selectedSize];
+
+            // 상품 사이즈와 매핑된 사이즈들 중 하나라도 일치하는지 확인
+            return mappedSizes.some((mappedSize) => {
+              return sizes.some((productSize) => {
+                // FREE 사이즈 특별 처리
+                if (mappedSize === 'FREE') {
+                  return /free/i.test(productSize);
+                }
+                // 숫자 사이즈 매칭
+                const productSizeNumber = productSize.match(/\d+/)?.[0];
+                return productSizeNumber === mappedSize;
+              });
+            });
+          });
+        }
+
         return (
-          matchesBrandOrDesc && matchesSearchColors && matchesSelectedColors
+          matchesBrandOrDesc &&
+          matchesSearchColors &&
+          matchesSelectedColors &&
+          matchesSelectedSizes
         );
       }
     );
-    console.timeEnd('filteredProducts');
     return filtered;
-  }, [products, searchQuery, selectedColors]);
+  }, [productsWithSizes, searchQuery, selectedColors, selectedSizes]);
 
   // UIItem 변환 (모든 상품을 한 번에 불러옴)
   const uiItems: UIItem[] = useMemo(() => {
-    console.time('uiItems');
     const result = filteredProducts.map(
       (p: {
         id: number;
@@ -248,7 +294,6 @@ const Home: React.FC = () => {
         isLiked: p.isLiked || false,
       })
     );
-    console.timeEnd('uiItems');
     return result;
   }, [filteredProducts]);
 
@@ -331,12 +376,13 @@ const Home: React.FC = () => {
     }
   }, []);
 
-  // 필터 모달이 열릴 때 tempSelectedColors를 selectedColors로 동기화
+  // 필터 모달이 열릴 때 임시 상태를 실제 상태로 동기화
   useEffect(() => {
     if (isFilterModalOpen) {
       setTempSelectedColors(selectedColors);
+      setTempSelectedSizes(selectedSizes);
     }
-  }, [isFilterModalOpen, selectedColors]);
+  }, [isFilterModalOpen, selectedColors, selectedSizes]);
 
   const [visibleCount, setVisibleCount] = useState(40);
   const observerRef = useRef<HTMLDivElement | null>(null);
@@ -357,14 +403,6 @@ const Home: React.FC = () => {
   }, [uiItems.length]);
 
   const visibleItems = uiItems.slice(0, visibleCount);
-  console.log(
-    'visibleCount:',
-    visibleCount,
-    'visibleItems:',
-    visibleItems.length,
-    'uiItems:',
-    uiItems.length
-  );
 
   // 검색/필터 결과 없음일 때 3초 후 전체로 돌아가는 타이머
   const [countdown, setCountdown] = useState(3);
@@ -376,7 +414,7 @@ const Home: React.FC = () => {
     if (
       !isLoading &&
       uiItems.length === 0 &&
-      (searchQuery || selectedColors.length > 0)
+      (searchQuery || selectedColors.length > 0 || selectedSizes.length > 0)
     ) {
       timer = setTimeout(() => setShowNoResult(true), 300);
     } else {
@@ -386,7 +424,7 @@ const Home: React.FC = () => {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [isLoading, uiItems.length, searchQuery, selectedColors]);
+  }, [isLoading, uiItems.length, searchQuery, selectedColors, selectedSizes]);
 
   // 카운트다운 및 초기화
   useEffect(() => {
@@ -395,6 +433,7 @@ const Home: React.FC = () => {
     if (countdown === 0) {
       setSearchQuery('');
       setSelectedColors([]);
+      setSelectedSizes([]);
       setSelectedCategory('All');
       setSearchParams({ category: 'All' }, { replace: true });
       setShowNoResult(false);
@@ -644,8 +683,14 @@ const Home: React.FC = () => {
           setSelectedColors(colors);
           setFilterModalOpen(false);
         }}
+        onSizeSelect={(sizes: string[]) => {
+          setSelectedSizes(sizes);
+          setFilterModalOpen(false);
+        }}
         selectedColors={tempSelectedColors}
         setSelectedColors={setTempSelectedColors}
+        selectedSizes={tempSelectedSizes}
+        setSelectedSizes={setTempSelectedSizes}
       />
 
       {/* 서브헤더 */}
@@ -706,6 +751,21 @@ const Home: React.FC = () => {
                 onClick={() => {
                   const newColors = selectedColors.filter((_, i) => i !== idx);
                   setSelectedColors(newColors);
+                }}
+              >
+                ×
+              </ChipClose>
+            </Chip>
+          ))}
+          {/* 사이즈 Chip (필터 모달 선택) */}
+          {selectedSizes.map((size, idx) => (
+            <Chip key={size + idx}>
+              {size}
+              <ChipClose
+                aria-label='사이즈 삭제'
+                onClick={() => {
+                  const newSizes = selectedSizes.filter((_, i) => i !== idx);
+                  setSelectedSizes(newSizes);
                 }}
               >
                 ×
