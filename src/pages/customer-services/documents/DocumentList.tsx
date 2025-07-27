@@ -439,7 +439,6 @@ const Divider = styled.div`
 `;
 
 const ResponsiveContainer = styled.div`
-  padding: 1rem;
   font-size: 16px;
   background: #fff;
   box-sizing: border-box;
