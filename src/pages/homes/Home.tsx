@@ -59,7 +59,6 @@ const colorMap: Record<string, string> = {
 
 // 사이즈 매핑 테이블
 const sizeMap: Record<string, string[]> = {
-  FREE: ['FREE'],
   '44(S)': ['44'],
   '55(M)': ['55'],
   '66(L)': ['66'],
@@ -251,12 +250,11 @@ const Home: React.FC = () => {
             return mappedSizes.some((mappedSize) => {
               return sizes.some((productSize) => {
                 // FREE 사이즈 특별 처리
-                if (mappedSize === 'FREE') {
+                if (selectedSize === 'FREE') {
                   return /free/i.test(productSize);
                 }
-                // 숫자 사이즈 매칭
-                const productSizeNumber = productSize.match(/\d+/)?.[0];
-                return productSizeNumber === mappedSize;
+                // 숫자 사이즈 매칭 - 정확한 숫자 비교
+                return productSize === mappedSize;
               });
             });
           });

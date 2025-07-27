@@ -8,16 +8,16 @@ const ParenText = styled.span`
   color: #999;
 `;
 const SectionTitleWithParen: React.FC<{ text: string }> = ({ text }) => {
-  const parts = text.split(/(\(.*?\))/g);
+  // "사이즈 (셋팅 : FREE, 55(M), 66(L))" 형태의 텍스트를 분리
+  const mainText = text.split(' (')[0]; // "사이즈"
+  const settingText = text.includes('(')
+    ? text.substring(text.indexOf('('))
+    : ''; // "(셋팅 : FREE, 55(M), 66(L))"
+
   return (
     <SectionTitle>
-      {parts.map((p, i) =>
-        p.startsWith('(') && p.endsWith(')') ? (
-          <ParenText key={i}>{p}</ParenText>
-        ) : (
-          <span key={i}>{p}</span>
-        )
-      )}
+      <span>{mainText}</span>
+      {settingText && <ParenText>{settingText}</ParenText>}
     </SectionTitle>
   );
 };
@@ -129,7 +129,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
         <ScrollContent>
           <Section>
-            <SectionTitleWithParen text='사이즈 (셋팅 : 없음)' />
+            <SectionTitleWithParen
+              text={`사이즈 (셋팅 : ${selectedSizes.length > 0 ? selectedSizes.join(', ') : '없음'})`}
+            />
             <ButtonRow>
               {sizeData.map((size) => (
                 <FilterButton
@@ -145,7 +147,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <DashedDivider />
 
           <Section>
-            <SectionTitleWithParen text='색상 (셋팅 : 없음)' />
+            <SectionTitleWithParen
+              text={`색상 (셋팅 : ${selectedColors.length > 0 ? selectedColors.join(', ') : '없음'})`}
+            />
             <ColorButtonGrid>
               {Object.keys(colorMap).map((color) => {
                 return (
