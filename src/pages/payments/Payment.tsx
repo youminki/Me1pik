@@ -685,9 +685,8 @@ const AddressInputWrapper = styled.div`
   display: flex;
   align-items: center;
   flex: 1;
-  height: 57px;
+  height: 51px;
   border: 1px solid #dddddd;
-  border-radius: 4px;
   min-width: 200px;
   overflow: hidden;
 `;
@@ -720,11 +719,10 @@ const DeliveryListButton = styled(YellowButton)`
 const DetailAddressInput = styled.input`
   flex: 1;
   border: 1px solid #dddddd;
-  border-radius: 4px;
   padding: 0 10px;
   font-size: 13px;
   line-height: 14px;
-  height: 57px;
+  height: 51px;
   box-sizing: border-box;
   &:focus {
     outline: none;
@@ -800,8 +798,9 @@ const TotalAmount = styled.div`
   box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #eeeeee;
-  border-radius: 4px;
-  padding: 20px;
+
+  height: 51px;
+  padding: 0 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
