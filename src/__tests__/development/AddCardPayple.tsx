@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 
+import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+
 // 타입 정의
 interface UserInfo {
   userId: string;
@@ -102,35 +104,38 @@ const AddCardPayple: React.FC = () => {
   }, [userInfo]);
 
   return (
-    <Wrapper>
-      <Inner>
-        <Title>카드 등록</Title>
+    <>
+      <UnifiedHeader variant='oneDepth' />
+      <Wrapper>
+        <Inner>
+          <Title>카드 등록</Title>
 
-        {/* 카드 추가 박스 */}
-        <AddCardBox
-          onClick={registerCard}
-          title={userInfo ? '카드 추가' : '로그인 필요'}
-        >
-          <PlusWrapper>
-            <PlusBox>
-              <PlusLineVert />
-              <PlusLineHorz />
-            </PlusBox>
-            <AddText>카드 추가</AddText>
-          </PlusWrapper>
-        </AddCardBox>
+          {/* 카드 추가 박스 */}
+          <AddCardBox
+            onClick={registerCard}
+            title={userInfo ? '카드 추가' : '로그인 필요'}
+          >
+            <PlusWrapper>
+              <PlusBox>
+                <PlusLineVert />
+                <PlusLineHorz />
+              </PlusBox>
+              <AddText>카드 추가</AddText>
+            </PlusWrapper>
+          </AddCardBox>
 
-        {error && <Message type='error'>{error}</Message>}
-        {/* 카드 등록 버튼 */}
-        <ActionButton
-          onClick={registerCard}
-          disabled={!userInfo}
-          title={userInfo ? '카드 등록하기' : '로그인 필요'}
-        >
-          카드 등록하기
-        </ActionButton>
-      </Inner>
-    </Wrapper>
+          {error && <Message type='error'>{error}</Message>}
+          {/* 카드 등록 버튼 */}
+          <ActionButton
+            onClick={registerCard}
+            disabled={!userInfo}
+            title={userInfo ? '카드 등록하기' : '로그인 필요'}
+          >
+            카드 등록하기
+          </ActionButton>
+        </Inner>
+      </Wrapper>
+    </>
   );
 };
 
@@ -143,6 +148,7 @@ const Wrapper = styled.div`
   justify-content: center;
 
   background: #ffffff;
+  margin-top: 10px;
 `;
 
 const Inner = styled.div`
