@@ -152,11 +152,12 @@ const Dock = styled.div`
   background: #1d1d1b;
   backdrop-filter: blur(16px);
   border-radius: 32px;
-  padding: 0px 0 20px 0;
+  padding: 12px 0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 768px) {
     border-radius: 0;
+    padding: 0 0 20px 0;
   }
 `;
 
