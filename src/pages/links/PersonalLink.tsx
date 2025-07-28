@@ -396,7 +396,7 @@ const LinkRow = styled.div`
   min-height: 56px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #eee;
+  border-bottom: 0.5px solid #000;
   padding: 18px 0 10px 0;
 `;
 const LinkLabel = styled.div`
