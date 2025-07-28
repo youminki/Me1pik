@@ -2,14 +2,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-import fiArrowRight from '@/assets/personal-links/fiArrowRight.svg';
-import InstagramIconImg from '@/assets/personal-links/InstagramIcon.svg';
-import LinkLabelIcon from '@/assets/personal-links/LinkLabelIcon.svg';
-import personalLinkAlramIcon from '@/assets/personal-links/personalLinkAlramIcon.svg';
+import fiArrowRight from '@/assets/personal-links/fiArrowRight.svg?url';
+import InstagramIconImg from '@/assets/personal-links/InstagramIcon.svg?url';
+import LinkLabelIcon from '@/assets/personal-links/LinkLabelIcon.svg?url';
+import personalLinkAlramIcon from '@/assets/personal-links/personalLinkAlramIcon.svg?url';
 import PersonalLinkBackground from '@/assets/personal-links/PersonalLinkbackground.jpg';
-import personalLinkProfileIcon from '@/assets/personal-links/personalLinkProfileIcon.svg';
-import personalLinkShareIcon from '@/assets/personal-links/personalLinkShareIcon.svg';
-import ScheduleIconImg from '@/assets/personal-links/ScheduleIcon.svg';
+import personalLinkProfileIcon from '@/assets/personal-links/personalLinkProfileIcon.svg?url';
+import personalLinkShareIcon from '@/assets/personal-links/personalLinkShareIcon.svg?url';
+import ScheduleIconImg from '@/assets/personal-links/ScheduleIcon.svg?url';
 
 export interface UIItem {
   id: string;
@@ -161,13 +161,13 @@ const PersonalLink: React.FC = () => {
         </TabIndicator>
         <TabSection ref={tabSectionRef}>
           <TabBtn
-            active={activeTab === 'personalLink'}
+            $active={activeTab === 'personalLink'}
             onClick={() => setActiveTab('personalLink')}
           >
             개인링크
           </TabBtn>
           <TabBtn
-            active={activeTab === 'productIntro'}
+            $active={activeTab === 'productIntro'}
             onClick={() => setActiveTab('productIntro')}
           >
             제품소개
@@ -435,18 +435,18 @@ const TabSection = styled.div`
   gap: 24px;
 `;
 
-const TabBtn = styled.button<{ active: boolean }>`
+const TabBtn = styled.button<{ $active: boolean }>`
   width: 100%;
   height: 40px;
   border-radius: 100px;
-  border: ${({ active }) => (active ? '2px solid #fff' : 'none')};
-  background: ${({ active }) => (active ? '#F6AE24' : '#F2F2F2')};
+  border: ${({ $active }) => ($active ? '2px solid #fff' : 'none')};
+  background: ${({ $active }) => ($active ? '#F6AE24' : '#F2F2F2')};
   font-family: 'NanumSquare Neo OTF', sans-serif;
   font-style: normal;
   font-weight: 800;
   font-size: 12px;
   line-height: 13px;
-  color: ${({ active }) => (active ? '#fff' : '#8E8E8E')};
+  color: ${({ $active }) => ($active ? '#fff' : '#8E8E8E')};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -455,7 +455,7 @@ const TabBtn = styled.button<{ active: boolean }>`
     color 0.2s,
     border 0.2s,
     box-shadow 0.2s;
-  box-shadow: ${({ active }) => (active ? '0 0 0 1px #F6AE24' : 'none')};
+  box-shadow: ${({ $active }) => ($active ? '0 0 0 1px #F6AE24' : 'none')};
 `;
 const LinkList = styled.div`
   width: 90%;
