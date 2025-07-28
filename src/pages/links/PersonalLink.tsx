@@ -1,5 +1,5 @@
 // src/pages/PersonalLink.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import InstagramIconImg from '@/assets/personal-links/InstagramIcon.svg';
@@ -69,13 +69,46 @@ const PersonalLink: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'personalLink' | 'productIntro'>(
     'personalLink'
   );
+  const [sheetHeight, setSheetHeight] = useState('75vh');
+  const [readyToShrink, setReadyToShrink] = useState(false);
+  const tabSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.body.classList.add('PersonalLink');
+    // html과 body 스크롤 차단
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     return () => {
       document.body.classList.remove('PersonalLink');
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
     };
   }, []);
+
+  const handleBottomSheetScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (activeTab === 'productIntro') {
+      if (tabSectionRef.current) {
+        const tabRect = tabSectionRef.current.getBoundingClientRect();
+        const sheetRect = e.currentTarget.getBoundingClientRect();
+        if (tabRect.top >= sheetRect.top) {
+          // 탭이 보이면
+          if (!readyToShrink) {
+            setReadyToShrink(true); // 플래그만 세팅
+          } else {
+            // 플래그가 이미 true인 상태에서 한 번 더 스크롤(이벤트 발생) 시 75vh로
+            if (sheetHeight !== '75vh') setSheetHeight('75vh');
+            setReadyToShrink(false); // 다시 초기화
+          }
+          return;
+        }
+      }
+      // 탭이 안 보이면 90vh, 플래그 초기화
+      if (sheetHeight !== '90vh') setSheetHeight('90vh');
+      setReadyToShrink(false);
+    }
+  };
 
   // UIItem 형태로 변환
   const uiDummyItems: UIItem[] = dummyItems.map(
@@ -117,12 +150,15 @@ const PersonalLink: React.FC = () => {
           </IconButton>
         </RightIcons>
       </TopBar>
-      <BottomSheet>
+      <BottomSheet
+        style={{ height: sheetHeight }}
+        onScroll={handleBottomSheetScroll}
+      >
         <TabIndicator>
           <IndicatorBackground />
           <IndicatorBar style={indicatorStyle} />
         </TabIndicator>
-        <TabSection>
+        <TabSection ref={tabSectionRef}>
           <TabBtn
             active={activeTab === 'personalLink'}
             onClick={() => setActiveTab('personalLink')}
@@ -250,13 +286,16 @@ const MainWrapper = styled.div`
   position: relative;
   width: 100vw;
   max-width: 600px;
-  margin: 0 auto;
   min-height: 100vh;
   background: #fcf8f5 url(${PersonalLinkBackground}) center/cover no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
 `;
 
 const TopBar = styled.div`
@@ -474,7 +513,6 @@ const BottomSheet = styled.div`
   bottom: 0;
   width: 100%;
   max-width: 600px;
-  height: 75vh;
   background: #fff;
   border-radius: 35px 35px 0 0;
   margin: 0 auto;
@@ -483,13 +521,13 @@ const BottomSheet = styled.div`
   justify-content: space-between;
   align-items: center;
   z-index: 10;
-
   box-sizing: border-box;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  transition: height 0.2s ease-out;
 
   @media (min-width: 768px) {
-    height: 80vh;
+    /* height는 state로 관리 */
   }
 `;
 
