@@ -122,19 +122,6 @@ const PersonalLink: React.FC = () => {
           <IndicatorBackground />
           <IndicatorBar style={indicatorStyle} />
         </TabIndicator>
-        {activeTab === 'personalLink' && (
-          <ProfileSection>
-            <ProfileImgWrap>
-              <img src={personalLinkProfileIcon} alt='profile' />
-            </ProfileImgWrap>
-            <ProfileName>bominism71</ProfileName>
-            <ProfileDesc>
-              직접 입어보고 맘에 드는 것만 소개해드려요!
-            </ProfileDesc>
-          </ProfileSection>
-        )}
-
-        {/* 탭 영역 */}
         <TabSection>
           <TabBtn
             active={activeTab === 'personalLink'}
@@ -149,6 +136,17 @@ const PersonalLink: React.FC = () => {
             제품소개
           </TabBtn>
         </TabSection>
+        {activeTab === 'personalLink' && (
+          <ProfileSection>
+            <ProfileImgWrap>
+              <img src={personalLinkProfileIcon} alt='profile' />
+            </ProfileImgWrap>
+            <ProfileName>bominism71</ProfileName>
+            <ProfileDesc>
+              직접 입어보고 맘에 드는 것만 소개해드려요!
+            </ProfileDesc>
+          </ProfileSection>
+        )}
 
         {/* 탭별 컨텐츠 조건부 렌더링 */}
         {activeTab === 'personalLink' && (
@@ -301,7 +299,7 @@ const ProfileImgWrap = styled.div`
 `;
 const ProfileName = styled.div`
   font-weight: 700;
-  font-size: 22px;
+  font-size: 20px;
   line-height: 24px;
   color: #000;
   text-align: center;
@@ -309,7 +307,7 @@ const ProfileName = styled.div`
 `;
 const ProfileDesc = styled.div`
   font-weight: 400;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 20px;
   color: #000;
   text-align: center;
@@ -410,7 +408,7 @@ const BottomIcons = styled.div`
   justify-content: center;
   align-items: center;
   gap: 15px;
-  margin: 0;
+  margin-bottom: 10px;
   margin-top: auto;
 `;
 const ScheduleIcon = styled.div`
@@ -485,7 +483,7 @@ const BottomSheet = styled.div`
   justify-content: space-between;
   align-items: center;
   z-index: 10;
-  padding: 1rem;
+
   box-sizing: border-box;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -500,6 +498,7 @@ const TabIndicator = styled.div`
   width: 36px; /* 18(탭1) + 18(탭2) = 36 */
   height: 5px;
   margin: 0 auto 16px auto;
+  margin-top: 10px;
 `;
 
 const IndicatorBackground = styled.div`
@@ -538,13 +537,12 @@ const ListContainer = styled.div`
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px 12px;
-  padding: 0 0 12px 0;
+  padding: 1rem;
+  gap: 20px;
   box-sizing: border-box;
 `;
 
 const ItemCardWrapper = styled.div`
-  padding: 12px 8px 10px 8px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -638,9 +636,9 @@ const DiscountLabel = styled.span`
 
 const ProductIntroNotice = styled.div`
   width: 100%;
-  font-size: 15px;
+  font-size: 14px;
   color: #222;
-  font-weight: 700;
+  font-weight: 400;
   margin-bottom: 18px;
   text-align: center;
 `;
