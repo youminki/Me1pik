@@ -2,10 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
+import InstagramIconImg from '@/assets/personal-links/InstagramIcon.svg';
 import LinkArrowIcon from '@/assets/personal-links/LinkArrowIcon.svg';
 import personalLinkAlramIcon from '@/assets/personal-links/personalLinkAlramIcon.svg';
+import PersonalLinkBackground from '@/assets/personal-links/PersonalLinkbackground.jpg';
 import personalLinkProfileIcon from '@/assets/personal-links/personalLinkProfileIcon.svg';
 import personalLinkShareIcon from '@/assets/personal-links/personalLinkShareIcon.svg';
+import ScheduleIconImg from '@/assets/personal-links/ScheduleIcon.svg';
 
 export interface UIItem {
   id: string;
@@ -57,6 +60,11 @@ const dummyItems = [
   // 추가 아이템이 필요하면 더 넣기
 ];
 
+const TAB_INDICATOR = {
+  personalLink: { left: 0, width: 18 },
+  productIntro: { left: 18, width: 18 },
+};
+
 const PersonalLink: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'personalLink' | 'productIntro'>(
     'personalLink'
@@ -82,92 +90,125 @@ const PersonalLink: React.FC = () => {
     })
   );
 
-  // 카드 클릭 시 동작 (예: 모달 열기 or 상세 페이지 네비게이트)
-  const handleItemClick = () => {
-    // 상세 페이지로 이동 등 구현
+  // 인디케이터 스타일 계산
+  const indicatorStyle = {
+    left: TAB_INDICATOR[activeTab].left,
+    width: TAB_INDICATOR[activeTab].width,
+    transition:
+      'left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1)',
   };
 
   return (
-    <Container>
-      <TopSection>
-        <TopInner>
+    <MainWrapper>
+      <TopBar>
+        <IconButton>
+          <img src={personalLinkShareIcon} alt='share' />
+        </IconButton>
+        <RightIcons>
           <IconButton>
-            <img src={personalLinkShareIcon} alt='share' />
+            <ThreeDot>
+              <Dot />
+              <Dot />
+              <Dot />
+            </ThreeDot>
           </IconButton>
-
-          <CenterColumn>
-            <UserImageWrapper>
-              <img src={personalLinkProfileIcon} alt='user profile' />
-            </UserImageWrapper>
-            <UserName>bominism71</UserName>
-          </CenterColumn>
-
           <IconButton>
             <img src={personalLinkAlramIcon} alt='alarm' />
           </IconButton>
-        </TopInner>
-      </TopSection>
+        </RightIcons>
+      </TopBar>
+      <BottomSheet>
+        <TabIndicator>
+          <IndicatorBackground />
+          <IndicatorBar style={indicatorStyle} />
+        </TabIndicator>
+        {activeTab === 'personalLink' && (
+          <ProfileSection>
+            <ProfileImgWrap>
+              <img src={personalLinkProfileIcon} alt='profile' />
+            </ProfileImgWrap>
+            <ProfileName>bominism71</ProfileName>
+            <ProfileDesc>
+              직접 입어보고 맘에 드는 것만 소개해드려요!
+            </ProfileDesc>
+          </ProfileSection>
+        )}
 
-      {/* 콘텐츠 영역: flex:1 */}
-      <ContentWrapper>
+        {/* 탭 영역 */}
         <TabSection>
-          <TabItem
+          <TabBtn
             active={activeTab === 'personalLink'}
             onClick={() => setActiveTab('personalLink')}
           >
             개인링크
-          </TabItem>
-          <TabItem
+          </TabBtn>
+          <TabBtn
             active={activeTab === 'productIntro'}
             onClick={() => setActiveTab('productIntro')}
           >
             제품소개
-          </TabItem>
+          </TabBtn>
         </TabSection>
 
+        {/* 탭별 컨텐츠 조건부 렌더링 */}
         {activeTab === 'personalLink' && (
-          <LinkListWrapper>
-            <LinkItem>
-              <LinkLabelBox>LINK 01</LinkLabelBox>
-              <LinkTextWrapper>
+          <LinkList>
+            <LinkRow>
+              <LinkLabel>LINK 01</LinkLabel>
+              <LinkTextBox>
                 <LinkTitle>업무 및 비지니스 제휴 문의</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
-              </LinkTextWrapper>
+              </LinkTextBox>
               <LinkArrow src={LinkArrowIcon} alt='arrow' />
-            </LinkItem>
-            {/* ... 기타 LinkItem */}
-          </LinkListWrapper>
+            </LinkRow>
+            <LinkRow>
+              <LinkLabel>LINK 02</LinkLabel>
+              <LinkTextBox>
+                <LinkTitle>PMC - 대회 홈페이지 안내</LinkTitle>
+                <LinkDesc>form.naver.com/respon..</LinkDesc>
+              </LinkTextBox>
+              <LinkArrow src={LinkArrowIcon} alt='arrow' />
+            </LinkRow>
+            <LinkRow>
+              <LinkLabel>LINK 03</LinkLabel>
+              <LinkTextBox>
+                <LinkTitle>업무 및 비지니스 제휴 문의</LinkTitle>
+                <LinkDesc>form.naver.com/respon..</LinkDesc>
+              </LinkTextBox>
+              <LinkArrow src={LinkArrowIcon} alt='arrow' />
+            </LinkRow>
+            <LinkRow>
+              <LinkLabel>LINK 04</LinkLabel>
+              <LinkTextBox>
+                <LinkTitle>PMC - 대회 홈페이지 안내</LinkTitle>
+                <LinkDesc>form.naver.com/respon..</LinkDesc>
+              </LinkTextBox>
+              <LinkArrow src={LinkArrowIcon} alt='arrow' />
+            </LinkRow>
+          </LinkList>
         )}
-
         {activeTab === 'productIntro' && (
           <ProductListWrapper>
-            <IntroText>
-              👉 직접 입어보고 맘에 드는 것만 소개해드려요 👈
-            </IntroText>
-
-            {/* 직접 그리드 + 카드 구조 삽입 */}
+            <ProductIntroNotice>
+              👉 직접 입어보고 맘에 드는 것만 소개해드려요
+            </ProductIntroNotice>
             <ListContainer>
-              <ItemsWrapper>
-                {uiDummyItems.map((item) => (
-                  <ItemCardWrapper
-                    key={item.id}
-                    onClick={() => handleItemClick()}
-                  >
-                    <ImageWrapper>
-                      {/* 이미지 URL이 # 뒤에 옵션이 붙을 수 있으므로 split 처리 */}
-                      <Image
-                        src={item.image.split('#')[0] || '/default.jpg'}
-                        alt={item.brand}
-                      />
-                    </ImageWrapper>
+              {uiDummyItems.map((item) => (
+                <ItemCardWrapper key={item.id}>
+                  <ImageWrapper>
+                    <Image
+                      src={item.image.split('#')[0] || '/default.jpg'}
+                      alt={item.brand}
+                    />
+                  </ImageWrapper>
+                  <CardTextArea>
                     <BrandText>{item.brand}</BrandText>
                     <DescriptionText>
                       {item.description.includes('/')
                         ? item.description.split('/')[1]
                         : item.description}
                     </DescriptionText>
-                    <PriceWrapper>
-                      <PointBar />
+                    <PriceRow>
                       <OriginalPriceText>
                         {item.price.toLocaleString()}원
                       </OriginalPriceText>
@@ -175,84 +216,81 @@ const PersonalLink: React.FC = () => {
                         <NowLabel>NOW</NowLabel>
                         <DiscountLabel>{item.discount}%</DiscountLabel>
                       </SubPriceWrapper>
-                    </PriceWrapper>
-                  </ItemCardWrapper>
-                ))}
-              </ItemsWrapper>
+                    </PriceRow>
+                  </CardTextArea>
+                </ItemCardWrapper>
+              ))}
             </ListContainer>
           </ProductListWrapper>
         )}
-      </ContentWrapper>
 
-      <Footer>© 2024 ME1PIK.</Footer>
-    </Container>
+        <BottomIcons>
+          <ScheduleIcon>
+            <img src={ScheduleIconImg} alt='schedule' width={30} height={29} />
+          </ScheduleIcon>
+          <InstagramIcon>
+            <img
+              src={InstagramIconImg}
+              alt='instagram'
+              width={28}
+              height={28}
+            />
+          </InstagramIcon>
+        </BottomIcons>
+      </BottomSheet>
+    </MainWrapper>
   );
 };
 
 export default PersonalLink;
 
-// Styled-components
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh; /* 화면 높이 전체를 차지 */
-  max-width: 430px;
-  width: 100%;
-  margin: 0 auto;
-  background: #ffffff;
-  overflow-x: hidden;
-`;
+// =====================
+// styled-components
+// =====================
 
-const TopSection = styled.div`
+const MainWrapper = styled.div`
   position: relative;
-  width: 100%;
-  height: 240px;
-  background: #f6ae24;
-  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const TopInner = styled.div`
-  margin-top: 10px;
-  width: 90%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const CenterColumn = styled.div`
+  width: 100vw;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #fcf8f5 url(${PersonalLinkBackground}) center/cover no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
 `;
 
-const IconButton = styled.button`
-  width: 40px;
-  height: 40px;
-  background: #ffffff;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
+const TopBar = styled.div`
+  width: 100%;
+  max-width: 600px;
   display: flex;
-  justify-content: center;
+  flex-direction: row;
   align-items: center;
-
-  img {
-    object-fit: contain;
-  }
+  justify-content: space-between;
+  padding: 16px 20px 8px 20px;
+  box-sizing: border-box;
+  background: transparent;
+  z-index: 20;
 `;
-
-const UserImageWrapper = styled.div`
+const ProfileSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+  margin-bottom: 18px;
+`;
+const ProfileImgWrap = styled.div`
   width: 96px;
   height: 96px;
-  background: #ffffff;
   border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
   display: flex;
-  justify-content: center;
   align-items: center;
-
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   img {
     width: 90px;
     height: 90px;
@@ -261,239 +299,324 @@ const UserImageWrapper = styled.div`
     background: #d9d9d9;
   }
 `;
-
-const UserName = styled.div`
-  margin-top: 8px;
+const ProfileName = styled.div`
   font-weight: 700;
-  font-size: 18px;
+  font-size: 22px;
+  line-height: 24px;
+  color: #000;
+  text-align: center;
+  margin-bottom: 4px;
+`;
+const ProfileDesc = styled.div`
+  font-weight: 400;
+  font-size: 15px;
   line-height: 20px;
-  color: #000000;
+  color: #000;
   text-align: center;
 `;
+const TabSection = styled.div`
+  width: 70%;
+  height: 46px;
+  margin: 10px auto 24px auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+`;
 
-/* 콘텐츠 영역을 감싸서 flex:1 설정 */
-const ContentWrapper = styled.div`
+const TabBtn = styled.button<{ active: boolean }>`
+  width: 100%;
+  height: 40px;
+  border-radius: 100px;
+  border: ${({ active }) => (active ? '2px solid #fff' : 'none')};
+  background: ${({ active }) => (active ? '#F6AE24' : '#F2F2F2')};
+  font-family: 'NanumSquare Neo OTF', sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 13px;
+  color: ${({ active }) => (active ? '#fff' : '#8E8E8E')};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border 0.2s,
+    box-shadow 0.2s;
+  box-shadow: ${({ active }) => (active ? '0 0 0 1px #F6AE24' : 'none')};
+`;
+const LinkList = styled.div`
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0 auto 32px auto;
+`;
+const LinkRow = styled.div`
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 18px 0 10px 0;
+`;
+const LinkLabel = styled.div`
+  min-width: 64px;
+  height: 25px;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 12px;
+  border-radius: 5px 0 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+`;
+const LinkTextBox = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-`;
-
-const TabSection = styled.div`
-  margin-top: 20px;
-  display: flex;
   justify-content: center;
-  padding: 1rem;
 `;
-
-const TabItem = styled.div<{ active: boolean }>`
-  width: 50%;
-  height: 50px;
-  border: 2px solid transparent;
-  background: ${({ active }) => (active ? '#ffffff' : '#eeeeee')};
-  color: ${({ active }) => (active ? '#000' : '#999')};
-  font-weight: 800;
-  font-size: 14px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-
-  &:first-child {
-    border-radius: 10px 0 0 10px;
-  }
-  &:last-child {
-    border-radius: 0 10px 10px 0;
-  }
-
-  ${({ active }) =>
-    active &&
-    `
-    border-color: #f6ae24;
-  `}
-`;
-
-const LinkListWrapper = styled.div`
-  /* flex: 1; 이미 ContentWrapper가 flex:1이므로 내부는 자연스럽게 차지 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  padding: 1rem;
-`;
-
-const LinkItem = styled.div`
-  position: relative;
-  width: 100%;
-  height: 80px;
-  border: 1px solid #dddddd;
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 0 16px;
-  box-sizing: border-box;
-`;
-
-const LinkLabelBox = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 60px;
-  height: 25px;
-  background: #000000;
-  color: #ffffff;
-  font-family: 'Inter', sans-serif;
-  font-style: normal;
-  font-weight: 700;
-  font-size: 10px;
-  line-height: 12px;
-  border-radius: 5px 0 0 5px;
-  position: relative;
-  margin-bottom: 20px;
-  /* 오른쪽 뾰족하게 */
-  clip-path: polygon(
-    0 0,
-    calc(100% - 12px) 0,
-    100% 50%,
-    calc(100% - 12px) 100%,
-    0 100%
-  );
-`;
-
-const LinkTextWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 12px;
-`;
-
 const LinkTitle = styled.div`
   font-weight: 800;
-  font-size: 14px;
-  color: #000000;
-  margin-bottom: 5px;
+  font-size: 15px;
+  line-height: 18px;
+  color: #000;
+  margin-bottom: 2px;
 `;
-
 const LinkDesc = styled.div`
   font-weight: 400;
   font-size: 12px;
-  color: #999999;
-  text-decoration: underline;
+  line-height: 13px;
+  color: #999;
 `;
-
 const LinkArrow = styled.img`
-  position: absolute;
-  right: 16px;
   width: 20px;
   height: 20px;
+  margin-left: 10px;
+`;
+const BottomIcons = styled.div`
+  width: 100%;
+  max-width: 600px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 0;
+  margin-top: auto;
+`;
+const ScheduleIcon = styled.div`
+  width: 30px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+const InstagramIcon = styled.div`
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+// styled-components: IconButton, ThreeDot, Dot를 상단에 선언
+const IconButton = styled.button`
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: background 0.2s;
+  &:active {
+    background: #f6ae24;
+  }
+  img,
+  svg {
+    object-fit: contain;
+  }
+`;
+const ThreeDot = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+`;
+const Dot = styled.div`
+  width: 5px;
+  height: 5px;
+  background: #f6ae24;
+  border-radius: 50%;
+`;
+
+const RightIcons = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+`;
+
+// Styled-components
+const BottomSheet = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 600px;
+  height: 75vh;
+  background: #fff;
+  border-radius: 35px 35px 0 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  @media (min-width: 768px) {
+    height: 80vh;
+  }
+`;
+
+const TabIndicator = styled.div`
+  position: relative;
+  width: 36px; /* 18(탭1) + 18(탭2) = 36 */
+  height: 5px;
+  margin: 0 auto 16px auto;
+`;
+
+const IndicatorBackground = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 5px;
+  border-radius: 100px;
+  background: #d9d9d9;
+  opacity: 0.4;
+`;
+
+const IndicatorBar = styled.div`
+  position: absolute;
+  top: 0;
+  height: 5px;
+  border-radius: 100px;
+  background: #f6ae24;
 `;
 
 const ProductListWrapper = styled.div`
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 0 auto;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  padding: 1rem;
-`;
-
-const IntroText = styled.div`
-  font-weight: 400;
-  font-size: 14px;
-  color: #000;
-  margin-bottom: 20px;
   align-items: center;
-  text-align: center;
+  background: #fff;
 `;
 
 const ListContainer = styled.div`
-  background-color: #fff;
-  margin: 0 auto;
-  box-sizing: border-box;
   width: 100%;
-`;
-
-const ItemsWrapper = styled.div`
+  max-width: 600px;
+  margin: 0 auto;
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 12px;
+  padding: 0 0 12px 0;
+  box-sizing: border-box;
 `;
 
-// 카드 내부 요소 스타일
 const ItemCardWrapper = styled.div`
-  position: relative;
+  padding: 12px 8px 10px 8px;
   display: flex;
   flex-direction: column;
-  cursor: pointer;
-  margin-bottom: 12px;
+  align-items: stretch;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-height: 260px;
 `;
 
 const ImageWrapper = styled.div`
-  position: relative;
   width: 100%;
   aspect-ratio: 2/3;
-  min-height: 240px;
-  background: #f5f5f5;
-  border: 1px solid #ccc;
+  background: #f7f7f7;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  @supports not (aspect-ratio: 2/3) {
-    min-height: 240px;
-    height: 360px;
-  }
+  margin-bottom: 10px;
 `;
 
 const Image = styled.img`
   width: 100%;
   height: 100%;
-  min-height: 240px;
-  aspect-ratio: 2/3;
   object-fit: cover;
   display: block;
-  background: #f5f5f5;
+`;
+
+const CardTextArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
 `;
 
 const BrandText = styled.h3`
-  margin: 10px 0 0 0;
+  margin: 0 0 2px 0;
+
   font-weight: 900;
   font-size: 10px;
   line-height: 11px;
+  color: #222;
+  text-align: left;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 `;
 
 const DescriptionText = styled.p`
-  margin: 5px 0 0 0;
+  margin: 0 0 4px 0;
+
   font-size: 12px;
   color: #999;
   font-weight: 700;
-  margin-bottom: 4px;
+  text-align: left;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 `;
 
-const PriceWrapper = styled.div`
+const PriceRow = styled.div`
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: flex-start;
+  gap: 6px;
   margin-top: 5px;
-  position: relative;
-
-  @media (max-width: 768px) {
-    margin-top: 5px;
-    margin-left: 5px;
-  }
-`;
-
-const PointBar = styled.div`
-  display: block;
-  width: 2px;
-  height: 16px;
-  background: #f6ae24;
-  border-radius: 2px;
-  margin-right: 5px;
 `;
 
 const OriginalPriceText = styled.span`
   font-weight: 900;
   font-size: 14px;
+  color: #222;
 `;
 
 const SubPriceWrapper = styled.div`
@@ -504,6 +627,7 @@ const SubPriceWrapper = styled.div`
 
 const NowLabel = styled.span`
   font-size: 9px;
+  color: #888;
 `;
 
 const DiscountLabel = styled.span`
@@ -512,14 +636,11 @@ const DiscountLabel = styled.span`
   color: #f6ae24;
 `;
 
-const Footer = styled.div`
+const ProductIntroNotice = styled.div`
   width: 100%;
-  height: 20px;
+  font-size: 15px;
+  color: #222;
+  font-weight: 700;
+  margin-bottom: 18px;
   text-align: center;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
-  color: #f6ae24;
-  margin-top: auto; /* 남은 공간을 채운 뒤 하단에 위치 */
-  padding: 16px 0; /* 높이가 너무 작으면 보이기 어려우니 padding 추가 가능 */
 `;
