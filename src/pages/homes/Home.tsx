@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useCallback,
   useRef,
-  memo,
 } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -19,10 +18,10 @@ import ShareIcon from '@/assets/headers/ShareIcon.svg';
 import FilterContainer from '@/components/homes/FilterContainer';
 import Footer from '@/components/homes/Footer';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
-import SearchModal from '@/components/homes/SearchModal';
 import SubHeader from '@/components/homes/SubHeader';
 import MelpikGuideBanner from '@/components/melpik-guide-banner';
 import ErrorMessage from '@/components/shared/ErrorMessage';
+import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import FilterModal from '@/components/shared/modals/FilterModal';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
@@ -65,59 +64,6 @@ const sizeMap: Record<string, string[]> = {
   '66(L)': ['66'],
   '77(XL)': ['77'],
 };
-
-// Chip 스타일 컴포넌트
-const ChipList = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-grow: 1;
-  flex-wrap: wrap;
-  /* 줄바꿈 시 Chip 간격 조정 */
-  row-gap: 8px;
-  max-width: 100vw;
-  /* 모바일에서 Chip이 많아질 때 가로 스크롤 */
-  overflow-x: auto;
-  white-space: nowrap;
-  /* 스크롤바 숨기기 (웹킷 브라우저) */
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-const Chip = styled.div`
-  display: flex;
-  align-items: center;
-  background: #f6f6f6;
-  border-radius: 16px;
-  padding: 0 10px;
-  font-size: 13px;
-  color: #333;
-  height: 28px;
-  font-weight: 600;
-  border: 1px solid #e0e0e0;
-`;
-const ChipClose = styled.button`
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 16px;
-  margin-left: 4px;
-  cursor: pointer;
-  padding: 0;
-`;
-
-// 메모이제이션된 Chip 컴포넌트
-const MemoizedChip = memo<{
-  label: string;
-  onRemove: () => void;
-}>(({ label, onRemove }) => (
-  <Chip>
-    {label}
-    <ChipClose onClick={onRemove}>&times;</ChipClose>
-  </Chip>
-));
-
-MemoizedChip.displayName = 'MemoizedChip';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -430,8 +376,7 @@ const Home: React.FC = () => {
 
   const visibleItems = uiItems.slice(0, visibleCount);
 
-  // 검색/필터 결과 없음일 때 3초 후 전체로 돌아가는 타이머
-  const [countdown, setCountdown] = useState(3);
+  // 검색/필터 결과 없음일 때 문구만 표시
   const [showNoResult, setShowNoResult] = useState(false);
 
   // 검색 결과 없음 감지
@@ -445,34 +390,11 @@ const Home: React.FC = () => {
       timer = setTimeout(() => setShowNoResult(true), 300);
     } else {
       setShowNoResult(false);
-      setCountdown(3);
     }
     return () => {
       if (timer) clearTimeout(timer);
     };
   }, [isLoading, uiItems.length, searchQuery, selectedColors, selectedSizes]);
-
-  // 카운트다운 및 초기화
-  useEffect(() => {
-    if (!showNoResult) return;
-
-    if (countdown === 0) {
-      setSearchQuery('');
-      setSelectedColors([]);
-      setSelectedSizes([]);
-      setSelectedCategory('All');
-      setSearchParams({ category: 'All' }, { replace: true });
-      setShowNoResult(false);
-      setCountdown(3);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [showNoResult, countdown, setSearchParams]);
 
   // 에러 처리
   if (isError) {
@@ -495,74 +417,9 @@ const Home: React.FC = () => {
           onCategoryClick={() => setSearchQuery('')}
         />
         <ControlsContainer>
-          <ChipList>
-            {searchQuery.trim() &&
-              searchQuery.split(',').map((kw, idx) => (
-                <Chip key={kw + idx}>
-                  {kw.trim()}
-                  <ChipClose
-                    aria-label='검색어 삭제'
-                    onClick={() => {
-                      const terms = searchQuery
-                        .split(',')
-                        .map((t) => t.trim())
-                        .filter(Boolean);
-                      const newTerms = terms.filter((_, i) => i !== idx);
-                      setSearchQuery(newTerms.join(', '));
-                      setSearchParams(
-                        (prev) => {
-                          const params = Object.fromEntries(prev.entries());
-                          if (newTerms.length > 0) {
-                            params.search = newTerms.join(', ');
-                          } else {
-                            delete params.search;
-                          }
-                          return params;
-                        },
-                        { replace: true }
-                      );
-                    }}
-                  >
-                    ×
-                  </ChipClose>
-                </Chip>
-              ))}
-            {selectedColors.map((color, idx) => (
-              <Chip key={color + idx}>
-                {color}
-                <ChipClose
-                  aria-label='색상 삭제'
-                  onClick={() => {
-                    const newColors = selectedColors.filter(
-                      (_, i) => i !== idx
-                    );
-                    setSelectedColors(newColors);
-                  }}
-                >
-                  ×
-                </ChipClose>
-              </Chip>
-            ))}
-          </ChipList>
-          <RowAlignBox>
-            <FilterContainer
-              onSearchClick={() => setSearchModalOpen(true)}
-              onFilterClick={() => setFilterModalOpen(true)}
-            />
-          </RowAlignBox>
-          <SearchModal
-            isOpen={isSearchModalOpen}
-            onClose={() => setSearchModalOpen(false)}
-            onSearch={(searchTerm) => {
-              setSearchQuery(searchTerm);
-              setSelectedCategory('All');
-              setSearchParams(
-                { category: 'All', search: searchTerm },
-                { replace: true }
-              );
-            }}
-            historyKey='searchHistory'
-            initialValue={searchQuery}
+          <FilterContainer
+            onSearchClick={() => setSearchModalOpen(true)}
+            onFilterClick={() => setFilterModalOpen(true)}
           />
         </ControlsContainer>
         <ContentWrapper>
@@ -588,82 +445,13 @@ const Home: React.FC = () => {
           onCategoryClick={() => setSearchQuery('')}
         />
         <ControlsContainer>
-          <ChipList>
-            {searchQuery.trim() &&
-              searchQuery.split(',').map((kw, idx) => (
-                <Chip key={kw + idx}>
-                  {kw.trim()}
-                  <ChipClose
-                    aria-label='검색어 삭제'
-                    onClick={() => {
-                      const terms = searchQuery
-                        .split(',')
-                        .map((t) => t.trim())
-                        .filter(Boolean);
-                      const newTerms = terms.filter((_, i) => i !== idx);
-                      setSearchQuery(newTerms.join(', '));
-                      setSearchParams(
-                        (prev) => {
-                          const params = Object.fromEntries(prev.entries());
-                          if (newTerms.length > 0) {
-                            params.search = newTerms.join(', ');
-                          } else {
-                            delete params.search;
-                          }
-                          return params;
-                        },
-                        { replace: true }
-                      );
-                    }}
-                  >
-                    ×
-                  </ChipClose>
-                </Chip>
-              ))}
-            {selectedColors.map((color, idx) => (
-              <Chip key={color + idx}>
-                {color}
-                <ChipClose
-                  aria-label='색상 삭제'
-                  onClick={() => {
-                    const newColors = selectedColors.filter(
-                      (_, i) => i !== idx
-                    );
-                    setSelectedColors(newColors);
-                  }}
-                >
-                  ×
-                </ChipClose>
-              </Chip>
-            ))}
-          </ChipList>
-          <RowAlignBox>
-            <FilterContainer
-              onSearchClick={() => setSearchModalOpen(true)}
-              onFilterClick={() => setFilterModalOpen(true)}
-            />
-          </RowAlignBox>
-          <SearchModal
-            isOpen={isSearchModalOpen}
-            onClose={() => setSearchModalOpen(false)}
-            onSearch={(searchTerm) => {
-              setSearchQuery(searchTerm);
-              setSelectedCategory('All');
-              setSearchParams(
-                { category: 'All', search: searchTerm },
-                { replace: true }
-              );
-            }}
-            historyKey='searchHistory'
-            initialValue={searchQuery}
+          <FilterContainer
+            onSearchClick={() => setSearchModalOpen(true)}
+            onFilterClick={() => setFilterModalOpen(true)}
           />
         </ControlsContainer>
         <ContentWrapper>
-          <NoResultMessage>
-            조건에 맞는 상품이 없습니다.
-            <br />
-            {countdown}초 후 전체 상품으로 돌아갑니다.
-          </NoResultMessage>
+          <NoResultMessage>조건에 맞는 상품이 없습니다.</NoResultMessage>
         </ContentWrapper>
         <Footer />
         <ScrollToTopButton onClick={scrollToTop}>
@@ -731,97 +519,46 @@ const Home: React.FC = () => {
       />
 
       {/* 필터 및 열 선택 */}
-      <ControlsContainer>
-        {/* 필터/검색 Chip 리스트 */}
-        <ChipList>
-          {/* 검색어 Chip */}
-          {searchQuery.trim() &&
-            searchQuery.split(',').map((kw, idx) => (
-              <Chip key={kw + idx}>
-                {kw.trim()}
-                <ChipClose
-                  aria-label='검색어 삭제'
-                  onClick={() => {
-                    // 해당 검색어만 제거
-                    const terms = searchQuery
-                      .split(',')
-                      .map((t) => t.trim())
-                      .filter(Boolean);
-                    const newTerms = terms.filter((_, i) => i !== idx);
-                    setSearchQuery(newTerms.join(', '));
-                    // URL 동기화
-                    setSearchParams(
-                      (prev) => {
-                        const params = Object.fromEntries(prev.entries());
-                        if (newTerms.length > 0) {
-                          params.search = newTerms.join(', ');
-                        } else {
-                          delete params.search;
-                        }
-                        return params;
-                      },
-                      { replace: true }
-                    );
-                  }}
-                >
-                  ×
-                </ChipClose>
-              </Chip>
-            ))}
-          {/* 색상 Chip (필터 모달 선택) */}
-          {selectedColors.map((color, idx) => (
-            <Chip key={color + idx}>
-              {color}
-              <ChipClose
-                aria-label='색상 삭제'
-                onClick={() => {
-                  const newColors = selectedColors.filter((_, i) => i !== idx);
-                  setSelectedColors(newColors);
-                }}
-              >
-                ×
-              </ChipClose>
-            </Chip>
-          ))}
-          {/* 사이즈 Chip (필터 모달 선택) */}
-          {selectedSizes.map((size, idx) => (
-            <Chip key={size + idx}>
-              {size}
-              <ChipClose
-                aria-label='사이즈 삭제'
-                onClick={() => {
-                  const newSizes = selectedSizes.filter((_, i) => i !== idx);
-                  setSelectedSizes(newSizes);
-                }}
-              >
-                ×
-              </ChipClose>
-            </Chip>
-          ))}
-        </ChipList>
-        <RowAlignBox>
-          {/* 검색 및 필터 아이콘 */}
-          <FilterContainer
-            onSearchClick={() => setSearchModalOpen(true)}
-            onFilterClick={() => setFilterModalOpen(true)}
-          />
-        </RowAlignBox>
-        {/* 검색 모달 */}
-        <SearchModal
-          isOpen={isSearchModalOpen}
-          onClose={() => setSearchModalOpen(false)}
-          onSearch={(searchTerm) => {
-            setSearchQuery(searchTerm);
-            setSelectedCategory('All');
-            setSearchParams(
-              { category: 'All', search: searchTerm },
-              { replace: true }
-            );
-          }}
-          historyKey='searchHistory'
-          initialValue={searchQuery}
-        />
-      </ControlsContainer>
+      <FilterChipContainer
+        searchQuery={searchQuery}
+        onSearchQueryChange={(query) => {
+          setSearchQuery(query);
+          // URL 동기화
+          setSearchParams(
+            (prev) => {
+              const params = Object.fromEntries(prev.entries());
+              if (query.trim()) {
+                params.search = query;
+              } else {
+                delete params.search;
+              }
+              return params;
+            },
+            { replace: true }
+          );
+        }}
+        onSearchSubmit={(searchTerm) => {
+          setSearchQuery(searchTerm);
+          setSelectedCategory('All');
+          setSearchParams(
+            { category: 'All', search: searchTerm },
+            { replace: true }
+          );
+        }}
+        selectedColors={selectedColors}
+        selectedSizes={selectedSizes}
+        onColorsChange={setSelectedColors}
+        onSizesChange={setSelectedSizes}
+        isSearchModalOpen={isSearchModalOpen}
+        isFilterModalOpen={isFilterModalOpen}
+        onSearchModalToggle={setSearchModalOpen}
+        onFilterModalToggle={setFilterModalOpen}
+        tempSelectedColors={tempSelectedColors}
+        tempSelectedSizes={tempSelectedSizes}
+        onTempColorsChange={setTempSelectedColors}
+        onTempSizesChange={setTempSelectedSizes}
+        historyKey='searchHistory'
+      />
 
       {/* 제품 리스트 or 로딩 스피너 */}
       <ContentWrapper>
@@ -1017,15 +754,6 @@ const InfoList = styled.ol`
   & li {
     margin-bottom: 8px;
   }
-`;
-
-// row 정렬을 위한 래퍼
-const RowAlignBox = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  /* margin-top: 20px; 삭제하여 위로 치우치지 않게 함 */
 `;
 
 // 안내 문구 스타일

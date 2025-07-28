@@ -17,13 +17,11 @@ import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
 import HomeIcon from '@/assets/headers/HomeIcon.svg';
 import ShareIcon from '@/assets/headers/ShareIcon.svg';
 import StatsSection from '@/components/brands/StatsSection';
-import FilterContainer from '@/components/homes/FilterContainer';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
-import SearchModal from '@/components/homes/SearchModal';
 import SubHeader from '@/components/homes/SubHeader';
 import ErrorMessage from '@/components/shared/ErrorMessage';
+import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
-import FilterModal from '@/components/shared/modals/FilterModal';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
 interface LocalBrand {
@@ -336,34 +334,6 @@ const BrandDetail: React.FC = () => {
   const [tempSelectedSizes, setTempSelectedSizes] = useState<string[]>([]);
 
   // 필터/검색 chip 삭제 핸들러
-  const handleDeleteChip = (type: 'search' | 'color' | 'size', idx: number) => {
-    if (type === 'search') {
-      const terms = searchQuery
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
-      const newTerms = terms.filter((_, i) => i !== idx);
-      setSearchQuery(newTerms.join(', '));
-      setSearchParams(
-        (prev) => {
-          const params = new URLSearchParams(prev);
-          if (newTerms.length > 0) {
-            params.set('search', newTerms.join(', '));
-          } else {
-            params.delete('search');
-          }
-          return params;
-        },
-        { replace: true }
-      );
-    } else if (type === 'color') {
-      setSelectedColors(selectedColors.filter((_, i) => i !== idx));
-    } else if (type === 'size') {
-      setSelectedSizes(selectedSizes.filter((_, i) => i !== idx));
-    }
-  };
-
-  // 필터 모달이 열릴 때 임시 상태 동기화
   useEffect(() => {
     if (isFilterModalOpen) {
       setTempSelectedColors(selectedColors);
@@ -382,33 +352,8 @@ const BrandDetail: React.FC = () => {
     isLiked: false,
   }));
 
-  // 아이템이 없을 때 3초 후 전체(All)로 자동 복귀 (검색어도 초기화)
-  useEffect(() => {
-    if (
-      filteredProducts.length === 0 &&
-      (selectedCategory !== 'All' || searchTerm)
-    ) {
-      const timer = setTimeout(() => {
-        setSelectedCategory('All');
-        const params = new URLSearchParams(searchParams);
-        params.set('category', 'All');
-        params.delete('search');
-        setSearchParams(params, { replace: true });
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [
-    filteredProducts,
-    selectedCategory,
-    searchTerm,
-    setSelectedCategory,
-    setSearchParams,
-    searchParams,
-  ]);
-
   // 안내 문구 딜레이 상태
   const [showNoResult, setShowNoResult] = useState(false);
-  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
@@ -416,35 +361,12 @@ const BrandDetail: React.FC = () => {
       timer = setTimeout(() => setShowNoResult(true), 300);
     } else {
       setShowNoResult(false);
-      setCountdown(3);
       if (timer) clearTimeout(timer);
     }
     return () => {
       if (timer) clearTimeout(timer);
     };
   }, [loadingProducts, filteredProducts]);
-
-  // 카운트다운 효과
-  useEffect(() => {
-    if (!showNoResult) return;
-
-    if (countdown === 0) {
-      setSelectedCategory('All');
-      const params = new URLSearchParams(searchParams);
-      params.delete('search');
-      params.delete('category');
-      setSearchParams(params, { replace: true });
-      setShowNoResult(false);
-      setCountdown(3);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [showNoResult, countdown, setSearchParams, searchParams]);
 
   if (errorProducts) {
     return <ErrorMessage message={errorProducts} />;
@@ -472,44 +394,31 @@ const BrandDetail: React.FC = () => {
             }}
             onCategoryClick={scrollToTop}
           />
-          <ControlsContainer>
-            <RowAlignBox>
-              <FilterContainer
-                onSearchClick={() => setSearchModalOpen(true)}
-                onFilterClick={() => setFilterModalOpen(true)}
-              />
-            </RowAlignBox>
-            <SearchModal
-              isOpen={isSearchModalOpen}
-              onClose={() => setSearchModalOpen(false)}
-              onSearch={(searchTerm) => {
-                setSearchParams(
-                  { category: 'All', search: searchTerm },
-                  { replace: true }
-                );
-                setSelectedCategory('All');
-              }}
-              historyKey='brandSearchHistory'
-              initialValue={searchTerm}
-            />
-            {/* 필터 모달 */}
-            <FilterModal
-              isOpen={isFilterModalOpen}
-              onClose={() => setFilterModalOpen(false)}
-              onColorSelect={(colors) => {
-                setSelectedColors(colors);
-                setFilterModalOpen(false);
-              }}
-              onSizeSelect={(sizes) => {
-                setSelectedSizes(sizes);
-                setFilterModalOpen(false);
-              }}
-              selectedColors={tempSelectedColors}
-              setSelectedColors={setTempSelectedColors}
-              selectedSizes={tempSelectedSizes}
-              setSelectedSizes={setTempSelectedSizes}
-            />
-          </ControlsContainer>
+          <FilterChipContainer
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onSearchSubmit={(searchTerm) => {
+              setSearchQuery(searchTerm);
+              setSelectedCategory('All');
+              setSearchParams(
+                { category: 'All', search: searchTerm },
+                { replace: true }
+              );
+            }}
+            selectedColors={selectedColors}
+            selectedSizes={selectedSizes}
+            onColorsChange={setSelectedColors}
+            onSizesChange={setSelectedSizes}
+            isSearchModalOpen={isSearchModalOpen}
+            isFilterModalOpen={isFilterModalOpen}
+            onSearchModalToggle={setSearchModalOpen}
+            onFilterModalToggle={setFilterModalOpen}
+            tempSelectedColors={tempSelectedColors}
+            tempSelectedSizes={tempSelectedSizes}
+            onTempColorsChange={setTempSelectedColors}
+            onTempSizesChange={setTempSelectedSizes}
+            historyKey='brandSearchHistory'
+          />
           <MainContent>
             <ItemList items={[]} columns={viewCols} isLoading={true} />
           </MainContent>
@@ -543,44 +452,31 @@ const BrandDetail: React.FC = () => {
             }}
             onCategoryClick={scrollToTop}
           />
-          <ControlsContainer>
-            <RowAlignBox>
-              <FilterContainer
-                onSearchClick={() => setSearchModalOpen(true)}
-                onFilterClick={() => setFilterModalOpen(true)}
-              />
-            </RowAlignBox>
-            <SearchModal
-              isOpen={isSearchModalOpen}
-              onClose={() => setSearchModalOpen(false)}
-              onSearch={(searchTerm) => {
-                setSearchParams(
-                  { category: 'All', search: searchTerm },
-                  { replace: true }
-                );
-                setSelectedCategory('All');
-              }}
-              historyKey='brandSearchHistory'
-              initialValue={searchTerm}
-            />
-            {/* 필터 모달 */}
-            <FilterModal
-              isOpen={isFilterModalOpen}
-              onClose={() => setFilterModalOpen(false)}
-              onColorSelect={(colors) => {
-                setSelectedColors(colors);
-                setFilterModalOpen(false);
-              }}
-              onSizeSelect={(sizes) => {
-                setSelectedSizes(sizes);
-                setFilterModalOpen(false);
-              }}
-              selectedColors={tempSelectedColors}
-              setSelectedColors={setTempSelectedColors}
-              selectedSizes={tempSelectedSizes}
-              setSelectedSizes={setTempSelectedSizes}
-            />
-          </ControlsContainer>
+          <FilterChipContainer
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onSearchSubmit={(searchTerm) => {
+              setSearchQuery(searchTerm);
+              setSelectedCategory('All');
+              setSearchParams(
+                { category: 'All', search: searchTerm },
+                { replace: true }
+              );
+            }}
+            selectedColors={selectedColors}
+            selectedSizes={selectedSizes}
+            onColorsChange={setSelectedColors}
+            onSizesChange={setSelectedSizes}
+            isSearchModalOpen={isSearchModalOpen}
+            isFilterModalOpen={isFilterModalOpen}
+            onSearchModalToggle={setSearchModalOpen}
+            onFilterModalToggle={setFilterModalOpen}
+            tempSelectedColors={tempSelectedColors}
+            tempSelectedSizes={tempSelectedSizes}
+            onTempColorsChange={setTempSelectedColors}
+            onTempSizesChange={setTempSelectedSizes}
+            historyKey='brandSearchHistory'
+          />
           <MainContent>
             <ItemList items={[]} columns={viewCols} isLoading={true} />
           </MainContent>
@@ -614,50 +510,33 @@ const BrandDetail: React.FC = () => {
             }}
             onCategoryClick={scrollToTop}
           />
-          <ControlsContainer>
-            <RowAlignBox>
-              <FilterContainer
-                onSearchClick={() => setSearchModalOpen(true)}
-                onFilterClick={() => setFilterModalOpen(true)}
-              />
-            </RowAlignBox>
-            <SearchModal
-              isOpen={isSearchModalOpen}
-              onClose={() => setSearchModalOpen(false)}
-              onSearch={(searchTerm) => {
-                setSearchParams(
-                  { category: 'All', search: searchTerm },
-                  { replace: true }
-                );
-                setSelectedCategory('All');
-              }}
-              historyKey='brandSearchHistory'
-              initialValue={searchTerm}
-            />
-            {/* 필터 모달 */}
-            <FilterModal
-              isOpen={isFilterModalOpen}
-              onClose={() => setFilterModalOpen(false)}
-              onColorSelect={(colors) => {
-                setSelectedColors(colors);
-                setFilterModalOpen(false);
-              }}
-              onSizeSelect={(sizes) => {
-                setSelectedSizes(sizes);
-                setFilterModalOpen(false);
-              }}
-              selectedColors={tempSelectedColors}
-              setSelectedColors={setTempSelectedColors}
-              selectedSizes={tempSelectedSizes}
-              setSelectedSizes={setTempSelectedSizes}
-            />
-          </ControlsContainer>
+          <FilterChipContainer
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onSearchSubmit={(searchTerm) => {
+              setSearchQuery(searchTerm);
+              setSelectedCategory('All');
+              setSearchParams(
+                { category: 'All', search: searchTerm },
+                { replace: true }
+              );
+            }}
+            selectedColors={selectedColors}
+            selectedSizes={selectedSizes}
+            onColorsChange={setSelectedColors}
+            onSizesChange={setSelectedSizes}
+            isSearchModalOpen={isSearchModalOpen}
+            isFilterModalOpen={isFilterModalOpen}
+            onSearchModalToggle={setSearchModalOpen}
+            onFilterModalToggle={setFilterModalOpen}
+            tempSelectedColors={tempSelectedColors}
+            tempSelectedSizes={tempSelectedSizes}
+            onTempColorsChange={setTempSelectedColors}
+            onTempSizesChange={setTempSelectedSizes}
+            historyKey='brandSearchHistory'
+          />
           <ContentWrapper>
-            <NoResultMessage>
-              조건에 맞는 상품이 없습니다.
-              <br />
-              {countdown}초 후 전체 상품으로 돌아갑니다.
-            </NoResultMessage>
+            <NoResultMessage>조건에 맞는 상품이 없습니다.</NoResultMessage>
           </ContentWrapper>
           <ScrollToTopButton onClick={scrollToTop}>
             <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
@@ -695,56 +574,10 @@ const BrandDetail: React.FC = () => {
           {/* 필터 및 검색 아이콘 */}
           <ControlsContainer>
             {/* Chip 리스트 */}
-            <ChipList>
-              {/* 검색어 Chip */}
-              {searchQuery.trim() &&
-                searchQuery.split(',').map((kw, idx) => (
-                  <Chip key={kw + idx}>
-                    {kw.trim()}
-                    <ChipClose
-                      aria-label='검색어 삭제'
-                      onClick={() => handleDeleteChip('search', idx)}
-                    >
-                      ×
-                    </ChipClose>
-                  </Chip>
-                ))}
-              {/* 색상 Chip */}
-              {selectedColors.map((color, idx) => (
-                <Chip key={color + idx}>
-                  {color}
-                  <ChipClose
-                    aria-label='색상 삭제'
-                    onClick={() => handleDeleteChip('color', idx)}
-                  >
-                    ×
-                  </ChipClose>
-                </Chip>
-              ))}
-              {/* 사이즈 Chip */}
-              {selectedSizes.map((size, idx) => (
-                <Chip key={size + idx}>
-                  {size}
-                  <ChipClose
-                    aria-label='사이즈 삭제'
-                    onClick={() => handleDeleteChip('size', idx)}
-                  >
-                    ×
-                  </ChipClose>
-                </Chip>
-              ))}
-            </ChipList>
-            <RowAlignBox>
-              <FilterContainer
-                onSearchClick={() => setSearchModalOpen(true)}
-                onFilterClick={() => setFilterModalOpen(true)}
-              />
-            </RowAlignBox>
-            {/* 검색 모달 */}
-            <SearchModal
-              isOpen={isSearchModalOpen}
-              onClose={() => setSearchModalOpen(false)}
-              onSearch={(searchTerm) => {
+            <FilterChipContainer
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              onSearchSubmit={(searchTerm) => {
                 setSearchQuery(searchTerm);
                 setSelectedCategory('All');
                 setSearchParams(
@@ -752,25 +585,19 @@ const BrandDetail: React.FC = () => {
                   { replace: true }
                 );
               }}
+              selectedColors={selectedColors}
+              selectedSizes={selectedSizes}
+              onColorsChange={setSelectedColors}
+              onSizesChange={setSelectedSizes}
+              isSearchModalOpen={isSearchModalOpen}
+              isFilterModalOpen={isFilterModalOpen}
+              onSearchModalToggle={setSearchModalOpen}
+              onFilterModalToggle={setFilterModalOpen}
+              tempSelectedColors={tempSelectedColors}
+              tempSelectedSizes={tempSelectedSizes}
+              onTempColorsChange={setTempSelectedColors}
+              onTempSizesChange={setTempSelectedSizes}
               historyKey='brandSearchHistory'
-              initialValue={searchQuery}
-            />
-            {/* 필터 모달 */}
-            <FilterModal
-              isOpen={isFilterModalOpen}
-              onClose={() => setFilterModalOpen(false)}
-              onColorSelect={(colors) => {
-                setSelectedColors(colors);
-                setFilterModalOpen(false);
-              }}
-              onSizeSelect={(sizes) => {
-                setSelectedSizes(sizes);
-                setFilterModalOpen(false);
-              }}
-              selectedColors={tempSelectedColors}
-              setSelectedColors={setTempSelectedColors}
-              selectedSizes={tempSelectedSizes}
-              setSelectedSizes={setTempSelectedSizes}
             />
           </ControlsContainer>
 
@@ -861,11 +688,8 @@ const Divider = styled.div`
 
 const ControlsContainer = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin: 12px 0;
-  position: relative;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 const ScrollToTopButton = styled.button`
@@ -957,15 +781,6 @@ const Icon = styled.img`
   cursor: pointer;
 `;
 
-// styled-components: Home.tsx에서 검색 관련 컴포넌트 복사
-const RowAlignBox = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-`;
-
 // styled-components: Home.tsx에서 ContentWrapper, NoResultText, CountdownText 복사 (파일 하단에 위치)
 const PageWrapper = styled.div`
   display: flex;
@@ -1004,40 +819,4 @@ const NoResultMessage = styled.div`
   justify-content: center;
   background: #fff;
   border-radius: 12px;
-`;
-
-const ChipList = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-grow: 1;
-  flex-wrap: wrap;
-  row-gap: 8px;
-  max-width: 100vw;
-  overflow-x: auto;
-  white-space: nowrap;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-const Chip = styled.div`
-  display: flex;
-  align-items: center;
-  background: #f6f6f6;
-  border-radius: 16px;
-  padding: 0 10px;
-  font-size: 13px;
-  color: #333;
-  height: 28px;
-  font-weight: 600;
-  border: 1px solid #e0e0e0;
-`;
-const ChipClose = styled.button`
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 16px;
-  margin-left: 4px;
-  cursor: pointer;
-  padding: 0;
 `;
