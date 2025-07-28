@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import InstagramIconImg from '@/assets/personal-links/InstagramIcon.svg';
 import LinkArrowIcon from '@/assets/personal-links/LinkArrowIcon.svg';
+import LinkLabelIcon from '@/assets/personal-links/LinkLabelIcon.svg';
 import personalLinkAlramIcon from '@/assets/personal-links/personalLinkAlramIcon.svg';
 import PersonalLinkBackground from '@/assets/personal-links/PersonalLinkbackground.jpg';
 import personalLinkProfileIcon from '@/assets/personal-links/personalLinkProfileIcon.svg';
@@ -188,7 +189,23 @@ const PersonalLink: React.FC = () => {
         {activeTab === 'personalLink' && (
           <LinkList>
             <LinkRow>
-              <LinkLabel>LINK 01</LinkLabel>
+              <LinkLabel>
+                <img
+                  src={LinkLabelIcon}
+                  alt='LINK 01'
+                  style={{ width: '100%', height: '100%' }}
+                />
+                <span
+                  style={{
+                    position: 'absolute',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                  }}
+                >
+                  LINK 01
+                </span>
+              </LinkLabel>
               <LinkTextBox>
                 <LinkTitle>업무 및 비지니스 제휴 문의</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
@@ -196,7 +213,23 @@ const PersonalLink: React.FC = () => {
               <LinkArrow src={LinkArrowIcon} alt='arrow' />
             </LinkRow>
             <LinkRow>
-              <LinkLabel>LINK 02</LinkLabel>
+              <LinkLabel>
+                <img
+                  src={LinkLabelIcon}
+                  alt='LINK 02'
+                  style={{ width: '100%', height: '100%' }}
+                />
+                <span
+                  style={{
+                    position: 'absolute',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                  }}
+                >
+                  LINK 02
+                </span>
+              </LinkLabel>
               <LinkTextBox>
                 <LinkTitle>PMC - 대회 홈페이지 안내</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
@@ -204,7 +237,23 @@ const PersonalLink: React.FC = () => {
               <LinkArrow src={LinkArrowIcon} alt='arrow' />
             </LinkRow>
             <LinkRow>
-              <LinkLabel>LINK 03</LinkLabel>
+              <LinkLabel>
+                <img
+                  src={LinkLabelIcon}
+                  alt='LINK 03'
+                  style={{ width: '100%', height: '100%' }}
+                />
+                <span
+                  style={{
+                    position: 'absolute',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                  }}
+                >
+                  LINK 03
+                </span>
+              </LinkLabel>
               <LinkTextBox>
                 <LinkTitle>업무 및 비지니스 제휴 문의</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
@@ -212,7 +261,23 @@ const PersonalLink: React.FC = () => {
               <LinkArrow src={LinkArrowIcon} alt='arrow' />
             </LinkRow>
             <LinkRow>
-              <LinkLabel>LINK 04</LinkLabel>
+              <LinkLabel>
+                <img
+                  src={LinkLabelIcon}
+                  alt='LINK 04'
+                  style={{ width: '100%', height: '100%' }}
+                />
+                <span
+                  style={{
+                    position: 'absolute',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                  }}
+                >
+                  LINK 04
+                </span>
+              </LinkLabel>
               <LinkTextBox>
                 <LinkTitle>PMC - 대회 홈페이지 안내</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
@@ -402,17 +467,16 @@ const LinkRow = styled.div`
 const LinkLabel = styled.div`
   min-width: 64px;
   height: 25px;
-  background: #000;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 12px;
-  line-height: 12px;
-  border-radius: 5px 0 0 5px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 16px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
 `;
 const LinkTextBox = styled.div`
   flex: 1;
@@ -617,7 +681,6 @@ const CardTextArea = styled.div`
 
 const BrandText = styled.h3`
   margin: 0 0 2px 0;
-
   font-weight: 900;
   font-size: 10px;
   line-height: 11px;
@@ -630,7 +693,6 @@ const BrandText = styled.h3`
 
 const DescriptionText = styled.p`
   margin: 0 0 4px 0;
-
   font-size: 12px;
   color: #999;
   font-weight: 700;
