@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
+import fiArrowRight from '@/assets/personal-links/fiArrowRight.svg';
 import InstagramIconImg from '@/assets/personal-links/InstagramIcon.svg';
-import LinkArrowIcon from '@/assets/personal-links/LinkArrowIcon.svg';
 import LinkLabelIcon from '@/assets/personal-links/LinkLabelIcon.svg';
 import personalLinkAlramIcon from '@/assets/personal-links/personalLinkAlramIcon.svg';
 import PersonalLinkBackground from '@/assets/personal-links/PersonalLinkbackground.jpg';
@@ -210,7 +210,9 @@ const PersonalLink: React.FC = () => {
                 <LinkTitle>업무 및 비지니스 제휴 문의</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
               </LinkTextBox>
-              <LinkArrow src={LinkArrowIcon} alt='arrow' />
+              <LinkArrow>
+                <img src={fiArrowRight} alt='arrow' />
+              </LinkArrow>
             </LinkRow>
             <LinkRow>
               <LinkLabel>
@@ -234,7 +236,9 @@ const PersonalLink: React.FC = () => {
                 <LinkTitle>PMC - 대회 홈페이지 안내</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
               </LinkTextBox>
-              <LinkArrow src={LinkArrowIcon} alt='arrow' />
+              <LinkArrow>
+                <img src={fiArrowRight} alt='arrow' />
+              </LinkArrow>
             </LinkRow>
             <LinkRow>
               <LinkLabel>
@@ -258,7 +262,9 @@ const PersonalLink: React.FC = () => {
                 <LinkTitle>업무 및 비지니스 제휴 문의</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
               </LinkTextBox>
-              <LinkArrow src={LinkArrowIcon} alt='arrow' />
+              <LinkArrow>
+                <img src={fiArrowRight} alt='arrow' />
+              </LinkArrow>
             </LinkRow>
             <LinkRow>
               <LinkLabel>
@@ -282,7 +288,9 @@ const PersonalLink: React.FC = () => {
                 <LinkTitle>PMC - 대회 홈페이지 안내</LinkTitle>
                 <LinkDesc>form.naver.com/respon..</LinkDesc>
               </LinkTextBox>
-              <LinkArrow src={LinkArrowIcon} alt='arrow' />
+              <LinkArrow>
+                <img src={fiArrowRight} alt='arrow' />
+              </LinkArrow>
             </LinkRow>
           </LinkList>
         )}
@@ -458,6 +466,7 @@ const LinkList = styled.div`
 `;
 const LinkRow = styled.div`
   width: 100%;
+  margin: 0 auto;
   min-height: 56px;
   display: flex;
   align-items: center;
@@ -497,10 +506,14 @@ const LinkDesc = styled.div`
   line-height: 13px;
   color: #999;
 `;
-const LinkArrow = styled.img`
-  width: 20px;
-  height: 20px;
+const LinkArrow = styled.div`
+  width: 40px;
+  height: 40px;
   margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
 `;
 const BottomIcons = styled.div`
   width: 100%;
