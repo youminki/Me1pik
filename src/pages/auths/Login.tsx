@@ -323,6 +323,34 @@ const Login: React.FC = () => {
       }
 
       const membership: MembershipInfo = await getMembershipInfo();
+
+      // 네이티브 앱 환경이면 브릿지로 로그인 정보 전달
+      const win = window as unknown as {
+        webkit?: {
+          messageHandlers?: {
+            saveLoginInfo?: {
+              postMessage: (msg: Record<string, unknown>) => void;
+            };
+          };
+        };
+      };
+      if (
+        typeof window !== 'undefined' &&
+        win.webkit &&
+        win.webkit.messageHandlers &&
+        win.webkit.messageHandlers.saveLoginInfo
+      ) {
+        win.webkit.messageHandlers.saveLoginInfo.postMessage({
+          loginData: {
+            name: membership.name,
+            // 필요시 email, id 등 추가
+            token: accessToken,
+            refreshToken: refreshToken,
+            // expiresAt: (만료일 필요시 추가)
+          },
+        });
+      }
+
       const redirectTo = location.state?.from || '/home';
       navigate(redirectTo, {
         replace: true,
