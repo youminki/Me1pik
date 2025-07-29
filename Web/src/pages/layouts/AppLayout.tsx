@@ -1,5 +1,5 @@
 // src/layouts/AppLayout.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -7,7 +7,12 @@ import BottomNav from '@/components/bottom-navigation';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import useHeaderConfig from '@/hooks/useHeaderConfig';
 import { hideScrollbar } from '@/styles/CommonStyles';
-import { isNativeApp } from '@/utils/nativeApp';
+import {
+  isNativeApp,
+  isAndroidApp,
+  setupStatusBarHeightListener,
+  getStatusBarHeight,
+} from '@/utils/nativeApp';
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -20,6 +25,32 @@ const AppLayout: React.FC = () => {
     includeBottomNav,
     headerTitle,
   } = useHeaderConfig(location.pathname);
+
+  // 앱 초기화 시 상태바 높이 설정
+  useEffect(() => {
+    if (isNativeApp()) {
+      // 상태바 높이 리스너 설정
+      setupStatusBarHeightListener();
+
+      // 초기 상태바 높이 설정
+      const initialHeight = getStatusBarHeight();
+      if (initialHeight > 0) {
+        document.documentElement.style.setProperty(
+          '--status-bar-height',
+          `${initialHeight}px`
+        );
+      }
+
+      // 안드로이드 앱의 경우 기본값 설정
+      if (isAndroidApp()) {
+        const defaultHeight = 24; // 안드로이드 기본 상태바 높이
+        document.documentElement.style.setProperty(
+          '--status-bar-height',
+          `${defaultHeight}px`
+        );
+      }
+    }
+  }, []);
 
   // BottomNav 표시 대상 경로
   const bottomNavPaths = [
@@ -70,7 +101,17 @@ const AppContainer = styled.div`
 
 const FixedHeader = styled(UnifiedHeader)`
   position: fixed;
-  top: ${() => (isNativeApp() ? 'var(--status-bar-height, 0px)' : '0')};
+  top: ${() => {
+    if (isNativeApp()) {
+      // 안드로이드 앱의 경우 더 정확한 상태바 높이 적용
+      if (isAndroidApp()) {
+        return 'var(--status-bar-height, 24px)';
+      }
+      // iOS 앱의 경우
+      return 'var(--status-bar-height, 0px)';
+    }
+    return '0';
+  }};
   left: 0;
   width: 100%;
   z-index: 1000;
@@ -83,8 +124,17 @@ const ContentContainer = styled.div`
   background: #fff;
   padding: 1rem;
   margin: auto;
-  padding-top: ${() =>
-    isNativeApp() ? 'calc(70px + var(--status-bar-height, 0px))' : '70px'};
+  padding-top: ${() => {
+    if (isNativeApp()) {
+      // 안드로이드 앱의 경우 더 정확한 패딩 계산
+      if (isAndroidApp()) {
+        return 'calc(70px + var(--status-bar-height, 24px))';
+      }
+      // iOS 앱의 경우
+      return 'calc(70px + var(--status-bar-height, 0px))';
+    }
+    return '70px';
+  }};
 
   ${hideScrollbar}
 `;

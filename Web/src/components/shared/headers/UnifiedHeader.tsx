@@ -18,7 +18,7 @@ import Logo from '@/assets/Logo.svg';
 import MypageModal from '@/components/shared/modals/MypageModal';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
-import { isNativeApp } from '@/utils/nativeApp';
+import { isNativeApp, isAndroidApp } from '@/utils/nativeApp';
 
 interface HeaderContainerProps {
   $variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
@@ -33,7 +33,17 @@ const HISTORY_KEY = 'search_history';
 
 const HeaderWrapper = styled.div`
   position: fixed;
-  top: ${() => (isNativeApp() ? 'var(--status-bar-height, 0px)' : '0')};
+  top: ${() => {
+    if (isNativeApp()) {
+      // 안드로이드 앱의 경우 더 정확한 상태바 높이 적용
+      if (isAndroidApp()) {
+        return 'var(--status-bar-height, 24px)';
+      }
+      // iOS 앱의 경우
+      return 'var(--status-bar-height, 0px)';
+    }
+    return '0';
+  }};
   left: 0;
   right: 0;
   background: #fff;

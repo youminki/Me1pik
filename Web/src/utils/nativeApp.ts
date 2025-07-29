@@ -65,6 +65,15 @@ export const getStatusBarHeight = (): number => {
   const defaultHeight = 24;
 
   if (typeof window !== 'undefined') {
+    // CSS 변수에서 상태바 높이 확인
+    const cssHeight = getComputedStyle(document.documentElement)
+      .getPropertyValue('--status-bar-height')
+      .replace('px', '');
+
+    if (cssHeight && !isNaN(Number(cssHeight))) {
+      return Number(cssHeight);
+    }
+
     // 네이티브 앱에서 상태바 높이를 제공하는 경우
     if (window.nativeApp?.getStatusBarHeight) {
       return window.nativeApp.getStatusBarHeight();
@@ -104,6 +113,11 @@ export const setStatusBarHeight = (height: number): void => {
       '--safe-area-top',
       `${height}px`
     );
+
+    // 안드로이드 앱의 경우 추가적인 스타일 설정
+    if (isAndroidApp()) {
+      document.body.style.paddingTop = `${height}px`;
+    }
   }
 };
 
@@ -132,6 +146,12 @@ export const setupStatusBarHeightListener = (): void => {
       window.webkit.messageHandlers.statusBarHandler.postMessage({
         type: 'REQUEST_STATUS_BAR_HEIGHT',
       });
+    }
+
+    // 안드로이드 앱의 경우 초기 상태바 높이 설정
+    if (isAndroidApp()) {
+      const initialHeight = getStatusBarHeight();
+      setStatusBarHeight(initialHeight);
     }
   }
 };
