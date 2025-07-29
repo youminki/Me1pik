@@ -8,6 +8,7 @@ import CustomerServiceIcon from '@/assets/bottom-navigations/CustomerServiceIcon
 import HomeIcon from '@/assets/bottom-navigations/HomeIcon.svg';
 import LockerRoomIcon from '@/assets/bottom-navigations/LockerRoomIcon.svg';
 import MelpikIcon from '@/assets/bottom-navigations/MelpikIcon.svg';
+import { isNativeApp } from '@/utils/nativeApp';
 
 interface Tab {
   key: string;
@@ -130,7 +131,7 @@ export default BottomNav;
 
 const DockContainer = styled.nav<{ $visible: boolean }>`
   position: fixed;
-  bottom: 0;
+  bottom: ${() => (isNativeApp() ? 'var(--safe-area-bottom, 0px)' : '0')};
   left: 50%;
   transform: translateX(-50%)
     translateY(${({ $visible }) => ($visible ? '0' : '100%')});
@@ -141,7 +142,8 @@ const DockContainer = styled.nav<{ $visible: boolean }>`
   z-index: 1000;
 
   @media (min-width: 768px) {
-    bottom: 3%;
+    bottom: ${() =>
+      isNativeApp() ? 'calc(3% + var(--safe-area-bottom, 0px))' : '3%'};
     transform: translateX(-50%);
     max-width: 400px;
   }

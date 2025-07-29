@@ -265,6 +265,10 @@ struct WebView: UIViewRepresentable {
         contentController.add(context.coordinator, name: "webViewDidFinishLoading")
         print("✅ webViewDidFinishLoading 메시지 핸들러 등록됨")
         
+        // 상태바 높이 요청 핸들러
+        contentController.add(context.coordinator, name: "REQUEST_STATUS_BAR_HEIGHT")
+        print("✅ REQUEST_STATUS_BAR_HEIGHT 메시지 핸들러 등록됨")
+        
         // JavaScript 함수들 추가 (인스타그램 방식)
         let script = """
         // 페이지 로드 시 로그인 상태 확인
@@ -666,6 +670,9 @@ struct WebView: UIViewRepresentable {
             // 로그인 정보 자동 전달 제거 - 무한 렌더링 방지
             // 웹에서 필요할 때만 요청하도록 변경
             print("WebView loaded - login info transmission disabled to prevent infinite rendering")
+            
+            // 상태바 높이 전달
+            parent.sendStatusBarHeightToWeb()
         }
         
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -734,6 +741,11 @@ struct WebView: UIViewRepresentable {
                 // 웹뷰 로딩 완료 알림
                 NotificationCenter.default.post(name: NSNotification.Name("WebViewDidFinishLoading"), object: nil)
                 print("WebView 로딩 완료 알림 전송")
+                
+            case "REQUEST_STATUS_BAR_HEIGHT":
+                // 상태바 높이 요청 처리
+                parent.handleStatusBarHeightRequest()
+                print("상태바 높이 요청 처리")
                 
             default:
                 print("=== [COORDINATOR] 알 수 없는 메시지:", message.name)
@@ -1293,5 +1305,35 @@ struct ContentViewMain: View {
         @unknown default:
             break
         }
+    }
+    
+    // MARK: - 상태바 높이 처리
+    private func getStatusBarHeight() -> CGFloat {
+        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
+        return window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+    }
+    
+    private func sendStatusBarHeightToWeb() {
+        let statusBarHeight = getStatusBarHeight()
+        
+        let script = """
+        window.dispatchEvent(new CustomEvent('statusBarHeightChanged', {
+            detail: {
+                height: \(statusBarHeight)
+            }
+        }));
+        """
+        
+        webViewStore.webView.evaluateJavaScript(script) { result, error in
+            if let error = error {
+                print("Error sending status bar height to web: \(error)")
+            } else {
+                print("✅ Status bar height sent to web successfully: \(statusBarHeight)")
+            }
+        }
+    }
+    
+    private func handleStatusBarHeightRequest() {
+        sendStatusBarHeightToWeb()
     }
 } 

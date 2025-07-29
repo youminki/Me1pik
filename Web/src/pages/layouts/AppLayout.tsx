@@ -7,6 +7,7 @@ import BottomNav from '@/components/bottom-navigation';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import useHeaderConfig from '@/hooks/useHeaderConfig';
 import { hideScrollbar } from '@/styles/CommonStyles';
+import { isNativeApp } from '@/utils/nativeApp';
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -69,7 +70,7 @@ const AppContainer = styled.div`
 
 const FixedHeader = styled(UnifiedHeader)`
   position: fixed;
-  top: 0;
+  top: ${() => (isNativeApp() ? 'var(--status-bar-height, 0px)' : '0')};
   left: 0;
   width: 100%;
   z-index: 1000;
@@ -82,7 +83,8 @@ const ContentContainer = styled.div`
   background: #fff;
   padding: 1rem;
   margin: auto;
-  padding-top: 70px;
+  padding-top: ${() =>
+    isNativeApp() ? 'calc(70px + var(--status-bar-height, 0px))' : '70px'};
 
   ${hideScrollbar}
 `;

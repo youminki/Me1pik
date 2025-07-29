@@ -143,6 +143,9 @@ class MainActivity : AppCompatActivity() {
                 // 페이지 로딩 완료 시 로그인 상태 확인 및 전달
                 checkLoginStatus()
                 
+                // 상태바 높이 전달
+                sendStatusBarHeightToWebView()
+                
                 // 성능 최적화: 불필요한 리소스 정리
                 System.gc()
             }
@@ -199,6 +202,9 @@ class MainActivity : AppCompatActivity() {
                         }
                         "clearLoginInfo" -> {
                             clearLoginInfo()
+                        }
+                        "REQUEST_STATUS_BAR_HEIGHT" -> {
+                            handleStatusBarHeightRequest()
                         }
                     }
                 } catch (e: Exception) {
@@ -344,5 +350,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 상태바 높이 가져오기
+    private fun getStatusBarHeight(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) {
+            resources.getDimensionPixelSize(resourceId)
+        } else {
+            0
+        }
+    }
+
+    // 웹뷰에 상태바 높이 전달
+    private fun sendStatusBarHeightToWebView() {
+        val statusBarHeight = getStatusBarHeight()
+        val message = JSONObject().apply {
+            put("type", "statusBarHeightReceived")
+            put("height", statusBarHeight)
+        }
+
+        runOnUiThread {
+            webView.evaluateJavascript(
+                "window.dispatchEvent(new CustomEvent('statusBarHeightChanged', { detail: { height: $statusBarHeight } }));",
+                null
+            )
+        }
+    }
+
+    // JavaScript 인터페이스에서 상태바 높이 요청 처리
+    private fun handleStatusBarHeightRequest() {
+        sendStatusBarHeightToWebView()
+    }
 
 }

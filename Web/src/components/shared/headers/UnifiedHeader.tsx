@@ -18,6 +18,7 @@ import Logo from '@/assets/Logo.svg';
 import MypageModal from '@/components/shared/modals/MypageModal';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
+import { isNativeApp } from '@/utils/nativeApp';
 
 interface HeaderContainerProps {
   $variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
@@ -32,7 +33,7 @@ const HISTORY_KEY = 'search_history';
 
 const HeaderWrapper = styled.div`
   position: fixed;
-  top: 0;
+  top: ${() => (isNativeApp() ? 'var(--status-bar-height, 0px)' : '0')};
   left: 0;
   right: 0;
   background: #fff;
@@ -46,6 +47,7 @@ const HeaderContainer = styled.header<HeaderContainerProps>`
   align-items: center;
   padding: 1rem;
   position: relative;
+  min-height: var(--header-height, 70px);
 `;
 const LeftSection = styled.div`
   display: flex;

@@ -13,6 +13,7 @@ import { ThemeProvider } from 'styled-components';
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
 import PaypleTest from '@/__tests__/development/PaypleTest';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import GlobalStyles from '@/styles/GlobalStyles';
 import { theme } from '@/styles/Theme';
 import {
   checkTokenAndRedirect,
@@ -22,7 +23,12 @@ import {
   refreshToken,
   getCurrentToken,
 } from '@/utils/auth';
-import { isNativeApp } from '@/utils/nativeApp';
+import {
+  isNativeApp,
+  setStatusBarHeight,
+  getStatusBarHeight,
+  setupStatusBarHeightListener,
+} from '@/utils/nativeApp';
 
 // React Query 클라이언트 설정 - 성능 최적화
 const queryClient = new QueryClient({
@@ -253,9 +259,20 @@ const App: React.FC = () => {
     };
     tryAutoLogin();
   }, []);
+
+  // 네이티브 앱 환경에서 상태바 높이 설정
+  useEffect(() => {
+    if (isNativeApp()) {
+      const statusBarHeight = getStatusBarHeight();
+      setStatusBarHeight(statusBarHeight);
+      setupStatusBarHeightListener();
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
+        <GlobalStyles />
         <Router>
           <AuthGuard />
           {/* 전체 페이지 라우트 로딩에는 원형 스피너, 명확한 안내 문구 */}

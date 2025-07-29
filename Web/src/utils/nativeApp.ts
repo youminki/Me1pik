@@ -6,6 +6,7 @@ declare global {
     nativeApp?: {
       requestLogin?: () => void;
       saveLoginInfo?: (data: Record<string, unknown>) => void;
+      getStatusBarHeight?: () => number;
     };
     ReactNativeWebView?: {
       postMessage: (message: string) => void;
@@ -13,6 +14,9 @@ declare global {
     webkit?: {
       messageHandlers?: {
         loginHandler?: {
+          postMessage: (message: Record<string, unknown>) => void;
+        };
+        statusBarHandler?: {
           postMessage: (message: Record<string, unknown>) => void;
         };
       };
@@ -30,6 +34,106 @@ export const isNativeApp = (): boolean => {
       window.ReactNativeWebView ||
       window.webkit?.messageHandlers?.loginHandler)
   );
+};
+
+/**
+ * 안드로이드 앱 환경인지 확인합니다
+ */
+export const isAndroidApp = (): boolean => {
+  return !!(
+    typeof window !== 'undefined' &&
+    (window.ReactNativeWebView ||
+      (window.nativeApp && /Android/i.test(navigator.userAgent)))
+  );
+};
+
+/**
+ * iOS 앱 환경인지 확인합니다
+ */
+export const isIOSApp = (): boolean => {
+  return !!(
+    typeof window !== 'undefined' &&
+    window.webkit?.messageHandlers?.loginHandler
+  );
+};
+
+/**
+ * 안드로이드 상태바 높이를 가져옵니다
+ */
+export const getStatusBarHeight = (): number => {
+  // 기본값 (대부분의 안드로이드 기기)
+  const defaultHeight = 24;
+
+  if (typeof window !== 'undefined') {
+    // 네이티브 앱에서 상태바 높이를 제공하는 경우
+    if (window.nativeApp?.getStatusBarHeight) {
+      return window.nativeApp.getStatusBarHeight();
+    }
+
+    // React Native WebView에서 상태바 높이 요청
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: 'GET_STATUS_BAR_HEIGHT',
+        })
+      );
+    }
+
+    // iOS WebKit에서 상태바 높이 요청
+    if (window.webkit?.messageHandlers?.statusBarHandler) {
+      window.webkit.messageHandlers.statusBarHandler.postMessage({
+        type: 'GET_STATUS_BAR_HEIGHT',
+      });
+    }
+  }
+
+  return defaultHeight;
+};
+
+/**
+ * 네이티브 앱에서 상태바 높이를 설정합니다
+ */
+export const setStatusBarHeight = (height: number): void => {
+  if (typeof window !== 'undefined') {
+    // CSS 변수로 상태바 높이 설정
+    document.documentElement.style.setProperty(
+      '--status-bar-height',
+      `${height}px`
+    );
+    document.documentElement.style.setProperty(
+      '--safe-area-top',
+      `${height}px`
+    );
+  }
+};
+
+/**
+ * 네이티브 앱에서 상태바 높이 이벤트 리스너를 설정합니다
+ */
+export const setupStatusBarHeightListener = (): void => {
+  if (typeof window !== 'undefined') {
+    // 네이티브 앱에서 상태바 높이 변경 이벤트 수신
+    window.addEventListener('statusBarHeightChanged', ((event: CustomEvent) => {
+      const { height } = event.detail;
+      setStatusBarHeight(height);
+    }) as EventListener);
+
+    // 안드로이드 앱에서 상태바 높이 요청
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: 'REQUEST_STATUS_BAR_HEIGHT',
+        })
+      );
+    }
+
+    // iOS 앱에서 상태바 높이 요청
+    if (window.webkit?.messageHandlers?.statusBarHandler) {
+      window.webkit.messageHandlers.statusBarHandler.postMessage({
+        type: 'REQUEST_STATUS_BAR_HEIGHT',
+      });
+    }
+  }
 };
 
 /**
