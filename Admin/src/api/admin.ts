@@ -73,8 +73,14 @@ export const createAdmin = async (data: AdminCreateRequest): Promise<AdminRespon
  * 모든 관리자를 조회합니다. (페이지당 최대 10명)
  * GET /admin
  */
-export const getAllAdmins = async (limit = 10, page = 1): Promise<GetAdminsResponse> => {
-  const response = await Axios.get('/admin', { params: { limit, page } });
+export const getAllAdmins = async (
+  limit = 10,
+  page = 1,
+  search?: string,
+): Promise<GetAdminsResponse> => {
+  const params: any = { limit, page };
+  if (search) params.search = search;
+  const response = await Axios.get('/admin', { params });
   return response.data;
 };
 
@@ -82,10 +88,14 @@ export const getAllAdmins = async (limit = 10, page = 1): Promise<GetAdminsRespo
  * active 상태인 관리자를 조회합니다. (페이지당 최대 10명)
  * GET /admin/active
  */
-export const getActiveAdmins = async (limit = 10, page = 1): Promise<GetAdminsResponse> => {
-  const response = await Axios.get('/admin/active', {
-    params: { limit, page },
-  });
+export const getActiveAdmins = async (
+  limit = 10,
+  page = 1,
+  search?: string,
+): Promise<GetAdminsResponse> => {
+  const params: any = { limit, page };
+  if (search) params.search = search;
+  const response = await Axios.get('/admin/active', { params });
   return response.data;
 };
 
@@ -93,10 +103,14 @@ export const getActiveAdmins = async (limit = 10, page = 1): Promise<GetAdminsRe
  * 차단된 관리자를 조회합니다. (페이지당 최대 10명)
  * GET /admin/blocked
  */
-export const getBlockedAdmins = async (limit = 10, page = 1): Promise<GetAdminsResponse> => {
-  const response = await Axios.get('/admin/blocked', {
-    params: { limit, page },
-  });
+export const getBlockedAdmins = async (
+  limit = 10,
+  page = 1,
+  search?: string,
+): Promise<GetAdminsResponse> => {
+  const params: any = { limit, page };
+  if (search) params.search = search;
+  const response = await Axios.get('/admin/blocked', { params });
   return response.data;
 };
 

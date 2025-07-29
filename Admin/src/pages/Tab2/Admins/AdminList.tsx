@@ -1,6 +1,6 @@
 // src/pages/AdminList.tsx
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -37,6 +37,8 @@ import {
 
 import AdminModal from '@/components/Modal/AdminModal';
 import TwoButtonModal from '@/components/TwoButtonModal';
+import SearchSubHeader, { TabItem } from '@/components/Header/SearchSubHeader';
+import { advancedSearchFilter, normalize } from '@/utils/advancedSearch';
 
 // (1) 관리자 상세 더미 데이터 및 폼(간단 예시)
 // const permissionGroups = [
@@ -130,8 +132,54 @@ const PaginationControls = ({
   </div>
 );
 
+// Chip 컴포넌트 (다른 페이지와 동일한 스타일)
+const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      background: '#e6f0fa',
+      border: '1px solid #90caf9',
+      borderRadius: 16,
+      padding: '4px 14px',
+      marginRight: 8,
+      fontSize: 14,
+      fontWeight: 500,
+      color: '#1976d2',
+      marginBottom: 4,
+      boxShadow: '0 1px 4px rgba(25, 118, 210, 0.08)',
+      transition: 'background 0.2s',
+    }}
+    onMouseOver={(e) => (e.currentTarget.style.background = '#bbdefb')}
+    onMouseOut={(e) => (e.currentTarget.style.background = '#e6f0fa')}
+  >
+    {label}
+    <button
+      onClick={onDelete}
+      style={{
+        background: 'none',
+        border: 'none',
+        marginLeft: 8,
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        color: '#1976d2',
+        fontSize: 16,
+        lineHeight: 1,
+        padding: 0,
+        transition: 'color 0.2s',
+      }}
+      onMouseOver={(e) => (e.currentTarget.style.color = '#d32f2f')}
+      onMouseOut={(e) => (e.currentTarget.style.color = '#1976d2')}
+      aria-label="삭제"
+    >
+      ×
+    </button>
+  </span>
+);
+
 const AdminList: React.FC = () => {
   const [adminData, setAdminData] = useState<AdminRow[]>([]);
+  const [allAdminData, setAllAdminData] = useState<AdminRow[]>([]); // 전체 데이터 저장
   const [totalCount, setTotalCount] = useState(0);
   const [selectedAdminNo, setSelectedAdminNo] = useState<number | null>(null);
   const [selectedAdminDetail, setSelectedAdminDetail] = useState<AdminResponse | null>(null);
@@ -139,6 +187,8 @@ const AdminList: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false); // 스켈레톤용
+  const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태 추가
+  const [currentTab, setCurrentTab] = useState('all'); // 현재 탭 상태 추가
   const limit = 10;
 
   type ModalState =
@@ -151,6 +201,16 @@ const AdminList: React.FC = () => {
 
   const [modal, setModal] = useState<ModalState>({ mode: null });
 
+  // 공통 헤더용 탭 설정
+  const TABS: TabItem[] = [
+    { label: '전체보기', path: 'all' },
+    { label: '정상', path: 'active' },
+    { label: '블럭', path: 'blocked' },
+  ];
+
+  // 검색어 키워드 분리 (공백 기준)
+  const chipKeywords = useMemo(() => searchTerm.trim().split(/\s+/).filter(Boolean), [searchTerm]);
+
   const handlePageChange = (p: number) => {
     if (p < 1 || p > Math.max(1, Math.ceil(totalCount / limit))) return;
     setPage(p);
@@ -159,41 +219,78 @@ const AdminList: React.FC = () => {
   const fetchAdmins = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await getAllAdmins(limit, page);
+      let res;
+      if (currentTab === 'all') {
+        res = await getAllAdmins(limit, page, searchTerm);
+      } else if (currentTab === 'active') {
+        res = await getActiveAdmins(limit, page, searchTerm);
+      } else if (currentTab === 'blocked') {
+        res = await getBlockedAdmins(limit, page, searchTerm);
+      } else {
+        res = await getAllAdmins(limit, page, searchTerm);
+      }
+
+      const mappedData = res.admins.map((admin: AdminResponse) => ({
+        no: admin.no,
+        status: admin.status,
+        id: admin.id,
+        team: admin.role || '',
+        name: admin.name,
+        email: admin.email,
+        lastLogin: admin.lastLogin ? new Date(admin.lastLogin).toLocaleDateString('ko-KR') : '-',
+        registeredAt: admin.signupDate
+          ? new Date(admin.signupDate).toLocaleDateString('ko-KR')
+          : admin.createdAt
+            ? new Date(admin.createdAt).toLocaleDateString('ko-KR')
+            : '-',
+      }));
+
+      setAllAdminData(mappedData);
       setTotalCount(res.total);
-      setAdminData(
-        res.admins.map((admin: AdminResponse) => ({
-          no: admin.no,
-          status: admin.status,
-          id: admin.id,
-          team: admin.role || '',
-          name: admin.name,
-          email: admin.email,
-          lastLogin: admin.lastLogin ? new Date(admin.lastLogin).toLocaleDateString('ko-KR') : '-',
-          registeredAt: admin.signupDate
-            ? new Date(admin.signupDate).toLocaleDateString('ko-KR')
-            : admin.createdAt
-              ? new Date(admin.createdAt).toLocaleDateString('ko-KR')
-              : '-',
-        })),
-      );
+      setAdminData(mappedData);
     } catch (err) {
       console.error('관리자 데이터 로드 실패', err);
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit]);
+  }, [page, limit, currentTab, searchTerm]);
 
   useEffect(() => {
     fetchAdmins();
   }, [fetchAdmins]);
 
+  // 클라이언트 사이드 필터링
+  const filteredAdminData = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return allAdminData;
+    }
+
+    const keywords = normalize(searchTerm).split(/\s+/).filter(Boolean);
+
+    return allAdminData.filter((admin) =>
+      advancedSearchFilter({
+        item: admin,
+        keywords,
+        fields: ['no', 'name', 'email', 'team', 'status'],
+      }),
+    );
+  }, [allAdminData, searchTerm]);
+
+  // 필터링된 데이터의 총 개수
+  const filteredTotalCount = useMemo(() => filteredAdminData.length, [filteredAdminData]);
+
+  // 페이지네이션을 위한 데이터
+  const paginatedData = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    return filteredAdminData.slice(startIndex, startIndex + limit);
+  }, [filteredAdminData, page, limit]);
+
   const handleEdit = (email: string) => {
-    const admin = adminData.find((a) => a.email === email);
+    const admin = paginatedData.find((a) => a.email === email);
     if (admin) setSelectedAdminNo(admin.no);
   };
 
-  const selectedAdmin = adminData.find((a) => a.no === selectedAdminNo);
+  const selectedAdmin = paginatedData.find((a) => a.no === selectedAdminNo);
   // 상세정보 fetch
   useEffect(() => {
     if (selectedAdmin && selectedAdmin.id) {
@@ -245,63 +342,27 @@ const AdminList: React.FC = () => {
     setShowDeleteModal(false);
   };
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+  const totalPages = Math.max(1, Math.ceil(filteredTotalCount / limit));
 
-  const TABS = [
-    { label: '전체보기', value: 'all' },
-    { label: '정상', value: 'active' },
-    { label: '블럭', value: 'blocked' },
-  ];
-  const [activeTab, setActiveTab] = useState('all');
-  const [search, setSearch] = useState('');
+  // 탭 변경 핸들러
+  const handleTabChange = async (tab: TabItem) => {
+    setCurrentTab(tab.path);
+    setSearchTerm(''); // 탭 변경 시 검색어 초기화
+    setPage(1); // 페이지 초기화
+  };
 
-  // 관리자 등록 핸들러
-  const handleRegisterAdmin = () => setModal({ mode: 'create' });
+  // 검색 핸들러 추가
+  const handleSearch = (searchTerm: string) => {
+    setSearchTerm(searchTerm);
+    setPage(1); // 검색 시 페이지 초기화
+  };
 
-  // 탭 클릭 핸들러
-  const handleTabClick = async (value: string) => {
-    setActiveTab(value);
-    if (value === 'all') {
-      fetchAdmins();
-    } else if (value === 'active') {
-      const res = await getActiveAdmins(limit, page);
-      setAdminData(
-        res.admins.map((admin: AdminResponse) => ({
-          no: admin.no,
-          status: admin.status,
-          id: admin.id,
-          team: admin.role || '',
-          name: admin.name,
-          email: admin.email,
-          lastLogin: admin.lastLogin ? new Date(admin.lastLogin).toLocaleDateString('ko-KR') : '-',
-          registeredAt: admin.signupDate
-            ? new Date(admin.signupDate).toLocaleDateString('ko-KR')
-            : admin.createdAt
-              ? new Date(admin.createdAt).toLocaleDateString('ko-KR')
-              : '-',
-        })),
-      );
-      setTotalCount(res.total);
-    } else if (value === 'blocked') {
-      const res = await getBlockedAdmins(limit, page);
-      setAdminData(
-        res.admins.map((admin: AdminResponse) => ({
-          no: admin.no,
-          status: admin.status,
-          id: admin.id,
-          team: admin.role || '',
-          name: admin.name,
-          email: admin.email,
-          lastLogin: admin.lastLogin ? new Date(admin.lastLogin).toLocaleDateString('ko-KR') : '-',
-          registeredAt: admin.signupDate
-            ? new Date(admin.signupDate).toLocaleDateString('ko-KR')
-            : admin.createdAt
-              ? new Date(admin.createdAt).toLocaleDateString('ko-KR')
-              : '-',
-        })),
-      );
-      setTotalCount(res.total);
-    }
+  // Chip 삭제 핸들러
+  const handleDeleteChip = (chip: string) => {
+    const newKeywords = chipKeywords.filter((k) => k !== chip);
+    const newSearch = newKeywords.join(' ');
+    setSearchTerm(newSearch);
+    setPage(1); // 페이지 초기화
   };
 
   // 전체 관리자 수 조회
@@ -309,12 +370,8 @@ const AdminList: React.FC = () => {
     getAdminCount().then((res) => setTotalCount(res.total));
   }, []);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  };
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
+  // 관리자 등록 핸들러
+  const handleRegisterAdmin = () => setModal({ mode: 'create' });
 
   const handleModalSubmit = async (data: AdminCreateRequest | AdminUpdateRequest) => {
     try {
@@ -371,38 +428,22 @@ const AdminList: React.FC = () => {
 
   return (
     <Container>
-      <HeaderContainer>
-        <HeaderTitleRow>
-          <PageTitle>관리자 관리</PageTitle>
-        </HeaderTitleRow>
-        <HeaderTabRow>
-          <TabGroup>
-            {TABS.map((tab) => (
-              <TabButton
-                key={tab.value}
-                $active={activeTab === tab.value}
-                onClick={() => handleTabClick(tab.value)}
-              >
-                {tab.label}
-              </TabButton>
-            ))}
-          </TabGroup>
-          <form onSubmit={handleSearchSubmit}>
-            <SearchInputWrapper>
-              <SearchInput
-                type="text"
-                placeholder=""
-                value={search}
-                onChange={handleSearchChange}
-              />
-              <SearchIcon size={16} />
-            </SearchInputWrapper>
-          </form>
-        </HeaderTabRow>
-      </HeaderContainer>
+      <SearchSubHeader tabs={TABS} onTabChange={handleTabChange} onSearch={handleSearch} />
 
       <ProductRowHeader>
-        <div style={{ fontWeight: 900, fontSize: 14, margin: '10px 0' }}>총 {totalCount}</div>
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 900, fontSize: 14, margin: '10px 0' }}>
+            총 {filteredTotalCount}
+          </div>
+          {/* Chip row: TotalCount 오른쪽에 한 줄로 정렬 */}
+          {chipKeywords.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', marginLeft: 12, minWidth: 0 }}>
+              {chipKeywords.map((chip) => (
+                <Chip key={chip} label={chip} onDelete={() => handleDeleteChip(chip)} />
+              ))}
+            </div>
+          )}
+        </div>
         <div />
       </ProductRowHeader>
 
@@ -435,7 +476,7 @@ const AdminList: React.FC = () => {
                         </Td>
                       </Tr>
                     ))
-                  : adminData.map((row) => (
+                  : paginatedData.map((row) => (
                       <Tr key={row.no} onClick={() => handleEdit(row.email)}>
                         <Td>{row.no}</Td>
                         <Td>{row.name}</Td>
@@ -1181,93 +1222,6 @@ const ContentCard = styled.div`
   background: #fff;
   min-width: 400px;
   max-width: 900px;
-`;
-
-const HeaderContainer = styled.div`
-  background: #ffffff;
-  border: 1px solid #dddddd;
-  border-radius: 20px 0px 0px 0px;
-  padding: 1rem;
-  margin-bottom: 10px;
-  width: 100%;
-  min-width: 834px;
-  max-width: 100vw;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`;
-
-const HeaderTitleRow = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  margin-bottom: 8px;
-`;
-
-const HeaderTabRow = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const PageTitle = styled.h1`
-  font-weight: 800;
-  font-size: 16px;
-  line-height: 28px;
-  color: #222;
-  margin: 0 0 18px 0;
-`;
-
-const TabGroup = styled.div`
-  display: flex;
-  align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  height: 40px;
-`;
-
-const TabButton = styled.button<{ $active: boolean }>`
-  background: ${({ $active }) => ($active ? '#eee' : '#fff')};
-  color: #222;
-  border: none;
-  outline: none;
-  font-size: 15px;
-  font-weight: 700;
-  padding: 0 24px;
-  height: 40px;
-  width: 120px;
-  cursor: pointer;
-  border-right: 1px solid #ddd;
-  &:last-child {
-    border-right: none;
-  }
-`;
-
-const SearchInputWrapper = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
-`;
-
-const SearchInput = styled.input`
-  width: 200px;
-  height: 40px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-  padding: 0 36px 0 12px;
-  outline: none;
-`;
-
-const SearchIcon = styled(FaSearch)`
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #888;
-  pointer-events: none;
 `;
 
 const ProductRowHeader = styled.div`

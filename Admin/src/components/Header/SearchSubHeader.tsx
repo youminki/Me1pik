@@ -11,9 +11,10 @@ export interface TabItem {
 interface SubHeaderProps {
   tabs: TabItem[];
   onTabChange?: (tab: TabItem) => void;
+  onSearch?: (searchTerm: string) => void;
 }
 
-const SubHeader: React.FC<SubHeaderProps> = ({ tabs, onTabChange }) => {
+const SubHeader: React.FC<SubHeaderProps> = ({ tabs, onTabChange, onSearch }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>(tabs[0].label);
   const [inputValue, setInputValue] = useState<string>('');
@@ -50,6 +51,9 @@ const SubHeader: React.FC<SubHeaderProps> = ({ tabs, onTabChange }) => {
     if (currentStatus) newParams.status = currentStatus;
     if (trimmed) newParams.search = trimmed;
     setSearchParams(newParams);
+
+    // 검색 콜백 호출
+    onSearch?.(trimmed);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -58,29 +62,34 @@ const SubHeader: React.FC<SubHeaderProps> = ({ tabs, onTabChange }) => {
 
   return (
     <HeaderContainer>
-      <TabContainer>
-        {tabs.map((tab, idx) => (
-          <TabButton
-            key={idx}
-            $active={activeTab === tab.label}
-            $isFirst={idx === 0}
-            $isLast={idx === tabs.length - 1}
-            onClick={() => handleTabClick(tab)}
-          >
-            {tab.label}
-          </TabButton>
-        ))}
-      </TabContainer>
-      <SearchContainer>
-        <SearchInput
-          type="text"
-          placeholder="검색"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <SearchIcon onClick={handleSearch} />
-      </SearchContainer>
+      <HeaderTitleRow>
+        <PageTitle>관리자 관리</PageTitle>
+      </HeaderTitleRow>
+      <HeaderTabRow>
+        <TabContainer>
+          {tabs.map((tab, idx) => (
+            <TabButton
+              key={idx}
+              $active={activeTab === tab.label}
+              $isFirst={idx === 0}
+              $isLast={idx === tabs.length - 1}
+              onClick={() => handleTabClick(tab)}
+            >
+              {tab.label}
+            </TabButton>
+          ))}
+        </TabContainer>
+        <SearchContainer>
+          <SearchInput
+            type="text"
+            placeholder="검색"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <SearchIcon onClick={handleSearch} />
+        </SearchContainer>
+      </HeaderTabRow>
     </HeaderContainer>
   );
 };
@@ -88,22 +97,50 @@ const SubHeader: React.FC<SubHeaderProps> = ({ tabs, onTabChange }) => {
 export default SubHeader;
 
 const HeaderContainer = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  background: #f9f9f9;
+  background: #ffffff;
   border: 1px solid #dddddd;
-  margin-bottom: 34px;
-  min-width: 800px;
+  border-radius: 20px 0px 0px 0px;
+  padding: 1rem;
+  margin-bottom: 10px;
+  width: 100%;
+  min-width: 834px;
+  max-width: 100vw;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
+const HeaderTitleRow = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 8px;
+`;
+
+const HeaderTabRow = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const PageTitle = styled.h1`
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 28px;
+  color: #222;
+  margin: 0 0 18px 0;
 `;
 
 const TabContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-right: auto;
   background: #eeeeee;
   border: 1px solid #dddddd;
   border-radius: 8px;
+  overflow: hidden;
+  height: 40px;
 `;
 
 interface TabButtonProps {
