@@ -9,7 +9,6 @@ import HomeIcon from '@/assets/bottom-navigations/HomeIcon.svg';
 import LockerRoomIcon from '@/assets/bottom-navigations/LockerRoomIcon.svg';
 import MelpikIcon from '@/assets/bottom-navigations/MelpikIcon.svg';
 
-
 interface Tab {
   key: string;
   route: string;
@@ -159,7 +158,7 @@ const Dock = styled.div`
 
   @media (max-width: 768px) {
     border-radius: 0;
-    padding: 0 0 20px 0;
+    padding: 0 0 25px 0;
     width: 100%;
   }
 `;
