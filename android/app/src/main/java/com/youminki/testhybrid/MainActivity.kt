@@ -66,12 +66,23 @@ class MainActivity : AppCompatActivity() {
         webView = WebView(this)
         progressBar = ProgressBar(this)
         progressBar.isIndeterminate = true
-        val params = FrameLayout.LayoutParams(
+        
+        // 웹뷰에 상단 패딩 추가 (상태바 높이만큼)
+        val statusBarHeight = getStatusBarHeight()
+        val webViewParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        ).apply {
+            topMargin = statusBarHeight // 상태바 높이만큼 상단 여백 추가
+        }
+        
+        val progressParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
         )
-        frameLayout.addView(webView, params)
-        frameLayout.addView(progressBar, params)
+        
+        frameLayout.addView(webView, webViewParams)
+        frameLayout.addView(progressBar, progressParams)
         setContentView(frameLayout)
 
         // 네트워크 체크
@@ -143,7 +154,7 @@ class MainActivity : AppCompatActivity() {
                 // 페이지 로딩 완료 시 로그인 상태 확인 및 전달
                 checkLoginStatus()
                 
-                // 상태바 높이 전달
+                // 상태바 높이 전달 (웹뷰에 상단 패딩 정보 포함)
                 sendStatusBarHeightToWebView()
                 
                 // 성능 최적화: 불필요한 리소스 정리
@@ -206,6 +217,9 @@ class MainActivity : AppCompatActivity() {
                         "REQUEST_STATUS_BAR_HEIGHT" -> {
                             handleStatusBarHeightRequest()
                         }
+                        "GET_STATUS_BAR_HEIGHT" -> {
+                            handleStatusBarHeightRequest()
+                        }
                     }
                 } catch (e: Exception) {
                     println("메시지 처리 실패: $e")
@@ -218,6 +232,11 @@ class MainActivity : AppCompatActivity() {
 
         // 웹사이트 로드
         webView.loadUrl(url)
+        
+        // 웹뷰 로드 후 상태바 높이 즉시 전달
+        Handler(Looper.getMainLooper()).postDelayed({
+            sendStatusBarHeightToWebView()
+        }, 500) // 웹뷰가 완전히 로드된 후 전달
     }
 
     // 로그인 정보 저장 (AsyncStorage 대신 SharedPreferences 사용)
@@ -319,17 +338,28 @@ class MainActivity : AppCompatActivity() {
 
     // 상태바 영역만큼 웹뷰 띄우기 설정
     private fun setupFullscreenMode() {
-        // 상태바는 그대로 유지하고 웹뷰만 띄우기
+        // 상태바 색상을 정확한 흰색으로 설정 (#FFFFFF)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.statusBarColor = resources.getColor(com.youminki.testhybrid.R.color.status_bar_white, theme)
+        }
+        
+        // 테마에서 이미 투명 상태바로 설정되어 있으므로 추가 설정만
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11+ (API 30+)
             window.setDecorFitsSystemWindows(false)
             WindowCompat.setDecorFitsSystemWindows(window, false)
+            
+            // 상태바 아이콘을 어두운 색으로 설정
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                isAppearanceLightStatusBars = true
+            }
         } else {
             // Android 10 이하
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR // 상태바 아이콘을 어두운 색으로
             )
         }
         
@@ -338,6 +368,11 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
+        
+        // 상태바 높이를 즉시 웹뷰에 전달
+        Handler(Looper.getMainLooper()).postDelayed({
+            sendStatusBarHeightToWebView()
+        }, 100) // 약간의 지연을 두어 레이아웃이 완전히 설정된 후 전달
     }
 
     // 권한 요청
@@ -362,17 +397,35 @@ class MainActivity : AppCompatActivity() {
 
     // 웹뷰에 상태바 높이 전달
     private fun sendStatusBarHeightToWebView() {
-        val statusBarHeight = getStatusBarHeight()
-        val message = JSONObject().apply {
-            put("type", "statusBarHeightReceived")
-            put("height", statusBarHeight)
-        }
+        // 안드로이드 앱에서 이미 웹뷰에 상단 패딩을 추가했으므로 웹에서는 0으로 처리
+        val statusBarHeight = 0
+        
+        // CSS 변수와 JavaScript 이벤트를 모두 설정
+        val javascriptCode = """
+            (function() {
+                // CSS 변수 설정 (웹에서는 0으로 처리)
+                document.documentElement.style.setProperty('--status-bar-height', '${statusBarHeight}px');
+                document.documentElement.style.setProperty('--safe-area-top', '${statusBarHeight}px');
+                
+                // body에 패딩 추가 (웹에서는 0으로 처리)
+                document.body.style.paddingTop = '${statusBarHeight}px';
+                
+                // 커스텀 이벤트 발생
+                window.dispatchEvent(new CustomEvent('statusBarHeightChanged', { 
+                    detail: { height: ${statusBarHeight} } 
+                }));
+                
+                // 네이티브 앱 객체에 상태바 높이 설정
+                if (window.nativeApp) {
+                    window.nativeApp.getStatusBarHeight = function() { return ${statusBarHeight}; };
+                }
+                
+                console.log('Status bar height set to: ${statusBarHeight}px (Android app handles padding)');
+            })();
+        """.trimIndent()
 
         runOnUiThread {
-            webView.evaluateJavascript(
-                "window.dispatchEvent(new CustomEvent('statusBarHeightChanged', { detail: { height: $statusBarHeight } }));",
-                null
-            )
+            webView.evaluateJavascript(javascriptCode, null)
         }
     }
 

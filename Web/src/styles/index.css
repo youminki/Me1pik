@@ -38,11 +38,11 @@
   --safe-area-top: 0px;
 }
 
-/* 안드로이드 앱에서 상태바 높이 기본값 */
+/* iOS 앱에서 상태바 높이 기본값 */
 @media screen and (max-width: 768px) {
   :root {
-    --status-bar-height: 24px;
-    --safe-area-top: 24px;
+    --status-bar-height: 0px;
+    --safe-area-top: 0px;
   }
 }
 

@@ -103,9 +103,9 @@ const FixedHeader = styled(UnifiedHeader)`
   position: fixed;
   top: ${() => {
     if (isNativeApp()) {
-      // 안드로이드 앱의 경우 더 정확한 상태바 높이 적용
+      // 안드로이드 앱의 경우 웹뷰에 이미 상단 패딩이 추가되어 있으므로 0으로 처리
       if (isAndroidApp()) {
-        return 'var(--status-bar-height, 24px)';
+        return '0';
       }
       // iOS 앱의 경우
       return 'var(--status-bar-height, 0px)';
@@ -126,9 +126,9 @@ const ContentContainer = styled.div`
   margin: auto;
   padding-top: ${() => {
     if (isNativeApp()) {
-      // 안드로이드 앱의 경우 더 정확한 패딩 계산
+      // 안드로이드 앱의 경우 웹뷰에 이미 상단 패딩이 추가되어 있으므로 헤더 높이만큼만 패딩
       if (isAndroidApp()) {
-        return 'calc(70px + var(--status-bar-height, 24px))';
+        return '70px';
       }
       // iOS 앱의 경우
       return 'calc(70px + var(--status-bar-height, 0px))';

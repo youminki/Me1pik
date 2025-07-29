@@ -22,10 +22,10 @@ if (isNativeApp()) {
   // 상태바 높이 리스너 설정
   setupStatusBarHeightListener();
 
-  // 안드로이드 앱의 경우 초기 상태바 높이 설정
+  // 안드로이드 앱의 경우 웹뷰에 이미 상단 패딩이 추가되어 있으므로 0으로 설정
   if (isAndroidApp()) {
-    // 기본 안드로이드 상태바 높이 설정
-    setStatusBarHeight(24);
+    // 웹에서는 상태바 높이를 0으로 처리 (안드로이드 앱에서 웹뷰 패딩 처리)
+    setStatusBarHeight(0);
 
     // DOM이 로드된 후 추가 설정
     document.addEventListener('DOMContentLoaded', () => {
@@ -35,7 +35,7 @@ if (isNativeApp()) {
       ).getPropertyValue('--status-bar-height');
 
       if (!statusBarHeight || statusBarHeight === '0px') {
-        setStatusBarHeight(24);
+        setStatusBarHeight(0);
       }
     });
   }
