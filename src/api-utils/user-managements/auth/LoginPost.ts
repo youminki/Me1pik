@@ -96,12 +96,38 @@ export const LoginPost = async (
         keepLogin: autoLogin,
       };
 
-      console.log('iOS 앱에 전달할 로그인 데이터:', loginData);
-      (
-        window.webkit.messageHandlers as Record<string, SaveLoginInfoHandler>
-      ).saveLoginInfo.postMessage({
-        loginData: loginData,
-      });
+      console.log('=== [WEB] iOS 앱에 전달할 로그인 데이터 ===');
+      console.log('id:', loginData.id);
+      console.log('email:', loginData.email);
+      console.log('name:', loginData.name);
+      console.log('token:', loginData.token);
+      console.log('refreshToken:', loginData.refreshToken);
+      console.log('expiresAt:', loginData.expiresAt);
+      console.log('keepLogin:', loginData.keepLogin);
+
+      try {
+        (
+          window.webkit.messageHandlers as Record<string, SaveLoginInfoHandler>
+        ).saveLoginInfo.postMessage({
+          loginData: loginData,
+        });
+        console.log('=== [WEB] iOS 앱으로 메시지 전송 성공 ===');
+      } catch (error) {
+        console.error('=== [WEB] iOS 앱으로 메시지 전송 실패 ===', error);
+      }
+    } else {
+      console.log('=== [WEB] iOS WebKit 메시지 핸들러 없음 ===');
+      console.log('window.webkit:', !!window.webkit);
+      console.log(
+        'window.webkit.messageHandlers:',
+        !!window.webkit?.messageHandlers
+      );
+      console.log(
+        'saveLoginInfo 핸들러:',
+        !!(
+          window.webkit?.messageHandlers as Record<string, SaveLoginInfoHandler>
+        )?.saveLoginInfo
+      );
     }
 
     Axios.defaults.headers.Authorization = `Bearer ${response.data.accessToken}`;
