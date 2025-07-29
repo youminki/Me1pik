@@ -8,7 +8,7 @@ import CustomerServiceIcon from '@/assets/bottom-navigations/CustomerServiceIcon
 import HomeIcon from '@/assets/bottom-navigations/HomeIcon.svg';
 import LockerRoomIcon from '@/assets/bottom-navigations/LockerRoomIcon.svg';
 import MelpikIcon from '@/assets/bottom-navigations/MelpikIcon.svg';
-import { isNativeApp } from '@/utils/nativeApp';
+
 
 interface Tab {
   key: string;

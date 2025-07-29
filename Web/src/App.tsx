@@ -23,7 +23,7 @@ import {
   refreshToken,
   getCurrentToken,
 } from '@/utils/auth';
-import { isNativeApp } from '@/utils/nativeApp';
+
 
 // React Query 클라이언트 설정 - 성능 최적화
 const queryClient = new QueryClient({

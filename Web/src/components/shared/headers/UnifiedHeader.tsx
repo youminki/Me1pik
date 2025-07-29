@@ -18,7 +18,7 @@ import Logo from '@/assets/Logo.svg';
 import MypageModal from '@/components/shared/modals/MypageModal';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
-import { isNativeApp, isAndroidApp } from '@/utils/nativeApp';
+
 
 interface HeaderContainerProps {
   $variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';

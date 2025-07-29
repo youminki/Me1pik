@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 import App from './App.tsx';
 import { startPerformanceMonitoring } from './utils/performance.ts';
-import {
-  isNativeApp,
-} from './utils/nativeApp';
+
 
 import './styles/index.css';
 
