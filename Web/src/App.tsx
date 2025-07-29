@@ -18,12 +18,10 @@ import { theme } from '@/styles/Theme';
 import {
   checkTokenAndRedirect,
   isProtectedRoute,
-  saveTokens,
   hasValidToken,
   refreshToken,
   getCurrentToken,
 } from '@/utils/auth';
-
 
 // React Query 클라이언트 설정 - 성능 최적화
 const queryClient = new QueryClient({
@@ -180,20 +178,6 @@ const AuthGuard: React.FC = () => {
   }, [location.pathname, navigate]);
 
   useEffect(() => {
-    // 네이티브 앱 로그인 정보 수신 처리
-    function handleLoginInfoReceived(e: Event) {
-      const customEvent = e as CustomEvent;
-      const loginInfo = customEvent.detail;
-
-      if (loginInfo && loginInfo.token) {
-        // 토큰 저장
-        saveTokens(loginInfo.token, loginInfo.refreshToken || '');
-
-        // 홈으로 이동
-        navigate('/home', { replace: true });
-      }
-    }
-
     // 초기 인증 체크
     const checkInitialAuth = async () => {
       try {
@@ -208,22 +192,7 @@ const AuthGuard: React.FC = () => {
       }
     };
 
-    // 네이티브 앱 이벤트 리스너 등록
-    if (isNativeApp()) {
-      window.addEventListener('loginInfoReceived', handleLoginInfoReceived);
-    }
-
     checkInitialAuth();
-
-    // 클린업
-    return () => {
-      if (isNativeApp()) {
-        window.removeEventListener(
-          'loginInfoReceived',
-          handleLoginInfoReceived
-        );
-      }
-    };
   }, [location.pathname, navigate, redirectToLogin]);
 
   // 라우트 변경 시 인증 체크
