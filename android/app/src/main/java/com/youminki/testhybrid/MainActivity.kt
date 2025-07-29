@@ -313,6 +313,9 @@ class MainActivity : AppCompatActivity() {
 
     // 상태바 영역만큼 웹뷰 띄우기 설정
     private fun setupFullscreenMode() {
+        // 상태바 투명화
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        
         // 상태바는 그대로 유지하고 웹뷰만 띄우기
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11+ (API 30+)
@@ -332,8 +335,53 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
+        
+        // 상태바 높이만큼 웹뷰에 패딩 추가
+        applyStatusBarPadding()
+    }
+    
+    // 상태바 높이만큼 패딩 적용
+    private fun applyStatusBarPadding() {
+        val statusBarHeight = getStatusBarHeight()
+        webView.setPadding(0, statusBarHeight, 0, 0)
+        
+        // 웹뷰에 CSS 변수로 상태바 높이 전달
+        val css = """
+            :root {
+                --status-bar-height: ${statusBarHeight}px;
+            }
+            body {
+                padding-top: var(--status-bar-height) !important;
+            }
+        """.trimIndent()
+        
+        webView.evaluateJavascript("""
+            (function() {
+                var style = document.createElement('style');
+                style.textContent = `$css`;
+                document.head.appendChild(style);
+            })();
+        """.trimIndent(), null)
+    }
+    
+    // 상태바 높이 가져오기
+    private fun getStatusBarHeight(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) {
+            resources.getDimensionPixelSize(resourceId)
+        } else {
+            // 기본값 (대부분의 기기에서 약 24dp)
+            (24 * resources.displayMetrics.density).toInt()
+        }
     }
 
+    // 화면 회전 시 상태바 패딩 재적용
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // 화면 회전 후 상태바 패딩 재적용
+        applyStatusBarPadding()
+    }
+    
     // 권한 요청
     private fun requestPermissionsIfNeeded() {
         val toRequest = permissions.filter {
