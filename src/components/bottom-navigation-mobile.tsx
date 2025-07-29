@@ -62,15 +62,16 @@ const CartButton = styled.button`
   margin: 0 21px;
 `;
 const CartImage = styled.img``;
-const OrderButton = styled.button`
+const OrderButton = styled.button<{ disabled?: boolean }>`
   width: 100%;
   height: 56px;
-  background-color: ${theme.colors.black};
+  background-color: ${({ disabled }) =>
+    disabled ? theme.colors.gray : theme.colors.black};
   border: none;
   border-radius: 6px;
   color: ${theme.colors.white};
   font-size: 16px;
   font-weight: 800;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   margin-right: 11px;
 `;

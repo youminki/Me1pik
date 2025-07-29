@@ -141,7 +141,7 @@ const Schedule: React.FC = () => {
                             ? '예약된 스케줄'
                             : uiStatus === 'inProgress'
                               ? '진행된 스케줄'
-                              : '미진행 스케줄'}
+                              : '완료된 스케줄'}
                         </MiniTitle>
                         <ScheduleItem>
                           <Details>

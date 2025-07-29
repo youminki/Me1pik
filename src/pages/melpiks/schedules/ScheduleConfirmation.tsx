@@ -28,8 +28,13 @@ const MAX_SELECTION = 6;
 const COLOR_WHITE = '#ffffff';
 const COLOR_GRAY2 = '#757575';
 
-const truncateText = (text: string, limit: number): string =>
-  text.length > limit ? `${text.slice(0, limit)}...` : text;
+const truncateText = (
+  text: string | null | undefined,
+  limit: number
+): string => {
+  if (!text) return '';
+  return text.length > limit ? `${text.slice(0, limit)}...` : text;
+};
 
 const formatDateWithDay = (dateStr: string): string => {
   const date = new Date(dateStr);
@@ -49,6 +54,7 @@ interface ItemCardProps {
   description: string;
   onSelect: (id: string) => void;
   $isSelected: boolean;
+  $isDisabled?: boolean;
 }
 
 const ItemCard: React.FC<ItemCardProps> = ({
@@ -58,12 +64,13 @@ const ItemCard: React.FC<ItemCardProps> = ({
   description,
   onSelect,
   $isSelected,
+  $isDisabled = false,
 }) => {
   const handleSelect = () => onSelect(id);
 
   return (
     <CardContainer>
-      <ImageWrapper onClick={handleSelect}>
+      <ImageWrapper onClick={handleSelect} $disabled={$isDisabled}>
         <Image src={image} alt={brand} />
         {$isSelected && (
           <SelectionOverlay>
@@ -180,6 +187,9 @@ const ScheduleConfirmation: React.FC = () => {
   }, []);
 
   const toggleSelect = (id: string) => {
+    // 완료된 스케줄에서는 제품 선택 불가
+    if (detail?.status === 'completed') return;
+
     setSelectedItems((prev) =>
       prev.includes(id)
         ? prev.filter((x) => x !== id)
@@ -198,18 +208,86 @@ const ScheduleConfirmation: React.FC = () => {
   // 수정하기: 날짜·타이틀·선택 제품 모두 저장
   const handleEdit = async () => {
     if (!scheduleId || !detail) return;
+
+    console.log('=== 스케줄 수정 시도 ===');
+    console.log('handleEdit 시작 - scheduleId:', scheduleId);
+    console.log('detail:', detail);
+    console.log('스케줄 상태:', detail.status);
+    console.log('selectedItems:', selectedItems);
+    console.log('========================');
+
+    // 선택된 제품이 없으면 경고
+    if (selectedItems.length === 0) {
+      alert('하나 이상의 제품을 선택해주세요.');
+      return;
+    }
+
+    // 스케줄 상태 확인 - 경고만 표시하고 수정은 시도
+    if (detail.status !== 'scheduled' && detail.status !== 'scheduling') {
+      const confirmed = window.confirm(
+        `현재 스케줄 상태가 '${detail.status}'입니다. 수정을 시도하시겠습니까?\n\n일부 상태에서는 수정이 제한될 수 있습니다.`
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    // 현재 표시된 날짜 범위 사용 (모달에서 변경된 날짜 포함)
     const [s, e] = detail.dateRange.split('~').map((d) => d.trim());
-    await patchSaleSchedule(Number(scheduleId), {
+    console.log('파싱된 날짜 - startDate:', s, 'endDate:', e);
+
+    const requestData = {
       title: detail.title,
       startDate: s,
       endDate: e,
       productIds: selectedItems.map((id) => Number(id)), // 제품 목록 전달
-    });
-    // 저장 후 다시 상세 조회
-    const updated = await getSaleScheduleDetail(Number(scheduleId));
-    setDetail(updated);
-    setSelectedItems(updated.products.map((p) => String(p.id)));
-    alert('스케줄이 저장되었습니다.');
+    };
+
+    console.log('PATCH 요청 데이터:', requestData);
+    console.log('요청 URL:', `/sale_schedule/${scheduleId}`);
+
+    try {
+      await patchSaleSchedule(Number(scheduleId), requestData);
+      // 저장 후 다시 상세 조회
+      const updated = await getSaleScheduleDetail(Number(scheduleId));
+      setDetail(updated);
+      setSelectedItems(updated.products.map((p) => String(p.id)));
+      alert('스케줄이 저장되었습니다.');
+    } catch (error: unknown) {
+      console.error('스케줄 수정 실패:', error);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string }; status?: number };
+        };
+        console.error('에러 응답 데이터:', axiosError.response?.data);
+        console.error('에러 상태 코드:', axiosError.response?.status);
+
+        // 서버에서 반환한 구체적인 오류 메시지 표시
+        const errorMessage =
+          axiosError.response?.data?.message || '스케줄 수정에 실패했습니다.';
+
+        if (errorMessage.includes('이 상태의 스케줄은 수정할 수 없습니다')) {
+          const action = window.confirm(
+            `${errorMessage}\n\n스케줄을 삭제하고 새로 생성하시겠습니까?`
+          );
+          if (action) {
+            // 스케줄 삭제 후 새로 생성하는 로직
+            try {
+              await deleteSaleSchedule(Number(scheduleId));
+              alert('스케줄이 삭제되었습니다. 새 스케줄을 생성해주세요.');
+              navigate('/schedule/reservation1');
+            } catch (deleteError) {
+              console.error('스케줄 삭제 실패:', deleteError);
+              alert('스케줄 삭제에 실패했습니다.');
+            }
+          }
+        } else {
+          alert(`수정 실패: ${errorMessage}`);
+        }
+      } else {
+        alert('스케줄 수정에 실패했습니다.');
+      }
+    }
   };
 
   // 모달 내 날짜 선택 로직
@@ -275,6 +353,17 @@ const ScheduleConfirmation: React.FC = () => {
           <Label>스케줄 타이틀</Label>
           <TextBox>{detail.title}</TextBox>
 
+          <Label>스케줄 상태</Label>
+          <StatusBox $status={detail.status}>
+            {detail.status === 'completed'
+              ? '완료'
+              : detail.status === 'scheduled'
+                ? '예약됨'
+                : detail.status === 'scheduling'
+                  ? '예약 중'
+                  : detail.status}
+          </StatusBox>
+
           <Label>스케줄 예약일자</Label>
           <ClickableBox>
             <span style={{ flex: 1 }}>
@@ -283,7 +372,11 @@ const ScheduleConfirmation: React.FC = () => {
                 .map((d) => formatDateWithDay(d.trim()))
                 .join(' ~ ')}
             </span>
-            <ChangeBtn type='button' onClick={() => setShowModal(true)}>
+            <ChangeBtn
+              type='button'
+              onClick={() => setShowModal(true)}
+              disabled={detail.status === 'completed'}
+            >
               변경
             </ChangeBtn>
           </ClickableBox>
@@ -333,6 +426,7 @@ const ScheduleConfirmation: React.FC = () => {
                       description={truncateText(item.description, 12)}
                       onSelect={toggleSelect}
                       $isSelected={sel}
+                      $isDisabled={detail?.status === 'completed'}
                     />
                   );
                 })}
@@ -344,8 +438,9 @@ const ScheduleConfirmation: React.FC = () => {
         <BottomBar
           imageSrc={DeleteButtonIcon}
           cartOnClick={handleDelete}
-          buttonText='수정하기'
+          buttonText={detail.status === 'completed' ? '수정 불가' : '수정하기'}
           onClick={handleEdit}
+          disabled={detail.status === 'completed'}
         />
 
         {showModal && editRange && (
@@ -438,6 +533,27 @@ const TextBox = styled.div`
   font-size: 13px;
   line-height: 14px;
 `;
+
+const StatusBox = styled.div<{ $status: string }>`
+  display: flex;
+  align-items: center;
+  height: 51px;
+  padding: 0 10px;
+  border: 1px solid #000;
+  background-color: ${({ $status }) =>
+    $status === 'completed'
+      ? '#f5f5f5'
+      : $status === 'scheduled'
+        ? '#e8f5e8'
+        : $status === 'scheduling'
+          ? '#fff3cd'
+          : '#ffffff'};
+  color: ${({ $status }) => ($status === 'completed' ? '#666666' : '#000000')};
+
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 14px;
+`;
 const ClickableBox = styled(TextBox)`
   cursor: default;
   display: flex;
@@ -445,18 +561,20 @@ const ClickableBox = styled(TextBox)`
   align-items: center;
   gap: 0;
 `;
-const ChangeBtn = styled.button`
+const ChangeBtn = styled.button<{ disabled?: boolean }>`
   padding: 6px 12px;
   margin-left: 8px;
-  background: ${theme.colors.yellow};
+  background: ${({ disabled }) =>
+    disabled ? theme.colors.gray : theme.colors.yellow};
   color: #fff;
 
   border: none;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 700;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   height: 32px;
+  opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
 `;
 const RowContainer = styled.div`
   display: flex;
@@ -522,12 +640,13 @@ const CardContainer = styled.div`
   margin: 6px;
   position: relative;
 `;
-const ImageWrapper = styled.div`
+const ImageWrapper = styled.div<{ $disabled?: boolean }>`
   position: relative;
   width: 140px;
   height: 210px;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   border: 1px solid ${theme.colors.gray4};
+  opacity: ${({ $disabled }) => ($disabled ? 0.6 : 1)};
 `;
 const Image = styled.img`
   object-fit: cover;

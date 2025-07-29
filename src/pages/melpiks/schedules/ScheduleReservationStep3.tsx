@@ -88,8 +88,13 @@ const ItemList: React.FC<ItemListProps> = ({
   );
 };
 
-const truncateText = (text: string, limit: number): string =>
-  text.length > limit ? `${text.slice(0, limit)}...` : text;
+const truncateText = (
+  text: string | null | undefined,
+  limit: number
+): string => {
+  if (!text) return '';
+  return text.length > limit ? `${text.slice(0, limit)}...` : text;
+};
 
 const ScheduleReservation3: React.FC = () => {
   const navigate = useNavigate();

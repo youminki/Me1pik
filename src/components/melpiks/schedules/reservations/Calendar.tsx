@@ -42,7 +42,7 @@ const Calendar: React.FC<CalendarProps> = ({
     return d < todayZero;
   };
 
-  const isSelected = (day: number) => {
+  const isInSelectedRange = (day: number) => {
     if (!startDate || !endDate) return false;
     const s = startDate.getTime();
     const e = endDate.getTime();
@@ -80,7 +80,8 @@ const Calendar: React.FC<CalendarProps> = ({
         {Array.from({ length: daysInMonth }, (_, idx) => {
           const day = idx + 1;
           const disabled = isDisabled(day);
-          const selected = !disabled && isSelected(day);
+          const inSelectedRange = isInSelectedRange(day);
+          const selected = inSelectedRange;
           return (
             <DayBox
               key={day}
@@ -208,16 +209,16 @@ const DayBox = styled.div<{ disabled: boolean; selected: boolean }>`
   align-items: center;
   justify-content: center;
   background: ${(p) =>
-    p.disabled ? '#EEEEEE' : p.selected ? '#F6AE24' : '#FFFFFF'};
+    p.selected ? '#F6AE24' : p.disabled ? '#EEEEEE' : '#FFFFFF'};
   color: ${(p) =>
-    p.disabled ? '#AAAAAA' : p.selected ? '#FFFFFF' : '#000000'};
+    p.selected ? '#FFFFFF' : p.disabled ? '#AAAAAA' : '#000000'};
   border: 1px solid
-    ${(p) => (p.disabled ? '#DDDDDD' : p.selected ? '#F6AE24' : '#CCCCCC')};
+    ${(p) => (p.selected ? '#F6AE24' : p.disabled ? '#DDDDDD' : '#CCCCCC')};
   transition: background 0.2s;
 
   &:hover {
     background: ${(p) =>
-      p.disabled ? '#EEEEEE' : p.selected ? '#F6AE24' : '#EEEEEE'};
+      p.selected ? '#F6AE24' : p.disabled ? '#EEEEEE' : '#EEEEEE'};
   }
 `;
 
