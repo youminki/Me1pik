@@ -18,6 +18,21 @@ interface LoginError {
   [key: string]: unknown;
 }
 
+// iOS WebKit 인터페이스 정의
+interface LoginData {
+  id: string;
+  email: string;
+  name: string;
+  token: string;
+  refreshToken: string;
+  expiresAt: string;
+  keepLogin: boolean;
+}
+
+interface SaveLoginInfoHandler {
+  postMessage: (message: { loginData: LoginData }) => void;
+}
+
 function isLoginError(error: unknown): error is LoginError {
   return (
     typeof error === 'object' &&
@@ -60,6 +75,34 @@ export const LoginPost = async (
       sameSite: 'strict',
       path: '/',
     });
+
+    // iOS 앱에 로그인 정보 전달 (refreshToken 포함)
+    if (
+      window.webkit &&
+      window.webkit.messageHandlers &&
+      (window.webkit.messageHandlers as Record<string, SaveLoginInfoHandler>)
+        .saveLoginInfo
+    ) {
+      const loginData: LoginData = {
+        id: response.data.user?.id || '',
+        email: response.data.user?.email || '',
+        name:
+          (response.data.user as Record<string, string>)?.name ||
+          response.data.user?.email ||
+          '',
+        token: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+        expiresAt: new Date(Date.now() + 3600000).toISOString(), // 1시간 후 만료
+        keepLogin: autoLogin,
+      };
+
+      console.log('iOS 앱에 전달할 로그인 데이터:', loginData);
+      (
+        window.webkit.messageHandlers as Record<string, SaveLoginInfoHandler>
+      ).saveLoginInfo.postMessage({
+        loginData: loginData,
+      });
+    }
 
     Axios.defaults.headers.Authorization = `Bearer ${response.data.accessToken}`;
 
