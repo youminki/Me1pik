@@ -43,17 +43,22 @@ const Container = styled.div`
 const IconButton = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  border: 1px solid #000;
+  background-color: #fff;
+  transition: background-color 0.3s ease;
+
   img {
     width: 16px;
     height: 16px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #000;
-    background-color: #fff;
-    transition: background-color 0.3s ease;
+    display: block;
   }
-  &:hover img {
+
+  &:hover {
     background-color: #e6e6e6;
   }
 `;
@@ -61,19 +66,22 @@ const IconButton = styled.div`
 const FilterIconContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  border: 1px solid #000;
+  background-color: #fff;
+  transition: background-color 0.3s ease;
 
   img {
     width: 20px;
     height: 16px;
-    padding: 10px 8px;
-    border-radius: 4px;
-    border: 1px solid #000;
-    background-color: #fff;
-    transition: background-color 0.3s ease;
+    display: block;
   }
 
-  &:hover img {
+  &:hover {
     background-color: #e6e6e6;
   }
 `;
