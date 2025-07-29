@@ -132,18 +132,18 @@ export default BottomNav;
 const DockContainer = styled.nav<{ $visible: boolean }>`
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%)
-    translateY(${({ $visible }) => ($visible ? '0' : '100%')});
+  left: 0;
+  right: 0;
+  transform: translateY(${({ $visible }) => ($visible ? '0' : '100%')});
   transition: transform 0.3s ease;
   width: 100%;
-
-  padding: 0 16px;
   z-index: 1000;
 
   @media (min-width: 768px) {
     bottom: 3%;
-    transform: translateX(-50%);
+    left: 50%;
+    transform: translateX(-50%)
+      translateY(${({ $visible }) => ($visible ? '0' : '100%')});
     max-width: 400px;
   }
 `;
@@ -160,6 +160,7 @@ const Dock = styled.div`
   @media (max-width: 768px) {
     border-radius: 0;
     padding: 0 0 20px 0;
+    width: 100%;
   }
 `;
 
