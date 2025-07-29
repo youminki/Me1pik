@@ -1,0 +1,52 @@
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/.vscode/
+android/app/release/
+android/new_upload_key.jks
+android/upload_certificate.pem
+android/uplo
+
+# iOS
+ios/DerivedData/
+ios/build/
+ios/Pods/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Web
+Web/node_modules/
+Web/dist/
+Web/build/
+Web/.env
+Web/.env.local
+
+# Admin
+Admin/node_modules/
+Admin/dist/
+Admin/build/
+Admin/.env
+Admin/.env.local
+
+# General
+.DS_Store
+*.log
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db 
