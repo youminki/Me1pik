@@ -752,6 +752,8 @@ const Container = styled.div`
   align-items: center;
 
   background-color: #fff;
+
+  margin-bottom: 100px;
 `;
 
 const Header = styled.div`
