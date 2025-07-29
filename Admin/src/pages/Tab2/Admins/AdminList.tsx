@@ -16,7 +16,6 @@ import {
   AdminUpdateRequest,
 } from '@/api/admin';
 import { IoArrowBackOutline, IoArrowForwardOutline } from 'react-icons/io5';
-import { FaSearch } from 'react-icons/fa';
 import UserInfoIcon1 from '@/assets/UserDetail/UserInfoIcon1.svg';
 import UserInfoIcon2 from '@/assets/UserDetail/UserInfoIcon2.svg';
 // import UserInfoIcon2 from '../../../assets/UserDetail/UserInfoIcon2.svg'; // 미사용 제거
@@ -39,6 +38,8 @@ import AdminModal from '@/components/Modal/AdminModal';
 import TwoButtonModal from '@/components/TwoButtonModal';
 import SearchSubHeader, { TabItem } from '@/components/Header/SearchSubHeader';
 import { advancedSearchFilter, normalize } from '@/utils/advancedSearch';
+import RegisterButton from '@/components/RegisterButton';
+import Button02 from '@/components/Button02';
 
 // (1) 관리자 상세 더미 데이터 및 폼(간단 예시)
 // const permissionGroups = [
@@ -178,7 +179,6 @@ const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
 );
 
 const AdminList: React.FC = () => {
-  const [adminData, setAdminData] = useState<AdminRow[]>([]);
   const [allAdminData, setAllAdminData] = useState<AdminRow[]>([]); // 전체 데이터 저장
   const [totalCount, setTotalCount] = useState(0);
   const [selectedAdminNo, setSelectedAdminNo] = useState<number | null>(null);
@@ -247,7 +247,6 @@ const AdminList: React.FC = () => {
 
       setAllAdminData(mappedData);
       setTotalCount(res.total);
-      setAdminData(mappedData);
     } catch (err) {
       console.error('관리자 데이터 로드 실패', err);
     } finally {
@@ -489,7 +488,7 @@ const AdminList: React.FC = () => {
             </Table>
           </TableWrapper>
           <FooterRow>
-            <RegisterButton onClick={handleRegisterAdmin}>관리자 등록</RegisterButton>
+            <RegisterButton text="관리자 등록" onClick={handleRegisterAdmin} />
             <PaginationControls
               page={page}
               totalPages={totalPages}
@@ -514,41 +513,12 @@ const AdminList: React.FC = () => {
                     번호 <b>{selectedAdminDetail.no}</b>
                   </span>
                   <div style={{ display: 'flex', gap: 12 }}>
-                    <button
-                      style={{
-                        width: 100,
-                        height: 40,
-                        border: '1px solid #222',
-                        background: '#fff',
-                        color: '#222',
-                        fontWeight: 500,
-                        fontSize: 16,
-                        padding: 0,
-                        borderRadius: 4,
-                        cursor: 'pointer',
-                      }}
-                      onClick={handleDeleteClick}
-                    >
+                    <Button02 color="black" onClick={handleDeleteClick}>
                       삭제
-                    </button>
-                    <button
-                      style={{
-                        width: 100,
-                        height: 40,
-                        border: 'none',
-                        background: '#000',
-                        color: '#fff',
-                        fontWeight: 700,
-                        fontSize: 16,
-                        padding: 0,
-                        borderRadius: 4,
-                        cursor: 'pointer',
-                      }}
-                      onClick={handleSaveEdit}
-                      disabled={!editFields}
-                    >
+                    </Button02>
+                    <Button02 color="yellow" onClick={handleSaveEdit} disabled={!editFields}>
                       정보수정
-                    </button>
+                    </Button02>
                   </div>
                 </div>
                 <UserInfoContainer>
@@ -1198,21 +1168,20 @@ const MainFlexRow = styled.div`
 const LeftBox = styled.div`
   flex: 1 1 0;
   width: 100%;
-
+  min-width: 400px;
   background: #fff;
   border: 1px solid #eee;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  min-width: 0;
   box-sizing: border-box;
 `;
 
 const RightBox = styled.div`
   flex: 1 1 0;
   width: 100%;
+  min-width: 600px;
   background: #fff;
   border: 1px solid #eee;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  min-width: 0;
   padding: 1rem;
   box-sizing: border-box;
 `;
@@ -1278,17 +1247,6 @@ const FooterRow = styled.div`
   padding: 1rem;
 
   min-width: 0;
-`;
-
-const RegisterButton = styled.button`
-  width: 120px;
-  height: 40px;
-  background: #000;
-  color: #fff;
-  border: none;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
 `;
 
 const Placeholder = styled.div`
