@@ -9,10 +9,12 @@ const GlobalStyles = createGlobalStyle`
     --status-bar-height: 0px;
     --safe-area-top: 0px;
     --safe-area-bottom: 0px;
+    --android-top-margin: 0px;
     
     /* 네이티브 앱 환경에서 상태바 높이 설정 */
     ${isNativeApp() ? `--status-bar-height: ${getStatusBarHeight()}px;` : ''}
     ${isNativeApp() ? `--safe-area-top: ${getStatusBarHeight()}px;` : ''}
+    ${isNativeApp() ? `--android-top-margin: calc(${getStatusBarHeight()}px + 60px);` : ''}
     
     /* 색상 변수들 */
     --primary-color: #f7c600;

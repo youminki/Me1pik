@@ -352,12 +352,41 @@ class MainActivity : AppCompatActivity() {
 
     // 상태바 높이 가져오기
     private fun getStatusBarHeight(): Int {
+        // WindowInsets를 사용한 더 정확한 계산 (Android 11+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowInsets = window.decorView.rootWindowInsets
+            val systemBars = windowInsets?.getInsets(WindowInsetsCompat.Type.systemBars())
+            val statusBarHeight = systemBars?.top ?: 0
+            val navigationBarHeight = systemBars?.bottom ?: 0
+            
+            // 추가 여백
+            val additionalMargin = 60
+            return statusBarHeight + navigationBarHeight + additionalMargin
+        }
+        
+        // 기존 방식 (Android 10 이하)
         val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        return if (resourceId > 0) {
+        val statusBarHeight = if (resourceId > 0) {
             resources.getDimensionPixelSize(resourceId)
         } else {
             0
         }
+        
+        // 네비게이션바 높이 계산 (있는 경우)
+        val navigationBarHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val navResourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+            if (navResourceId > 0) {
+                resources.getDimensionPixelSize(navResourceId)
+            } else {
+                0
+            }
+        } else {
+            0
+        }
+        
+        // 안드로이드 시스템 UI 영역을 고려한 추가 여백
+        val additionalMargin = 60 // 추가 여백 (픽셀)
+        return statusBarHeight + navigationBarHeight + additionalMargin
     }
 
     // 웹뷰에 상태바 높이 전달
