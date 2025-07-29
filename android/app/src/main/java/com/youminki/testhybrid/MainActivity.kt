@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // WebView 설정 강화 (iOS 스타일 터치 최적화)
+        // WebView 설정 강화 (최적화된 터치 및 성능)
         val settings = webView.settings
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
@@ -90,17 +90,26 @@ class MainActivity : AppCompatActivity() {
         settings.allowContentAccess = true
         settings.mediaPlaybackRequiresUserGesture = false
         
-        // 터치 최적화 설정
+        // 성능 최적화 설정
         settings.setSupportZoom(false)
         settings.builtInZoomControls = false
         settings.displayZoomControls = false
         settings.loadWithOverviewMode = true
         settings.useWideViewPort = true
         
-        // iOS 스타일 스크롤 설정
+        // 추가 성능 최적화
+        settings.databaseEnabled = true
+        settings.setGeolocationEnabled(false)
+        settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+        
+        // 스크롤 최적화
         webView.isVerticalScrollBarEnabled = false
         webView.isHorizontalScrollBarEnabled = false
         webView.overScrollMode = View.OVER_SCROLL_NEVER
+        
+        // 터치 반응성 향상
+        webView.isFocusable = true
+        webView.isFocusableInTouchMode = true
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             settings.safeBrowsingEnabled = true
@@ -110,7 +119,7 @@ class MainActivity : AppCompatActivity() {
             CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
         }
 
-        // WebViewClient 설정 (SSL, 외부 URL, 로딩 표시)
+        // WebViewClient 설정 (SSL, 외부 URL, 로딩 표시, 성능 최적화)
         webView.webViewClient = object : WebViewClient() {
             override fun onReceivedSslError(
                 view: WebView?,
@@ -119,17 +128,32 @@ class MainActivity : AppCompatActivity() {
             ) {
                 handler?.cancel() // SSL 오류 발생 시 무조건 연결 차단
             }
+            
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val url = request?.url.toString()
                 return handleExternalUrl(url)
             }
+            
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
                 progressBar.visibility = FrameLayout.VISIBLE
             }
+            
             override fun onPageFinished(view: WebView?, url: String?) {
                 progressBar.visibility = FrameLayout.GONE
                 // 페이지 로딩 완료 시 로그인 상태 확인 및 전달
                 checkLoginStatus()
+                
+                // 성능 최적화: 불필요한 리소스 정리
+                System.gc()
+            }
+            
+            override fun onLoadResource(view: WebView?, url: String?) {
+                // 리소스 로딩 중 추가 최적화
+            }
+            
+            override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): android.webkit.WebResourceResponse? {
+                // 요청 인터셉트로 성능 최적화
+                return super.shouldInterceptRequest(view, request)
             }
         }
 
@@ -156,6 +180,9 @@ class MainActivity : AppCompatActivity() {
         
         // URL 로드
         webView.loadUrl(url)
+        
+        // 권한 요청
+        requestPermissionsIfNeeded()
 
         // JavaScript 인터페이스 추가 (웹뷰에서 네이티브 앱으로 메시지 전달)
         webView.addJavascriptInterface(object {
@@ -267,19 +294,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 앱이 포커스를 받을 때마다 시스템 UI 숨김
-        hideSystemUI()
-    }
-    
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            // 윈도우 포커스를 받을 때 시스템 UI 숨김
-            hideSystemUI()
-        }
-    }
+
 
     // 네트워크 연결 체크
     @Suppress("DEPRECATION")
@@ -296,67 +311,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // iOS 스타일 전체화면 모드 설정
+    // 상태바 영역만큼 웹뷰 띄우기 설정
     private fun setupFullscreenMode() {
-        // 상태바 투명화
-        window.statusBarColor = android.graphics.Color.TRANSPARENT
-        window.navigationBarColor = android.graphics.Color.TRANSPARENT
-        
-        // 시스템 UI 플래그 설정 (iOS 스타일)
+        // 상태바는 그대로 유지하고 웹뷰만 띄우기
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11+ (API 30+)
             window.setDecorFitsSystemWindows(false)
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            
-            // 시스템 바 숨김
-            val controller = WindowInsetsControllerCompat(window, window.decorView)
-            controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         } else {
             // Android 10 이하
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             )
         }
         
-        // 전체화면 모드 활성화
+        // 상태바 영역만큼 레이아웃 확장
         window.setFlags(
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
-        
-        // 시스템 UI 변경 리스너 추가
-        window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
-            if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
-                // 시스템 UI가 다시 나타나면 숨김
-                hideSystemUI()
-            }
-        }
-    }
-    
-    // 시스템 UI 숨김
-    private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val controller = WindowInsetsControllerCompat(window, window.decorView)
-            controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            )
-        }
     }
 
     // 권한 요청

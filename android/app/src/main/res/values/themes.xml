@@ -1,17 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Melpik_Hybrid_Android" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- iOS 스타일 전체화면 테마 -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <!-- 상태바 영역만큼 웹뷰 띄우기 테마 -->
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="android:windowFullscreen">true</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="Theme.Melpik_Hybrid_Android" parent="Base.Theme.Melpik_Hybrid_Android" />
