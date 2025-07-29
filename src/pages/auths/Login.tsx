@@ -325,6 +325,21 @@ const Login: React.FC = () => {
       const membership: MembershipInfo = await getMembershipInfo();
 
       // 네이티브 앱 환경이면 브릿지로 로그인 정보 전달 (로그 포함)
+      const loginData = {
+        id:
+          membership && 'id' in membership
+            ? (membership as { id?: string }).id || ''
+            : '',
+        email:
+          membership && 'email' in membership
+            ? (membership as { email?: string }).email || ''
+            : '',
+        name: membership.name || '',
+        token: accessToken || '',
+        refreshToken: refreshToken || '',
+        // expiresAt: (만료일 필요시 추가)
+      };
+      console.log('[BRIDGE] saveLoginInfo 호출', { loginData });
       const win = window as unknown as {
         webkit?: {
           messageHandlers?: {
@@ -341,22 +356,7 @@ const Login: React.FC = () => {
         win.webkit.messageHandlers.saveLoginInfo
       ) {
         console.log('[BRIDGE] 네이티브 브릿지 호출!');
-        win.webkit.messageHandlers.saveLoginInfo.postMessage({
-          loginData: {
-            id:
-              membership && 'id' in membership
-                ? (membership as { id?: string }).id
-                : undefined,
-            email:
-              membership && 'email' in membership
-                ? (membership as { email?: string }).email
-                : undefined,
-            name: membership.name,
-            token: accessToken,
-            refreshToken: refreshToken,
-            // expiresAt: (만료일 필요시 추가)
-          },
-        });
+        win.webkit.messageHandlers.saveLoginInfo.postMessage({ loginData });
       } else {
         console.log('[BRIDGE] 네이티브 브릿지 없음');
       }
