@@ -33,17 +33,7 @@ const HISTORY_KEY = 'search_history';
 
 const HeaderWrapper = styled.div`
   position: fixed;
-  top: ${() => {
-    if (isNativeApp()) {
-      // 안드로이드 앱의 경우 웹뷰에 이미 상단 패딩이 추가되어 있으므로 0으로 처리
-      if (isAndroidApp()) {
-        return '0';
-      }
-      // iOS 앱의 경우
-      return 'var(--status-bar-height, 0px)';
-    }
-    return '0';
-  }};
+  top: 0;
   left: 0;
   right: 0;
   background: #fff;

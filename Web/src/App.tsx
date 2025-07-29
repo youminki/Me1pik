@@ -23,12 +23,7 @@ import {
   refreshToken,
   getCurrentToken,
 } from '@/utils/auth';
-import {
-  isNativeApp,
-  setStatusBarHeight,
-  getStatusBarHeight,
-  setupStatusBarHeightListener,
-} from '@/utils/nativeApp';
+import { isNativeApp } from '@/utils/nativeApp';
 
 // React Query 클라이언트 설정 - 성능 최적화
 const queryClient = new QueryClient({
@@ -261,13 +256,7 @@ const App: React.FC = () => {
   }, []);
 
   // 네이티브 앱 환경에서 상태바 높이 설정
-  useEffect(() => {
-    if (isNativeApp()) {
-      const statusBarHeight = getStatusBarHeight();
-      setStatusBarHeight(statusBarHeight);
-      setupStatusBarHeightListener();
-    }
-  }, []);
+  // 앱 초기화 코드 제거됨
 
   return (
     <QueryClientProvider client={queryClient}>

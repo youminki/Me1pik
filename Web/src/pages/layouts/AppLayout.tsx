@@ -9,9 +9,6 @@ import useHeaderConfig from '@/hooks/useHeaderConfig';
 import { hideScrollbar } from '@/styles/CommonStyles';
 import {
   isNativeApp,
-  isAndroidApp,
-  setupStatusBarHeightListener,
-  getStatusBarHeight,
 } from '@/utils/nativeApp';
 
 const AppLayout: React.FC = () => {
@@ -26,31 +23,7 @@ const AppLayout: React.FC = () => {
     headerTitle,
   } = useHeaderConfig(location.pathname);
 
-  // 앱 초기화 시 상태바 높이 설정
-  useEffect(() => {
-    if (isNativeApp()) {
-      // 상태바 높이 리스너 설정
-      setupStatusBarHeightListener();
-
-      // 초기 상태바 높이 설정
-      const initialHeight = getStatusBarHeight();
-      if (initialHeight > 0) {
-        document.documentElement.style.setProperty(
-          '--status-bar-height',
-          `${initialHeight}px`
-        );
-      }
-
-      // 안드로이드 앱의 경우 기본값 설정
-      if (isAndroidApp()) {
-        const defaultHeight = 24; // 안드로이드 기본 상태바 높이
-        document.documentElement.style.setProperty(
-          '--status-bar-height',
-          `${defaultHeight}px`
-        );
-      }
-    }
-  }, []);
+  // 앱 초기화 코드 제거됨
 
   // BottomNav 표시 대상 경로
   const bottomNavPaths = [

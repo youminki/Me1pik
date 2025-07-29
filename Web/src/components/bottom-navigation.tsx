@@ -131,7 +131,7 @@ export default BottomNav;
 
 const DockContainer = styled.nav<{ $visible: boolean }>`
   position: fixed;
-  bottom: ${() => (isNativeApp() ? 'var(--safe-area-bottom, 0px)' : '0')};
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%)
     translateY(${({ $visible }) => ($visible ? '0' : '100%')});
@@ -142,8 +142,7 @@ const DockContainer = styled.nav<{ $visible: boolean }>`
   z-index: 1000;
 
   @media (min-width: 768px) {
-    bottom: ${() =>
-      isNativeApp() ? 'calc(3% + var(--safe-area-bottom, 0px))' : '3%'};
+    bottom: 3%;
     transform: translateX(-50%);
     max-width: 400px;
   }
