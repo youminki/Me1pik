@@ -1,0 +1,22 @@
+[build]
+  # 기본 빌드 설정 (사용되지 않음)
+  publish = "."
+  command = "echo 'No default build'"
+
+# Admin 프로젝트 배포 설정
+[context.admin]
+  command = "cd Admin && yarn install && yarn build"
+  publish = "Admin/dist"
+  environment = { NODE_VERSION = "20" }
+
+# Web 프로젝트 배포 설정  
+[context.web]
+  command = "cd Web && yarn install && yarn build"
+  publish = "Web/dist"
+  environment = { NODE_VERSION = "20" }
+
+# 리다이렉트 설정
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
