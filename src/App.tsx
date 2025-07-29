@@ -18,6 +18,9 @@ import {
   checkTokenAndRedirect,
   isProtectedRoute,
   saveTokens,
+  hasValidToken,
+  refreshToken,
+  getCurrentToken,
 } from '@/utils/auth';
 import { isNativeApp } from '@/utils/nativeApp';
 
@@ -238,6 +241,18 @@ const AuthGuard: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  useEffect(() => {
+    const tryAutoLogin = async () => {
+      const token = getCurrentToken();
+      if (token && !hasValidToken()) {
+        // accessToken이 만료된 경우 refresh 시도
+        await refreshToken();
+        // refresh 실패 시에는 기존 인증 체크 로직에 따라 로그인 페이지로 이동
+      }
+      // 토큰이 없으면 기존 인증 체크 로직이 동작함
+    };
+    tryAutoLogin();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
