@@ -391,31 +391,37 @@ class LoginManager: ObservableObject {
         print("- refreshToken: \(refreshToken)")
         
         // UserDefaults와 Keychain 간 토큰 동기화
-        if accessToken.isEmpty && !userDefaults.string(forKey: "accessToken").isNilOrEmpty {
-            print("UserDefaults accessToken이 비어있어 Keychain 값으로 동기화")
+        if accessToken.isEmpty {
+            if let userDefaultsToken = userDefaults.string(forKey: "accessToken"), !userDefaultsToken.isEmpty {
+                print("Keychain accessToken이 비어있어 UserDefaults 값으로 동기화")
+                accessToken = userDefaultsToken
+                // Keychain에도 저장
+                saveToKeychain(key: "accessToken", value: userDefaultsToken)
+            }
+        } else {
+            // Keychain에 토큰이 있으면 UserDefaults에도 저장
             userDefaults.set(accessToken, forKey: "accessToken")
         }
         
-        if refreshToken.isEmpty && !userDefaults.string(forKey: "refreshToken").isNilOrEmpty {
-            print("UserDefaults refreshToken이 비어있어 Keychain 값으로 동기화")
+        if refreshToken.isEmpty {
+            if let userDefaultsToken = userDefaults.string(forKey: "refreshToken"), !userDefaultsToken.isEmpty {
+                print("Keychain refreshToken이 비어있어 UserDefaults 값으로 동기화")
+                refreshToken = userDefaultsToken
+                // Keychain에도 저장
+                saveToKeychain(key: "refreshToken", value: userDefaultsToken)
+            }
+        } else {
+            // Keychain에 토큰이 있으면 UserDefaults에도 저장
             userDefaults.set(refreshToken, forKey: "refreshToken")
-        }
-        
-        // Keychain이 비어있으면 UserDefaults 값으로 동기화
-        if accessToken.isEmpty && !userDefaults.string(forKey: "accessToken").isNilOrEmpty {
-            print("Keychain accessToken이 비어있어 UserDefaults 값으로 동기화")
-            accessToken = userDefaults.string(forKey: "accessToken") ?? ""
-        }
-        
-        if refreshToken.isEmpty && !userDefaults.string(forKey: "refreshToken").isNilOrEmpty {
-            print("Keychain refreshToken이 비어있어 UserDefaults 값으로 동기화")
-            refreshToken = userDefaults.string(forKey: "refreshToken") ?? ""
         }
         
         userDefaults.synchronize()
         
-        // 로그인 상태 확인 및 복원
-        if (isLoggedIn && !accessToken.isEmpty) || (!refreshToken.isEmpty) {
+        // 로그인 상태 확인 및 복원 (조건 강화)
+        let hasValidToken = !accessToken.isEmpty || !refreshToken.isEmpty
+        let shouldRestoreLogin = isLoggedIn || hasValidToken
+        
+        if shouldRestoreLogin {
             print("✅ 토큰 존재, 자동 로그인 상태로 시작")
             print("  - isLoggedIn: \(isLoggedIn)")
             print("  - accessToken 존재: \(!accessToken.isEmpty)")
@@ -823,25 +829,29 @@ class LoginManager: ObservableObject {
         SecItemDelete(query as CFDictionary)
     }
     
-    // MARK: - 토큰 저장 확인
+    // MARK: - 토큰 저장 확인 및 복구
     func verifyTokenStorage() {
         let accessTokenFromDefaults = userDefaults.string(forKey: "accessToken")
         let accessTokenFromKeychain = loadFromKeychain(key: "accessToken")
         let refreshTokenFromDefaults = userDefaults.string(forKey: "refreshToken")
         let refreshTokenFromKeychain = loadFromKeychain(key: "refreshToken")
+        let isLoggedIn = userDefaults.bool(forKey: "isLoggedIn")
         
         print("🔍 Token storage verification:")
+        print("  - isLoggedIn: \(isLoggedIn)")
         print("  - UserDefaults accessToken: \(accessTokenFromDefaults != nil ? "✅" : "❌")")
         print("  - Keychain accessToken: \(accessTokenFromKeychain != nil ? "✅" : "❌")")
         print("  - UserDefaults refreshToken: \(refreshTokenFromDefaults != nil ? "✅" : "❌")")
         print("  - Keychain refreshToken: \(refreshTokenFromKeychain != nil ? "✅" : "❌")")
         
-        // 토큰 불일치 시 Keychain에서 복원
+        // 토큰 불일치 시 복구
         if accessTokenFromDefaults != accessTokenFromKeychain {
             print("⚠️ Access token mismatch detected, restoring from Keychain")
             if let keychainToken = accessTokenFromKeychain {
                 userDefaults.set(keychainToken, forKey: "accessToken")
                 userDefaults.synchronize()
+            } else if let defaultsToken = accessTokenFromDefaults {
+                saveToKeychain(key: "accessToken", value: defaultsToken)
             }
         }
         
@@ -850,7 +860,22 @@ class LoginManager: ObservableObject {
             if let keychainToken = refreshTokenFromKeychain {
                 userDefaults.set(keychainToken, forKey: "refreshToken")
                 userDefaults.synchronize()
+            } else if let defaultsToken = refreshTokenFromDefaults {
+                saveToKeychain(key: "refreshToken", value: defaultsToken)
             }
+        }
+        
+        // 로그인 상태 복구 (토큰이 있지만 isLoggedIn이 false인 경우)
+        let hasValidToken = (accessTokenFromDefaults != nil && !accessTokenFromDefaults!.isEmpty) || 
+                           (accessTokenFromKeychain != nil && !accessTokenFromKeychain!.isEmpty) ||
+                           (refreshTokenFromDefaults != nil && !refreshTokenFromDefaults!.isEmpty) ||
+                           (refreshTokenFromKeychain != nil && !refreshTokenFromKeychain!.isEmpty)
+        
+        if hasValidToken && !isLoggedIn {
+            print("⚠️ 토큰은 있지만 로그인 상태가 false - 복구 시도")
+            userDefaults.set(true, forKey: "isLoggedIn")
+            userDefaults.synchronize()
+            print("✅ 로그인 상태 복구 완료")
         }
     }
     

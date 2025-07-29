@@ -27,12 +27,20 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         print("앱이실행되었습니다") // 앱 실행 확인용 로그
 
-        // 앱 시작 시 로그인 상태 복원
+        // 앱 시작 시 로그인 상태 복원 (강화)
         print("=== 앱 시작 - 로그인 상태 복원 시작 ===")
+        
+        // 로그인 상태 복원
         LoginManager.shared.loadLoginState()
         
-        // 토큰 저장 상태 확인
+        // 토큰 저장 상태 확인 및 복구
         LoginManager.shared.verifyTokenStorage()
+        
+        // 로그인 상태 재확인 (이중 보장)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            print("=== 앱 시작 - 로그인 상태 재확인 ===")
+            LoginManager.shared.loadLoginState()
+        }
         
         // 푸시 알림 델리게이트 설정
         UNUserNotificationCenter.current().delegate = self
