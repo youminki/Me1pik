@@ -4,11 +4,11 @@ import styled from 'styled-components';
 const Stepper: React.FC<{ currentStep: number }> = ({ currentStep }) => {
   return (
     <StepperContainer>
-      <Step completed={currentStep >= 1}>1</Step>
+      <Step $completed={currentStep >= 1}>1</Step>
       <StepLine />
-      <Step completed={currentStep >= 2}>2</Step>
+      <Step $completed={currentStep >= 2}>2</Step>
       <StepLine />
-      <Step completed={currentStep >= 3}>3</Step>
+      <Step $completed={currentStep >= 3}>3</Step>
     </StepperContainer>
   );
 };
@@ -21,12 +21,12 @@ const StepperContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-const Step = styled.div<{ completed: boolean }>`
+const Step = styled.div<{ $completed: boolean }>`
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background-color: ${(props) =>
-    props.completed ? props.theme.colors.yellow : props.theme.colors.gray2};
+    props.$completed ? props.theme.colors.yellow : props.theme.colors.gray2};
   display: flex;
   align-items: center;
   justify-content: center;

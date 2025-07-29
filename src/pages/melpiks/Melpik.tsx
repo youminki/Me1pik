@@ -12,10 +12,10 @@ import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
 const menuItems = [
-  { icon: MelpikCreateIcon, label: '내 옷장', path: '/create-melpik' },
-  { icon: MelpikScheduelerIcon, label: '이용 내역', path: '/sales-schedule' },
-  { icon: MelpikCalculateIcon, label: '포인트', path: '/sales-settlement' },
-  { icon: MelpikOptionIcon, label: '티켓', path: '/melpik-settings' },
+  { icon: MelpikCreateIcon, label: '멜픽 생성', path: '/create-melpik' },
+  { icon: MelpikScheduelerIcon, label: '판매 스케줄', path: '/sales-schedule' },
+  { icon: MelpikCalculateIcon, label: '판매 정산', path: '/sales-settlement' },
+  { icon: MelpikOptionIcon, label: '멜픽설정', path: '/melpik-settings' },
 ];
 
 const disabledMenuIndexes = [0, 2]; // 0: 내 옷장, 2: 포인트

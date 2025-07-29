@@ -68,7 +68,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
       <CalendarContainer>
         {['일', '월', '화', '수', '목', '금', '토'].map((name, idx) => (
-          <DayName key={idx} isWeekend={idx === 0 || idx === 6}>
+          <DayName key={idx} $isWeekend={idx === 0 || idx === 6}>
             {name}
           </DayName>
         ))}
@@ -179,10 +179,10 @@ const CalendarContainer = styled.div`
   }
 `;
 
-const DayName = styled.div<{ isWeekend: boolean }>`
+const DayName = styled.div<{ $isWeekend: boolean }>`
   text-align: center;
   font-weight: bold;
-  color: ${(p) => (p.isWeekend ? '#888888' : '#000000')};
+  color: ${(p) => (p.$isWeekend ? '#888888' : '#000000')};
   aspect-ratio: 1;
   display: flex;
   align-items: center;
