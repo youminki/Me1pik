@@ -14,6 +14,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
+import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.PermissionRequest
 import android.webkit.SslErrorHandler
@@ -31,6 +33,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import org.json.JSONObject
 import java.security.cert.CertificateExpiredException
 import java.security.cert.CertificateNotYetValidException
@@ -49,6 +54,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // iOS 스타일 전체화면 설정
+        setupFullscreenMode()
 
         // SharedPreferences 초기화
         sharedPreferences = getSharedPreferences("MelpikPrefs", Context.MODE_PRIVATE)
@@ -73,7 +81,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // WebView 설정 강화
+        // WebView 설정 강화 (iOS 스타일 터치 최적화)
         val settings = webView.settings
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
@@ -81,6 +89,19 @@ class MainActivity : AppCompatActivity() {
         settings.allowFileAccess = true
         settings.allowContentAccess = true
         settings.mediaPlaybackRequiresUserGesture = false
+        
+        // 터치 최적화 설정
+        settings.setSupportZoom(false)
+        settings.builtInZoomControls = false
+        settings.displayZoomControls = false
+        settings.loadWithOverviewMode = true
+        settings.useWideViewPort = true
+        
+        // iOS 스타일 스크롤 설정
+        webView.isVerticalScrollBarEnabled = false
+        webView.isHorizontalScrollBarEnabled = false
+        webView.overScrollMode = View.OVER_SCROLL_NEVER
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             settings.safeBrowsingEnabled = true
         }
@@ -256,6 +277,34 @@ class MainActivity : AppCompatActivity() {
             val networkInfo = connectivityManager.activeNetworkInfo
             return networkInfo?.isConnected == true
         }
+    }
+
+    // iOS 스타일 전체화면 모드 설정
+    private fun setupFullscreenMode() {
+        // 상태바 투명화
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        
+        // 시스템 UI 플래그 설정 (iOS 스타일)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+ (API 30+)
+            window.setDecorFitsSystemWindows(false)
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+        } else {
+            // Android 10 이하
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            )
+        }
+        
+        // 전체화면 모드 활성화
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
     }
 
     // 권한 요청
