@@ -109,7 +109,6 @@ class MainActivity : AppCompatActivity() {
         settings.useWideViewPort = true
         
         // 추가 성능 최적화
-        settings.databaseEnabled = true
         settings.setGeolocationEnabled(false)
         settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
         
@@ -340,13 +339,13 @@ class MainActivity : AppCompatActivity() {
     private fun setupFullscreenMode() {
         // 상태바 색상을 정확한 흰색으로 설정 (#FFFFFF)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            @Suppress("DEPRECATION")
             window.statusBarColor = resources.getColor(com.youminki.testhybrid.R.color.status_bar_white, theme)
         }
         
         // 테마에서 이미 투명 상태바로 설정되어 있으므로 추가 설정만
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11+ (API 30+)
-            window.setDecorFitsSystemWindows(false)
             WindowCompat.setDecorFitsSystemWindows(window, false)
             
             // 상태바 아이콘을 어두운 색으로 설정
