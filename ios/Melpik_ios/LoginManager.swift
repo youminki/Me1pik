@@ -11,6 +11,19 @@ import LocalAuthentication
 import WebKit
 import Foundation
 
+// MARK: - String 확장
+extension String {
+    var isNilOrEmpty: Bool {
+        return self.isEmpty
+    }
+}
+
+extension Optional where Wrapped == String {
+    var isNilOrEmpty: Bool {
+        return self?.isEmpty ?? true
+    }
+}
+
 @MainActor
 class LoginManager: ObservableObject {
     static let shared = LoginManager()
@@ -34,14 +47,15 @@ class LoginManager: ObservableObject {
     deinit {
         print("LoginManager deinit")
         tokenRefreshTimer?.invalidate()
-        if let observer = appLifecycleObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
+        
+        // 모든 앱 생명주기 관찰자 제거
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - 앱 생명주기 관찰자 설정
     private func setupAppLifecycleObserver() {
-        appLifecycleObserver = NotificationCenter.default.addObserver(
+        // 앱이 비활성화될 때
+        let willResignObserver = NotificationCenter.default.addObserver(
             forName: UIApplication.willResignActiveNotification,
             object: nil,
             queue: .main
@@ -50,12 +64,89 @@ class LoginManager: ObservableObject {
                 self?.handleAppWillResignActive()
             }
         }
+        
+        // 앱이 백그라운드로 갈 때
+        let didEnterBackgroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleAppDidEnterBackground()
+            }
+        }
+        
+        // 앱이 종료될 때
+        let willTerminateObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleAppWillTerminate()
+            }
+        }
+        
+        // 앱이 활성화될 때
+        let didBecomeActiveObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleAppDidBecomeActive()
+            }
+        }
+        
+        // 관찰자들을 저장
+        appLifecycleObserver = willResignObserver
     }
     
     // MARK: - 앱이 비활성화될 때 처리
     private func handleAppWillResignActive() {
         print("🔄 App will resign active - ensuring token persistence")
         ensureTokenPersistence()
+    }
+    
+    // MARK: - 앱이 백그라운드로 갈 때 처리
+    private func handleAppDidEnterBackground() {
+        print("🔄 App did enter background - final token persistence check")
+        ensureTokenPersistence()
+        
+        // 백그라운드 작업 요청 (최대 30초)
+        var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
+        backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "TokenPersistence") {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+            backgroundTaskID = .invalid
+        }
+        
+        // 토큰 저장 완료 후 백그라운드 작업 종료
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            if backgroundTaskID != .invalid {
+                UIApplication.shared.endBackgroundTask(backgroundTaskID)
+                backgroundTaskID = .invalid
+            }
+        }
+    }
+    
+    // MARK: - 앱이 종료될 때 처리
+    private func handleAppWillTerminate() {
+        print("🔄 App will terminate - emergency token persistence")
+        emergencyTokenPersistence()
+    }
+    
+    // MARK: - 앱이 활성화될 때 처리
+    private func handleAppDidBecomeActive() {
+        print("🔄 App did become active - verifying token persistence")
+        verifyTokenStorage()
+        
+        // 토큰 유효성 확인 및 갱신
+        if let userInfo = userInfo, let expiresAt = userInfo.expiresAt {
+            if expiresAt.timeIntervalSinceNow < 300 { // 5분 이내 만료
+                print("⚠️ Token expires soon, refreshing...")
+                refreshAccessToken()
+            }
+        }
     }
     
     // MARK: - 토큰 저장 안정성 보장
@@ -72,6 +163,37 @@ class LoginManager: ObservableObject {
         }
         
         print("✅ Token persistence ensured before app backgrounding")
+    }
+    
+    // MARK: - 긴급 토큰 저장 (앱 종료 시)
+    private func emergencyTokenPersistence() {
+        guard let userInfo = userInfo else { return }
+        
+        print("🚨 Emergency token persistence - app terminating")
+        
+        // UserDefaults 즉시 동기화
+        userDefaults.set(true, forKey: "isLoggedIn")
+        userDefaults.set(userInfo.id, forKey: "userId")
+        userDefaults.set(userInfo.email, forKey: "userEmail")
+        userDefaults.set(userInfo.name, forKey: "userName")
+        userDefaults.set(userInfo.token, forKey: "accessToken")
+        if let refreshToken = userInfo.refreshToken {
+            userDefaults.set(refreshToken, forKey: "refreshToken")
+        }
+        if let expiresAt = userInfo.expiresAt {
+            userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
+        }
+        
+        // UserDefaults 강제 동기화
+        userDefaults.synchronize()
+        
+        // Keychain에 토큰 저장 (동기 방식으로 즉시 저장)
+        saveToKeychainSync(key: "accessToken", value: userInfo.token)
+        if let refreshToken = userInfo.refreshToken {
+            saveToKeychainSync(key: "refreshToken", value: refreshToken)
+        }
+        
+        print("✅ Emergency token persistence completed")
     }
     
     // MARK: - 토큰 자동 갱신 관리
@@ -96,13 +218,13 @@ class LoginManager: ObservableObject {
         } else {
             // 이미 만료되었거나 곧 만료될 예정이면 즉시 갱신
             Task { @MainActor in
-                refreshAccessToken()
+                refreshAccessTokenInternal()
             }
         }
     }
     
     @MainActor
-    private func refreshAccessToken() {
+    private func refreshAccessTokenInternal() {
         guard let refreshToken = userDefaults.string(forKey: "refreshToken") else {
             print("❌ No refresh token available")
             logout()
@@ -257,8 +379,8 @@ class LoginManager: ObservableObject {
         let expiresAtString = userDefaults.string(forKey: "tokenExpiresAt")
         
         // Keychain에서 토큰 로드
-        let accessToken = loadFromKeychain(key: "accessToken") ?? ""
-        let refreshToken = loadFromKeychain(key: "refreshToken") ?? ""
+        var accessToken = loadFromKeychain(key: "accessToken") ?? ""
+        var refreshToken = loadFromKeychain(key: "refreshToken") ?? ""
         
         print("UserDefaults 상태:")
         print("- isLoggedIn: \(isLoggedIn)")
@@ -268,13 +390,29 @@ class LoginManager: ObservableObject {
         print("- accessToken: \(accessToken)")
         print("- refreshToken: \(refreshToken)")
         
-        // UserDefaults가 비어있으면 Keychain 값으로 동기화
-        if accessToken.isEmpty && userDefaults.string(forKey: "accessToken") != nil {
-            print("UserDefaults가 비어있어 Keychain 값으로 동기화")
+        // UserDefaults와 Keychain 간 토큰 동기화
+        if accessToken.isEmpty && !userDefaults.string(forKey: "accessToken").isNilOrEmpty {
+            print("UserDefaults accessToken이 비어있어 Keychain 값으로 동기화")
             userDefaults.set(accessToken, forKey: "accessToken")
-            userDefaults.set(refreshToken, forKey: "refreshToken")
-            userDefaults.synchronize()
         }
+        
+        if refreshToken.isEmpty && !userDefaults.string(forKey: "refreshToken").isNilOrEmpty {
+            print("UserDefaults refreshToken이 비어있어 Keychain 값으로 동기화")
+            userDefaults.set(refreshToken, forKey: "refreshToken")
+        }
+        
+        // Keychain이 비어있으면 UserDefaults 값으로 동기화
+        if accessToken.isEmpty && !userDefaults.string(forKey: "accessToken").isNilOrEmpty {
+            print("Keychain accessToken이 비어있어 UserDefaults 값으로 동기화")
+            accessToken = userDefaults.string(forKey: "accessToken") ?? ""
+        }
+        
+        if refreshToken.isEmpty && !userDefaults.string(forKey: "refreshToken").isNilOrEmpty {
+            print("Keychain refreshToken이 비어있어 UserDefaults 값으로 동기화")
+            refreshToken = userDefaults.string(forKey: "refreshToken") ?? ""
+        }
+        
+        userDefaults.synchronize()
         
         // 로그인 상태 확인 및 복원
         if (isLoggedIn && !accessToken.isEmpty) || (!refreshToken.isEmpty) {
@@ -326,7 +464,16 @@ class LoginManager: ObservableObject {
     }
     
     // MARK: - 토큰 갱신
-    private func refreshAccessToken(refreshToken: String) {
+    func refreshAccessToken() {
+        guard let userInfo = userInfo, let refreshToken = userInfo.refreshToken else {
+            print("❌ No refresh token available for token refresh")
+            return
+        }
+        
+        refreshAccessTokenInternal(refreshToken: refreshToken)
+    }
+    
+    private func refreshAccessTokenInternal(refreshToken: String) {
         // 실제 구현에서는 서버에 refresh token을 보내서 새로운 access token을 받아야 함
         // 여기서는 예시로 간단히 처리
         print("Refreshing access token...")
@@ -580,6 +727,30 @@ class LoginManager: ObservableObject {
         // 저장 실패 시 로그
         if status != errSecSuccess {
             print("❌ Keychain save failed for key: \(key), status: \(status)")
+        }
+    }
+    
+    // MARK: - 동기식 Keychain 저장 (앱 종료 시 사용)
+    private func saveToKeychainSync(key: String, value: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: value.data(using: .utf8)!,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock // 앱 종료 후에도 접근 가능
+        ]
+        
+        // 기존 항목 삭제
+        SecItemDelete(query as CFDictionary)
+        
+        // 새 항목 추가
+        let status = SecItemAdd(query as CFDictionary, nil)
+        print("[saveToKeychainSync] key: \(key), status: \(status)")
+        
+        if status != errSecSuccess {
+            print("❌ Sync Keychain save failed for key: \(key), status: \(status)")
+        } else {
+            print("✅ Sync Keychain save successful for key: \(key)")
         }
     }
     

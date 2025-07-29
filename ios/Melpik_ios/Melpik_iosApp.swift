@@ -27,10 +27,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         print("앱이실행되었습니다") // 앱 실행 확인용 로그
 
-        let testToken = "test_token_\(Date().timeIntervalSince1970)"
-        LoginManager.shared.saveToKeychain(key: "accessToken", value: testToken)
-        let restored = LoginManager.shared.loadFromKeychain(key: "accessToken")
-        print("Keychain 테스트 저장/복원: \(restored ?? "nil")")
+        // 앱 시작 시 로그인 상태 복원
+        print("=== 앱 시작 - 로그인 상태 복원 시작 ===")
+        LoginManager.shared.loadLoginState()
+        
+        // 토큰 저장 상태 확인
+        LoginManager.shared.verifyTokenStorage()
         
         // 푸시 알림 델리게이트 설정
         UNUserNotificationCenter.current().delegate = self
@@ -43,6 +45,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         
         // 상태바 스타일 설정은 SwiftUI에서 처리
         
+        print("=== 앱 시작 - 로그인 상태 복원 완료 ===")
         return true
     }
     
@@ -112,6 +115,32 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                 print("토큰 전송 응답: \(httpResponse.statusCode)")
             }
         }.resume()
+    }
+    
+    // MARK: - 앱 생명주기 처리
+    func applicationWillResignActive(_ application: UIApplication) {
+        print("=== AppDelegate: applicationWillResignActive ===")
+        LoginManager.shared.ensureTokenPersistence()
+    }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        print("=== AppDelegate: applicationDidEnterBackground ===")
+        LoginManager.shared.ensureTokenPersistence()
+    }
+    
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        print("=== AppDelegate: applicationWillEnterForeground ===")
+        LoginManager.shared.verifyTokenStorage()
+    }
+    
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        print("=== AppDelegate: applicationDidBecomeActive ===")
+        LoginManager.shared.verifyTokenStorage()
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        print("=== AppDelegate: applicationWillTerminate ===")
+        LoginManager.shared.ensureTokenPersistence()
     }
     
     // MARK: - UNUserNotificationCenterDelegate

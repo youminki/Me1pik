@@ -672,7 +672,7 @@ struct WebView: UIViewRepresentable {
             print("WebView loaded - login info transmission disabled to prevent infinite rendering")
             
             // 상태바 높이 전달
-            parent.sendStatusBarHeightToWeb()
+            // parent.sendStatusBarHeightToWeb()
         }
         
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -744,7 +744,7 @@ struct WebView: UIViewRepresentable {
                 
             case "REQUEST_STATUS_BAR_HEIGHT":
                 // 상태바 높이 요청 처리
-                parent.handleStatusBarHeightRequest()
+                // parent.handleStatusBarHeightRequest()
                 print("상태바 높이 요청 처리")
                 
             default:
@@ -1292,6 +1292,14 @@ struct ContentViewMain: View {
             // 앱이 활성화될 때 토큰 저장 상태 확인
             loginManager.verifyTokenStorage()
             
+            // 토큰 유효성 확인 및 갱신
+            if let userInfo = loginManager.userInfo, let expiresAt = userInfo.expiresAt {
+                if expiresAt.timeIntervalSinceNow < 300 { // 5분 이내 만료
+                    print("⚠️ Token expires soon, refreshing...")
+                    loginManager.refreshAccessToken()
+                }
+            }
+            
         case .inactive:
             print("🔄 App became inactive - ensuring token persistence")
             // 앱이 비활성화될 때 토큰 저장 보장
@@ -1302,6 +1310,21 @@ struct ContentViewMain: View {
             // 앱이 백그라운드로 갈 때 최종 토큰 저장 확인
             loginManager.ensureTokenPersistence()
             
+            // 백그라운드 작업 요청 (최대 30초)
+            var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
+            backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "ContentViewTokenPersistence") {
+                UIApplication.shared.endBackgroundTask(backgroundTaskID)
+                backgroundTaskID = .invalid
+            }
+            
+            // 토큰 저장 완료 후 백그라운드 작업 종료
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                if backgroundTaskID != .invalid {
+                    UIApplication.shared.endBackgroundTask(backgroundTaskID)
+                    backgroundTaskID = .invalid
+                }
+            }
+            
         @unknown default:
             break
         }
@@ -1309,8 +1332,11 @@ struct ContentViewMain: View {
     
     // MARK: - 상태바 높이 처리
     private func getStatusBarHeight() -> CGFloat {
-        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
-        return window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+            return window.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        }
+        return 0
     }
     
     private func sendStatusBarHeightToWeb() {
