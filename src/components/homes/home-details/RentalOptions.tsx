@@ -177,8 +177,26 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
   const maxDays = 10;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  // ← 여기만 4로 변경
-  const minSelectableDate = _addDays(today, 4);
+  // 주말(토/일) 및 공휴일을 제외하고 평일 3일 뒤 날짜를 반환하는 함수
+  function getMinSelectableDateExcludeHolidayAndWeekend(
+    baseDate: Date,
+    minWeekdays: number = 3
+  ) {
+    let daysCounted = 0;
+    let date = new Date(baseDate);
+    while (daysCounted < minWeekdays) {
+      date = _addDays(date, 1);
+      // 주말(토/일) 또는 공휴일이면 카운트하지 않음
+      if (date.getDay() !== 0 && date.getDay() !== 6 && !hd.isHoliday(date)) {
+        daysCounted++;
+      }
+    }
+    return date;
+  }
+  const minSelectableDate = getMinSelectableDateExcludeHolidayAndWeekend(
+    today,
+    3
+  );
 
   const getTotalDays = (s: Date, e: Date) =>
     Math.floor((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1;
