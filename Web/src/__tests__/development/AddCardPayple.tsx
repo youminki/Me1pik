@@ -148,7 +148,7 @@ const Wrapper = styled.div`
   justify-content: center;
 
   background: #ffffff;
-  margin-top: 10px;
+  margin-top: 30px;
 `;
 
 const Inner = styled.div`

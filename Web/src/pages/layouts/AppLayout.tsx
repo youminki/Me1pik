@@ -8,7 +8,6 @@ import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import useHeaderConfig from '@/hooks/useHeaderConfig';
 import { hideScrollbar } from '@/styles/CommonStyles';
 
-
 const AppLayout: React.FC = () => {
   const location = useLocation();
 
@@ -66,7 +65,6 @@ export default AppLayout;
 
 const AppContainer = styled.div`
   height: 100vh;
-  overflow: hidden;
   background: #fff;
 `;
 
@@ -80,7 +78,7 @@ const FixedHeader = styled(UnifiedHeader)`
 
 const ContentContainer = styled.div`
   position: relative;
-  height: calc(100vh - 70px);
+  height: 100vh;
   overflow-y: auto;
   background: #fff;
   padding: 1rem;
