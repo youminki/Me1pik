@@ -1,6 +1,6 @@
 [build]
   publish = "dist"
-  command = "yarn build"
+  command = "yarn install && yarn build"
   environment = { NODE_VERSION = "20" }
 
 [[redirects]]
@@ -30,63 +30,6 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-[[headers]]
-  for = "*.woff2"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.woff"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.ttf"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.otf"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.svg"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.png"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.jpg"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.jpeg"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "*.webp"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# HTML 파일은 짧은 캐시 (빠른 업데이트)
-[[headers]]
-  for = "*.html"
-  [headers.values]
-    Cache-Control = "public, max-age=300, must-revalidate"
-
-# API 응답 캐싱 (서버에서 설정)
-[[headers]]
-  for = "/api/*"
-  [headers.values]
-    Cache-Control = "public, max-age=300, must-revalidate"
-
 # 보안 헤더
 [[headers]]
   for = "/*"
@@ -95,7 +38,3 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-
-# 필요 시 Functions 디렉터리 지정
-[functions]
-  directory = "functions"

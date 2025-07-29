@@ -1,5 +1,5 @@
+# 기본 빌드 설정 (사용되지 않음)
 [build]
-  # 기본 빌드 설정 (사용되지 않음)
   publish = "."
   command = "echo 'No default build'"
 
