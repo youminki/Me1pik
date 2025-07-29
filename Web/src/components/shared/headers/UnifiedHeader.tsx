@@ -33,7 +33,7 @@ const HISTORY_KEY = 'search_history';
 
 const HeaderWrapper = styled.div`
   position: fixed;
-  top: ${() => (isNativeApp() ? 'var(--android-top-margin, 0px)' : '0')};
+  top: ${() => (isNativeApp() ? 'var(--status-bar-height, 0px)' : '0')};
   left: 0;
   right: 0;
   background: #fff;

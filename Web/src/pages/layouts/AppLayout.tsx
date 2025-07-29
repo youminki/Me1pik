@@ -70,7 +70,7 @@ const AppContainer = styled.div`
 
 const FixedHeader = styled(UnifiedHeader)`
   position: fixed;
-  top: ${() => (isNativeApp() ? 'var(--android-top-margin, 0px)' : '0')};
+  top: ${() => (isNativeApp() ? 'var(--status-bar-height, 0px)' : '0')};
   left: 0;
   width: 100%;
   z-index: 1000;
@@ -84,7 +84,7 @@ const ContentContainer = styled.div`
   padding: 1rem;
   margin: auto;
   padding-top: ${() =>
-    isNativeApp() ? 'calc(70px + var(--android-top-margin, 0px))' : '70px'};
+    isNativeApp() ? 'calc(70px + var(--status-bar-height, 0px))' : '70px'};
 
   ${hideScrollbar}
 `;
