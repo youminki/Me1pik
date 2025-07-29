@@ -66,7 +66,7 @@ class LoginManager: ObservableObject {
         }
         
         // 앱이 백그라운드로 갈 때
-        let didEnterBackgroundObserver = NotificationCenter.default.addObserver(
+        _ = NotificationCenter.default.addObserver(
             forName: UIApplication.didEnterBackgroundNotification,
             object: nil,
             queue: .main
@@ -77,7 +77,7 @@ class LoginManager: ObservableObject {
         }
         
         // 앱이 종료될 때
-        let willTerminateObserver = NotificationCenter.default.addObserver(
+        _ = NotificationCenter.default.addObserver(
             forName: UIApplication.willTerminateNotification,
             object: nil,
             queue: .main
@@ -88,7 +88,7 @@ class LoginManager: ObservableObject {
         }
         
         // 앱이 활성화될 때
-        let didBecomeActiveObserver = NotificationCenter.default.addObserver(
+        _ = NotificationCenter.default.addObserver(
             forName: UIApplication.didBecomeActiveNotification,
             object: nil,
             queue: .main
