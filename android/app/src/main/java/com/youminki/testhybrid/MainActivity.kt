@@ -153,6 +153,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+        
+        // URL 로드
+        webView.loadUrl(url)
 
         // JavaScript 인터페이스 추가 (웹뷰에서 네이티브 앱으로 메시지 전달)
         webView.addJavascriptInterface(object {
@@ -264,6 +267,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // 앱이 포커스를 받을 때마다 시스템 UI 숨김
+        hideSystemUI()
+    }
+    
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            // 윈도우 포커스를 받을 때 시스템 UI 숨김
+            hideSystemUI()
+        }
+    }
+
     // 네트워크 연결 체크
     @Suppress("DEPRECATION")
     private fun isNetworkAvailable(context: Context): Boolean {
@@ -283,12 +300,18 @@ class MainActivity : AppCompatActivity() {
     private fun setupFullscreenMode() {
         // 상태바 투명화
         window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         
         // 시스템 UI 플래그 설정 (iOS 스타일)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11+ (API 30+)
             window.setDecorFitsSystemWindows(false)
             WindowCompat.setDecorFitsSystemWindows(window, false)
+            
+            // 시스템 바 숨김
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         } else {
             // Android 10 이하
             @Suppress("DEPRECATION")
@@ -296,6 +319,8 @@ class MainActivity : AppCompatActivity() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             )
         }
@@ -305,6 +330,33 @@ class MainActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
+        
+        // 시스템 UI 변경 리스너 추가
+        window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
+            if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
+                // 시스템 UI가 다시 나타나면 숨김
+                hideSystemUI()
+            }
+        }
+    }
+    
+    // 시스템 UI 숨김
+    private fun hideSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            )
+        }
     }
 
     // 권한 요청
