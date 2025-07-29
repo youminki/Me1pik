@@ -37,19 +37,18 @@ Axios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // sessionStorage도 확인
+        // sessionStorage도 확인 (삭제)
         const LOCAL_REFRESH_TOKEN = localStorage.getItem('refreshToken');
-        const SESSION_REFRESH_TOKEN = sessionStorage.getItem('refreshToken');
+        // const SESSION_REFRESH_TOKEN = sessionStorage.getItem('refreshToken'); (삭제)
         const COOKIE_REFRESH_TOKEN = Cookies.get('refreshToken');
-        const REFRESH_TOKEN =
-          LOCAL_REFRESH_TOKEN || SESSION_REFRESH_TOKEN || COOKIE_REFRESH_TOKEN;
+        const REFRESH_TOKEN = LOCAL_REFRESH_TOKEN || COOKIE_REFRESH_TOKEN;
 
         if (!REFRESH_TOKEN) {
           // 모든 토큰 제거
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
-          sessionStorage.removeItem('accessToken');
-          sessionStorage.removeItem('refreshToken');
+          // sessionStorage.removeItem('accessToken'); (삭제)
+          // sessionStorage.removeItem('refreshToken'); (삭제)
           Cookies.remove('accessToken');
           Cookies.remove('refreshToken');
 
@@ -66,14 +65,12 @@ Axios.interceptors.response.use(
           { withCredentials: true }
         );
 
-        // 새 토큰 저장 (localStorage와 sessionStorage 모두에)
+        // 새 토큰 저장 (localStorage와 sessionStorage 모두에 → localStorage와 쿠키에만)
         localStorage.setItem('accessToken', data.accessToken);
-        sessionStorage.setItem('accessToken', data.accessToken);
         Cookies.set('accessToken', data.accessToken, { secure: true });
 
         if (data.refreshToken) {
           localStorage.setItem('refreshToken', data.refreshToken);
-          sessionStorage.setItem('refreshToken', data.refreshToken);
           Cookies.set('refreshToken', data.refreshToken, { secure: true });
         }
 
@@ -84,8 +81,8 @@ Axios.interceptors.response.use(
         // 모든 토큰 제거
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        sessionStorage.removeItem('accessToken');
-        sessionStorage.removeItem('refreshToken');
+        // sessionStorage.removeItem('accessToken'); (삭제)
+        // sessionStorage.removeItem('refreshToken'); (삭제)
         Cookies.remove('accessToken');
         Cookies.remove('refreshToken');
 
