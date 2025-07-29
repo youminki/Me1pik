@@ -1,0 +1,62 @@
+export const COMMON_STYLES = {
+  button: {
+    border: '1px solid #000',
+    background: '#fff',
+    width: 40,
+    height: 40,
+    borderRadius: 4,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 700,
+    fontSize: 20,
+  },
+  pageNumber: {
+    fontWeight: 800,
+    fontSize: 20,
+    lineHeight: '22px',
+    textAlign: 'center' as const,
+    color: '#000',
+  },
+  pageDivider: {
+    fontWeight: 400,
+    fontSize: 12,
+    color: '#DDDDDD',
+    margin: '0 2px 2px 2px',
+  },
+  pageTotal: {
+    fontWeight: 400,
+    fontSize: 12,
+    color: '#000',
+    marginBottom: 2,
+    textAlign: 'center' as const,
+  },
+  cardItem: {
+    border: '1px solid #eee',
+    borderRadius: 8,
+    padding: '1rem',
+    marginBottom: 16,
+    background: '#fff',
+  },
+  cardContent: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 24,
+  },
+  dateBox: {
+    minWidth: 60,
+    textAlign: 'center' as const,
+    color: '#222',
+  },
+  dateYear: {
+    display: 'block',
+    fontWeight: 900,
+    fontSize: 16,
+  },
+  dateMonth: {
+    display: 'block',
+    fontWeight: 700,
+    fontSize: 16,
+  },
+};

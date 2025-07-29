@@ -1,0 +1,45 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap'); */
+
+@font-face {
+  font-family: 'NanumSquareNeo';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/woff2/NanumSquareNeo-Variable.woff2') format('woff2');
+  font-display: swap;
+}
+
+#root {
+  margin: 0 auto;
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+    -webkit-animation: logo-spin infinite 20s linear;
+  }
+}
+
+html,
+body {
+  overflow-x: hidden;
+  scrollbar-width: none;
+  font-family: 'NanumSquare Neo', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 0;
+
+  box-sizing: border-box;
+}
