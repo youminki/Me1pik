@@ -1,4 +1,5 @@
 import { createGlobalStyle } from 'styled-components';
+
 import { isNativeApp, getStatusBarHeight } from '@/utils/nativeApp';
 
 const GlobalStyles = createGlobalStyle`
