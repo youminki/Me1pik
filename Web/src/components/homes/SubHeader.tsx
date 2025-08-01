@@ -100,10 +100,31 @@ const SubHeader: React.FC<SubHeaderProps> = ({
       const offsetLeft = selectedEl.offsetLeft;
       const centerOffset = (ICON_WIDTH - INDICATOR_WIDTH) / 2;
       setIndicatorPos(offsetLeft + centerOffset);
+
+      // 선택된 카테고리가 화면 밖에 있으면 스크롤
+      const containerWidth = container.offsetWidth;
+      const elementLeft = selectedEl.offsetLeft;
+      const elementWidth = selectedEl.offsetWidth;
+      const currentScrollLeft = container.scrollLeft;
+
+      // 요소가 왼쪽이나 오른쪽 밖에 있는지 확인
+      if (
+        elementLeft < currentScrollLeft ||
+        elementLeft + elementWidth > currentScrollLeft + containerWidth
+      ) {
+        const scrollLeft = elementLeft - containerWidth / 2 + elementWidth / 2;
+        container.scrollTo({
+          left: Math.max(0, scrollLeft),
+          behavior: 'smooth',
+        });
+      }
     }
   }, [selectedCategory]);
 
   const handleClick = (category: string) => {
+    // 이미 선택된 카테고리면 클릭 무시
+    if (category === selectedCategory) return;
+
     const newParams = new URLSearchParams(searchParams.toString());
     // 'All' 선택 시에는 category 파라미터 제거
     if (category === 'All') {
@@ -113,6 +134,8 @@ const SubHeader: React.FC<SubHeaderProps> = ({
     }
     // 검색어는 초기화
     newParams.delete('search');
+
+    // URL 파라미터와 선택된 카테고리를 동시에 업데이트
     setSearchParams(newParams, { replace: true });
     setSelectedCategory(category);
     onCategoryClick();
