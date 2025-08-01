@@ -62,9 +62,6 @@ const SubHeader: React.FC<SubHeaderProps> = ({ tabs, onTabChange, onSearch }) =>
 
   return (
     <HeaderContainer>
-      <HeaderTitleRow>
-        <PageTitle>관리자 관리</PageTitle>
-      </HeaderTitleRow>
       <HeaderTabRow>
         <TabContainer>
           {tabs.map((tab, idx) => (
@@ -111,26 +108,11 @@ const HeaderContainer = styled.div`
   align-items: flex-start;
 `;
 
-const HeaderTitleRow = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  margin-bottom: 8px;
-`;
-
 const HeaderTabRow = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
-
-const PageTitle = styled.h1`
-  font-weight: 800;
-  font-size: 16px;
-  line-height: 28px;
-  color: #222;
-  margin: 0 0 18px 0;
 `;
 
 const TabContainer = styled.div`
