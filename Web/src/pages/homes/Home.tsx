@@ -318,10 +318,79 @@ const Home: React.FC = () => {
   }, [showNotice]);
 
   // 스크롤 맨 위로 이동
-  const scrollToTop = useCallback(
-    () => window.scrollTo({ top: 0, behavior: 'smooth' }),
-    []
-  );
+  const scrollToTop = useCallback(() => {
+    // 모든 스크롤 방법을 시도
+    const scrollMethods = [
+      () => window.scrollTo(0, 0),
+      () => window.scrollTo({ top: 0, behavior: 'instant' }),
+      () => {
+        if (document.documentElement) {
+          document.documentElement.scrollTop = 0;
+        }
+      },
+      () => {
+        if (document.body) {
+          document.body.scrollTop = 0;
+        }
+      },
+      () => {
+        const root = document.getElementById('root');
+        if (root) {
+          root.scrollTop = 0;
+        }
+      },
+      () => {
+        const html = document.querySelector('html');
+        if (html) {
+          html.scrollTop = 0;
+        }
+      },
+      () => {
+        const firstElement = document.querySelector('body > *:first-child');
+        if (firstElement) {
+          firstElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+        }
+      },
+      () => {
+        const header =
+          document.querySelector('header') ||
+          document.querySelector('[data-testid="header"]');
+        if (header) {
+          header.scrollIntoView({ behavior: 'instant', block: 'start' });
+        }
+      },
+    ];
+
+    // 스크롤 가능한 모든 요소에 대해 시도
+    const allElements = document.querySelectorAll('*');
+    const scrollableElements = Array.from(allElements).filter((el) => {
+      const style = window.getComputedStyle(el);
+      return (
+        style.overflow === 'auto' ||
+        style.overflow === 'scroll' ||
+        style.overflowY === 'auto' ||
+        style.overflowY === 'scroll'
+      );
+    });
+
+    // 모든 방법을 순차적으로 시도
+    scrollMethods.forEach((method) => {
+      try {
+        method();
+      } catch {
+        // 에러 무시하고 계속 진행
+      }
+    });
+
+    // 스크롤 가능한 요소들도 초기화
+    scrollableElements.forEach((el) => {
+      try {
+        el.scrollTop = 0;
+      } catch {
+        // 에러 무시하고 계속 진행
+      }
+    });
+  }, []);
 
   // 상세 모달 핸들러
   const handleOpenModal = useCallback(
@@ -816,6 +885,7 @@ const MainContainer = styled.div`
   margin: auto;
   max-width: 1000px;
   padding: 0;
+  min-height: 100vh; /* CLS 개선을 위한 최소 높이 설정 */
 `;
 
 const ContentWrapper = styled.div`
@@ -823,6 +893,7 @@ const ContentWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 400px; /* CLS 개선을 위한 최소 높이 설정 */
 `;
 
 const ScrollToTopButton = styled.button`
@@ -841,16 +912,34 @@ const ScrollToTopButton = styled.button`
     transform 0.3s,
     box-shadow 0.3s,
     opacity 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 
   &:hover {
     transform: scale(1.1);
+    background: #666666;
   }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
   @media (min-width: 1000px) {
     right: calc((100vw - 1000px) / 2 + 20px);
   }
 `;
 
-const ArrowIconImg = styled.img``;
+const ArrowIconImg = styled.img`
+  width: 24px;
+  height: 24px;
+  display: block;
+`;
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -942,7 +1031,6 @@ const NoResultMessage = styled.div`
   justify-content: center;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 `;
 
 const CountdownText = styled.div`

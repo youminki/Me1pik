@@ -6,7 +6,7 @@
     url('/fonts/woff/NanumSquareNeo-Variable.woff') format('woff');
   font-weight: 100 900;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 /* Static TTF Fonts (Variable 폰트 미지원 브라우저용 대체) */
@@ -15,21 +15,21 @@
   src: url('/fonts/TTF/NanumSquare_acR.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 @font-face {
   font-family: 'NanumSquare Neo';
   src: url('/fonts/TTF/NanumSquare_acB.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 @font-face {
   font-family: 'NanumSquare Neo';
   src: url('/fonts/TTF/NanumSquare_acEB.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 /* 네이티브 앱 상태바 높이 기본값 설정 */
@@ -88,4 +88,33 @@ body,
 
   /* ✅ 폰트 적용 */
   font-family: 'NanumSquare Neo', 'Malgun Gothic', 'Segoe UI', sans-serif;
+}
+
+/* CLS 개선을 위한 이미지 최적화 */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 컨테이너에 최소 높이 설정으로 레이아웃 시프트 방지 */
+.container {
+  min-height: 100vh;
+}
+
+/* 스켈레톤 로딩을 위한 최소 높이 */
+.skeleton {
+  min-height: 200px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
