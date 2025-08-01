@@ -441,7 +441,7 @@ const Home: React.FC = () => {
             setSearchParams({ category: cat }, { replace: true });
           }}
           onCategoryClick={() => setSearchQuery('')}
-          isLoading={true}
+          isLoading={allProductsQuery.isLoading}
         />
         <ControlsContainer>
           <FilterContainer
@@ -470,6 +470,7 @@ const Home: React.FC = () => {
             setSearchParams({ category: cat }, { replace: true });
           }}
           onCategoryClick={() => setSearchQuery('')}
+          isLoading={allProductsQuery.isLoading}
         />
         <ControlsContainer>
           <FilterContainer
@@ -543,6 +544,7 @@ const Home: React.FC = () => {
           setSearchParams({ category: cat }, { replace: true });
         }}
         onCategoryClick={() => setSearchQuery('')}
+        isLoading={allProductsQuery.isLoading}
       />
 
       {/* 필터 및 열 선택 */}

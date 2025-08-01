@@ -62,22 +62,52 @@ const skeletonShimmer = keyframes`
   100% { background-position: calc(200px + 100%) 0; }
 `;
 
-// 스켈레톤 컴포넌트
-const SubHeaderSkeleton: React.FC<{ count?: number }> = ({ count = 10 }) => (
-  <SubHeaderWrapper>
-    <ContentWrapper>
-      <IconsWrapper>
-        {Array.from({ length: count }).map((_, idx) => (
-          <SkeletonIconContainer key={idx}>
-            <SkeletonIcon />
-            <SkeletonText />
-          </SkeletonIconContainer>
-        ))}
-      </IconsWrapper>
-    </ContentWrapper>
-    <Divider />
-  </SubHeaderWrapper>
-);
+// 스켈레톤 컴포넌트 - 화면 크기에 따라 개수 조정
+const SubHeaderSkeleton: React.FC = () => {
+  const [skeletonCount, setSkeletonCount] = useState(10);
+
+  useEffect(() => {
+    const updateSkeletonCount = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) {
+        // 데스크탑에서는 모든 카테고리 표시
+        setSkeletonCount(homeIcons.length);
+      } else if (width >= 768) {
+        // 태블릿에서는 중간 개수
+        setSkeletonCount(12);
+      } else {
+        // 모바일에서는 적은 개수
+        setSkeletonCount(8);
+      }
+    };
+
+    updateSkeletonCount();
+    window.addEventListener('resize', updateSkeletonCount);
+    return () => window.removeEventListener('resize', updateSkeletonCount);
+  }, []);
+
+  return (
+    <SubHeaderWrapper>
+      <ContentWrapper>
+        <ArrowButtonWrapper>
+          <SkeletonArrow />
+        </ArrowButtonWrapper>
+        <IconsWrapper>
+          {Array.from({ length: skeletonCount }).map((_, idx) => (
+            <SkeletonIconContainer key={idx}>
+              <SkeletonIcon />
+              <SkeletonText />
+            </SkeletonIconContainer>
+          ))}
+        </IconsWrapper>
+        <ArrowButtonWrapper>
+          <SkeletonArrow />
+        </ArrowButtonWrapper>
+      </ContentWrapper>
+      <Divider />
+    </SubHeaderWrapper>
+  );
+};
 
 const SubHeader: React.FC<SubHeaderProps> = ({
   selectedCategory,
@@ -276,6 +306,16 @@ const SkeletonIcon = styled.div`
 const SkeletonText = styled.div`
   width: 36px;
   height: 10px;
+  border-radius: 4px;
+  background: #eee;
+  animation: ${skeletonShimmer} 1.2s infinite linear;
+  background-image: linear-gradient(90deg, #eee 0px, #f5f5f5 40px, #eee 80px);
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+`;
+const SkeletonArrow = styled.div`
+  width: 24px;
+  height: 24px;
   border-radius: 4px;
   background: #eee;
   animation: ${skeletonShimmer} 1.2s infinite linear;
