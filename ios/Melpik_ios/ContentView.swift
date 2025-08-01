@@ -1034,8 +1034,8 @@ struct ContentViewMain: View {
         .preferredColorScheme(.light)
         .onAppear {
             setupApp()
-            // 앱 시작 시 로그인 상태 확인
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            // 앱 시작 시 로그인 상태 확인 (지연 시간 증가)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 loginManager.checkLoginStatus(webView: webViewStore.webView)
             }
             // 카드 추가 화면 표시 알림 수신

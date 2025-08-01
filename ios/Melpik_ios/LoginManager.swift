@@ -38,15 +38,28 @@ class LoginManager: ObservableObject {
     private var appLifecycleObserver: NSObjectProtocol?
     
     init() {
+        print("=== LoginManager 초기화 시작 ===")
         setupAppLifecycleObserver()
+        
+        // 초기화 중 플래그 설정
+        isInitializing = true
+        
+        // 로그인 상태 로드 (동기적으로 처리)
         loadLoginState()
+        
         // 인스타그램 방식 로그인 상태 확인
         initializeInstagramLoginStatus()
+        
+        // 초기화 완료
+        isInitializing = false
+        
+        print("=== LoginManager 초기화 완료 ===")
     }
     
     deinit {
         print("LoginManager deinit")
         tokenRefreshTimer?.invalidate()
+        tokenRefreshTimer = nil
         
         // 모든 앱 생명주기 관찰자 제거
         NotificationCenter.default.removeObserver(self)
@@ -54,6 +67,9 @@ class LoginManager: ObservableObject {
     
     // MARK: - 앱 생명주기 관찰자 설정
     private func setupAppLifecycleObserver() {
+        // 기존 관찰자 제거
+        NotificationCenter.default.removeObserver(self)
+        
         // 앱이 비활성화될 때
         let willResignObserver = NotificationCenter.default.addObserver(
             forName: UIApplication.willResignActiveNotification,
@@ -106,12 +122,18 @@ class LoginManager: ObservableObject {
     private func handleAppWillResignActive() {
         print("🔄 App will resign active - ensuring token persistence")
         ensureTokenPersistence()
+        
+        // UserDefaults 강제 동기화
+        userDefaults.synchronize()
     }
     
     // MARK: - 앱이 백그라운드로 갈 때 처리
     private func handleAppDidEnterBackground() {
         print("🔄 App did enter background - final token persistence check")
         ensureTokenPersistence()
+        
+        // UserDefaults 강제 동기화
+        userDefaults.synchronize()
         
         // 백그라운드 작업 요청 (최대 30초)
         var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
@@ -133,6 +155,9 @@ class LoginManager: ObservableObject {
     private func handleAppWillTerminate() {
         print("🔄 App will terminate - emergency token persistence")
         emergencyTokenPersistence()
+        
+        // UserDefaults 강제 동기화
+        userDefaults.synchronize()
     }
     
     // MARK: - 앱이 활성화될 때 처리
@@ -147,22 +172,30 @@ class LoginManager: ObservableObject {
                 refreshAccessToken()
             }
         }
+        
+        // 로그인 상태 재확인
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.loadLoginState()
+        }
     }
     
     // MARK: - 토큰 저장 안정성 보장
     func ensureTokenPersistence() {
         guard let userInfo = userInfo else { return }
         
-        // UserDefaults 강제 동기화
-        userDefaults.synchronize()
-        
-        // Keychain에 토큰 재저장 (이중 보장)
-        saveToKeychain(key: "accessToken", value: userInfo.token)
-        if let refreshToken = userInfo.refreshToken {
-            saveToKeychain(key: "refreshToken", value: refreshToken)
+        // MainActor에서 직접 처리
+        Task { @MainActor in
+            // UserDefaults 강제 동기화
+            userDefaults.synchronize()
+            
+            // Keychain에 토큰 재저장 (이중 보장)
+            saveToKeychain(key: "accessToken", value: userInfo.token)
+            if let refreshToken = userInfo.refreshToken {
+                saveToKeychain(key: "refreshToken", value: refreshToken)
+            }
+            
+            print("✅ Token persistence ensured before app backgrounding")
         }
-        
-        print("✅ Token persistence ensured before app backgrounding")
     }
     
     // MARK: - 긴급 토큰 저장 (앱 종료 시)
@@ -171,35 +204,40 @@ class LoginManager: ObservableObject {
         
         print("🚨 Emergency token persistence - app terminating")
         
-        // UserDefaults 즉시 동기화
-        userDefaults.set(true, forKey: "isLoggedIn")
-        userDefaults.set(userInfo.id, forKey: "userId")
-        userDefaults.set(userInfo.email, forKey: "userEmail")
-        userDefaults.set(userInfo.name, forKey: "userName")
-        userDefaults.set(userInfo.token, forKey: "accessToken")
-        if let refreshToken = userInfo.refreshToken {
-            userDefaults.set(refreshToken, forKey: "refreshToken")
+        // MainActor에서 직접 처리
+        Task { @MainActor in
+            // UserDefaults 즉시 동기화
+            userDefaults.set(true, forKey: "isLoggedIn")
+            userDefaults.set(userInfo.id, forKey: "userId")
+            userDefaults.set(userInfo.email, forKey: "userEmail")
+            userDefaults.set(userInfo.name, forKey: "userName")
+            userDefaults.set(userInfo.token, forKey: "accessToken")
+            if let refreshToken = userInfo.refreshToken {
+                userDefaults.set(refreshToken, forKey: "refreshToken")
+            }
+            if let expiresAt = userInfo.expiresAt {
+                userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
+            }
+            
+            // UserDefaults 강제 동기화
+            userDefaults.synchronize()
+            
+            // Keychain에 토큰 저장 (동기 방식으로 즉시 저장)
+            saveToKeychainSync(key: "accessToken", value: userInfo.token)
+            if let refreshToken = userInfo.refreshToken {
+                saveToKeychainSync(key: "refreshToken", value: refreshToken)
+            }
+            
+            print("✅ Emergency token persistence completed")
         }
-        if let expiresAt = userInfo.expiresAt {
-            userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
-        }
-        
-        // UserDefaults 강제 동기화
-        userDefaults.synchronize()
-        
-        // Keychain에 토큰 저장 (동기 방식으로 즉시 저장)
-        saveToKeychainSync(key: "accessToken", value: userInfo.token)
-        if let refreshToken = userInfo.refreshToken {
-            saveToKeychainSync(key: "refreshToken", value: refreshToken)
-        }
-        
-        print("✅ Emergency token persistence completed")
     }
     
     // MARK: - 토큰 자동 갱신 관리
     @MainActor
     private func setupTokenRefreshTimer() {
+        // 기존 타이머 정리
         tokenRefreshTimer?.invalidate()
+        tokenRefreshTimer = nil
         
         guard let userInfo = userInfo,
               let expiresAt = userInfo.expiresAt else { return }
@@ -350,6 +388,7 @@ class LoginManager: ObservableObject {
         DispatchQueue.main.async {
             self.userInfo = userInfo
             self.isLoggedIn = true
+            self.isLoading = false
         }
         
         // 토큰 자동 갱신 타이머 설정
@@ -451,10 +490,14 @@ class LoginManager: ObservableObject {
             DispatchQueue.main.async { [weak self] in
                 self?.userInfo = userInfo
                 self?.isLoggedIn = true
+                self?.isLoading = false
             }
             
             print("✅ 로그인 상태 복원 완료")
             print("✅ UserInfo 생성됨 - refreshToken: \(userInfo.refreshToken ?? "nil")")
+            
+            // 토큰 자동 갱신 타이머 설정
+            setupTokenRefreshTimer()
         } else {
             print("❌ 로그인 상태 복원 실패 - 토큰이 없거나 만료됨")
             print("  - isLoggedIn: \(isLoggedIn)")
@@ -465,6 +508,7 @@ class LoginManager: ObservableObject {
             DispatchQueue.main.async { [weak self] in
                 self?.userInfo = nil
                 self?.isLoggedIn = false
+                self?.isLoading = false
             }
         }
     }

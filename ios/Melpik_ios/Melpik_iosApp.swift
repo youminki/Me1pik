@@ -42,6 +42,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             LoginManager.shared.loadLoginState()
         }
         
+        // 추가 재확인 (3중 보장)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            print("=== 앱 시작 - 로그인 상태 최종 확인 ===")
+            LoginManager.shared.verifyTokenStorage()
+        }
+        
         // 푸시 알림 델리게이트 설정
         UNUserNotificationCenter.current().delegate = self
         
@@ -129,26 +135,42 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func applicationWillResignActive(_ application: UIApplication) {
         print("=== AppDelegate: applicationWillResignActive ===")
         LoginManager.shared.ensureTokenPersistence()
+        
+        // UserDefaults 동기화는 LoginManager에서 처리하므로 제거
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
         print("=== AppDelegate: applicationDidEnterBackground ===")
         LoginManager.shared.ensureTokenPersistence()
+        
+        // UserDefaults 동기화는 LoginManager에서 처리하므로 제거
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         print("=== AppDelegate: applicationWillEnterForeground ===")
         LoginManager.shared.verifyTokenStorage()
+        
+        // 로그인 상태 재확인 (지연 시간 단축)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            LoginManager.shared.loadLoginState()
+        }
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         print("=== AppDelegate: applicationDidBecomeActive ===")
         LoginManager.shared.verifyTokenStorage()
+        
+        // 로그인 상태 재확인 (지연 시간 단축)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            LoginManager.shared.loadLoginState()
+        }
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
         print("=== AppDelegate: applicationWillTerminate ===")
         LoginManager.shared.ensureTokenPersistence()
+        
+        // UserDefaults 동기화는 LoginManager에서 처리하므로 제거
     }
     
     // MARK: - UNUserNotificationCenterDelegate
