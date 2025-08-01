@@ -66,18 +66,22 @@ const FilterModal: React.FC<FilterModalProps> = ({
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else if (!isClosing) {
+      document.body.style.overflow = 'auto';
+    }
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [isOpen]);
+  }, [isOpen, isClosing]);
 
   const handleClose = () => {
     setIsClosing(true);
     setTimeout(() => {
       onClose();
       setIsClosing(false);
-    }, 400);
+    }, 300);
   };
 
   const toggleSelected = (
@@ -111,10 +115,13 @@ const FilterModal: React.FC<FilterModalProps> = ({
     onClose();
   };
 
-  if (!isOpen) return null;
+  // 중복 렌더링 방지를 위한 추가 체크
+  if (!isOpen && !isClosing) {
+    return null;
+  }
 
   return (
-    <Overlay onClick={handleClose}>
+    <Overlay onClick={handleClose} $isClosing={isClosing}>
       <Container onClick={(e) => e.stopPropagation()} $isClosing={isClosing}>
         <ModalHandle>
           <HandleBar />
@@ -193,19 +200,30 @@ const slideDown = keyframes`
   100% { transform: translateY(100%); }
 `;
 
+const fadeOut = keyframes`
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+`;
+
 /* styled components */
 interface ContainerProps {
   $isClosing: boolean;
 }
 
-const Overlay = styled.div`
+const Overlay = styled.div<{ $isClosing: boolean }>`
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  z-index: 10000;
+  z-index: 100000;
+  animation: ${({ $isClosing }) =>
+    $isClosing
+      ? css`
+          ${fadeOut} 0.3s ease-out forwards
+        `
+      : 'none'};
 `;
 
 const Container = styled.div<ContainerProps>`

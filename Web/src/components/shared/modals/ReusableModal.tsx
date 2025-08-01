@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import styled from 'styled-components';
 
@@ -24,6 +24,13 @@ const ReusableModal: React.FC<ModalProps> = ({
   showConfirmButton = false,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsClosing(false);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,18 +63,26 @@ const ReusableModal: React.FC<ModalProps> = ({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen && !isClosing) return null;
 
   const handleConfirmClick = () => {
     if (onConfirm) {
       onConfirm();
     }
-    onClose();
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, 200);
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      setIsClosing(true);
+      setTimeout(() => {
+        onClose();
+        setIsClosing(false);
+      }, 200);
     }
   };
 
@@ -79,17 +94,34 @@ const ReusableModal: React.FC<ModalProps> = ({
       ref={modalRef}
       tabIndex={-1}
       onClick={handleOverlayClick}
+      $isClosing={isClosing}
     >
       <ModalContent width={width}>
         <ModalHeader>
           {title && <ModalTitle id='modal-title'>{title}</ModalTitle>}
-          <CloseIcon onClick={onClose} />
+          <CloseIcon
+            onClick={() => {
+              setIsClosing(true);
+              setTimeout(() => {
+                onClose();
+                setIsClosing(false);
+              }, 200);
+            }}
+          />
         </ModalHeader>
         <ModalBody>{children}</ModalBody>
         <ModalActions>
           {actions || (
             <>
-              <CloseButton onClick={onClose}>
+              <CloseButton
+                onClick={() => {
+                  setIsClosing(true);
+                  setTimeout(() => {
+                    onClose();
+                    setIsClosing(false);
+                  }, 200);
+                }}
+              >
                 {showConfirmButton ? '아니오' : '닫기'}
               </CloseButton>
               {showConfirmButton && (
@@ -105,7 +137,7 @@ const ReusableModal: React.FC<ModalProps> = ({
 
 export default ReusableModal;
 
-const StyledModal = styled.div`
+const StyledModal = styled.div<{ $isClosing: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -116,6 +148,8 @@ const StyledModal = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 100000; /* 항상 최상단에 표시되도록 높은 값 설정 */
+  opacity: ${({ $isClosing }) => ($isClosing ? 0 : 1)};
+  transition: opacity 0.2s ease-out;
 `;
 
 const ModalContent = styled.div<{ width: string }>`

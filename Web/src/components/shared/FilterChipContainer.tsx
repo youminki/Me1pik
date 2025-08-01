@@ -208,6 +208,7 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
         placeholder={searchPlaceholder}
       />
       <FilterModal
+        key='filter-modal'
         isOpen={isFilterModalOpen}
         onClose={() => onFilterModalToggle(false)}
         onColorSelect={(colors) => {

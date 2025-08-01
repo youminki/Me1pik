@@ -22,7 +22,7 @@ import MelpikGuideBanner from '@/components/melpik-guide-banner';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
-import FilterModal from '@/components/shared/modals/FilterModal';
+
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
@@ -733,26 +733,6 @@ const Home: React.FC = () => {
       >
         현재 페이지 URL이 클립보드에 복사되었습니다.
       </ReusableModal>
-
-      {/* 필터 모달 */}
-      <FilterModal
-        isOpen={isFilterModalOpen}
-        onClose={() => {
-          setFilterModalOpen(false);
-        }}
-        onColorSelect={(colors: string[]) => {
-          setSelectedColors(colors);
-          setFilterModalOpen(false);
-        }}
-        onSizeSelect={(sizes: string[]) => {
-          setSelectedSizes(sizes);
-          setFilterModalOpen(false);
-        }}
-        selectedColors={tempSelectedColors}
-        setSelectedColors={setTempSelectedColors}
-        selectedSizes={tempSelectedSizes}
-        setSelectedSizes={setTempSelectedSizes}
-      />
 
       {/* 서브헤더 */}
       <MelpikGuideBanner />
