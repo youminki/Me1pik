@@ -15,7 +15,6 @@ import ArrowIconSvg from '@/assets/ArrowIcon.svg';
 import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
 import HomeIcon from '@/assets/headers/HomeIcon.svg';
 import ShareIcon from '@/assets/headers/ShareIcon.svg';
-import FilterContainer from '@/components/homes/FilterContainer';
 import Footer from '@/components/homes/Footer';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
@@ -133,6 +132,7 @@ const Home: React.FC = () => {
     categorized['All'] = allProductsQuery.data;
 
     return categorized;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allProductsQuery.data]);
 
   // 현재 선택된 카테고리의 상품들
@@ -394,21 +394,71 @@ const Home: React.FC = () => {
 
   // 검색/필터 결과 없음일 때 문구만 표시
   const [showNoResult, setShowNoResult] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
-  // 검색 결과 없음 감지
+  // 검색 결과 없음 감지 및 자동 초기화
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
-    if (
-      !allProductsQuery.isLoading &&
-      uiItems.length === 0 &&
-      (searchQuery || selectedColors.length > 0 || selectedSizes.length > 0)
-    ) {
-      timer = setTimeout(() => setShowNoResult(true), 300);
+    let countdownTimer: NodeJS.Timeout | null = null;
+
+    // 검색어나 필터가 있고, 로딩이 완료되었으며, 결과가 없을 때
+    const hasActiveFilters =
+      searchQuery.trim() ||
+      selectedColors.length > 0 ||
+      selectedSizes.length > 0;
+    const shouldShowNoResult =
+      !allProductsQuery.isLoading && uiItems.length === 0 && hasActiveFilters;
+
+    // 검색어나 필터가 변경되면 즉시 showNoResult를 false로 설정
+    if (!hasActiveFilters) {
+      setShowNoResult(false);
+      setCountdown(3);
+      return;
+    }
+
+    if (shouldShowNoResult) {
+      timer = setTimeout(() => {
+        setShowNoResult(true);
+        setCountdown(3);
+
+        // 3초 카운트다운 후 자동 초기화
+        countdownTimer = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              // 카운트다운 완료 시 모든 필터 초기화
+              setSearchQuery('');
+              setSelectedColors([]);
+              setSelectedSizes([]);
+              setShowNoResult(false);
+              setCountdown(3);
+
+              // URL에서 search 파라미터 제거
+              setSearchParams(
+                (prev) => {
+                  const params = Object.fromEntries(prev.entries());
+                  delete params.search;
+                  return params;
+                },
+                { replace: true }
+              );
+
+              if (countdownTimer) {
+                clearInterval(countdownTimer);
+              }
+              return 3;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }, 300);
     } else {
       setShowNoResult(false);
+      setCountdown(3);
     }
+
     return () => {
       if (timer) clearTimeout(timer);
+      if (countdownTimer) clearInterval(countdownTimer);
     };
   }, [
     allProductsQuery.isLoading,
@@ -416,7 +466,25 @@ const Home: React.FC = () => {
     searchQuery,
     selectedColors,
     selectedSizes,
+    setSearchParams,
   ]);
+
+  // 필터 칩 제거 시 검색어와 필터 초기화
+  const handleClearFilters = useCallback(() => {
+    setSearchQuery('');
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setShowNoResult(false); // showNoResult 상태도 초기화
+    // URL에서 search 파라미터 제거
+    setSearchParams(
+      (prev) => {
+        const params = Object.fromEntries(prev.entries());
+        delete params.search;
+        return params;
+      },
+      { replace: true }
+    );
+  }, [setSearchParams]);
 
   // 에러 처리
   if (allProductsQuery.isError) {
@@ -443,12 +511,50 @@ const Home: React.FC = () => {
           onCategoryClick={() => setSearchQuery('')}
           isLoading={allProductsQuery.isLoading}
         />
-        <ControlsContainer>
-          <FilterContainer
-            onSearchClick={() => setSearchModalOpen(true)}
-            onFilterClick={() => setFilterModalOpen(true)}
-          />
-        </ControlsContainer>
+
+        {/* 필터 및 열 선택 */}
+        <FilterChipContainer
+          searchQuery={searchQuery}
+          onSearchQueryChange={(query) => {
+            setSearchQuery(query);
+            // URL 동기화
+            setSearchParams(
+              (prev) => {
+                const params = Object.fromEntries(prev.entries());
+                if (query.trim()) {
+                  params.search = query;
+                } else {
+                  delete params.search;
+                }
+                return params;
+              },
+              { replace: true }
+            );
+          }}
+          onSearchSubmit={(searchTerm) => {
+            setSearchQuery(searchTerm);
+            setSelectedCategory('All');
+            setSearchParams(
+              { category: 'All', search: searchTerm },
+              { replace: true }
+            );
+          }}
+          selectedColors={selectedColors}
+          selectedSizes={selectedSizes}
+          onColorsChange={setSelectedColors}
+          onSizesChange={setSelectedSizes}
+          isSearchModalOpen={isSearchModalOpen}
+          isFilterModalOpen={isFilterModalOpen}
+          onSearchModalToggle={setSearchModalOpen}
+          onFilterModalToggle={setFilterModalOpen}
+          tempSelectedColors={tempSelectedColors}
+          tempSelectedSizes={tempSelectedSizes}
+          onTempColorsChange={setTempSelectedColors}
+          onTempSizesChange={setTempSelectedSizes}
+          historyKey='searchHistory'
+          onClearAll={handleClearFilters}
+        />
+
         <ContentWrapper>
           <ItemList items={[]} columns={viewCols} isLoading={true} />
         </ContentWrapper>
@@ -472,14 +578,58 @@ const Home: React.FC = () => {
           onCategoryClick={() => setSearchQuery('')}
           isLoading={allProductsQuery.isLoading}
         />
-        <ControlsContainer>
-          <FilterContainer
-            onSearchClick={() => setSearchModalOpen(true)}
-            onFilterClick={() => setFilterModalOpen(true)}
-          />
-        </ControlsContainer>
+
+        {/* 필터 및 열 선택 */}
+        <FilterChipContainer
+          searchQuery={searchQuery}
+          onSearchQueryChange={(query) => {
+            setSearchQuery(query);
+            // URL 동기화
+            setSearchParams(
+              (prev) => {
+                const params = Object.fromEntries(prev.entries());
+                if (query.trim()) {
+                  params.search = query;
+                } else {
+                  delete params.search;
+                }
+                return params;
+              },
+              { replace: true }
+            );
+          }}
+          onSearchSubmit={(searchTerm) => {
+            setSearchQuery(searchTerm);
+            setSelectedCategory('All');
+            setSearchParams(
+              { category: 'All', search: searchTerm },
+              { replace: true }
+            );
+          }}
+          selectedColors={selectedColors}
+          selectedSizes={selectedSizes}
+          onColorsChange={setSelectedColors}
+          onSizesChange={setSelectedSizes}
+          isSearchModalOpen={isSearchModalOpen}
+          isFilterModalOpen={isFilterModalOpen}
+          onSearchModalToggle={setSearchModalOpen}
+          onFilterModalToggle={setFilterModalOpen}
+          tempSelectedColors={tempSelectedColors}
+          tempSelectedSizes={tempSelectedSizes}
+          onTempColorsChange={setTempSelectedColors}
+          onTempSizesChange={setTempSelectedSizes}
+          historyKey='searchHistory'
+          onClearAll={handleClearFilters}
+        />
+
         <ContentWrapper>
-          <NoResultMessage>조건에 맞는 상품이 없습니다.</NoResultMessage>
+          <NoResultMessage>
+            조건에 맞는 상품이 없습니다.
+            <br />
+            <CountdownText>
+              {countdown}초 후 전체 상품으로 이동합니다...
+            </CountdownText>
+          </NoResultMessage>
         </ContentWrapper>
         <Footer />
         <ScrollToTopButton onClick={scrollToTop}>
@@ -587,6 +737,7 @@ const Home: React.FC = () => {
         onTempColorsChange={setTempSelectedColors}
         onTempSizesChange={setTempSelectedSizes}
         historyKey='searchHistory'
+        onClearAll={handleClearFilters}
       />
 
       {/* 제품 리스트 or 로딩 스피너 */}
@@ -665,16 +816,6 @@ const MainContainer = styled.div`
   margin: auto;
   max-width: 1000px;
   padding: 0;
-`;
-
-const ControlsContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin: 12px 0;
-  position: relative;
-  min-height: 48px; /* Chip, FilterContainer 높이에 맞게 조정 */
 `;
 
 const ContentWrapper = styled.div`
@@ -802,4 +943,11 @@ const NoResultMessage = styled.div`
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+`;
+
+const CountdownText = styled.div`
+  font-size: 14px;
+  color: #999;
+  font-weight: 400;
+  margin-top: 8px;
 `;

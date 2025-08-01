@@ -1,6 +1,12 @@
 // src/pages/brands/BrandDetail.tsx
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -23,6 +29,14 @@ import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import HomeDetail from '@/pages/homes/HomeDetail';
+
+/**
+ * BrandDetail 페이지 - 최적화 버전
+ * - 모든 카테고리 상품을 미리 로드하여 카테고리 전환 시 즉시 표시
+ * - 검색/필터 useMemo 적용
+ * - 무한스크롤 IntersectionObserver 적용
+ * - 상태 최소화, 타입 보강, 주석 추가
+ */
 
 interface LocalBrand {
   id: number;
@@ -53,6 +67,7 @@ const colorMap: Record<string, string> = {
   마젠타: 'MAGENTA',
   민트: 'MINT',
 };
+
 const sizeMap: Record<string, string[]> = {
   '44(S)': ['44'],
   '55(M)': ['55'],
@@ -77,7 +92,7 @@ const BrandDetail: React.FC = () => {
   // 브랜드 정보 상태
   const [brand, setBrand] = useState<LocalBrand | null>(null);
 
-  // 제품 목록 상태
+  // 모든 카테고리의 상품을 미리 로드
   const [allProducts, setAllProducts] = useState<ApiProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
   const [errorProducts, setErrorProducts] = useState<string>('');
@@ -86,21 +101,24 @@ const BrandDetail: React.FC = () => {
   const initialCat = searchParams.get('category') || 'All';
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCat);
 
-  // 열 선택 관련 상태
-  const [viewCols, setViewCols] = useState<number>(4);
-
   // 모바일 뷰 여부
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
-  useEffect(() => {
-    const onResize = () => setIsMobileView(window.innerWidth < 768);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+  const handleResize = useCallback(() => {
+    setIsMobileView(window.innerWidth < 768);
   }, []);
-  useEffect(() => {
-    setViewCols(isMobileView ? 2 : 4);
-  }, [isMobileView]);
 
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
+
+  // viewCols 상태 및 관련 로직 제거, 아래처럼 고정값으로 대체
+  const viewCols = useMemo(() => (isMobileView ? 2 : 4), [isMobileView]);
+
+  const scrollToTop = useCallback(
+    () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+    []
+  );
 
   // URL 쿼리 'category' 변경 시 selectedCategory에 반영
   useEffect(() => {
@@ -156,16 +174,15 @@ const BrandDetail: React.FC = () => {
     })();
   }, [idNum]);
 
-  // 제품 목록 로드 (selectedCategory 및 searchTerm 반영은 이후 useEffect에서)
+  // 모든 카테고리의 제품을 한 번에 로드
   useEffect(() => {
     if (!brand) return;
     setLoadingProducts(true);
     setErrorProducts('');
     (async () => {
       try {
-        const categoryKey =
-          selectedCategory === 'All' ? undefined : selectedCategory;
-        const data = await getProductsByBrand(brand.id, categoryKey);
+        // 모든 카테고리의 제품을 한 번에 가져오기
+        const data = await getProductsByBrand(brand.id);
         setAllProducts(data);
       } catch (err) {
         console.error('제품 목록 조회 실패:', err);
@@ -175,12 +192,37 @@ const BrandDetail: React.FC = () => {
         setLoadingProducts(false);
       }
     })();
-  }, [brand, selectedCategory]);
+  }, [brand]);
 
-  // 검색어(searchTerm) 또는 allProducts 변경 시 filteredProducts 업데이트 useEffect 전체 삭제
+  // 카테고리별로 상품을 분류하여 캐시
+  const categorizedProducts = useMemo(() => {
+    if (!allProducts) return {};
 
+    const categorized: Record<string, ApiProduct[]> = {};
+
+    // 모든 상품을 카테고리별로 분류
+    allProducts.forEach((product) => {
+      const category = product.category || 'All';
+      if (!categorized[category]) {
+        categorized[category] = [];
+      }
+      categorized[category].push(product);
+    });
+
+    // 'All' 카테고리는 모든 상품을 포함
+    categorized['All'] = allProducts;
+
+    return categorized;
+  }, [allProducts]);
+
+  // 현재 선택된 카테고리의 상품들
+  const currentCategoryProducts = useMemo(() => {
+    return categorizedProducts[selectedCategory] || [];
+  }, [categorizedProducts, selectedCategory]);
+
+  // 검색/필터된 상품 목록 (useMemo로 연산 최소화)
   const filteredProducts = useMemo(() => {
-    if (!allProducts) return [];
+    if (!currentCategoryProducts) return [];
     const term = searchQuery.trim().toLowerCase();
     // 쉼표로 분리된 여러 검색어 처리
     const terms = term
@@ -206,7 +248,7 @@ const BrandDetail: React.FC = () => {
       }
     });
 
-    const filtered = allProducts.filter((item) => {
+    const filtered = currentCategoryProducts.filter((item) => {
       const name = (item.name || '').toLowerCase();
       const desc = (item.description || '').toLowerCase();
       const color = item.color?.toLowerCase() || '';
@@ -278,36 +320,37 @@ const BrandDetail: React.FC = () => {
       );
     });
     return filtered;
-  }, [allProducts, searchQuery, selectedColors, selectedSizes]);
-
-  // 상품 필터링 (홈과 동일하게) useEffect 전체 삭제
+  }, [currentCategoryProducts, searchQuery, selectedColors, selectedSizes]);
 
   // 상세 모달 ID
   const modalId = searchParams.get('id');
   const isModalOpen = Boolean(modalId);
 
   // 제품 클릭: 모달 열기 (URL에 id 설정). 기존 category/search 유지
-  const handleItemClick = (prodId: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (selectedCategory && selectedCategory !== 'All') {
-      params.set('category', selectedCategory);
-    }
-    if (searchTerm) {
-      params.set('search', searchTerm);
-    }
-    params.set('id', prodId);
-    setSearchParams(params, { replace: true });
-  };
+  const handleItemClick = useCallback(
+    (prodId: string) => {
+      const params = new URLSearchParams(searchParams);
+      if (selectedCategory && selectedCategory !== 'All') {
+        params.set('category', selectedCategory);
+      }
+      if (searchQuery) {
+        params.set('search', searchQuery);
+      }
+      params.set('id', prodId);
+      setSearchParams(params, { replace: true });
+    },
+    [searchParams, selectedCategory, searchQuery, setSearchParams]
+  );
 
   // 모달 닫기: query에서 id 제거, category/search 유지
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     const params = new URLSearchParams(searchParams);
     params.delete('id');
     setSearchParams(params, { replace: true });
-  };
+  }, [searchParams, setSearchParams]);
 
   // 공유 핸들러
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     const shareData = {
       title: document.title,
       url: window.location.href,
@@ -325,7 +368,7 @@ const BrandDetail: React.FC = () => {
         console.error('클립보드 복사 실패', err);
       }
     }
-  };
+  }, []);
 
   // 검색 모달 상태
   const [isSearchModalOpen, setSearchModalOpen] = useState(false);
@@ -341,209 +384,137 @@ const BrandDetail: React.FC = () => {
     }
   }, [isFilterModalOpen, selectedColors, selectedSizes]);
 
+  // 필터 칩 제거 시 검색어와 필터 초기화
+  const handleClearFilters = useCallback(() => {
+    setSearchQuery('');
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setShowNoResult(false); // showNoResult 상태도 초기화
+    // URL에서 search 파라미터 제거
+    setSearchParams(
+      (prev) => {
+        const params = Object.fromEntries(prev.entries());
+        delete params.search;
+        return params;
+      },
+      { replace: true }
+    );
+  }, [setSearchParams]);
+
   // UIItem 매핑 (filteredProducts 기준)
-  const uiItems: UIItem[] = filteredProducts.map((it) => ({
-    id: it.id.toString(),
-    image: it.image || '',
-    brand: brand?.name || '',
-    description: it.description || '',
-    price: it.price || 0,
-    discount: it.discount || 0,
-    isLiked: false,
-  }));
+  const uiItems: UIItem[] = useMemo(() => {
+    return filteredProducts.map((it) => ({
+      id: it.id.toString(),
+      image: it.image || '',
+      brand: brand?.name || '',
+      description: it.description || '',
+      price: it.price || 0,
+      discount: it.discount || 0,
+      isLiked: false,
+    }));
+  }, [filteredProducts, brand?.name]);
 
-  // 안내 문구 딜레이 상태
+  // 무한스크롤 관련 상태
+  const [visibleCount, setVisibleCount] = useState(40);
+  const observerRef = useRef<HTMLDivElement | null>(null);
+
+  // 무한스크롤 IntersectionObserver
+  useEffect(() => {
+    if (!observerRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + 40, uiItems.length));
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [uiItems.length]);
+
+  const visibleItems = uiItems.slice(0, visibleCount);
+
+  // 검색/필터 결과 없음일 때 문구만 표시
   const [showNoResult, setShowNoResult] = useState(false);
+  const [countdown, setCountdown] = useState(3);
 
+  // 검색 결과 없음 감지 및 자동 초기화
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
-    if (!loadingProducts && filteredProducts.length === 0) {
-      timer = setTimeout(() => setShowNoResult(true), 300);
+    let countdownTimer: NodeJS.Timeout | null = null;
+
+    // 검색어나 필터가 있고, 로딩이 완료되었으며, 결과가 없을 때
+    const hasActiveFilters =
+      searchQuery.trim() ||
+      selectedColors.length > 0 ||
+      selectedSizes.length > 0;
+    const shouldShowNoResult =
+      !loadingProducts && uiItems.length === 0 && hasActiveFilters;
+
+    // 검색어나 필터가 변경되면 즉시 showNoResult를 false로 설정
+    if (!hasActiveFilters) {
+      setShowNoResult(false);
+      setCountdown(3);
+      return;
+    }
+
+    if (shouldShowNoResult) {
+      timer = setTimeout(() => {
+        setShowNoResult(true);
+        setCountdown(3);
+
+        // 3초 카운트다운 후 자동 초기화
+        countdownTimer = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              // 카운트다운 완료 시 모든 필터 초기화
+              setSearchQuery('');
+              setSelectedColors([]);
+              setSelectedSizes([]);
+              setShowNoResult(false);
+              setCountdown(3);
+
+              // URL에서 search 파라미터 제거
+              setSearchParams(
+                (prev) => {
+                  const params = Object.fromEntries(prev.entries());
+                  delete params.search;
+                  return params;
+                },
+                { replace: true }
+              );
+
+              if (countdownTimer) {
+                clearInterval(countdownTimer);
+              }
+              return 3;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }, 300);
     } else {
       setShowNoResult(false);
-      if (timer) clearTimeout(timer);
+      setCountdown(3);
     }
+
     return () => {
       if (timer) clearTimeout(timer);
+      if (countdownTimer) clearInterval(countdownTimer);
     };
-  }, [loadingProducts, filteredProducts]);
+  }, [
+    loadingProducts,
+    uiItems.length,
+    searchQuery,
+    selectedColors,
+    selectedSizes,
+    setSearchParams,
+  ]);
 
+  // 에러 처리
   if (errorProducts) {
     return <ErrorMessage message={errorProducts} />;
-  }
-
-  // 로딩 중에는 스켈레톤만 렌더링
-  if (loadingProducts) {
-    return (
-      <PageWrapper>
-        <Container>
-          <Header>
-            <Title>{brand?.name}</Title>
-            <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
-          </Header>
-          <StatsSection
-            brandCount={1}
-            productCount={brand?.productCount || 0}
-          />
-          <Divider />
-          <SubHeader
-            selectedCategory={selectedCategory}
-            setSelectedCategory={(cat) => {
-              setSelectedCategory(cat);
-              scrollToTop();
-            }}
-            onCategoryClick={scrollToTop}
-          />
-          <FilterChipContainer
-            searchQuery={searchQuery}
-            onSearchQueryChange={setSearchQuery}
-            onSearchSubmit={(searchTerm) => {
-              setSearchQuery(searchTerm);
-              setSelectedCategory('All');
-              setSearchParams(
-                { category: 'All', search: searchTerm },
-                { replace: true }
-              );
-            }}
-            selectedColors={selectedColors}
-            selectedSizes={selectedSizes}
-            onColorsChange={setSelectedColors}
-            onSizesChange={setSelectedSizes}
-            isSearchModalOpen={isSearchModalOpen}
-            isFilterModalOpen={isFilterModalOpen}
-            onSearchModalToggle={setSearchModalOpen}
-            onFilterModalToggle={setFilterModalOpen}
-            tempSelectedColors={tempSelectedColors}
-            tempSelectedSizes={tempSelectedSizes}
-            onTempColorsChange={setTempSelectedColors}
-            onTempSizesChange={setTempSelectedSizes}
-            historyKey='brandSearchHistory'
-          />
-          <MainContent>
-            <ItemList items={[]} columns={viewCols} isLoading={true} />
-          </MainContent>
-          <ScrollToTopButton onClick={scrollToTop}>
-            <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
-          </ScrollToTopButton>
-        </Container>
-      </PageWrapper>
-    );
-  }
-
-  // 로딩이 끝났고 데이터가 없을 때: 300ms 동안은 스켈레톤, 그 후 안내 문구
-  if (!loadingProducts && filteredProducts.length === 0 && !showNoResult) {
-    return (
-      <PageWrapper>
-        <Container>
-          <Header>
-            <Title>{brand?.name}</Title>
-            <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
-          </Header>
-          <StatsSection
-            brandCount={1}
-            productCount={brand?.productCount || 0}
-          />
-          <Divider />
-          <SubHeader
-            selectedCategory={selectedCategory}
-            setSelectedCategory={(cat) => {
-              setSelectedCategory(cat);
-              scrollToTop();
-            }}
-            onCategoryClick={scrollToTop}
-          />
-          <FilterChipContainer
-            searchQuery={searchQuery}
-            onSearchQueryChange={setSearchQuery}
-            onSearchSubmit={(searchTerm) => {
-              setSearchQuery(searchTerm);
-              setSelectedCategory('All');
-              setSearchParams(
-                { category: 'All', search: searchTerm },
-                { replace: true }
-              );
-            }}
-            selectedColors={selectedColors}
-            selectedSizes={selectedSizes}
-            onColorsChange={setSelectedColors}
-            onSizesChange={setSelectedSizes}
-            isSearchModalOpen={isSearchModalOpen}
-            isFilterModalOpen={isFilterModalOpen}
-            onSearchModalToggle={setSearchModalOpen}
-            onFilterModalToggle={setFilterModalOpen}
-            tempSelectedColors={tempSelectedColors}
-            tempSelectedSizes={tempSelectedSizes}
-            onTempColorsChange={setTempSelectedColors}
-            onTempSizesChange={setTempSelectedSizes}
-            historyKey='brandSearchHistory'
-          />
-          <MainContent>
-            <ItemList items={[]} columns={viewCols} isLoading={true} />
-          </MainContent>
-          <ScrollToTopButton onClick={scrollToTop}>
-            <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
-          </ScrollToTopButton>
-        </Container>
-      </PageWrapper>
-    );
-  }
-
-  // 안내 문구만 렌더링
-  if (showNoResult) {
-    return (
-      <PageWrapper>
-        <Container>
-          <Header>
-            <Title>{brand?.name}</Title>
-            <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
-          </Header>
-          <StatsSection
-            brandCount={1}
-            productCount={brand?.productCount || 0}
-          />
-          <Divider />
-          <SubHeader
-            selectedCategory={selectedCategory}
-            setSelectedCategory={(cat) => {
-              setSelectedCategory(cat);
-              scrollToTop();
-            }}
-            onCategoryClick={scrollToTop}
-          />
-          <FilterChipContainer
-            searchQuery={searchQuery}
-            onSearchQueryChange={setSearchQuery}
-            onSearchSubmit={(searchTerm) => {
-              setSearchQuery(searchTerm);
-              setSelectedCategory('All');
-              setSearchParams(
-                { category: 'All', search: searchTerm },
-                { replace: true }
-              );
-            }}
-            selectedColors={selectedColors}
-            selectedSizes={selectedSizes}
-            onColorsChange={setSelectedColors}
-            onSizesChange={setSelectedSizes}
-            isSearchModalOpen={isSearchModalOpen}
-            isFilterModalOpen={isFilterModalOpen}
-            onSearchModalToggle={setSearchModalOpen}
-            onFilterModalToggle={setFilterModalOpen}
-            tempSelectedColors={tempSelectedColors}
-            tempSelectedSizes={tempSelectedSizes}
-            onTempColorsChange={setTempSelectedColors}
-            onTempSizesChange={setTempSelectedSizes}
-            historyKey='brandSearchHistory'
-          />
-          <ContentWrapper>
-            <NoResultMessage>조건에 맞는 상품이 없습니다.</NoResultMessage>
-          </ContentWrapper>
-          <ScrollToTopButton onClick={scrollToTop}>
-            <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
-          </ScrollToTopButton>
-        </Container>
-      </PageWrapper>
-    );
   }
 
   return (
@@ -569,45 +540,78 @@ const BrandDetail: React.FC = () => {
               scrollToTop();
             }}
             onCategoryClick={scrollToTop}
+            isLoading={loadingProducts}
           />
 
-          {/* 필터 및 검색 아이콘 */}
-          <ControlsContainer>
-            {/* Chip 리스트 */}
-            <FilterChipContainer
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              onSearchSubmit={(searchTerm) => {
-                setSearchQuery(searchTerm);
-                setSelectedCategory('All');
-                setSearchParams(
-                  { category: 'All', search: searchTerm },
-                  { replace: true }
-                );
-              }}
-              selectedColors={selectedColors}
-              selectedSizes={selectedSizes}
-              onColorsChange={setSelectedColors}
-              onSizesChange={setSelectedSizes}
-              isSearchModalOpen={isSearchModalOpen}
-              isFilterModalOpen={isFilterModalOpen}
-              onSearchModalToggle={setSearchModalOpen}
-              onFilterModalToggle={setFilterModalOpen}
-              tempSelectedColors={tempSelectedColors}
-              tempSelectedSizes={tempSelectedSizes}
-              onTempColorsChange={setTempSelectedColors}
-              onTempSizesChange={setTempSelectedSizes}
-              historyKey='brandSearchHistory'
-            />
-          </ControlsContainer>
+          {/* 필터 및 열 선택 */}
+          <FilterChipContainer
+            searchQuery={searchQuery}
+            onSearchQueryChange={(query) => {
+              setSearchQuery(query);
+              // URL 동기화
+              setSearchParams(
+                (prev) => {
+                  const params = Object.fromEntries(prev.entries());
+                  if (query.trim()) {
+                    params.search = query;
+                  } else {
+                    delete params.search;
+                  }
+                  return params;
+                },
+                { replace: true }
+              );
+            }}
+            onSearchSubmit={(searchTerm) => {
+              setSearchQuery(searchTerm);
+              setSelectedCategory('All');
+              setSearchParams(
+                { category: 'All', search: searchTerm },
+                { replace: true }
+              );
+            }}
+            selectedColors={selectedColors}
+            selectedSizes={selectedSizes}
+            onColorsChange={setSelectedColors}
+            onSizesChange={setSelectedSizes}
+            isSearchModalOpen={isSearchModalOpen}
+            isFilterModalOpen={isFilterModalOpen}
+            onSearchModalToggle={setSearchModalOpen}
+            onFilterModalToggle={setFilterModalOpen}
+            tempSelectedColors={tempSelectedColors}
+            tempSelectedSizes={tempSelectedSizes}
+            onTempColorsChange={setTempSelectedColors}
+            onTempSizesChange={setTempSelectedSizes}
+            historyKey='brandSearchHistory'
+            onClearAll={handleClearFilters}
+          />
 
+          {/* 제품 리스트 or 로딩 스피너 */}
           <MainContent>
-            <ItemList
-              items={uiItems}
-              columns={viewCols}
-              onItemClick={handleItemClick}
-              isLoading={loadingProducts}
-            />
+            {loadingProducts ? (
+              <ItemList items={[]} columns={viewCols} isLoading={true} />
+            ) : showNoResult ? (
+              <ContentWrapper>
+                <NoResultMessage>
+                  조건에 맞는 상품이 없습니다.
+                  <br />
+                  <CountdownText>
+                    {countdown}초 후 전체 상품으로 이동합니다...
+                  </CountdownText>
+                </NoResultMessage>
+              </ContentWrapper>
+            ) : (
+              <>
+                <ItemList
+                  items={visibleItems}
+                  columns={viewCols}
+                  onItemClick={handleItemClick}
+                  observerRef={observerRef as React.RefObject<HTMLDivElement>}
+                  visibleCount={visibleCount}
+                />
+                <div ref={observerRef} style={{ height: 1 }} />
+              </>
+            )}
           </MainContent>
 
           {/* 하단 스크롤 탑 버튼(유지) */}
@@ -684,12 +688,6 @@ const Divider = styled.div`
   height: 1px;
   background: #ddd;
   margin: 30px 0 0;
-`;
-
-const ControlsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 `;
 
 const ScrollToTopButton = styled.button`
@@ -819,4 +817,11 @@ const NoResultMessage = styled.div`
   justify-content: center;
   background: #fff;
   border-radius: 12px;
+`;
+
+const CountdownText = styled.div`
+  font-size: 14px;
+  color: #999;
+  font-weight: 400;
+  margin-top: 8px;
 `;
