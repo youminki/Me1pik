@@ -22,7 +22,6 @@ import MelpikGuideBanner from '@/components/melpik-guide-banner';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
-
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
