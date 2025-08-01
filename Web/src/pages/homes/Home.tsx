@@ -33,6 +33,7 @@ import HomeDetail from '@/pages/homes/HomeDetail';
  * - 검색/필터 useMemo 적용
  * - 무한스크롤 IntersectionObserver 적용
  * - 상태 최소화, 타입 보강, 주석 추가
+ * - 모든 카테고리 상품을 미리 로드하여 카테고리 전환 시 즉시 표시
  */
 
 // 컴포넌트 함수 바깥에 위치
@@ -110,23 +111,38 @@ const Home: React.FC = () => {
   const [tempSelectedColors, setTempSelectedColors] = useState<string[]>([]);
   const [tempSelectedSizes, setTempSelectedSizes] = useState<string[]>([]);
 
-  // react-query 상품 데이터
-  const {
-    data: products = [],
-    isLoading,
-    isError,
-    error,
-  } = useProducts(selectedCategory === 'All' ? 'all' : selectedCategory);
+  // 모든 카테고리의 상품을 미리 로드
+  const allProductsQuery = useProducts('all');
 
-  // 실제 API 데이터 사용 (sizes 필드가 포함되어 있음)
-  const productsWithSizes = useMemo(() => {
-    if (!products) return [];
-    return products;
-  }, [products]);
+  // 카테고리별로 상품을 분류하여 캐시
+  const categorizedProducts = useMemo(() => {
+    if (!allProductsQuery.data) return {};
+
+    const categorized: Record<string, typeof allProductsQuery.data> = {};
+
+    // 모든 상품을 카테고리별로 분류
+    allProductsQuery.data.forEach((product) => {
+      const category = product.category || 'All';
+      if (!categorized[category]) {
+        categorized[category] = [];
+      }
+      categorized[category].push(product);
+    });
+
+    // 'All' 카테고리는 모든 상품을 포함
+    categorized['All'] = allProductsQuery.data;
+
+    return categorized;
+  }, [allProductsQuery.data]);
+
+  // 현재 선택된 카테고리의 상품들
+  const currentCategoryProducts = useMemo(() => {
+    return categorizedProducts[selectedCategory] || [];
+  }, [categorizedProducts, selectedCategory]);
 
   // 검색/필터된 상품 목록 (useMemo로 연산 최소화)
   const filteredProducts = useMemo(() => {
-    if (!productsWithSizes) return [];
+    if (!currentCategoryProducts) return [];
     const term = searchQuery.trim().toLowerCase();
     // 쉼표로 분리된 여러 검색어 처리
     const terms = term
@@ -152,7 +168,7 @@ const Home: React.FC = () => {
       }
     });
 
-    const filtered = productsWithSizes.filter(
+    const filtered = currentCategoryProducts.filter(
       (item: {
         id: number;
         brand?: string;
@@ -233,7 +249,7 @@ const Home: React.FC = () => {
       }
     );
     return filtered;
-  }, [productsWithSizes, searchQuery, selectedColors, selectedSizes]);
+  }, [currentCategoryProducts, searchQuery, selectedColors, selectedSizes]);
 
   // UIItem 변환 (모든 상품을 한 번에 불러옴)
   const uiItems: UIItem[] = useMemo(() => {
@@ -383,7 +399,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
     if (
-      !isLoading &&
+      !allProductsQuery.isLoading &&
       uiItems.length === 0 &&
       (searchQuery || selectedColors.length > 0 || selectedSizes.length > 0)
     ) {
@@ -394,17 +410,27 @@ const Home: React.FC = () => {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [isLoading, uiItems.length, searchQuery, selectedColors, selectedSizes]);
+  }, [
+    allProductsQuery.isLoading,
+    uiItems.length,
+    searchQuery,
+    selectedColors,
+    selectedSizes,
+  ]);
 
   // 에러 처리
-  if (isError) {
+  if (allProductsQuery.isError) {
     return (
-      <ErrorMessage message={error?.message || '상품을 불러오지 못했습니다.'} />
+      <ErrorMessage
+        message={
+          allProductsQuery.error?.message || '상품을 불러오지 못했습니다.'
+        }
+      />
     );
   }
 
   // 로딩 중에는 스켈레톤만 렌더링
-  if (isLoading) {
+  if (allProductsQuery.isLoading) {
     return (
       <MainContainer>
         <MelpikGuideBanner />
@@ -415,6 +441,7 @@ const Home: React.FC = () => {
             setSearchParams({ category: cat }, { replace: true });
           }}
           onCategoryClick={() => setSearchQuery('')}
+          isLoading={true}
         />
         <ControlsContainer>
           <FilterContainer
