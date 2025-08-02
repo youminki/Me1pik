@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 import svgrPlugin from 'vite-plugin-svgr';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
-import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: './', // 상대경로로 설정하여 배포 환경에서 경로 문제 최소화
@@ -11,27 +10,38 @@ export default defineConfig({
     react(),
     svgrPlugin(), // SVG를 React 컴포넌트로 변환
     tsconfigPaths(), // tsconfig.json의 paths를 자동 반영
-    VitePWA({
-      registerType: 'autoUpdate',
-      manifest: {
-        name: 'Melpik Admin',
-        short_name: 'Melpik',
-        start_url: '/',
-        display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#3071B2',
-        icons: [
-          {
-            src: '/assets/favicon.svg',
-            sizes: '192x192',
-            type: 'image/svg+xml',
-          },
-        ],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
-      },
-    }),
+    // PWA 기능을 일시적으로 비활성화 (Service Worker 오류 해결)
+    // VitePWA({
+    //   registerType: 'autoUpdate',
+    //   manifest: {
+    //     name: 'Melpik Admin',
+    //     short_name: 'Melpik',
+    //     start_url: '/',
+    //     display: 'standalone',
+    //     background_color: '#ffffff',
+    //     theme_color: '#3071B2',
+    //     icons: [
+    //       {
+    //         src: '/assets/favicon.svg',
+    //         sizes: '192x192',
+    //         type: 'image/svg+xml',
+    //       },
+    //     ],
+    //   },
+    //   workbox: {
+    //     globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+    //     // API 요청은 캐시하지 않도록 설정
+    //     runtimeCaching: [
+    //       {
+    //         urlPattern: /^https:\/\/api\.stylewh\.com\/.*$/,
+    //         handler: 'NetworkOnly',
+    //         options: {
+    //           cacheName: 'api-cache',
+    //         },
+    //       },
+    //     ],
+    //   },
+    // }),
   ],
   resolve: {
     // tsconfigPaths()가 paths를 처리해 주므로

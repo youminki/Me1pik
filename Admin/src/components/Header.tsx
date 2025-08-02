@@ -2,15 +2,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import { logout } from '@/utils/auth';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
 
-  // 로그아웃 처리: 토큰 삭제 후 이동
-  const handleLogout = () => {
-    Cookies.remove('accessToken');
-    Cookies.remove('refreshToken');
+  // 로그아웃 처리: 새로운 auth.ts 파일의 logout 함수 사용
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 

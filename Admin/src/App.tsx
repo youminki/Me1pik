@@ -4,6 +4,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { theme } from 'src/styles/theme';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 const Login = lazy(() => import('src/pages/Login'));
 const AdminList = lazy(() => import('src/pages/Tab2/Admins/AdminList'));
@@ -57,7 +58,9 @@ const App: React.FC = () => {
           <Route
             element={
               <Suspense fallback={<div>로딩중...</div>}>
-                <Layout />
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
               </Suspense>
             }
           >

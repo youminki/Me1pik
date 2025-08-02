@@ -1,11 +1,24 @@
 // src/Layout.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import List from '@components/List';
 import Header from '@components/Header';
+import { getCurrentToken, hasValidToken } from '@/utils/auth';
+import { Axios } from '@/api/Axios';
 
 const Layout: React.FC = () => {
+  useEffect(() => {
+    // 토큰이 유효한지 확인하고 Axios 헤더 설정
+    const token = getCurrentToken();
+    if (token && hasValidToken()) {
+      Axios.defaults.headers.Authorization = `Bearer ${token}`;
+      console.log('🔐 토큰이 유효합니다. Axios 헤더 설정 완료');
+    } else {
+      console.log('⚠️ 토큰이 유효하지 않습니다.');
+    }
+  }, []);
+
   return (
     <Container>
       {/* 왼쪽 사이드바 */}

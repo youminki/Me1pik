@@ -6,7 +6,7 @@ import styled, { keyframes } from 'styled-components';
 import InputField from '@components/InputField';
 import { schemaLogin } from 'src/hooks/ValidationYup';
 import { adminLogin } from '@api/adminAuth';
-import Cookies from 'js-cookie';
+import { saveTokens } from '@/utils/auth';
 import MelpikLogo from '@/assets/LoginLogo.svg';
 
 type LoginFormInputs = {
@@ -37,8 +37,8 @@ const Login: React.FC = () => {
         password: data.password,
       });
 
-      Cookies.set('accessToken', response.accessToken, { secure: true });
-      Cookies.set('refreshToken', response.refreshToken, { secure: true });
+      // 새로운 auth.ts 파일의 saveTokens 함수 사용
+      saveTokens(response.accessToken, response.refreshToken);
 
       navigate('/adminlist');
     } catch (error: any) {
