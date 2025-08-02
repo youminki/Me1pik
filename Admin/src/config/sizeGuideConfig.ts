@@ -39,10 +39,10 @@ export const sizeGuideConfig: Record<string, SizeGuideConfigItem> = {
   Top: {
     image: TopImg,
     labels: {
-      A: 'A.어깨넓이',
-      B: 'B.가슴둘레',
-      C: 'C.암홀',
-      D: 'D.총길이',
+      A: 'A.가슴둘레',
+      B: 'B.암홀',
+      C: 'C.총길이',
+      D: 'D.밑단둘레',
     },
   },
   Tshirt: {
