@@ -74,6 +74,10 @@
     <key>NSKeychainAccessibility</key>
     <string>kSecAttrAccessibleAfterFirstUnlock</string>
     
+    <!-- 암호화 사용 여부 설정 -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    
     <key>CFBundleShortVersionString</key>
     <string>1.0.3</string>
     <key>CFBundleVersion</key>
