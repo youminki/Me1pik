@@ -125,6 +125,14 @@ class LoginManager: ObservableObject {
         
         // UserDefaults 강제 동기화
         userDefaults.synchronize()
+        
+        // 추가 안전장치: 토큰을 다시 한 번 저장
+        if let userInfo = userInfo {
+            saveToKeychainSync(key: "accessToken", value: userInfo.token)
+            if let refreshToken = userInfo.refreshToken {
+                saveToKeychainSync(key: "refreshToken", value: refreshToken)
+            }
+        }
     }
     
     // MARK: - 앱이 백그라운드로 갈 때 처리
@@ -134,6 +142,14 @@ class LoginManager: ObservableObject {
         
         // UserDefaults 강제 동기화
         userDefaults.synchronize()
+        
+        // 추가 안전장치: 토큰을 다시 한 번 저장
+        if let userInfo = userInfo {
+            saveToKeychainSync(key: "accessToken", value: userInfo.token)
+            if let refreshToken = userInfo.refreshToken {
+                saveToKeychainSync(key: "refreshToken", value: refreshToken)
+            }
+        }
         
         // 백그라운드 작업 요청 (최대 30초)
         var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
@@ -410,16 +426,16 @@ class LoginManager: ObservableObject {
         userDefaults.set(userInfo.name, forKey: "userName")
         userDefaults.set(userInfo.token, forKey: "accessToken")
         
-        // Keychain에 토큰 저장 (이중 보장)
-        print("[saveLoginState] saveToKeychain(accessToken)")
-        saveToKeychainWithRetry(key: "accessToken", value: userInfo.token)
+        // Keychain에 토큰 저장 (이중 보장) - 동기 방식으로 즉시 저장
+        print("[saveLoginState] saveToKeychainSync(accessToken)")
+        saveToKeychainSync(key: "accessToken", value: userInfo.token)
         
-        // refreshToken 저장 로직 강화
+        // refreshToken 저장 로직 강화 - 동기 방식으로 즉시 저장
         if let refreshToken = userInfo.refreshToken {
             print("[saveLoginState] refreshToken 저장 시도: \(refreshToken)")
             userDefaults.set(refreshToken, forKey: "refreshToken")
-            print("[saveLoginState] saveToKeychain(refreshToken)")
-            saveToKeychainWithRetry(key: "refreshToken", value: refreshToken)
+            print("[saveLoginState] saveToKeychainSync(refreshToken)")
+            saveToKeychainSync(key: "refreshToken", value: refreshToken)
             
             // 저장 후 확인
             let check = loadFromKeychain(key: "refreshToken")
@@ -480,13 +496,13 @@ class LoginManager: ObservableObject {
         print("- accessToken: \(accessToken)")
         print("- refreshToken: \(refreshToken)")
         
-        // UserDefaults와 Keychain 간 토큰 동기화
+        // UserDefaults와 Keychain 간 토큰 동기화 강화
         if accessToken.isEmpty {
             if let userDefaultsToken = userDefaults.string(forKey: "accessToken"), !userDefaultsToken.isEmpty {
                 print("Keychain accessToken이 비어있어 UserDefaults 값으로 동기화")
                 accessToken = userDefaultsToken
-                // Keychain에도 저장
-                saveToKeychain(key: "accessToken", value: userDefaultsToken)
+                // Keychain에도 저장 (동기 방식)
+                saveToKeychainSync(key: "accessToken", value: userDefaultsToken)
             }
         } else {
             // Keychain에 토큰이 있으면 UserDefaults에도 저장
@@ -497,8 +513,8 @@ class LoginManager: ObservableObject {
             if let userDefaultsToken = userDefaults.string(forKey: "refreshToken"), !userDefaultsToken.isEmpty {
                 print("Keychain refreshToken이 비어있어 UserDefaults 값으로 동기화")
                 refreshToken = userDefaultsToken
-                // Keychain에도 저장
-                saveToKeychain(key: "refreshToken", value: userDefaultsToken)
+                // Keychain에도 저장 (동기 방식)
+                saveToKeychainSync(key: "refreshToken", value: userDefaultsToken)
             }
         } else {
             // Keychain에 토큰이 있으면 UserDefaults에도 저장
@@ -664,33 +680,33 @@ class LoginManager: ObservableObject {
         if keepLogin {
             // 로그인 상태 유지: UserDefaults에 저장 (영구 보관)
             userDefaults.set(accessToken, forKey: "accessToken")
-            print("[saveTokensWithKeepLogin] saveToKeychain(accessToken)")
-            saveToKeychain(key: "accessToken", value: accessToken)
+            print("[saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
+            saveToKeychainSync(key: "accessToken", value: accessToken)
             if let refreshToken = refreshToken {
                 userDefaults.set(refreshToken, forKey: "refreshToken")
-                print("[saveTokensWithKeepLogin] saveToKeychain(refreshToken)")
-                saveToKeychain(key: "refreshToken", value: refreshToken)
+                print("[saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
+                saveToKeychainSync(key: "refreshToken", value: refreshToken)
             }
             print("UserDefaults에 토큰 저장됨 (로그인 상태 유지)")
         } else {
             // 세션 유지: UserDefaults에 저장하되 앱 종료 시 삭제될 수 있음
             userDefaults.set(accessToken, forKey: "accessToken")
-            print("[saveTokensWithKeepLogin] saveToKeychain(accessToken)")
-            saveToKeychain(key: "accessToken", value: accessToken)
+            print("[saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
+            saveToKeychainSync(key: "accessToken", value: accessToken)
             if let refreshToken = refreshToken {
                 userDefaults.set(refreshToken, forKey: "refreshToken")
-                print("[saveTokensWithKeepLogin] saveToKeychain(refreshToken)")
-                saveToKeychain(key: "refreshToken", value: refreshToken)
+                print("[saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
+                saveToKeychainSync(key: "refreshToken", value: refreshToken)
             }
             print("UserDefaults에 토큰 저장됨 (세션 유지)")
         }
         
-        // Keychain에도 저장 (보안 강화)
-        print("[saveTokensWithKeepLogin] saveToKeychain(accessToken)")
-        saveToKeychain(key: "accessToken", value: accessToken)
+        // Keychain에도 저장 (보안 강화) - 동기 방식으로 즉시 저장
+        print("[saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
+        saveToKeychainSync(key: "accessToken", value: accessToken)
         if let refreshToken = refreshToken {
-            print("[saveTokensWithKeepLogin] saveToKeychain(refreshToken)")
-            saveToKeychain(key: "refreshToken", value: refreshToken)
+            print("[saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
+            saveToKeychainSync(key: "refreshToken", value: refreshToken)
         }
         
         // 로그인 상태 설정
@@ -965,10 +981,10 @@ class LoginManager: ObservableObject {
     func saveLoginInfo(_ loginData: [String: Any]) {
         print("[saveLoginInfo] called with loginData: \(loginData)")
         
-        // 토큰 저장 (재시도 로직 포함)
+        // 토큰 저장 (동기 방식으로 즉시 저장)
         if let token = loginData["token"] as? String {
-            print("[saveLoginInfo] saveToKeychain(accessToken): \(token)")
-            saveToKeychainWithRetry(key: "accessToken", value: token)
+            print("[saveLoginInfo] saveToKeychainSync(accessToken): \(token)")
+            saveToKeychainSync(key: "accessToken", value: token)
             userDefaults.set(token, forKey: "accessToken")
         }
         
@@ -987,10 +1003,10 @@ class LoginManager: ObservableObject {
             print("[saveLoginInfo] loginData에서 빈 문자열이 아닌 refreshToken 발견: \(rt)")
         }
         
-        // 3. refreshToken이 있으면 저장
+        // 3. refreshToken이 있으면 저장 (동기 방식으로 즉시 저장)
         if let rt = refreshToken {
-            print("[saveLoginInfo] saveToKeychain(refreshToken): \(rt)")
-            saveToKeychainWithRetry(key: "refreshToken", value: rt)
+            print("[saveLoginInfo] saveToKeychainSync(refreshToken): \(rt)")
+            saveToKeychainSync(key: "refreshToken", value: rt)
             userDefaults.set(rt, forKey: "refreshToken")
             
             // 저장 후 확인
@@ -1292,9 +1308,9 @@ class LoginManager: ObservableObject {
             if let refreshToken = result as? String, !refreshToken.isEmpty {
                 print("✅ WebView에서 refreshToken 발견: \(refreshToken)")
                 
-                // iOS 앱에 저장
+                // iOS 앱에 저장 (동기 방식으로 즉시 저장)
                 self?.userDefaults.set(refreshToken, forKey: "refreshToken")
-                self?.saveToKeychainWithRetry(key: "refreshToken", value: refreshToken)
+                self?.saveToKeychainSync(key: "refreshToken", value: refreshToken)
                 
                 // 저장 확인
                 let check = self?.loadFromKeychain(key: "refreshToken")
