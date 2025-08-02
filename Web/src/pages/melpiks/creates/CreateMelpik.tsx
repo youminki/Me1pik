@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import ContentList from '@/components/melpiks/create-melpiks/ContentList';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsSection from '@/components/stats-section';
 
@@ -16,10 +17,10 @@ const CreateMelpik: React.FC = () => {
     <>
       <UnifiedHeader variant='oneDepth' />
       <CreateMelpikContainer>
-        <Header>
-          <Title>멜픽 생성</Title>
-          <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
-        </Header>
+        <PageHeader 
+          title="멜픽 생성" 
+          subtitle="내 채널을 통해 나는 브랜드가 된다" 
+        />
 
         <StatsSection
           visits={visits}
@@ -47,28 +48,7 @@ const CreateMelpikContainer = styled.div`
   background-color: #fff;
 `;
 
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: 6px;
-`;
 
-const Title = styled.h1`
-  font-weight: 800;
-  font-size: 24px;
-  line-height: 27px;
-
-  color: #000000;
-  margin-bottom: 0px;
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  font-weight: 400;
-  color: #ccc;
-`;
 
 const ContentWrapper = styled.div`
   display: flex;

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 import { useMyCards, CardItem } from '@/api-utils/payments/default/payment';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
@@ -125,10 +126,10 @@ const PaymentMethod: React.FC = () => {
       {/* <HideScrollbarStyle /> */}
       {/* 또는 특정 영역만 */}
       <Container>
-        <Header>
-          <Title>결제수단</Title>
-          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-        </Header>
+        <PageHeader 
+          title="결제수단" 
+          subtitle="나에게 맞는 스타일을 찾을 때는 멜픽!" 
+        />
 
         <StatsSection
           visits={count}
@@ -192,20 +193,7 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const Header = styled.div`
-  width: 100%;
-  margin-bottom: 12px;
-`;
 
-const Title = styled.h1`
-  font-size: 26px;
-  font-weight: 900;
-  color: #333;
-`;
-
-const Subtitle = styled.p`
-  font-size: 14px;
-`;
 
 const Divider = styled.div`
   width: 100%;

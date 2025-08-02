@@ -15,7 +15,9 @@ import ReviewIcon from '@/assets/locker-rooms/ReviewIcon.svg';
 import TicketIcon from '@/assets/locker-rooms/TicketIcon.svg';
 import LockerRoomIcons from '@/assets/LockerRoomIcons.svg';
 import StatsSection from '@/components/locker-rooms/StatsSection';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import StatsRow from '@/components/shared/StatsRow';
 
 const menuItems = [
   { icon: ClosetIcon, label: '내 옷장', path: '/my-closet', disabled: false },
@@ -79,14 +81,13 @@ const LockerRoom: React.FC = () => {
     <>
       <UnifiedHeader variant='default' />
       <Container>
-        <Header>
-          <Title>락커룸</Title>
-          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-        </Header>
+        <PageHeader
+          title='락커룸'
+          subtitle='나에게 맞는 스타일을 찾을 때는 멜픽!'
+        />
 
-        <StatsRow>
+        <StatsRow icon={LockerRoomIcons} iconAlt='메뉴 이미지'>
           <StatsSection {...statsData} />
-          <MenuIcon src={LockerRoomIcons} alt='메뉴 이미지' />
         </StatsRow>
 
         <Divider />
@@ -122,44 +123,6 @@ const Container = styled.div`
 
   background: #fff;
   box-sizing: border-box;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 6px;
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 800;
-  margin: 0;
-  color: #000;
-  @media (min-width: 1024px) {
-    font-size: 32px;
-    margin-bottom: 10px;
-  }
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  line-height: 28px;
-  margin: 0;
-  color: #cccccc;
-  @media (min-width: 1024px) {
-    font-size: 16px;
-  }
-`;
-
-const StatsRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const MenuIcon = styled.img`
-  width: 64px;
-  height: 58px;
 `;
 
 const Divider = styled.div`

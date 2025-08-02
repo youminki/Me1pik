@@ -7,7 +7,9 @@ import {
   getTermsPolicyDetail,
 } from '@/api-utils/user-managements/terms/termsApi';
 import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import StatsRow from '@/components/shared/StatsRow';
 import StatsSection from '@/components/stats-section';
 
 // 스켈레톤 UI용 styled-components (불필요한 것 삭제)
@@ -179,22 +181,17 @@ const DocumentList: React.FC = () => {
     <>
       <UnifiedHeader variant='oneDepth' />
       <ResponsiveContainer>
-        <Header>
-          <ResponsiveTitle>{title}</ResponsiveTitle>
-          <Subtitle>새로운 소식 및 서비스 안내를 드립니다.</Subtitle>
-        </Header>
-        <StatsRow>
+        <PageHeader
+          title={title}
+          subtitle='새로운 소식 및 서비스 안내를 드립니다.'
+        />
+        <StatsRow icon={CustomerServiceIcon} iconAlt='고객센터 아이콘'>
           <StatsSection
             visits={999}
             sales={999}
             dateRange='2024-01-01 ~ 2024-01-31'
             visitLabel='전체'
             salesLabel='최근업데이트'
-          />
-          <img
-            src={CustomerServiceIcon}
-            alt='고객센터 아이콘'
-            style={{ width: 64, height: 'auto' }}
           />
         </StatsRow>
         <Divider />
@@ -391,43 +388,6 @@ const IconRight = styled.span`
   min-width: 32px;
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 6px;
-  @media (min-width: 1024px) {
-    margin-bottom: 24px;
-  }
-`;
-
-const ResponsiveTitle = styled.h1`
-  font-weight: 800;
-  font-size: 24px;
-  margin: 0;
-  color: #000;
-  @media (min-width: 1024px) {
-    font-size: 32px;
-    margin-bottom: 10px;
-  }
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  line-height: 28px;
-  margin: 0;
-  color: #ccc;
-  font-weight: 400;
-  @media (min-width: 1024px) {
-    font-size: 16px;
-  }
-`;
-
-const StatsRow = styled.div`
-  display: flex;
-  justify-content: flex-start;
   align-items: center;
 `;
 

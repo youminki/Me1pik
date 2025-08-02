@@ -7,7 +7,9 @@ import NoticeBox from '@/assets/customer-services/Notice.svg';
 import PersonalInformationProcessingPolicyBox from '@/assets/customer-services/PersonalInformationProcessingPolicy.svg';
 import TermsAndConditionsOfUseBox from '@/assets/customer-services/TermsAndConditionsOfUse.svg';
 import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import StatsRow from '@/components/shared/StatsRow';
 import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
@@ -36,12 +38,12 @@ const CustomerService: React.FC = () => {
     <ThemeProvider theme={theme}>
       <UnifiedHeader variant='default' />
       <Container>
-        <Header>
-          <Title>고객센터</Title>
-          <Subtitle>새로운 소식 및 서비스 안내를 드립니다.</Subtitle>
-        </Header>
+        <PageHeader
+          title='고객센터'
+          subtitle='새로운 소식 및 서비스 안내를 드립니다.'
+        />
 
-        <StatsRow>
+        <StatsRow icon={CustomerServiceIcon} iconAlt='고객센터 아이콘'>
           <StatsSection
             visits='999'
             sales='999'
@@ -49,7 +51,6 @@ const CustomerService: React.FC = () => {
             visitLabel='공지사항'
             salesLabel='자주 묻는 질문'
           />
-          <Icon src={CustomerServiceIcon} alt='고객센터 아이콘' />
         </StatsRow>
 
         <Divider />
@@ -78,45 +79,6 @@ const Container = styled.div`
   width: 100%;
   background: #fff;
   box-sizing: border-box;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 6px;
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 800;
-  margin: 0;
-  color: #000;
-
-  @media (min-width: 1024px) {
-    font-size: 32px;
-    margin-bottom: 10px;
-  }
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  line-height: 28px;
-  margin: 0;
-  color: #cccccc;
-
-  @media (min-width: 1024px) {
-    font-size: 16px;
-  }
-`;
-
-const StatsRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-const Icon = styled.img`
-  width: 64px;
-  height: auto;
 `;
 
 const Divider = styled.div`

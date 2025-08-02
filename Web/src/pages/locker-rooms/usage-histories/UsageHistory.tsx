@@ -13,6 +13,7 @@ import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
 import sampleImage from '@/assets/sample-dress.svg';
 import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
@@ -159,10 +160,10 @@ const UsageHistory: React.FC = () => {
     <>
       <UnifiedHeader variant='oneDepth' />
       <UsageHistoryContainer>
-        <Header>
-          <Title>이용 내역</Title>
-          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-        </Header>
+        <PageHeader
+          title='이용 내역'
+          subtitle='나에게 맞는 스타일을 찾을 때는 멜픽!'
+        />
 
         <StatsSection
           visits={String(items.length)}
@@ -335,28 +336,6 @@ const UsageHistoryContainer = styled.div`
 `;
 
 /* 이하 스타일 컴포넌트는 변경 없으므로 생략 */
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: 6px;
-`;
-
-const Title = styled.h1`
-  font-weight: 800;
-  font-size: 24px;
-  line-height: 27px;
-  color: #000;
-  margin-bottom: 0;
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  font-weight: 400;
-  color: #ccc;
-`;
 
 const Divider = styled.div`
   width: 100%;

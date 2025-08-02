@@ -7,6 +7,7 @@ import EvaluationIcon from '@/assets/baskets/EvaluationIcon.svg';
 import FilledStarIcon from '@/assets/baskets/FilledStarIcon.svg';
 import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsSection from '@/components/stats-section';
 
@@ -74,10 +75,10 @@ const ProductReview: React.FC = () => {
     <>
       <UnifiedHeader variant='oneDepth' />
       <ProductReviewContainer>
-        <Header>
-          <Title>제품평가</Title>
-          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-        </Header>
+        <PageHeader
+          title='제품평가'
+          subtitle='나에게 맞는 스타일을 찾을 때는 멜픽!'
+        />
 
         <StatsSection
           visits={'999'}
@@ -202,28 +203,6 @@ const ProductReviewContainer = styled.div`
   align-items: center;
 
   background-color: #fff;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: 6px;
-`;
-
-const Title = styled.h1`
-  font-weight: 800;
-  font-size: 24px;
-  line-height: 27px;
-  color: #000;
-  margin-bottom: 0;
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  font-weight: 400;
-  color: #ccc;
 `;
 
 const Divider = styled.div`

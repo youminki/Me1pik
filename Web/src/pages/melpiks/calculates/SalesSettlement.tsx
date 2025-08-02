@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import PeriodSection from '@/components/period-section';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
@@ -112,20 +113,18 @@ const SalesSettlement: React.FC = () => {
     <>
       <UnifiedHeader variant='twoDepth' />
       <Container>
-        <Header>
-          <Title>판매정산</Title>
-          <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
-        </Header>
+        <PageHeader 
+          title="판매정산" 
+          subtitle="내 채널을 통해 나는 브랜드가 된다" 
+        />
 
-        <StatsRow>
-          <StatsSection
-            visits={visits}
-            sales={sales}
-            dateRange={dateRange}
-            visitLabel={visitLabel}
-            salesLabel={salesLabel}
-          />
-        </StatsRow>
+        <StatsSection
+          visits={visits}
+          sales={sales}
+          dateRange={dateRange}
+          visitLabel={visitLabel}
+          salesLabel={salesLabel}
+        />
 
         <Divider />
 
@@ -197,33 +196,7 @@ const Section = styled.div`
   border: 1px solid #dddddd;
 `;
 
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 800;
-  color: #000;
-  margin-bottom: 0px;
-`;
 
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: 6px;
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  font-weight: 400;
-  color: #aaa;
-`;
-
-const StatsRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`;
 
 const Divider = styled.div`
   width: 100%;

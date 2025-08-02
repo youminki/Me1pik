@@ -12,6 +12,7 @@ import BarcodeImg from '@/assets/locker-rooms/barcodeIcon.svg';
 import TicketIllustration from '@/assets/locker-rooms/TicketIllustration.svg';
 import EmptyState from '@/components/shared/EmptyState';
 import CommonErrorMessage from '@/components/shared/ErrorMessage';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
@@ -54,20 +55,18 @@ const MyTicket: React.FC = () => {
     <>
       <UnifiedHeader variant='oneDepth' />
       <MyTicketContainer>
-        <HeaderSection>
-          <Title>이용권</Title>
-          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-        </HeaderSection>
+        <PageHeader 
+          title="이용권" 
+          subtitle="나에게 맞는 스타일을 찾을 때는 멜픽!" 
+        />
 
-        <StatsSectionWrapper>
-          <StatsSection
-            visits={String(tickets.length)}
-            sales={sales}
-            dateRange={dateRange}
-            visitLabel={visitLabel}
-            salesLabel={salesLabel}
-          />
-        </StatsSectionWrapper>
+        <StatsSection
+          visits={String(tickets.length)}
+          sales={sales}
+          dateRange={dateRange}
+          visitLabel={visitLabel}
+          salesLabel={salesLabel}
+        />
         <Divider />
 
         <TicketScrollContainer>
@@ -173,15 +172,7 @@ const MyTicketContainer = styled.div`
   background: #fff;
 `;
 
-const HeaderSection = styled.div`
-  width: 100%;
-  margin-bottom: 6px;
-`;
 
-const StatsSectionWrapper = styled.div`
-  width: 100%;
-  margin-bottom: 30px;
-`;
 
 const TicketScrollContainer = styled.div`
   width: 100%;
@@ -219,22 +210,7 @@ const AddTicketSection = styled.div`
   margin: 20px auto;
 `;
 
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 800;
-  color: #000;
-  @media (min-width: 1024px) {
-    font-size: 32px;
-  }
-`;
 
-const Subtitle = styled.p`
-  font-size: 12px;
-  color: #ccc;
-  @media (min-width: 1024px) {
-    font-size: 14px;
-  }
-`;
 
 const Divider = styled.div`
   width: 100%;

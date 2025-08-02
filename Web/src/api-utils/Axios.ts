@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
-import { getRefreshToken } from '@/utils/auth';
+
+import { getCurrentToken, getRefreshToken } from '@/utils/auth';
+import { trackApiCall } from '@/utils/monitoring';
 
 interface RequestMetadata {
   requestId: string;
@@ -13,9 +15,6 @@ interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
   _retryCount?: number;
 }
-
-import { getCurrentToken } from '@/utils/auth';
-import { trackApiCall } from '@/utils/monitoring';
 
 // 캐시 관리
 const cache = new Map<
@@ -163,22 +162,27 @@ Axios.interceptors.response.use(
           { withCredentials: true }
         );
 
-                console.log('✅ Axios 인터셉터: 토큰 갱신 성공');
-        
+        console.log('✅ Axios 인터셉터: 토큰 갱신 성공');
+
         // 새 토큰 저장
         saveTokens(data.accessToken, data.refreshToken);
-        
+
         // 성공 이벤트 발생
-        window.dispatchEvent(new CustomEvent('tokenRefreshSuccess', {
-          detail: { accessToken: data.accessToken, refreshToken: data.refreshToken }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('tokenRefreshSuccess', {
+            detail: {
+              accessToken: data.accessToken,
+              refreshToken: data.refreshToken,
+            },
+          })
+        );
 
         // 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return Axios(originalRequest);
       } catch (refreshError) {
         console.error('❌ Axios 인터셉터: 토큰 갱신 실패:', refreshError);
-        
+
         // 토큰 갱신 실패 시 토큰 상태 확인
         const remainingToken = getRefreshToken();
         if (!remainingToken) {

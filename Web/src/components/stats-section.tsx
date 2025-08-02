@@ -39,8 +39,8 @@ export default StatsSection;
 const StatsContainer = styled.div`
   display: flex;
   gap: 0;
-
   width: 100%;
+  margin-top: 8px;
 `;
 
 const StatBox = styled.div<{

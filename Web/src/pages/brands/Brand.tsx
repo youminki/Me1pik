@@ -8,6 +8,7 @@ import {
 import { BrandList } from '@/components/brands/BrandList';
 import { ControlSection } from '@/components/brands/ControlSection';
 import StatsSection from '@/components/brands/StatsSection';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { theme } from '@/styles/Theme';
@@ -101,10 +102,7 @@ const Brand: React.FC = () => {
     <ThemeProvider theme={theme}>
       <UnifiedHeader variant='default' />
       <Container>
-        <Header>
-          <Title>브랜드</Title>
-          <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
-        </Header>
+        <PageHeader title='브랜드' subtitle='새로운 시즌 제품들을 내 손안에!' />
 
         {/* StatsSection: 전체 통계 */}
         <StatsSection
@@ -140,27 +138,6 @@ const Container = styled.div`
   align-items: center;
   background-color: #fff;
   padding-bottom: 200px;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: 6px;
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 800;
-  color: #000;
-  margin-bottom: 0px;
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  font-weight: 400;
-  color: #ccc;
 `;
 
 const Divider = styled.div`

@@ -10,6 +10,7 @@ import {
 } from '@/api-utils/schedule-managements/sales/SaleSchedule';
 import BletIcon from '@/assets/melpiks/blet.svg';
 import ScheduleIcon from '@/assets/melpiks/schedule.svg';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
@@ -97,10 +98,10 @@ const Schedule: React.FC = () => {
     <>
       <UnifiedHeader variant='oneDepth' />
       <ScheduleContainer>
-        <Header>
-          <Title>판매 스케줄</Title>
-          <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
-        </Header>
+        <PageHeader
+          title='판매 스케줄'
+          subtitle='내 채널을 통해 나는 브랜드가 된다'
+        />
 
         {loading ? (
           <LoadingSpinner label='일정 정보를 불러오는 중입니다...' />
@@ -108,15 +109,13 @@ const Schedule: React.FC = () => {
           <ErrorMessage>{error}</ErrorMessage>
         ) : (
           <>
-            <StatsRow>
-              <StatsSection
-                visits={totalCount}
-                sales={inProgressCount}
-                dateRange={currentDateRange}
-                visitLabel={visitLabel}
-                salesLabel={salesLabel}
-              />
-            </StatsRow>
+            <StatsSection
+              visits={totalCount}
+              sales={inProgressCount}
+              dateRange={currentDateRange}
+              visitLabel={visitLabel}
+              salesLabel={salesLabel}
+            />
             <Divider />
 
             <ScheduleContent>
@@ -199,24 +198,7 @@ const ScheduleContainer = styled.div`
   max-width: 600px;
   margin: auto;
 `;
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: 6px;
-`;
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 800;
-  color: #000;
-  margin-bottom: 0px;
-`;
-const Subtitle = styled.p`
-  font-size: 12px;
-  font-weight: 400;
-  color: #ccc;
-`;
+
 const ErrorMessage = styled.div`
   padding: 20px;
   text-align: center;
@@ -377,12 +359,7 @@ const OrderButton = styled.button`
 const BeenContainer = styled.div`
   height: 100px;
 `;
-const StatsRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`;
+
 const Divider = styled.div`
   width: 100%;
   height: 1px;

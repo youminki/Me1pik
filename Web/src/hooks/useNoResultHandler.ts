@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 interface UseNoResultHandlerProps {
-  items: unknown[] | any[];
+  items: unknown[];
   searchQuery: string;
   selectedColors: string[];
   selectedSizes: string[];
@@ -39,10 +39,12 @@ export const useNoResultHandler = ({
       searchQuery.trim() ||
       selectedColors.length > 0 ||
       selectedSizes.length > 0;
-    
+
     // 카테고리에 아이템이 없거나 검색/필터 결과가 없을 때
     const shouldShowNoResult =
-      !isLoading && items.length === 0 && (hasActiveFilters || selectedCategory !== 'All');
+      !isLoading &&
+      items.length === 0 &&
+      (hasActiveFilters || selectedCategory !== 'All');
 
     // 검색어나 필터가 없고 All 카테고리이면 showNoResult를 false로 설정
     if (!hasActiveFilters && selectedCategory === 'All') {
@@ -100,6 +102,7 @@ export const useNoResultHandler = ({
     searchQuery,
     selectedColors,
     selectedSizes,
+    selectedCategory,
     onClearFilters,
     setSearchParams,
   ]);

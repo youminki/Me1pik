@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { useMyCloset } from '@/api-utils/product-managements/closets/closetApi';
 import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
 import ItemList, { UIItem } from '@/components/homes/MyclosetItemList';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsSection from '@/components/stats-section';
@@ -63,10 +64,10 @@ const MyCloset: React.FC = () => {
     <>
       <UnifiedHeader variant='oneDepth' />
       <Container>
-        <Header>
-          <Title>내 옷장</Title>
-          <Subtitle>나에게 맞는 스타일을 찾을 때는 멜픽!</Subtitle>
-        </Header>
+        <PageHeader
+          title='내 옷장'
+          subtitle='나에게 맞는 스타일을 찾을 때는 멜픽!'
+        />
 
         <StatsSection
           visits={items.length}
@@ -133,22 +134,6 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background: #fff;
-`;
-
-const Header = styled.div`
-  width: 100%;
-  margin-bottom: 6px;
-`;
-
-const Title = styled.h1`
-  margin: 0;
-  font-size: 24px;
-  font-weight: 800;
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  color: #666;
 `;
 
 const Divider = styled.div`

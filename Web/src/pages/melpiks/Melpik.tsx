@@ -7,7 +7,9 @@ import MelpikCreateIcon from '@/assets/melpiks/MelpikCreateIcon.svg';
 import MelpikIcon from '@/assets/melpiks/MelpikIcon.svg';
 import MelpikOptionIcon from '@/assets/melpiks/MelpikOptionIcon.svg';
 import MelpikScheduelerIcon from '@/assets/melpiks/MelpikScheduelerIcon.svg';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
+import StatsRow from '@/components/shared/StatsRow';
 import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
@@ -33,12 +35,12 @@ const MelpikPage: React.FC = () => {
     <ThemeProvider theme={theme}>
       <UnifiedHeader variant='default' />
       <Container>
-        <Header>
-          <Title>다이어리</Title>
-          <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
-        </Header>
+        <PageHeader
+          title='다이어리'
+          subtitle='내 채널을 통해 나는 브랜드가 된다'
+        />
 
-        <StatsRow>
+        <StatsRow icon={MelpikIcon} iconAlt='메뉴 이미지'>
           <StatsSection
             visits={visits}
             sales={sales}
@@ -46,9 +48,6 @@ const MelpikPage: React.FC = () => {
             visitLabel={visitLabel}
             salesLabel={salesLabel}
           />
-          <MenuImageWrapper>
-            <MenuImage src={MelpikIcon} alt='메뉴 이미지' />
-          </MenuImageWrapper>
         </StatsRow>
 
         <Divider />
@@ -88,54 +87,6 @@ const Container = styled.div`
 
   box-sizing: border-box;
   background: #fff;
-`;
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 6px;
-
-  @media (min-width: 1024px) {
-    margin-bottom: 24px;
-  }
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 800;
-  margin: 0;
-  color: #000;
-
-  @media (min-width: 1024px) {
-    font-size: 32px;
-    margin-bottom: 10px;
-  }
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  line-height: 28px;
-  margin: 0;
-  color: #cccccc;
-
-  @media (min-width: 1024px) {
-    font-size: 16px;
-  }
-`;
-
-const StatsRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const MenuImageWrapper = styled.div`
-  flex-shrink: 0;
-`;
-
-const MenuImage = styled.img`
-  width: 64px;
-  height: auto;
 `;
 
 const Divider = styled.div`

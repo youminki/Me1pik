@@ -25,7 +25,7 @@ export const Header = styled.div`
   margin-bottom: 6px;
 
   @media (min-width: 1024px) {
-    margin-bottom: 24px;
+    margin-bottom: 6px;
   }
 `;
 
@@ -114,7 +114,7 @@ export const Card = styled.div`
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 16px;
-   0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 // 버튼 기본 스타일

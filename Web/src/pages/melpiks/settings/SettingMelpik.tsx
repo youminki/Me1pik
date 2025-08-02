@@ -8,6 +8,7 @@ import {
   deleteUserPageLink,
 } from '@/api-utils/user-managements/admin-user-pages/AdminUserPage';
 import InputField from '@/components/shared/forms/InputField';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import StatsSection from '@/components/stats-section';
@@ -569,20 +570,18 @@ const SettingMelpik: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <Container>
-        <Header>
-          <Title>멜픽 설정</Title>
-          <Subtitle>내 채널을 통해 나는 브랜드가 된다</Subtitle>
-        </Header>
+        <PageHeader 
+          title="멜픽 설정" 
+          subtitle="내 채널을 통해 나는 브랜드가 된다" 
+        />
 
-        <StatsRow>
-          <StatsSection
-            visits={visits}
-            sales={sales}
-            dateRange={dateRange}
-            visitLabel={visitLabel}
-            salesLabel={salesLabel}
-          />
-        </StatsRow>
+        <StatsSection
+          visits={visits}
+          sales={sales}
+          dateRange={dateRange}
+          visitLabel={visitLabel}
+          salesLabel={salesLabel}
+        />
         <Divider />
         {/* 프로필 이미지 수정 영역 */}
         <ProfileImageSection>
@@ -756,35 +755,11 @@ const Container = styled.div`
   margin-bottom: 100px;
 `;
 
-const Header = styled.div`
-  width: 100%;
-  margin-bottom: 10px;
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: bold;
-  color: #000;
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  color: #aaa;
-`;
-
 const Divider = styled.div`
   width: 100%;
   height: 1px;
   background: #ddd;
   margin: 20px 0;
-`;
-
-const StatsRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 20px;
 `;
 
 // 스타일 컴포넌트 FlexRow도 다시 추가
