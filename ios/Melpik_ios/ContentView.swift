@@ -18,8 +18,16 @@ private enum Constants {
 
 // MARK: - ContentView
 struct ContentView: View {
+    @StateObject private var loginManager = LoginManager.shared
+    
     var body: some View {
         TypingLoadingView()
+            .onAppear {
+                // 앱 시작 시 로그인 상태 점검
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    loginManager.checkLoginPersistence()
+                }
+            }
     }
 }
 
@@ -195,8 +203,16 @@ struct TypingLoadingView: View {
 
 
 struct MainWebViewContainer: View {
+    @StateObject private var loginManager = LoginManager.shared
+    
     var body: some View {
         ContentViewMain()
+            .onAppear {
+                // 웹뷰 컨테이너 시작 시 로그인 상태 점검
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    loginManager.checkLoginPersistence()
+                }
+            }
     }
 }
 
@@ -1008,7 +1024,7 @@ struct ContentViewMain: View {
     @StateObject private var appState = AppStateManager()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var networkMonitor = NetworkMonitor()
-    @StateObject private var loginManager = LoginManager()
+    @StateObject private var loginManager = LoginManager.shared
     @StateObject private var privacyManager = PrivacyManager()
     @StateObject private var cacheManager = CacheManager.shared
     @StateObject private var performanceMonitor = PerformanceMonitor.shared
@@ -1082,6 +1098,12 @@ struct ContentViewMain: View {
                     }
                 )
                 .ignoresSafeArea(.all, edges: .bottom)
+                .onAppear {
+                    // 웹뷰 시작 시 로그인 상태 점검
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                        loginManager.checkLoginPersistence()
+                    }
+                }
             }
         }
         .statusBarHidden(false)

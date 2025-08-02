@@ -65,8 +65,10 @@ class LoginManager: ObservableObject {
         NotificationCenter.default.removeObserver(self)
     }
     
-    // MARK: - 앱 생명주기 관찰자 설정
+    // MARK: - 앱 생명주기 관찰자 설정 (개선된 버전)
     private func setupAppLifecycleObserver() {
+        print("🔄 === 앱 생명주기 관찰자 설정 ===")
+        
         // 기존 관찰자 제거
         NotificationCenter.default.removeObserver(self)
         
@@ -114,114 +116,206 @@ class LoginManager: ObservableObject {
             }
         }
         
-        // 관찰자들을 저장
+        // 관찰자 저장 (deinit에서 제거하기 위해)
         appLifecycleObserver = willResignObserver
+        
+        print("✅ 앱 생명주기 관찰자 설정 완료")
+        print("  - willResignActive: ✅")
+        print("  - didEnterBackground: ✅")
+        print("  - willTerminate: ✅")
+        print("  - didBecomeActive: ✅")
     }
     
-    // MARK: - 앱이 비활성화될 때 처리
+    // MARK: - 앱이 비활성화될 때 처리 (개선된 버전)
     private func handleAppWillResignActive() {
-        print("🔄 App will resign active - ensuring token persistence")
-        ensureTokenPersistence()
+        print("🔄 === 앱이 비활성화됨 - 토큰 저장 보장 ===")
         
-        // UserDefaults 강제 동기화
-        userDefaults.synchronize()
+        // 1. 토큰 저장 안정성 확인
+        let isValid = validateTokenStorage()
         
-        // 추가 안전장치: 토큰을 다시 한 번 저장
-        if let userInfo = userInfo {
-            saveToKeychainSync(key: "accessToken", value: userInfo.token)
-            if let refreshToken = userInfo.refreshToken {
-                saveToKeychainSync(key: "refreshToken", value: refreshToken)
+        if isValid {
+            // 2. 토큰 저장 강화
+            ensureTokenPersistence()
+            
+            // 3. UserDefaults 강제 동기화
+            userDefaults.synchronize()
+            
+            // 4. 추가 안전장치: 토큰을 다시 한 번 저장
+            if let userInfo = userInfo {
+                saveToKeychainSync(key: "accessToken", value: userInfo.token)
+                if let refreshToken = userInfo.refreshToken {
+                    saveToKeychainSync(key: "refreshToken", value: refreshToken)
+                }
+                print("✅ 토큰 재저장 완료")
             }
+        } else {
+            print("⚠️ 토큰 저장 안정성 문제 - 자동 복구 시도")
+            autoRecoverTokens()
         }
+        
+        print("🔄 === 앱 비활성화 처리 완료 ===")
     }
     
-    // MARK: - 앱이 백그라운드로 갈 때 처리
+    // MARK: - 앱이 백그라운드로 갈 때 처리 (개선된 버전)
     private func handleAppDidEnterBackground() {
-        print("🔄 App did enter background - final token persistence check")
-        ensureTokenPersistence()
+        print("🔄 === 앱이 백그라운드로 이동 - 긴급 토큰 저장 ===")
         
-        // UserDefaults 강제 동기화
-        userDefaults.synchronize()
-        
-        // 추가 안전장치: 토큰을 다시 한 번 저장
-        if let userInfo = userInfo {
-            saveToKeychainSync(key: "accessToken", value: userInfo.token)
-            if let refreshToken = userInfo.refreshToken {
-                saveToKeychainSync(key: "refreshToken", value: refreshToken)
-            }
-        }
-        
-        // 백그라운드 작업 요청 (최대 30초)
+        // 1. 백그라운드 작업 시작
         var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
         backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "TokenPersistence") {
             UIApplication.shared.endBackgroundTask(backgroundTaskID)
             backgroundTaskID = .invalid
         }
         
-        // 토큰 저장 완료 후 백그라운드 작업 종료
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        // 2. 토큰 저장 안정성 확인 및 복구
+        let isValid = validateTokenStorage()
+        
+        if !isValid {
+            print("⚠️ 토큰 저장 문제 감지 - 복구 시도")
+            autoRecoverTokens()
+        }
+        
+        // 3. 토큰 저장 강화
+        ensureTokenPersistence()
+        
+        // 4. 토큰 저장 완료 후 백그라운드 작업 종료
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2초 대기
             if backgroundTaskID != .invalid {
                 UIApplication.shared.endBackgroundTask(backgroundTaskID)
                 backgroundTaskID = .invalid
             }
         }
-    }
-    
-    // MARK: - 앱이 종료될 때 처리
-    private func handleAppWillTerminate() {
-        print("🔄 App will terminate - emergency token persistence")
-        emergencyTokenPersistence()
         
-        // UserDefaults 강제 동기화
-        userDefaults.synchronize()
+        print("🔄 === 백그라운드 처리 완료 ===")
     }
     
-    // MARK: - 앱이 활성화될 때 처리
+    // MARK: - 앱이 종료될 때 처리 (개선된 버전)
+    private func handleAppWillTerminate() {
+        print("🔄 === 앱이 종료됨 - 최종 토큰 저장 ===")
+        
+        // 1. 긴급 토큰 저장
+        ensureTokenPersistence()
+        
+        // 2. 토큰 저장 안정성 확인
+        let isValid = validateTokenStorage()
+        
+        if !isValid {
+            print("⚠️ 토큰 저장 문제 감지 - 복구 시도")
+            autoRecoverTokens()
+        }
+        
+        // 3. UserDefaults 강제 동기화
+        userDefaults.synchronize()
+        
+        // 4. 추가 안전장치: 토큰을 다시 한 번 저장
+        if let userInfo = userInfo {
+            saveToKeychainSync(key: "accessToken", value: userInfo.token)
+            if let refreshToken = userInfo.refreshToken {
+                saveToKeychainSync(key: "refreshToken", value: refreshToken)
+            }
+        }
+        
+        print("🔄 === 앱 종료 처리 완료 ===")
+    }
+    
+    // MARK: - 앱이 활성화될 때 처리 (개선된 버전)
     private func handleAppDidBecomeActive() {
-        print("🔄 App did become active - verifying token persistence")
+        print("🔄 === 앱이 활성화됨 - 토큰 상태 확인 ===")
+        
+        // 1. 토큰 저장 확인 및 복구
         verifyTokenStorage()
         
-        // 토큰 유효성 확인 및 갱신
-        if let userInfo = userInfo, let expiresAt = userInfo.expiresAt {
-            let timeUntilExpiry = expiresAt.timeIntervalSinceNow
-            print("Token expires in: \(timeUntilExpiry) seconds")
+        // 2. 토큰 상태 확인
+        let accessToken = userDefaults.string(forKey: "accessToken")
+        let refreshToken = userDefaults.string(forKey: "refreshToken")
+        let isLoggedIn = userDefaults.bool(forKey: "isLoggedIn")
+        
+        // 3. 토큰이 없는 경우 갱신 시도하지 않음
+        guard isLoggedIn && (accessToken != nil || refreshToken != nil) else {
+            print("ℹ️ 로그인 상태가 아니거나 토큰이 없음 - 갱신 시도 안함")
+            return
+        }
+        
+        // 4. 만료 시간 확인
+        let expiresAt = userDefaults.object(forKey: "tokenExpiresAt") as? Date
+        
+        if let expiresAt = expiresAt {
+            let currentTime = Date()
+            let timeUntilExpiry = expiresAt.timeIntervalSince(currentTime)
             
-            if timeUntilExpiry < 300 { // 5분 이내 만료
-                print("⚠️ Token expires soon, refreshing...")
+            print("⏰ 토큰 만료 시간 확인:")
+            print("  - 만료 시간: \(expiresAt)")
+            print("  - 현재 시간: \(currentTime)")
+            print("  - 남은 시간: \(timeUntilExpiry)초")
+            
+            if timeUntilExpiry < 0 {
+                print("⚠️ 토큰이 만료됨 - 갱신 시도")
                 refreshAccessToken()
-            } else if timeUntilExpiry < 0 { // 이미 만료됨
-                print("❌ Token already expired, attempting refresh...")
+            } else if timeUntilExpiry < 300 { // 5분 이내 만료
+                print("⚠️ 토큰이 곧 만료됨 - 갱신 시도")
                 refreshAccessToken()
+            } else {
+                print("✅ 토큰이 유효함 - 갱신 불필요")
             }
         } else {
-            // expiresAt이 없으면 토큰 갱신 시도
-            print("⚠️ No expiresAt found, attempting token refresh...")
+            print("⚠️ 만료 시간 정보가 없음 - 갱신 시도")
             refreshAccessToken()
         }
         
-        // 로그인 상태 재확인
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.loadLoginState()
-        }
+        print("🔄 === 앱 활성화 처리 완료 ===")
     }
     
-    // MARK: - 토큰 저장 안정성 보장
+    // MARK: - 토큰 저장 보장 시스템
     func ensureTokenPersistence() {
-        guard let userInfo = userInfo else { return }
+        print("🔐 === 토큰 저장 보장 시작 ===")
         
-        // MainActor에서 직접 처리
-        Task { @MainActor in
-            // UserDefaults 강제 동기화
-            userDefaults.synchronize()
-            
-            // Keychain에 토큰 재저장 (이중 보장)
-            saveToKeychain(key: "accessToken", value: userInfo.token)
-            if let refreshToken = userInfo.refreshToken {
-                saveToKeychain(key: "refreshToken", value: refreshToken)
-            }
-            
-            print("✅ Token persistence ensured before app backgrounding")
+        guard let userInfo = userInfo else {
+            print("⚠️ userInfo가 없어 토큰 저장 보장 불가")
+            return
         }
+        
+        // 1. UserDefaults에 토큰 저장
+        userDefaults.set(userInfo.token, forKey: "accessToken")
+        if let refreshToken = userInfo.refreshToken {
+            userDefaults.set(refreshToken, forKey: "refreshToken")
+        }
+        
+        // 2. Keychain에 토큰 저장 (동기 방식)
+        saveToKeychainSync(key: "accessToken", value: userInfo.token)
+        if let refreshToken = userInfo.refreshToken {
+            saveToKeychainSync(key: "refreshToken", value: refreshToken)
+        }
+        
+        // 3. 만료 시간 저장
+        if let expiresAt = userInfo.expiresAt {
+            userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
+        }
+        
+        // 4. 로그인 상태 강제 저장
+        userDefaults.set(true, forKey: "isLoggedIn")
+        
+        // 5. UserDefaults 강제 동기화
+        userDefaults.synchronize()
+        
+        // 6. 저장 확인
+        let accessTokenSaved = loadFromKeychain(key: "accessToken") == userInfo.token
+        let refreshTokenSaved = userInfo.refreshToken == nil || loadFromKeychain(key: "refreshToken") == userInfo.refreshToken
+        
+        print("📊 토큰 저장 보장 결과:")
+        print("  - accessToken 저장: \(accessTokenSaved ? "✅" : "❌")")
+        print("  - refreshToken 저장: \(refreshTokenSaved ? "✅" : "❌")")
+        print("  - 로그인 상태 저장: ✅")
+        
+        if !accessTokenSaved || !refreshTokenSaved {
+            print("⚠️ 토큰 저장 실패 - 재시도")
+            saveToKeychainWithRetry(key: "accessToken", value: userInfo.token, maxRetries: 5)
+            if let refreshToken = userInfo.refreshToken {
+                saveToKeychainWithRetry(key: "refreshToken", value: refreshToken, maxRetries: 5)
+            }
+        }
+        
+        print("🔐 === 토큰 저장 보장 완료 ===")
     }
     
     // MARK: - 긴급 토큰 저장 (앱 종료 시)
@@ -287,110 +381,7 @@ class LoginManager: ObservableObject {
         }
     }
     
-    @MainActor
-    private func refreshAccessTokenInternal() {
-        print("🔄 Refreshing access token with real API call...")
-        
-        // 실제 서버 API 호출
-        guard let url = URL(string: "https://api.stylewh.com/auth/refresh") else {
-            print("❌ Invalid refresh URL")
-            logout()
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        
-        let requestBody: [String: Any] = [
-            "refreshToken": userDefaults.string(forKey: "refreshToken") ?? "",
-            "autoLogin": true
-        ]
-        
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-        } catch {
-            print("❌ Failed to serialize request body: \(error)")
-            logout()
-            return
-        }
-        
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("❌ Token refresh network error: \(error)")
-                    self?.handleTokenRefreshFailure()
-                    return
-                }
-                
-                guard let data = data else {
-                    print("❌ No data received from token refresh")
-                    self?.handleTokenRefreshFailure()
-                    return
-                }
-                
-                do {
-                    let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-                    print("✅ Token refresh response received")
-                    
-                    if let accessToken = json?["accessToken"] as? String,
-                       let newRefreshToken = json?["refreshToken"] as? String,
-                       let expiresAtString = json?["expiresAt"] as? String {
-                        
-                        // ISO8601 날짜 파싱
-                        let formatter = ISO8601DateFormatter()
-                        let expiresAt = formatter.date(from: expiresAtString)
-                        
-                        // 토큰 업데이트
-                        self?.userDefaults.set(accessToken, forKey: "accessToken")
-                        self?.userDefaults.set(newRefreshToken, forKey: "refreshToken")
-                        if let expiresAt = expiresAt {
-                            self?.userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
-                        }
-                        
-                        // UserInfo 업데이트
-                        if let userInfo = self?.userInfo {
-                            let updatedUserInfo = UserInfo(
-                                id: userInfo.id,
-                                email: userInfo.email,
-                                name: userInfo.name,
-                                token: accessToken,
-                                refreshToken: newRefreshToken,
-                                expiresAt: expiresAt
-                            )
-                            self?.userInfo = updatedUserInfo
-                        }
-                        
-                        // Keychain에도 저장
-                        self?.saveToKeychain(key: "accessToken", value: accessToken)
-                        self?.saveToKeychain(key: "refreshToken", value: newRefreshToken)
-                        
-                        // UserDefaults 강제 동기화
-                        self?.userDefaults.synchronize()
-                        
-                        // 웹뷰에 새로운 토큰 전달
-                        NotificationCenter.default.post(
-                            name: NSNotification.Name("TokenRefreshed"),
-                            object: nil,
-                            userInfo: ["tokenData": json!]
-                        )
-                        
-                        // 다음 갱신 타이머 설정
-                        self?.setupTokenRefreshTimer()
-                        
-                        print("✅ Token refreshed successfully")
-                    } else {
-                        print("❌ Invalid token refresh response format")
-                        self?.handleTokenRefreshFailure()
-                    }
-                } catch {
-                    print("❌ Failed to parse token refresh response: \(error)")
-                    self?.handleTokenRefreshFailure()
-                }
-            }
-        }.resume()
-    }
+
     
     private func handleTokenRefreshFailure() {
         print("❌ Token refresh failed, checking remaining tokens...")
@@ -411,97 +402,104 @@ class LoginManager: ObservableObject {
         }
     }
     
-    // MARK: - 로그인 상태 저장
+    // MARK: - 로그인 상태 저장 (개선된 버전)
     @MainActor
     func saveLoginState(userInfo: UserInfo) {
         guard !isInitializing else { return }
-        print("[saveLoginState] 호출됨 - userId: \(userInfo.id), accessToken: \(userInfo.token), refreshToken: \(userInfo.refreshToken ?? "nil")")
+        print("🔐 === saveLoginState 호출됨 ===")
+        print("  - userId: \(userInfo.id)")
+        print("  - email: \(userInfo.email)")
+        print("  - accessToken: \(userInfo.token.isEmpty ? "❌ 비어있음" : "✅ 존재")")
+        print("  - refreshToken: \(userInfo.refreshToken?.isEmpty == false ? "✅ 존재" : "❌ 없음")")
         
-        print("saveLoginState called, userInfo: \(userInfo)")
-        
-        // UserDefaults에 기본 정보 저장 (강제 동기화 포함)
+        // 1. UserDefaults에 기본 정보 저장
         userDefaults.set(true, forKey: "isLoggedIn")
         userDefaults.set(userInfo.id, forKey: "userId")
         userDefaults.set(userInfo.email, forKey: "userEmail")
         userDefaults.set(userInfo.name, forKey: "userName")
         userDefaults.set(userInfo.token, forKey: "accessToken")
         
-        // Keychain에 토큰 저장 (이중 보장) - 동기 방식으로 즉시 저장
-        print("[saveLoginState] saveToKeychainSync(accessToken)")
+        // 2. Keychain에 토큰 저장 (동기 방식으로 즉시 저장)
+        print("🔐 Keychain에 accessToken 저장 중...")
         saveToKeychainSync(key: "accessToken", value: userInfo.token)
         
-        // refreshToken 저장 로직 강화 - 동기 방식으로 즉시 저장
-        if let refreshToken = userInfo.refreshToken {
-            print("[saveLoginState] refreshToken 저장 시도: \(refreshToken)")
+        // 3. refreshToken 저장 로직 강화
+        if let refreshToken = userInfo.refreshToken, !refreshToken.isEmpty {
+            print("🔐 Keychain에 refreshToken 저장 중...")
             userDefaults.set(refreshToken, forKey: "refreshToken")
-            print("[saveLoginState] saveToKeychainSync(refreshToken)")
             saveToKeychainSync(key: "refreshToken", value: refreshToken)
             
             // 저장 후 확인
-            let check = loadFromKeychain(key: "refreshToken")
-            print("[saveLoginState] 저장 후 Keychain에서 확인: \(check ?? "nil")")
+            let savedRefreshToken = loadFromKeychain(key: "refreshToken")
+            if savedRefreshToken == refreshToken {
+                print("✅ refreshToken 저장 성공")
+            } else {
+                print("❌ refreshToken 저장 실패 - 재시도")
+                saveToKeychainWithRetry(key: "refreshToken", value: refreshToken, maxRetries: 5)
+            }
         } else {
-            print("[saveLoginState] refreshToken이 nil입니다.")
+            print("⚠️ refreshToken이 없거나 비어있음")
         }
         
+        // 4. 만료 시간 저장
         if let expiresAt = userInfo.expiresAt {
             userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
+            print("⏰ 토큰 만료 시간 저장: \(expiresAt)")
         }
         
-        // UserDefaults 강제 동기화 (앱 종료 시에도 저장 보장)
+        // 5. UserDefaults 강제 동기화
         userDefaults.synchronize()
         
-        // @Published 프로퍼티 업데이트를 메인 스레드에서 안전하게 처리
-        DispatchQueue.main.async {
+        // 6. @Published 프로퍼티 업데이트
+        Task { @MainActor in
             self.userInfo = userInfo
             self.isLoggedIn = true
             self.isLoading = false
         }
         
-        // 토큰 자동 갱신 타이머 설정
+        // 7. 토큰 자동 갱신 타이머 설정
         setupTokenRefreshTimer()
         
-        // 토큰 저장 확인
+        // 8. 토큰 저장 확인 및 복구
         verifyTokenStorage()
         
-        print("[saveLoginState] isLoggedIn:", isLoggedIn)
-        print("[saveLoginState] userId:", userDefaults.string(forKey: "userId") ?? "nil")
-        print("[saveLoginState] userEmail:", userDefaults.string(forKey: "userEmail") ?? "nil")
-        print("[saveLoginState] userName:", userDefaults.string(forKey: "userName") ?? "nil")
-        print("[saveLoginState] expiresAt:", userDefaults.object(forKey: "tokenExpiresAt") ?? "nil")
-        print("[saveLoginState] accessToken:", loadFromKeychain(key: "accessToken") ?? "nil")
-        print("[saveLoginState] refreshToken:", loadFromKeychain(key: "refreshToken") ?? "nil")
+        // 9. 최종 상태 출력
+        print("📊 === saveLoginState 완료 ===")
+        print("  - isLoggedIn: \(isLoggedIn)")
+        print("  - userId: \(userDefaults.string(forKey: "userId") ?? "nil")")
+        print("  - userEmail: \(userDefaults.string(forKey: "userEmail") ?? "nil")")
+        print("  - accessToken: \(loadFromKeychain(key: "accessToken") != nil ? "✅ 저장됨" : "❌ 저장실패")")
+        print("  - refreshToken: \(loadFromKeychain(key: "refreshToken") != nil ? "✅ 저장됨" : "❌ 저장실패")")
     }
     
-    // MARK: - 로그인 상태 로드
+    // MARK: - 로그인 상태 로드 (개선된 버전)
     func loadLoginState() {
-        print("=== loadLoginState called ===")
+        print("🔄 === loadLoginState 호출됨 ===")
         
-        // UserDefaults에서 기본 정보 로드
+        // 1. UserDefaults에서 기본 정보 로드
         let isLoggedIn = userDefaults.bool(forKey: "isLoggedIn")
         let userId = userDefaults.string(forKey: "userId") ?? ""
         let userEmail = userDefaults.string(forKey: "userEmail") ?? ""
         let userName = userDefaults.string(forKey: "userName") ?? ""
         let expiresAtString = userDefaults.string(forKey: "tokenExpiresAt")
         
-        // Keychain에서 토큰 로드
+        // 2. Keychain에서 토큰 로드
         var accessToken = loadFromKeychain(key: "accessToken") ?? ""
         var refreshToken = loadFromKeychain(key: "refreshToken") ?? ""
         
-        print("UserDefaults 상태:")
-        print("- isLoggedIn: \(isLoggedIn)")
-        print("- userId: \(userId)")
-        print("- userEmail: \(userEmail)")
-        print("- userName: \(userName)")
-        print("- accessToken: \(accessToken)")
-        print("- refreshToken: \(refreshToken)")
+        print("📱 UserDefaults 상태:")
+        print("  - isLoggedIn: \(isLoggedIn)")
+        print("  - userId: \(userId)")
+        print("  - userEmail: \(userEmail)")
+        print("  - userName: \(userName)")
+        print("  - accessToken: \(accessToken.isEmpty ? "❌ 없음" : "✅ 존재")")
+        print("  - refreshToken: \(refreshToken.isEmpty ? "❌ 없음" : "✅ 존재")")
         
-        // UserDefaults와 Keychain 간 토큰 동기화 강화
+        // 3. UserDefaults와 Keychain 간 토큰 동기화 강화
         if accessToken.isEmpty {
             if let userDefaultsToken = userDefaults.string(forKey: "accessToken"), !userDefaultsToken.isEmpty {
-                print("Keychain accessToken이 비어있어 UserDefaults 값으로 동기화")
+                print("🔄 Keychain accessToken이 비어있어 UserDefaults 값으로 동기화")
                 accessToken = userDefaultsToken
-                // Keychain에도 저장 (동기 방식)
                 saveToKeychainSync(key: "accessToken", value: userDefaultsToken)
             }
         } else {
@@ -511,9 +509,8 @@ class LoginManager: ObservableObject {
         
         if refreshToken.isEmpty {
             if let userDefaultsToken = userDefaults.string(forKey: "refreshToken"), !userDefaultsToken.isEmpty {
-                print("Keychain refreshToken이 비어있어 UserDefaults 값으로 동기화")
+                print("🔄 Keychain refreshToken이 비어있어 UserDefaults 값으로 동기화")
                 refreshToken = userDefaultsToken
-                // Keychain에도 저장 (동기 방식)
                 saveToKeychainSync(key: "refreshToken", value: userDefaultsToken)
             }
         } else {
@@ -523,7 +520,7 @@ class LoginManager: ObservableObject {
         
         userDefaults.synchronize()
         
-        // 로그인 상태 확인 및 복원 (조건 강화)
+        // 4. 로그인 상태 확인 및 복원 (조건 강화)
         let hasValidToken = !accessToken.isEmpty || !refreshToken.isEmpty
         let shouldRestoreLogin = isLoggedIn || hasValidToken
         
@@ -533,13 +530,13 @@ class LoginManager: ObservableObject {
             print("  - accessToken 존재: \(!accessToken.isEmpty)")
             print("  - refreshToken 존재: \(!refreshToken.isEmpty)")
             
-            // expiresAt 파싱
+            // 5. expiresAt 파싱
             var expiresAt: Date?
             if let expiresAtString = expiresAtString {
                 expiresAt = ISO8601DateFormatter().date(from: expiresAtString)
             }
             
-            // UserInfo 객체 생성 (refreshToken 포함)
+            // 6. UserInfo 객체 생성
             let userInfo = UserInfo(
                 id: userId,
                 email: userEmail,
@@ -549,21 +546,21 @@ class LoginManager: ObservableObject {
                 expiresAt: expiresAt
             )
             
-            // UserDefaults에 로그인 상태 강제 저장
+            // 7. UserDefaults에 로그인 상태 강제 저장
             userDefaults.set(true, forKey: "isLoggedIn")
             userDefaults.synchronize()
             
-            // @Published 프로퍼티 업데이트를 메인 스레드에서 안전하게 처리
-            DispatchQueue.main.async { [weak self] in
-                self?.userInfo = userInfo
-                self?.isLoggedIn = true
-                self?.isLoading = false
+            // 8. @Published 프로퍼티 업데이트
+            Task { @MainActor in
+                self.userInfo = userInfo
+                self.isLoggedIn = true
+                self.isLoading = false
             }
             
             print("✅ 로그인 상태 복원 완료")
             print("✅ UserInfo 생성됨 - refreshToken: \(userInfo.refreshToken ?? "nil")")
             
-            // 토큰 자동 갱신 타이머 설정
+            // 9. 토큰 자동 갱신 타이머 설정
             setupTokenRefreshTimer()
         } else {
             print("❌ 로그인 상태 복원 실패 - 토큰이 없거나 만료됨")
@@ -571,23 +568,166 @@ class LoginManager: ObservableObject {
             print("  - accessToken 존재: \(!accessToken.isEmpty)")
             print("  - refreshToken 존재: \(!refreshToken.isEmpty)")
             
-            // 로그인 상태 초기화
-            DispatchQueue.main.async { [weak self] in
-                self?.userInfo = nil
-                self?.isLoggedIn = false
-                self?.isLoading = false
+            // 10. 로그인 상태 초기화
+            Task { @MainActor in
+                self.userInfo = nil
+                self.isLoggedIn = false
+                self.isLoading = false
             }
         }
     }
     
-    // MARK: - 토큰 갱신
+    // MARK: - 토큰 갱신 (개선된 버전)
     func refreshAccessToken() {
-        guard let userInfo = userInfo, let refreshToken = userInfo.refreshToken else {
-            print("❌ No refresh token available for token refresh")
+        print("🔄 === 토큰 갱신 시작 ===")
+        
+        // 1. UserDefaults에서 refreshToken 확인
+        let refreshTokenFromDefaults = userDefaults.string(forKey: "refreshToken")
+        let refreshTokenFromKeychain = loadFromKeychain(key: "refreshToken")
+        
+        // 2. refreshToken 우선순위: Keychain > UserDefaults
+        let refreshToken = refreshTokenFromKeychain ?? refreshTokenFromDefaults
+        
+        guard let refreshToken = refreshToken, !refreshToken.isEmpty else {
+            print("❌ 토큰 갱신 실패 - refreshToken이 없음")
+            print("  - UserDefaults: \(refreshTokenFromDefaults ?? "nil")")
+            print("  - Keychain: \(refreshTokenFromKeychain ?? "nil")")
+            print("ℹ️ 로그인을 다시 해주세요.")
             return
         }
         
+        print("✅ refreshToken 발견 - 갱신 시도")
+        print("  - refreshToken: \(refreshToken)")
+        
         refreshAccessTokenInternal()
+    }
+    
+    // MARK: - 토큰 갱신 내부 로직 (개선된 버전)
+    private func refreshAccessTokenInternal() {
+        // 1. refreshToken 확인
+        let refreshTokenFromDefaults = userDefaults.string(forKey: "refreshToken")
+        let refreshTokenFromKeychain = loadFromKeychain(key: "refreshToken")
+        let refreshToken = refreshTokenFromKeychain ?? refreshTokenFromDefaults
+        
+        guard let refreshToken = refreshToken, !refreshToken.isEmpty else {
+            print("❌ 토큰 갱신 실패 - refreshToken이 없음")
+            return
+        }
+        
+        print("🔄 토큰 갱신 요청 중...")
+        print("  - refreshToken: \(refreshToken)")
+        
+        // 2. 토큰 갱신 API 호출
+        guard let url = URL(string: "https://me1pik.com/api/auth/refresh") else {
+            print("❌ 토큰 갱신 URL 생성 실패")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(refreshToken)", forHTTPHeaderField: "Authorization")
+        
+        print("🔄 API 요청 전송:")
+        print("  - URL: \(url)")
+        print("  - Method: POST")
+        print("  - Authorization: Bearer \(refreshToken)")
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            Task { @MainActor in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    print("❌ 토큰 갱신 네트워크 오류: \(error)")
+                    self.handleTokenRefreshFailure()
+                    return
+                }
+                
+                guard let data = data else {
+                    print("❌ 토큰 갱신 응답 데이터 없음")
+                    self.handleTokenRefreshFailure()
+                    return
+                }
+                
+                // 3. 응답 상태 코드 확인
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("📡 HTTP 응답 상태: \(httpResponse.statusCode)")
+                    if httpResponse.statusCode != 200 {
+                        print("❌ 토큰 갱신 실패 - HTTP \(httpResponse.statusCode)")
+                        self.handleTokenRefreshFailure()
+                        return
+                    }
+                }
+                
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+                    print("✅ 토큰 갱신 응답 수신")
+                    print("  - 응답 데이터: \(json ?? [:])")
+                    
+                    if let accessToken = json?["accessToken"] as? String,
+                       let newRefreshToken = json?["refreshToken"] as? String,
+                       let expiresAtString = json?["expiresAt"] as? String {
+                        
+                        print("✅ 새로운 토큰 발급 성공")
+                        print("  - accessToken: \(accessToken)")
+                        print("  - refreshToken: \(newRefreshToken)")
+                        print("  - expiresAt: \(expiresAtString)")
+                        
+                        // 4. ISO8601 날짜 파싱
+                        let formatter = ISO8601DateFormatter()
+                        let expiresAt = formatter.date(from: expiresAtString)
+                        
+                        // 5. 토큰 업데이트
+                        self.userDefaults.set(accessToken, forKey: "accessToken")
+                        self.userDefaults.set(newRefreshToken, forKey: "refreshToken")
+                        if let expiresAt = expiresAt {
+                            self.userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
+                        }
+                        
+                        // 6. UserInfo 업데이트
+                        if let userInfo = self.userInfo {
+                            let updatedUserInfo = UserInfo(
+                                id: userInfo.id,
+                                email: userInfo.email,
+                                name: userInfo.name,
+                                token: accessToken,
+                                refreshToken: newRefreshToken,
+                                expiresAt: expiresAt
+                            )
+                            self.userInfo = updatedUserInfo
+                        }
+                        
+                        // 7. Keychain에 저장 (동기 방식)
+                        self.saveToKeychainSync(key: "accessToken", value: accessToken)
+                        self.saveToKeychainSync(key: "refreshToken", value: newRefreshToken)
+                        
+                        // 8. UserDefaults 강제 동기화
+                        self.userDefaults.synchronize()
+                        
+                        // 9. 웹뷰에 새로운 토큰 전달
+                        NotificationCenter.default.post(
+                            name: NSNotification.Name("TokenRefreshed"),
+                            object: nil,
+                            userInfo: ["tokenData": json!]
+                        )
+                        
+                        // 10. 다음 갱신 타이머 설정
+                        self.setupTokenRefreshTimer()
+                        
+                        print("✅ 토큰 갱신 성공")
+                    } else {
+                        print("❌ 토큰 갱신 응답 형식 오류")
+                        print("  - accessToken: \(json?["accessToken"] ?? "nil")")
+                        print("  - refreshToken: \(json?["refreshToken"] ?? "nil")")
+                        print("  - expiresAt: \(json?["expiresAt"] ?? "nil")")
+                        self.handleTokenRefreshFailure()
+                    }
+                } catch {
+                    print("❌ 토큰 갱신 응답 파싱 실패: \(error)")
+                    self.handleTokenRefreshFailure()
+                }
+            }
+        }.resume()
     }
     
     // MARK: - 로그아웃
@@ -722,14 +862,29 @@ class LoginManager: ObservableObject {
         
         // UserDefaults에서 토큰 확인
         let accessToken = userDefaults.string(forKey: "accessToken")
+        let refreshToken = userDefaults.string(forKey: "refreshToken")
         let isLoggedIn = userDefaults.bool(forKey: "isLoggedIn")
         
         print("UserDefaults 상태:")
         print("- isLoggedIn: \(isLoggedIn)")
         print("- accessToken: \(accessToken ?? "nil")")
+        print("- refreshToken: \(refreshToken ?? "nil")")
         
-        guard let token = accessToken, !token.isEmpty, isLoggedIn else {
-            print("토큰이 없거나 로그인 상태가 아님")
+        // 로그인 상태가 아니거나 토큰이 없는 경우
+        guard isLoggedIn && (accessToken != nil || refreshToken != nil) else {
+            print("ℹ️ 로그인 상태가 아니거나 토큰이 없음")
+            return false
+        }
+        
+        // accessToken이 없어도 refreshToken이 있으면 갱신 시도
+        if let refreshToken = refreshToken, !refreshToken.isEmpty {
+            print("✅ refreshToken이 존재함 - 토큰 갱신 시도")
+            refreshAccessToken()
+            return true
+        }
+        
+        guard let token = accessToken, !token.isEmpty else {
+            print("❌ accessToken이 없음")
             return false
         }
         
@@ -744,14 +899,30 @@ class LoginManager: ObservableObject {
                     
                     if let exp = json?["exp"] as? TimeInterval {
                         let currentTime = Date().timeIntervalSince1970
+                        let timeUntilExpiry = exp - currentTime
+                        
+                        print("토큰 만료 시간 확인:")
+                        print("- 만료 시간: \(Date(timeIntervalSince1970: exp))")
+                        print("- 현재 시간: \(Date(timeIntervalSince1970: currentTime))")
+                        print("- 남은 시간: \(timeUntilExpiry)초")
                         
                         if exp < currentTime {
-                            print("토큰이 만료되어 로그인 상태 유지 불가")
-                            logout()
-                            return false
+                            print("⚠️ accessToken이 만료됨 - refreshToken으로 갱신 시도")
+                            if let refreshToken = refreshToken, !refreshToken.isEmpty {
+                                print("✅ refreshToken이 존재함 - 갱신 시도")
+                                refreshAccessToken()
+                                return true
+                            } else {
+                                print("❌ refreshToken이 없어 로그아웃")
+                                logout()
+                                return false
+                            }
+                        } else if timeUntilExpiry < 300 { // 5분 이내 만료
+                            print("⚠️ accessToken이 곧 만료됨 - 갱신 시도")
+                            refreshAccessToken()
                         }
                         
-                        print("토큰 유효성 확인 완료")
+                        print("✅ 토큰 유효성 확인 완료")
                     }
                 }
             } catch {
@@ -924,43 +1095,50 @@ class LoginManager: ObservableObject {
         SecItemDelete(query as CFDictionary)
     }
     
-    // MARK: - 토큰 저장 확인 및 복구
+    // MARK: - 토큰 저장 확인 및 복구 (개선된 버전)
     func verifyTokenStorage() {
+        print("🔍 === 토큰 저장 확인 및 복구 시작 ===")
+        
         let accessTokenFromDefaults = userDefaults.string(forKey: "accessToken")
         let accessTokenFromKeychain = loadFromKeychain(key: "accessToken")
         let refreshTokenFromDefaults = userDefaults.string(forKey: "refreshToken")
         let refreshTokenFromKeychain = loadFromKeychain(key: "refreshToken")
         let isLoggedIn = userDefaults.bool(forKey: "isLoggedIn")
         
-        print("🔍 Token storage verification:")
+        print("📊 토큰 저장 상태:")
         print("  - isLoggedIn: \(isLoggedIn)")
         print("  - UserDefaults accessToken: \(accessTokenFromDefaults != nil ? "✅" : "❌")")
         print("  - Keychain accessToken: \(accessTokenFromKeychain != nil ? "✅" : "❌")")
         print("  - UserDefaults refreshToken: \(refreshTokenFromDefaults != nil ? "✅" : "❌")")
         print("  - Keychain refreshToken: \(refreshTokenFromKeychain != nil ? "✅" : "❌")")
         
-        // 토큰 불일치 시 복구
+        // 1. accessToken 불일치 시 복구
         if accessTokenFromDefaults != accessTokenFromKeychain {
-            print("⚠️ Access token mismatch detected, restoring from Keychain")
+            print("⚠️ Access token 불일치 감지, 복구 시도")
             if let keychainToken = accessTokenFromKeychain {
                 userDefaults.set(keychainToken, forKey: "accessToken")
                 userDefaults.synchronize()
+                print("✅ Keychain에서 UserDefaults로 accessToken 복구 완료")
             } else if let defaultsToken = accessTokenFromDefaults {
-                saveToKeychain(key: "accessToken", value: defaultsToken)
+                saveToKeychainSync(key: "accessToken", value: defaultsToken)
+                print("✅ UserDefaults에서 Keychain으로 accessToken 복구 완료")
             }
         }
         
+        // 2. refreshToken 불일치 시 복구
         if refreshTokenFromDefaults != refreshTokenFromKeychain {
-            print("⚠️ Refresh token mismatch detected, restoring from Keychain")
+            print("⚠️ Refresh token 불일치 감지, 복구 시도")
             if let keychainToken = refreshTokenFromKeychain {
                 userDefaults.set(keychainToken, forKey: "refreshToken")
                 userDefaults.synchronize()
+                print("✅ Keychain에서 UserDefaults로 refreshToken 복구 완료")
             } else if let defaultsToken = refreshTokenFromDefaults {
-                saveToKeychain(key: "refreshToken", value: defaultsToken)
+                saveToKeychainSync(key: "refreshToken", value: defaultsToken)
+                print("✅ UserDefaults에서 Keychain으로 refreshToken 복구 완료")
             }
         }
         
-        // 로그인 상태 복구 (토큰이 있지만 isLoggedIn이 false인 경우)
+        // 3. 로그인 상태 복구 (토큰이 있지만 isLoggedIn이 false인 경우)
         let hasValidToken = (accessTokenFromDefaults != nil && !accessTokenFromDefaults!.isEmpty) || 
                            (accessTokenFromKeychain != nil && !accessTokenFromKeychain!.isEmpty) ||
                            (refreshTokenFromDefaults != nil && !refreshTokenFromDefaults!.isEmpty) ||
@@ -972,6 +1150,106 @@ class LoginManager: ObservableObject {
             userDefaults.synchronize()
             print("✅ 로그인 상태 복구 완료")
         }
+        
+        // 4. 토큰 유효성 검사
+        if let expiresAt = userDefaults.object(forKey: "tokenExpiresAt") as? Date {
+            let timeUntilExpiry = expiresAt.timeIntervalSinceNow
+            print("⏰ 토큰 만료 시간 확인:")
+            print("  - 만료 시간: \(expiresAt)")
+            print("  - 남은 시간: \(timeUntilExpiry)초")
+            
+            if timeUntilExpiry < 0 {
+                print("❌ 토큰이 만료됨 - 갱신 시도")
+                refreshAccessToken()
+            } else if timeUntilExpiry < 300 { // 5분 이내 만료
+                print("⚠️ 토큰이 곧 만료됨 - 갱신 시도")
+                refreshAccessToken()
+            }
+        }
+        
+        print("🔍 === 토큰 저장 확인 및 복구 완료 ===")
+    }
+    
+    // MARK: - 자동 토큰 복구 시스템
+    func autoRecoverTokens() {
+        print("🔄 === 자동 토큰 복구 시작 ===")
+        
+        // 1. 현재 토큰 상태 확인
+        let accessTokenFromDefaults = userDefaults.string(forKey: "accessToken")
+        let accessTokenFromKeychain = loadFromKeychain(key: "accessToken")
+        let refreshTokenFromDefaults = userDefaults.string(forKey: "refreshToken")
+        let refreshTokenFromKeychain = loadFromKeychain(key: "refreshToken")
+        
+        // 2. 토큰 복구 시도
+        var recovered = false
+        
+        // accessToken 복구
+        if let keychainToken = accessTokenFromKeychain, keychainToken != accessTokenFromDefaults {
+            userDefaults.set(keychainToken, forKey: "accessToken")
+            userDefaults.synchronize()
+            print("✅ accessToken 복구 완료")
+            recovered = true
+        }
+        
+        // refreshToken 복구
+        if let keychainToken = refreshTokenFromKeychain, keychainToken != refreshTokenFromDefaults {
+            userDefaults.set(keychainToken, forKey: "refreshToken")
+            userDefaults.synchronize()
+            print("✅ refreshToken 복구 완료")
+            recovered = true
+        }
+        
+        // 3. UserDefaults에서 Keychain으로 복구
+        if accessTokenFromDefaults != nil && accessTokenFromKeychain == nil {
+            saveToKeychainSync(key: "accessToken", value: accessTokenFromDefaults!)
+            print("✅ UserDefaults에서 Keychain으로 accessToken 복구")
+            recovered = true
+        }
+        
+        if refreshTokenFromDefaults != nil && refreshTokenFromKeychain == nil {
+            saveToKeychainSync(key: "refreshToken", value: refreshTokenFromDefaults!)
+            print("✅ UserDefaults에서 Keychain으로 refreshToken 복구")
+            recovered = true
+        }
+        
+        if recovered {
+            print("🔄 토큰 복구 후 로그인 상태 재확인")
+            loadLoginState()
+        } else {
+            print("ℹ️ 복구할 토큰이 없음")
+        }
+        
+        print("🔄 === 자동 토큰 복구 완료 ===")
+    }
+    
+    // MARK: - 토큰 저장 안정성 검증
+    func validateTokenStorage() -> Bool {
+        print("🔍 === 토큰 저장 안정성 검증 시작 ===")
+        
+        let accessTokenFromDefaults = userDefaults.string(forKey: "accessToken")
+        let accessTokenFromKeychain = loadFromKeychain(key: "accessToken")
+        let refreshTokenFromDefaults = userDefaults.string(forKey: "refreshToken")
+        let refreshTokenFromKeychain = loadFromKeychain(key: "refreshToken")
+        
+        let hasAccessToken = (accessTokenFromDefaults != nil && !accessTokenFromDefaults!.isEmpty) ||
+                           (accessTokenFromKeychain != nil && !accessTokenFromKeychain!.isEmpty)
+        
+        let hasRefreshToken = (refreshTokenFromDefaults != nil && !refreshTokenFromDefaults!.isEmpty) ||
+                            (refreshTokenFromKeychain != nil && !refreshTokenFromKeychain!.isEmpty)
+        
+        let isConsistent = (accessTokenFromDefaults == accessTokenFromKeychain) &&
+                          (refreshTokenFromDefaults == refreshTokenFromKeychain)
+        
+        print("📊 토큰 저장 안정성:")
+        print("  - accessToken 존재: \(hasAccessToken ? "✅" : "❌")")
+        print("  - refreshToken 존재: \(hasRefreshToken ? "✅" : "❌")")
+        print("  - 저장소 일관성: \(isConsistent ? "✅" : "❌")")
+        
+        let isValid = hasAccessToken || hasRefreshToken
+        
+        print("🔍 === 토큰 저장 안정성 검증 완료: \(isValid ? "✅ 유효" : "❌ 무효") ===")
+        
+        return isValid
     }
     
     // MARK: - 생체 인증을 통한 로그인 (제거됨)
@@ -1416,6 +1694,139 @@ class LoginManager: ObservableObject {
             }
         }
     }
+    
+    // MARK: - 로그인 상태 점검 및 디버그
+    func checkLoginPersistence() -> Bool {
+        print("🔍 === 로그인 상태 유지 점검 시작 ===")
+        
+        // 1. UserDefaults 상태 확인
+        let isLoggedIn = userDefaults.bool(forKey: "isLoggedIn")
+        let userId = userDefaults.string(forKey: "userId")
+        let userEmail = userDefaults.string(forKey: "userEmail")
+        let userName = userDefaults.string(forKey: "userName")
+        let accessTokenFromDefaults = userDefaults.string(forKey: "accessToken")
+        let refreshTokenFromDefaults = userDefaults.string(forKey: "refreshToken")
+        let expiresAtFromDefaults = userDefaults.object(forKey: "tokenExpiresAt") as? Date
+        
+        print("📱 UserDefaults 상태:")
+        print("  - isLoggedIn: \(isLoggedIn)")
+        print("  - userId: \(userId ?? "nil")")
+        print("  - userEmail: \(userEmail ?? "nil")")
+        print("  - userName: \(userName ?? "nil")")
+        print("  - accessToken: \(accessTokenFromDefaults != nil ? "✅ 존재" : "❌ 없음")")
+        print("  - refreshToken: \(refreshTokenFromDefaults != nil ? "✅ 존재" : "❌ 없음")")
+        print("  - expiresAt: \(expiresAtFromDefaults?.description ?? "nil")")
+        
+        // 2. Keychain 상태 확인
+        let accessTokenFromKeychain = loadFromKeychain(key: "accessToken")
+        let refreshTokenFromKeychain = loadFromKeychain(key: "refreshToken")
+        
+        print("🔐 Keychain 상태:")
+        print("  - accessToken: \(accessTokenFromKeychain != nil ? "✅ 존재" : "❌ 없음")")
+        print("  - refreshToken: \(refreshTokenFromKeychain != nil ? "✅ 존재" : "❌ 없음")")
+        
+        // 3. 현재 LoginManager 상태 확인
+        print("🏗️ LoginManager 상태:")
+        print("  - isLoggedIn: \(self.isLoggedIn)")
+        print("  - isLoading: \(self.isLoading)")
+        print("  - userInfo: \(self.userInfo != nil ? "✅ 존재" : "❌ 없음")")
+        if let userInfo = self.userInfo {
+            print("    - id: \(userInfo.id)")
+            print("    - email: \(userInfo.email)")
+            print("    - name: \(userInfo.name)")
+            print("    - token: \(userInfo.token.isEmpty ? "❌ 비어있음" : "✅ 존재")")
+            print("    - refreshToken: \(userInfo.refreshToken != nil ? "✅ 존재" : "❌ 없음")")
+            print("    - expiresAt: \(userInfo.expiresAt?.description ?? "nil")")
+        }
+        
+        // 4. 토큰 유효성 검사
+        if let expiresAt = expiresAtFromDefaults {
+            let timeUntilExpiry = expiresAt.timeIntervalSinceNow
+            print("⏰ 토큰 만료 시간:")
+            print("  - 만료 시간: \(expiresAt)")
+            print("  - 남은 시간: \(timeUntilExpiry)초")
+            print("  - 상태: \(timeUntilExpiry > 0 ? "✅ 유효" : "❌ 만료")")
+        }
+        
+        // 5. 동기화 상태 확인
+        let accessTokenSync = accessTokenFromDefaults == accessTokenFromKeychain
+        let refreshTokenSync = refreshTokenFromDefaults == refreshTokenFromKeychain
+        
+        print("🔄 동기화 상태:")
+        print("  - accessToken 동기화: \(accessTokenSync ? "✅" : "❌")")
+        print("  - refreshToken 동기화: \(refreshTokenSync ? "✅" : "❌")")
+        
+        // 6. 로그인 상태 유지 가능성 판단
+        let hasValidToken = (accessTokenFromDefaults != nil && !accessTokenFromDefaults!.isEmpty) || 
+                           (accessTokenFromKeychain != nil && !accessTokenFromKeychain!.isEmpty) ||
+                           (refreshTokenFromDefaults != nil && !refreshTokenFromDefaults!.isEmpty) ||
+                           (refreshTokenFromKeychain != nil && !refreshTokenFromKeychain!.isEmpty)
+        
+        let canMaintainLogin = hasValidToken && (isLoggedIn || self.isLoggedIn)
+        
+        print("🎯 로그인 상태 유지 가능성:")
+        print("  - 유효한 토큰 존재: \(hasValidToken ? "✅" : "❌")")
+        print("  - 로그인 상태 플래그: \(isLoggedIn || self.isLoggedIn ? "✅" : "❌")")
+        print("  - 로그인 유지 가능: \(canMaintainLogin ? "✅ 가능" : "❌ 불가능")")
+        
+        print("🔍 === 로그인 상태 유지 점검 완료 ===")
+        
+        return canMaintainLogin
+    }
+    
+    // MARK: - 강제 로그인 상태 복구
+    func forceRestoreLoginState() {
+        print("🔄 === 강제 로그인 상태 복구 시작 ===")
+        
+        // 토큰 저장 확인 및 복구
+        verifyTokenStorage()
+        
+        // 로그인 상태 다시 로드
+        loadLoginState()
+        
+        // 최종 상태 확인
+        let restored = checkLoginPersistence()
+        
+        if restored {
+            print("✅ 강제 로그인 상태 복구 성공")
+        } else {
+            print("❌ 강제 로그인 상태 복구 실패")
+        }
+        
+        print("🔄 === 강제 로그인 상태 복구 완료 ===")
+    }
+    
+    // MARK: - 토큰 저장 테스트
+    func testTokenStorage() {
+        print("🧪 === 토큰 저장 테스트 시작 ===")
+        
+        let testToken = "test_access_token_\(Date().timeIntervalSince1970)"
+        let testRefreshToken = "test_refresh_token_\(Date().timeIntervalSince1970)"
+        
+        // 1. Keychain에 저장
+        print("1. Keychain에 테스트 토큰 저장...")
+        saveToKeychainSync(key: "testAccessToken", value: testToken)
+        saveToKeychainSync(key: "testRefreshToken", value: testRefreshToken)
+        
+        // 2. 저장된 토큰 확인
+        print("2. 저장된 토큰 확인...")
+        let loadedAccessToken = loadFromKeychain(key: "testAccessToken")
+        let loadedRefreshToken = loadFromKeychain(key: "testRefreshToken")
+        
+        let accessTokenSuccess = loadedAccessToken == testToken
+        let refreshTokenSuccess = loadedRefreshToken == testRefreshToken
+        
+        print("  - accessToken 저장: \(accessTokenSuccess ? "✅ 성공" : "❌ 실패")")
+        print("  - refreshToken 저장: \(refreshTokenSuccess ? "✅ 성공" : "❌ 실패")")
+        
+        // 3. 테스트 토큰 정리
+        print("3. 테스트 토큰 정리...")
+        deleteFromKeychain(key: "testAccessToken")
+        deleteFromKeychain(key: "testRefreshToken")
+        
+        let overallSuccess = accessTokenSuccess && refreshTokenSuccess
+        print("🧪 === 토큰 저장 테스트 결과: \(overallSuccess ? "✅ 성공" : "❌ 실패") ===")
+    }
 }
 
 // MARK: - Date Extension
@@ -1456,7 +1867,8 @@ extension LoginManager {
     // 카드 추가 요청 처리 (예시: 1초 후 성공 콜백)
     func handleCardAddRequest(webView: WKWebView, completion: @escaping (Bool, String?) -> Void) {
         // 실제 카드 추가 로직 대신 1초 후 성공 처리
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // 1초 대기
             completion(true, nil) // 성공
         }
     }
