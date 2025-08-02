@@ -1,163 +1,286 @@
-// Service Worker for Melpik
+// Service Worker for Melpik Web App
 const CACHE_NAME = 'melpik-v1.0.0';
-const STATIC_CACHE = 'melpik-static-v1.0.0';
-const DYNAMIC_CACHE = 'melpik-dynamic-v1.0.0';
+const STATIC_CACHE_NAME = 'melpik-static-v1.0.0';
+const DYNAMIC_CACHE_NAME = 'melpik-dynamic-v1.0.0';
 
 // 캐시할 정적 리소스들
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/fonts/woff2/NanumSquareNeo-Variable.woff2',
-  '/fonts/OTF/NanumSquareB.otf',
-  '/fonts/OTF/NanumSquareEB.otf',
-  '/src/assets/favicon.svg',
+  '/manifest.json',
+  '/static/js/bundle.js',
+  '/static/css/main.css',
+  '/fonts/NanumSquareNeo.woff2',
+  '/fonts/NanumSquareNeoOTF.otf',
 ];
 
-// 캐시할 API 엔드포인트들
-const API_CACHE_PATTERNS = [
-  /^https:\/\/api\.stylewh\.com\/products/,
-  /^https:\/\/api\.stylewh\.com\/brands/,
-  /^https:\/\/api\.stylewh\.com\/user\/me/,
-];
+// 네트워크 우선, 캐시 폴백 전략을 사용할 API 엔드포인트들
+const API_CACHE_PATTERNS = ['/api/products', '/api/categories', '/api/brands'];
 
-// 설치 시 정적 리소스 캐시
+// 캐시 우선, 네트워크 폴백 전략을 사용할 리소스들
+const CACHE_FIRST_PATTERNS = ['/assets/', '/images/', '/fonts/'];
+
+// 네트워크 우선, 캐시 폴백 전략을 사용할 리소스들
+const NETWORK_FIRST_PATTERNS = ['/api/'];
+
+// 설치 이벤트 - 정적 리소스 캐싱
 self.addEventListener('install', (event) => {
+  console.log('🔧 Service Worker 설치 중...');
+
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches
+      .open(STATIC_CACHE_NAME)
+      .then((cache) => {
+        console.log('📦 정적 리소스 캐싱 중...');
+        return cache.addAll(STATIC_ASSETS);
+      })
+      .then(() => {
+        console.log('✅ Service Worker 설치 완료');
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('❌ Service Worker 설치 실패:', error);
+      })
   );
 });
 
-// 활성화 시 오래된 캐시 정리
+// 활성화 이벤트 - 이전 캐시 정리
 self.addEventListener('activate', (event) => {
+  console.log('🚀 Service Worker 활성화 중...');
+
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((cacheName) => {
-            return (
-              cacheName !== STATIC_CACHE &&
-              cacheName !== DYNAMIC_CACHE &&
-              cacheName !== CACHE_NAME
-            );
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (
+              cacheName !== STATIC_CACHE_NAME &&
+              cacheName !== DYNAMIC_CACHE_NAME
+            ) {
+              console.log('🗑️ 이전 캐시 삭제:', cacheName);
+              return caches.delete(cacheName);
+            }
           })
-          .map((cacheName) => {
-            return caches.delete(cacheName);
-          })
-      );
-    })
+        );
+      })
+      .then(() => {
+        console.log('✅ Service Worker 활성화 완료');
+        return self.clients.claim();
+      })
   );
 });
 
-// 네트워크 요청 가로채기
+// fetch 이벤트 - 요청 인터셉트 및 캐싱 전략 적용
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // 정적 리소스 캐시 전략
-  if (request.method === 'GET' && isStaticAsset(request.url)) {
-    event.respondWith(cacheFirst(request, STATIC_CACHE));
+  // 개발 환경에서는 캐싱 비활성화
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
     return;
   }
 
-  // API 캐시 전략
-  if (request.method === 'GET' && isApiRequest(request.url)) {
-    event.respondWith(networkFirst(request, DYNAMIC_CACHE));
+  // API 요청 처리
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(handleApiRequest(request));
     return;
   }
 
-  // 기본 네트워크 전략
-  event.respondWith(networkOnly(request));
+  // 정적 리소스 처리
+  if (isStaticAsset(url.pathname)) {
+    event.respondWith(handleStaticAsset(request));
+    return;
+  }
+
+  // 동적 리소스 처리
+  event.respondWith(handleDynamicRequest(request));
 });
 
-// 정적 자산인지 확인
-function isStaticAsset(url) {
-  return (
-    url.includes('/fonts/') ||
-    url.includes('/assets/') ||
-    url.includes('/favicon') ||
-    url.endsWith('.css') ||
-    url.endsWith('.js') ||
-    url.endsWith('.woff2') ||
-    url.endsWith('.woff') ||
-    url.endsWith('.ttf') ||
-    url.endsWith('.otf')
-  );
+// API 요청 처리 (네트워크 우선, 캐시 폴백)
+async function handleApiRequest(request) {
+  try {
+    // 네트워크 요청 시도
+    const networkResponse = await fetch(request);
+
+    // 성공한 응답을 캐시에 저장
+    if (networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE_NAME);
+      cache.put(request, networkResponse.clone());
+    }
+
+    return networkResponse;
+  } catch (error) {
+    console.log('🌐 네트워크 실패, 캐시에서 응답:', request.url);
+
+    // 캐시에서 응답 찾기
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    // 오프라인 페이지 반환
+    return getOfflinePage();
+  }
 }
 
-// API 요청인지 확인
-function isApiRequest(url) {
-  return API_CACHE_PATTERNS.some((pattern) => pattern.test(url));
-}
-
-// 캐시 우선 전략
-async function cacheFirst(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cachedResponse = await cache.match(request);
+// 정적 리소스 처리 (캐시 우선, 네트워크 폴백)
+async function handleStaticAsset(request) {
+  const cachedResponse = await caches.match(request);
 
   if (cachedResponse) {
+    // 백그라운드에서 캐시 업데이트
+    fetch(request).then((response) => {
+      if (response.ok) {
+        caches.open(STATIC_CACHE_NAME).then((cache) => {
+          cache.put(request, response);
+        });
+      }
+    });
+
     return cachedResponse;
   }
 
   try {
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
+      const cache = await caches.open(STATIC_CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
   } catch (error) {
-    // 오프라인 시 기본 페이지 반환
-    if (request.destination === 'document') {
-      return cache.match('/index.html');
-    }
-    throw error;
+    return getOfflinePage();
   }
 }
 
-// 네트워크 우선 전략
-async function networkFirst(request, cacheName) {
+// 동적 리소스 처리 (네트워크 우선, 캐시 폴백)
+async function handleDynamicRequest(request) {
   try {
     const networkResponse = await fetch(request);
+
     if (networkResponse.ok) {
-      const cache = await caches.open(cacheName);
+      const cache = await caches.open(DYNAMIC_CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
+
     return networkResponse;
   } catch (error) {
-    const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
-
+    const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
     }
-    throw error;
+
+    return getOfflinePage();
   }
 }
 
-// 네트워크만 사용
-async function networkOnly(request) {
-  return fetch(request);
+// 정적 리소스인지 확인
+function isStaticAsset(pathname) {
+  return (
+    STATIC_ASSETS.some((asset) => pathname.includes(asset)) ||
+    CACHE_FIRST_PATTERNS.some((pattern) => pathname.includes(pattern))
+  );
 }
 
-// 백그라운드 동기화 (선택적)
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'background-sync') {
-    event.waitUntil(doBackgroundSync());
+// 오프라인 페이지 반환
+async function getOfflinePage() {
+  const cache = await caches.open(STATIC_CACHE_NAME);
+  const offlineResponse = await cache.match('/offline.html');
+
+  if (offlineResponse) {
+    return offlineResponse;
   }
-});
 
-async function doBackgroundSync() {
-  // 백그라운드에서 수행할 작업들
-  console.log('백그라운드 동기화 수행');
+  // 기본 오프라인 응답
+  return new Response(
+    `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>오프라인 - Melpik</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <style>
+        body {
+          font-family: 'NanumSquareNeo', sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          margin: 0;
+          background-color: #f8f9fa;
+          color: #333;
+        }
+        .offline-container {
+          text-align: center;
+          padding: 2rem;
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          max-width: 400px;
+        }
+        .offline-icon {
+          font-size: 4rem;
+          margin-bottom: 1rem;
+        }
+        .offline-title {
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin-bottom: 1rem;
+          color: #f7c600;
+        }
+        .offline-message {
+          color: #666;
+          line-height: 1.6;
+          margin-bottom: 2rem;
+        }
+        .retry-button {
+          background-color: #f7c600;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+        .retry-button:hover {
+          background-color: #e6b800;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="offline-container">
+        <div class="offline-icon">📶</div>
+        <h1 class="offline-title">오프라인 상태</h1>
+        <p class="offline-message">
+          인터넷 연결을 확인해주세요.<br>
+          일부 기능은 오프라인에서도 사용할 수 있습니다.
+        </p>
+        <button class="retry-button" onclick="window.location.reload()">
+          다시 시도
+        </button>
+      </div>
+    </body>
+    </html>
+    `,
+    {
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+      },
+    }
+  );
 }
 
-// 푸시 알림 처리 (선택적)
+// 푸시 알림 처리
 self.addEventListener('push', (event) => {
+  console.log('📱 푸시 알림 수신:', event);
+
   const options = {
     body: event.data ? event.data.text() : '새로운 알림이 있습니다.',
-    icon: '/src/assets/favicon.svg',
-    badge: '/src/assets/favicon.svg',
+    icon: '/assets/icons/icon-192x192.png',
+    badge: '/assets/icons/badge-72x72.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -167,15 +290,91 @@ self.addEventListener('push', (event) => {
       {
         action: 'explore',
         title: '확인하기',
-        icon: '/src/assets/favicon.svg',
+        icon: '/assets/icons/checkmark.png',
       },
       {
         action: 'close',
         title: '닫기',
-        icon: '/src/assets/favicon.svg',
+        icon: '/assets/icons/xmark.png',
       },
     ],
   };
 
   event.waitUntil(self.registration.showNotification('Melpik', options));
 });
+
+// 알림 클릭 처리
+self.addEventListener('notificationclick', (event) => {
+  console.log('🔔 알림 클릭:', event);
+
+  event.notification.close();
+
+  if (event.action === 'explore') {
+    event.waitUntil(clients.openWindow('/'));
+  }
+});
+
+// 백그라운드 동기화 (선택적)
+self.addEventListener('sync', (event) => {
+  console.log('🔄 백그라운드 동기화:', event.tag);
+
+  if (event.tag === 'background-sync') {
+    event.waitUntil(doBackgroundSync());
+  }
+});
+
+// 백그라운드 동기화 작업
+async function doBackgroundSync() {
+  try {
+    // 오프라인 중에 저장된 데이터를 서버에 전송
+    const offlineData = await getOfflineData();
+
+    for (const data of offlineData) {
+      await sendToServer(data);
+    }
+
+    console.log('✅ 백그라운드 동기화 완료');
+  } catch (error) {
+    console.error('❌ 백그라운드 동기화 실패:', error);
+  }
+}
+
+// 오프라인 데이터 가져오기 (IndexedDB 사용)
+async function getOfflineData() {
+  // IndexedDB에서 오프라인 데이터 조회
+  return [];
+}
+
+// 서버에 데이터 전송
+async function sendToServer(data) {
+  const response = await fetch('/api/offline-data', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  return response.ok;
+}
+
+// 메시지 처리 (메인 스크립트와 통신)
+self.addEventListener('message', (event) => {
+  console.log('💬 Service Worker 메시지 수신:', event.data);
+
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+
+  if (event.data && event.data.type === 'GET_CACHE_STATS') {
+    event.ports[0].postMessage({
+      type: 'CACHE_STATS',
+      data: {
+        staticCacheSize: STATIC_ASSETS.length,
+        // 실제 캐시 크기 계산 로직 추가 가능
+      },
+    });
+  }
+});
+
+console.log('🔧 Service Worker 로드됨');

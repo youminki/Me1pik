@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
+
+import LoadingSpinner from './LoadingSpinner';
 
 interface OptimizedImageProps {
   src: string;
@@ -8,57 +10,15 @@ interface OptimizedImageProps {
   height?: number | string;
   className?: string;
   priority?: boolean;
+  sizes?: string;
+  quality?: number;
   placeholder?: string;
   onLoad?: () => void;
   onError?: () => void;
+  lazy?: boolean;
+  aspectRatio?: number;
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 }
-
-const ImageContainer = styled.div<{
-  $isLoaded: boolean;
-  $width?: number | string;
-  $height?: number | string;
-}>`
-  position: relative;
-  width: ${({ $width }) =>
-    typeof $width === 'number' ? `${$width}px` : $width || 'auto'};
-  height: ${({ $height }) =>
-    typeof $height === 'number' ? `${$height}px` : $height || 'auto'};
-  overflow: hidden;
-  background-color: #f5f5f5;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: ${({ $isLoaded }) =>
-      !$isLoaded ? 'shimmer 1.5s infinite' : 'none'};
-    z-index: 1;
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
-  }
-`;
-
-const StyledImage = styled.img<{ $isLoaded: boolean }>`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: ${({ $isLoaded }) => ($isLoaded ? 1 : 0)};
-  transition: opacity 0.3s ease-in-out;
-  z-index: 2;
-  position: relative;
-`;
 
 const OptimizedImage: React.FC<OptimizedImageProps> = ({
   src,
@@ -67,99 +27,226 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   height,
   className,
   priority = false,
+  sizes = '100vw',
+  quality = 80,
   placeholder,
   onLoad,
   onError,
+  lazy = true,
+  aspectRatio,
+  objectFit = 'cover',
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [isInView, setIsInView] = useState(priority);
   const imgRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (priority) {
-      // 우선순위가 높은 이미지는 즉시 로드
-      setIsLoaded(true);
+  // WebP 지원 확인 및 최적화된 이미지 URL 생성
+  const getOptimizedSrc = useCallback((originalSrc: string) => {
+    // WebP 지원 확인
+    const supportsWebP =
+      document
+        .createElement('canvas')
+        .toDataURL('image/webp')
+        .indexOf('data:image/webp') === 0;
+
+    if (supportsWebP && originalSrc.includes('.')) {
+      const extension = originalSrc.split('.').pop();
+      if (
+        extension &&
+        ['jpg', 'jpeg', 'png'].includes(extension.toLowerCase())
+      ) {
+        return originalSrc.replace(`.${extension}`, '.webp');
+      }
     }
-  }, [priority]);
+    return originalSrc;
+  }, []);
 
+  // Intersection Observer를 사용한 지연 로딩
   useEffect(() => {
-    const currentImgRef = imgRef.current;
+    if (priority || !lazy) {
+      setIsInView(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && imgRef.current) {
-            imgRef.current.src = src;
+          if (entry.isIntersecting) {
+            setIsInView(true);
             observer.unobserve(entry.target);
           }
         });
       },
       {
-        rootMargin: '50px', // 50px 전에 미리 로드
+        rootMargin: '50px 0px',
         threshold: 0.1,
       }
     );
 
-    if (currentImgRef) {
-      observer.observe(currentImgRef);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
     }
 
-    return () => {
-      if (currentImgRef) {
-        observer.unobserve(currentImgRef);
-      }
+    return () => observer.disconnect();
+  }, [priority, lazy]);
+
+  // 이미지 로딩 처리
+  useEffect(() => {
+    if (!isInView || !src) return;
+
+    const img = new Image();
+
+    img.onload = () => {
+      setIsLoaded(true);
+      onLoad?.();
     };
-  }, [src]);
 
-  const handleLoad = () => {
-    setIsLoaded(true);
-    onLoad?.();
-  };
+    img.onerror = () => {
+      setHasError(true);
+      onError?.();
+    };
 
-  const handleError = () => {
-    setHasError(true);
-    onError?.();
-  };
+    img.src = getOptimizedSrc(src);
+  }, [isInView, src, onLoad, onError, getOptimizedSrc]);
 
-  // WebP 지원 확인
-  const supportsWebP = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1;
-    canvas.height = 1;
-    return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
-  };
+  // 반응형 이미지 srcset 생성
+  const generateSrcSet = useCallback(
+    (baseSrc: string) => {
+      const optimizedSrc = getOptimizedSrc(baseSrc);
+      const sizes = [320, 640, 768, 1024, 1280, 1920];
 
-  // 적응형 이미지 소스 생성
-  const getOptimizedSrc = (originalSrc: string) => {
-    if (hasError || !originalSrc) return placeholder || '';
+      return sizes
+        .map((size) => `${optimizedSrc}?w=${size}&q=${quality} ${size}w`)
+        .join(', ');
+    },
+    [getOptimizedSrc, quality]
+  );
 
-    // WebP 지원 시 WebP 버전 사용
-    if (supportsWebP() && originalSrc.includes('.')) {
-      const baseName = originalSrc.substring(0, originalSrc.lastIndexOf('.'));
-      return `${baseName}.webp`;
+  // 적응형 이미지 크기 계산
+  const getResponsiveSizes = useCallback(() => {
+    if (typeof width === 'number') {
+      return `(max-width: ${width}px) 100vw, ${width}px`;
     }
+    return sizes;
+  }, [width, sizes]);
 
-    return originalSrc;
-  };
+  // 우선순위 이미지 프리로드
+  useEffect(() => {
+    if (priority && src) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = getOptimizedSrc(src);
+      document.head.appendChild(link);
+
+      return () => {
+        document.head.removeChild(link);
+      };
+    }
+  }, [priority, src, getOptimizedSrc]);
+
+  const optimizedSrc = getOptimizedSrc(src);
+  const srcSet = generateSrcSet(src);
+  const responsiveSizes = getResponsiveSizes();
 
   return (
     <ImageContainer
-      $isLoaded={isLoaded}
-      $width={width}
-      $height={height}
+      ref={containerRef}
       className={className}
+      width={width}
+      height={height}
+      aspectRatio={aspectRatio}
+      objectFit={objectFit}
     >
-      <StyledImage
-        ref={imgRef}
-        src={priority ? getOptimizedSrc(src) : ''}
-        alt={alt}
-        $isLoaded={isLoaded}
-        onLoad={handleLoad}
-        onError={handleError}
-        loading={priority ? 'eager' : 'lazy'}
-        decoding='async'
-      />
+      {isInView && !hasError ? (
+        <>
+          {!isLoaded && (
+            <SpinnerWrapper>
+              <LoadingSpinner size={28} color='#f7c600' label={undefined} />
+            </SpinnerWrapper>
+          )}
+          <StyledImage
+            ref={imgRef}
+            src={optimizedSrc}
+            srcSet={srcSet}
+            sizes={responsiveSizes}
+            alt={alt}
+            onLoad={() => setIsLoaded(true)}
+            onError={() => setHasError(true)}
+            className={isLoaded ? 'loaded' : ''}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding={priority ? 'sync' : 'async'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            objectFit={objectFit}
+          />
+        </>
+      ) : hasError && placeholder ? (
+        <FallbackImage src={placeholder} alt={alt} objectFit={objectFit} />
+      ) : (
+        <SpinnerWrapper>
+          <LoadingSpinner size={28} color='#f7c600' label={undefined} />
+        </SpinnerWrapper>
+      )}
     </ImageContainer>
   );
 };
+
+const ImageContainer = styled.div<{
+  width?: number | string;
+  height?: number | string;
+  aspectRatio?: number;
+  objectFit?: string;
+}>`
+  position: relative;
+  width: ${({ width }) =>
+    typeof width === 'number' ? `${width}px` : width || '100%'};
+  height: ${({ height, aspectRatio }) => {
+    if (height) return typeof height === 'number' ? `${height}px` : height;
+    if (aspectRatio) return 'auto';
+    return 'auto';
+  }};
+  ${({ aspectRatio }) =>
+    aspectRatio &&
+    `
+    &::before {
+      content: '';
+      display: block;
+      padding-top: ${(1 / aspectRatio) * 100}%;
+    }
+  `}
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+`;
+
+const StyledImage = styled.img<{ objectFit?: string }>`
+  width: 100%;
+  height: 100%;
+  object-fit: ${({ objectFit }) => objectFit || 'cover'};
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+
+  &.loaded {
+    opacity: 1;
+  }
+`;
+
+const FallbackImage = styled.img<{ objectFit?: string }>`
+  width: 100%;
+  height: 100%;
+  object-fit: ${({ objectFit }) => objectFit || 'cover'};
+`;
+
+const SpinnerWrapper = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 export default OptimizedImage;

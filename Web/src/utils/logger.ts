@@ -182,7 +182,7 @@ class Logger {
 
 // 전역 로거 인스턴스
 export const logger = new Logger(
-  process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO
+  import.meta.env.DEV ? LogLevel.DEBUG : LogLevel.INFO
 );
 
 /**
@@ -266,7 +266,7 @@ export const logApplicationError = (
  */
 
 // 환경별 로깅 설정
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = import.meta.env.DEV;
 
 /**
  * 개발 환경에서만 로그 출력

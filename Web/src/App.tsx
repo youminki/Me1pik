@@ -22,6 +22,36 @@ import {
   refreshToken,
   getCurrentToken,
 } from '@/utils/auth';
+import { monitoringService, setUserId } from '@/utils/monitoring';
+
+// Performance API 타입 정의
+interface LayoutShift extends PerformanceEntry {
+  value: number;
+  hadRecentInput: boolean;
+}
+
+interface PerformanceEventTiming extends PerformanceEntry {
+  processingStart: number;
+  startTime: number;
+}
+
+interface NetworkInformation extends EventTarget {
+  effectiveType: string;
+  downlink: number;
+  rtt: number;
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: NetworkInformation;
+}
+
+interface PerformanceWithMemory extends Performance {
+  memory?: {
+    usedJSHeapSize: number;
+    totalJSHeapSize: number;
+    jsHeapSizeLimit: number;
+  };
+}
 
 // React Query 클라이언트 설정 - 성능 최적화
 const queryClient = new QueryClient({
@@ -222,6 +252,158 @@ const App: React.FC = () => {
       // 토큰이 없으면 기존 인증 체크 로직이 동작함
     };
     tryAutoLogin();
+  }, []);
+
+  // 모니터링 시스템 초기화
+  useEffect(() => {
+    // 앱 시작 이벤트 추적
+    monitoringService.trackCustomEvent('app_start', {
+      version: import.meta.env.VITE_APP_VERSION || '1.0.0',
+      environment: import.meta.env.MODE,
+      userAgent: navigator.userAgent,
+      screenResolution: `${screen.width}x${screen.height}`,
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+    });
+
+    // 사용자 ID 설정 (로그인 시)
+    const token = getCurrentToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.userId) {
+          setUserId(payload.userId);
+        }
+      } catch (error) {
+        console.warn('토큰에서 사용자 ID 추출 실패:', error);
+      }
+    }
+
+    // Service Worker 등록
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('✅ Service Worker 등록 성공:', registration);
+
+          // Service Worker 업데이트 확인
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (
+                  newWorker.state === 'installed' &&
+                  navigator.serviceWorker.controller
+                ) {
+                  // 새 버전이 설치되었을 때 사용자에게 알림
+                  monitoringService.trackCustomEvent('sw_update_available');
+                }
+              });
+            }
+          });
+        })
+        .catch((error) => {
+          console.error('❌ Service Worker 등록 실패:', error);
+          monitoringService.trackCustomEvent('sw_registration_failed', {
+            error: error.message,
+          });
+        });
+    }
+
+    // 성능 모니터링 시작
+    const startPerformanceMonitoring = () => {
+      // Core Web Vitals 모니터링
+      if ('PerformanceObserver' in window) {
+        // LCP (Largest Contentful Paint)
+        new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const lastEntry = entries[entries.length - 1];
+          if (lastEntry.entryType === 'largest-contentful-paint') {
+            monitoringService.trackCustomEvent('performance_lcp', {
+              value: lastEntry.startTime,
+              url: window.location.href,
+            });
+          }
+        }).observe({ entryTypes: ['largest-contentful-paint'] });
+
+        // FID (First Input Delay) 모니터링
+        new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          entries.forEach((entry) => {
+            if (entry.entryType === 'first-input') {
+              const firstInputEntry = entry as PerformanceEventTiming;
+              monitoringService.trackCustomEvent('performance_fid', {
+                value:
+                  firstInputEntry.processingStart - firstInputEntry.startTime,
+                url: window.location.href,
+              });
+            }
+          });
+        }).observe({ entryTypes: ['first-input'] });
+
+        // CLS (Cumulative Layout Shift) 모니터링
+        let clsValue = 0;
+        new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          entries.forEach((entry) => {
+            if (entry.entryType === 'layout-shift') {
+              const layoutShiftEntry = entry as LayoutShift;
+              if (!layoutShiftEntry.hadRecentInput) {
+                clsValue += layoutShiftEntry.value;
+              }
+            }
+          });
+
+          // 페이지 언로드 시 CLS 값 전송
+          window.addEventListener('beforeunload', () => {
+            monitoringService.trackCustomEvent('performance_cls', {
+              value: clsValue,
+              url: window.location.href,
+            });
+          });
+        }).observe({ entryTypes: ['layout-shift'] });
+      }
+    };
+
+    startPerformanceMonitoring();
+
+    // 네트워크 상태 모니터링
+    const monitorNetworkStatus = () => {
+      if ('connection' in navigator) {
+        const connection = (navigator as NavigatorWithConnection).connection;
+
+        if (connection) {
+          monitoringService.trackCustomEvent('network_info', {
+            effectiveType: connection.effectiveType,
+            downlink: connection.downlink,
+            rtt: connection.rtt,
+          });
+
+          connection.addEventListener('change', () => {
+            monitoringService.trackCustomEvent('network_change', {
+              effectiveType: connection.effectiveType,
+              downlink: connection.downlink,
+              rtt: connection.rtt,
+            });
+          });
+        }
+      }
+    };
+
+    monitorNetworkStatus();
+
+    // 메모리 사용량 모니터링 (개발 환경에서만)
+    if (import.meta.env.DEV && 'memory' in performance) {
+      const memory = (performance as PerformanceWithMemory).memory;
+      if (memory) {
+        setInterval(() => {
+          monitoringService.trackCustomEvent('memory_usage', {
+            usedJSHeapSize: memory.usedJSHeapSize,
+            totalJSHeapSize: memory.totalJSHeapSize,
+            jsHeapSizeLimit: memory.jsHeapSizeLimit,
+          });
+        }, 30000); // 30초마다 체크
+      }
+    }
   }, []);
 
   // 네이티브 앱 환경에서 상태바 높이 설정

@@ -45,7 +45,7 @@ class ErrorBoundary extends Component<Props, State> {
           <RetryButton onClick={() => window.location.reload()}>
             페이지 새로고침
           </RetryButton>
-          {process.env.NODE_ENV === 'development' && this.state.error && (
+          {import.meta.env.DEV && this.state.error && (
             <ErrorDetails>
               <details>
                 <summary>개발자 정보</summary>

@@ -1,16 +1,19 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
-import { generateDocs, exportDocumentation } from '@/utils/documentation';
+import { exportDocumentation } from '@/utils/documentation';
 
 /**
  * 문서 생성 스크립트
+ * Node.js 환경에서만 실행되어야 함
  */
 const generateDocumentation = () => {
-  console.log('📚 문서 생성 시작...');
+  // 브라우저 환경에서는 실행하지 않음
+  if (typeof window !== 'undefined') {
+    return;
+  }
 
-  // 문서 생성
-  const docManager = generateDocs();
+  console.log('📚 문서 생성 시작...');
 
   // docs 디렉토리 생성
   const docsDir = join(process.cwd(), 'docs');
@@ -103,31 +106,11 @@ const generateDocumentation = () => {
   writeFileSync(join(docsDir, 'index.html'), htmlTemplate, 'utf-8');
   console.log('✅ HTML 문서 생성 완료: docs/index.html');
 
-  // 통계 출력
-  const allDocs = docManager.getAllDocs();
-  const totalComponents = allDocs.components.length;
-  const totalHooks = allDocs.hooks.length;
-  const totalUtilities = allDocs.utilities.length;
-  const totalApis = allDocs.apis.length;
-
-  console.log('\n📊 문서 생성 통계:');
-  console.log(`- 컴포넌트: ${totalComponents}개`);
-  console.log(`- 훅: ${totalHooks}개`);
-  console.log(`- 유틸리티: ${totalUtilities}개`);
-  console.log(`- API: ${totalApis}개`);
-  console.log(
-    `- 총 문서: ${totalComponents + totalHooks + totalUtilities + totalApis}개`
-  );
-
-  console.log('\n🎉 문서 생성 완료!');
-  console.log('📁 생성된 파일들:');
-  console.log('  - docs/documentation.json');
-  console.log('  - docs/README.md');
-  console.log('  - docs/index.html');
+  console.log('🎉 모든 문서 생성 완료!');
 };
 
-// 스크립트 실행
-if (require.main === module) {
+// Node.js 환경에서만 실행
+if (typeof window === 'undefined') {
   generateDocumentation();
 }
 
