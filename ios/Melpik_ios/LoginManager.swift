@@ -167,10 +167,20 @@ class LoginManager: ObservableObject {
         
         // 토큰 유효성 확인 및 갱신
         if let userInfo = userInfo, let expiresAt = userInfo.expiresAt {
-            if expiresAt.timeIntervalSinceNow < 300 { // 5분 이내 만료
+            let timeUntilExpiry = expiresAt.timeIntervalSinceNow
+            print("Token expires in: \(timeUntilExpiry) seconds")
+            
+            if timeUntilExpiry < 300 { // 5분 이내 만료
                 print("⚠️ Token expires soon, refreshing...")
                 refreshAccessToken()
+            } else if timeUntilExpiry < 0 { // 이미 만료됨
+                print("❌ Token already expired, attempting refresh...")
+                refreshAccessToken()
             }
+        } else {
+            // expiresAt이 없으면 토큰 갱신 시도
+            print("⚠️ No expiresAt found, attempting token refresh...")
+            refreshAccessToken()
         }
         
         // 로그인 상태 재확인
@@ -263,85 +273,126 @@ class LoginManager: ObservableObject {
     
     @MainActor
     private func refreshAccessTokenInternal() {
-        guard let refreshToken = userDefaults.string(forKey: "refreshToken") else {
-            print("❌ No refresh token available")
+        print("🔄 Refreshing access token with real API call...")
+        
+        // 실제 서버 API 호출
+        guard let url = URL(string: "https://api.stylewh.com/auth/refresh") else {
+            print("❌ Invalid refresh URL")
             logout()
             return
         }
         
-        print("🔄 Refreshing access token...")
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
         
-        // 실제 서버 API 호출 (예시)
-        refreshTokenAPI(refreshToken: refreshToken) { [weak self] result in
-            Task { @MainActor in
-                switch result {
-                case .success(let newTokenData):
-                    self?.updateTokenWithNewData(newTokenData)
-                case .failure(let error):
-                    print("❌ Token refresh failed: \(error)")
-                    self?.logout()
+        let requestBody: [String: Any] = [
+            "refreshToken": userDefaults.string(forKey: "refreshToken") ?? "",
+            "autoLogin": true
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        } catch {
+            print("❌ Failed to serialize request body: \(error)")
+            logout()
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("❌ Token refresh network error: \(error)")
+                    self?.handleTokenRefreshFailure()
+                    return
+                }
+                
+                guard let data = data else {
+                    print("❌ No data received from token refresh")
+                    self?.handleTokenRefreshFailure()
+                    return
+                }
+                
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+                    print("✅ Token refresh response received")
+                    
+                    if let accessToken = json?["accessToken"] as? String,
+                       let newRefreshToken = json?["refreshToken"] as? String,
+                       let expiresAtString = json?["expiresAt"] as? String {
+                        
+                        // ISO8601 날짜 파싱
+                        let formatter = ISO8601DateFormatter()
+                        let expiresAt = formatter.date(from: expiresAtString)
+                        
+                        // 토큰 업데이트
+                        self?.userDefaults.set(accessToken, forKey: "accessToken")
+                        self?.userDefaults.set(newRefreshToken, forKey: "refreshToken")
+                        if let expiresAt = expiresAt {
+                            self?.userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
+                        }
+                        
+                        // UserInfo 업데이트
+                        if let userInfo = self?.userInfo {
+                            let updatedUserInfo = UserInfo(
+                                id: userInfo.id,
+                                email: userInfo.email,
+                                name: userInfo.name,
+                                token: accessToken,
+                                refreshToken: newRefreshToken,
+                                expiresAt: expiresAt
+                            )
+                            self?.userInfo = updatedUserInfo
+                        }
+                        
+                        // Keychain에도 저장
+                        self?.saveToKeychain(key: "accessToken", value: accessToken)
+                        self?.saveToKeychain(key: "refreshToken", value: newRefreshToken)
+                        
+                        // UserDefaults 강제 동기화
+                        self?.userDefaults.synchronize()
+                        
+                        // 웹뷰에 새로운 토큰 전달
+                        NotificationCenter.default.post(
+                            name: NSNotification.Name("TokenRefreshed"),
+                            object: nil,
+                            userInfo: ["tokenData": json!]
+                        )
+                        
+                        // 다음 갱신 타이머 설정
+                        self?.setupTokenRefreshTimer()
+                        
+                        print("✅ Token refreshed successfully")
+                    } else {
+                        print("❌ Invalid token refresh response format")
+                        self?.handleTokenRefreshFailure()
+                    }
+                } catch {
+                    print("❌ Failed to parse token refresh response: \(error)")
+                    self?.handleTokenRefreshFailure()
                 }
             }
-        }
+        }.resume()
     }
     
-    private func refreshTokenAPI(refreshToken: String, completion: @escaping (Result<[String: Any], Error>) -> Void) {
-        // 실제 구현에서는 서버 API 호출
-        // 여기서는 예시로 성공 응답을 시뮬레이션
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            let newTokenData: [String: Any] = [
-                "token": "new_access_token_\(Date().timeIntervalSince1970)",
-                "refreshToken": "new_refresh_token_\(Date().timeIntervalSince1970)",
-                "expiresAt": Date().addingTimeInterval(3600).ISO8601String()
-            ]
-            completion(.success(newTokenData))
-        }
-    }
-    
-    @MainActor
-    private func updateTokenWithNewData(_ tokenData: [String: Any]) {
-        guard let newToken = tokenData["token"] as? String,
-              let newRefreshToken = tokenData["refreshToken"] as? String,
-              let expiresAtString = tokenData["expiresAt"] as? String else {
-            print("❌ Invalid token data")
+    private func handleTokenRefreshFailure() {
+        print("❌ Token refresh failed, checking remaining tokens...")
+        
+        // 남은 토큰 확인
+        let remainingRefreshToken = userDefaults.string(forKey: "refreshToken")
+        
+        if remainingRefreshToken == nil || remainingRefreshToken?.isEmpty == true {
+            print("❌ No refresh token available, logging out")
             logout()
-            return
-        }
-        
-        let formatter = ISO8601DateFormatter()
-        let expiresAt = formatter.date(from: expiresAtString)
-        
-        // 토큰 업데이트
-        userDefaults.set(newToken, forKey: "accessToken")
-        userDefaults.set(newRefreshToken, forKey: "refreshToken")
-        if let expiresAt = expiresAt {
-            userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
-        }
-        
-        // UserInfo 업데이트
-        if let userInfo = self.userInfo {
-            let updatedUserInfo = UserInfo(
-                id: userInfo.id,
-                email: userInfo.email,
-                name: userInfo.name,
-                token: newToken,
-                refreshToken: newRefreshToken,
-                expiresAt: expiresAt
+        } else {
+            print("⚠️ Refresh token exists but refresh failed, keeping current session")
+            // 토큰은 유지하되 사용자에게 알림
+            NotificationCenter.default.post(
+                name: NSNotification.Name("TokenRefreshFailed"),
+                object: nil
             )
-            self.userInfo = updatedUserInfo
         }
-        
-        // 웹뷰에 새로운 토큰 전달
-        NotificationCenter.default.post(
-            name: NSNotification.Name("TokenRefreshed"),
-            object: nil,
-            userInfo: ["tokenData": tokenData]
-        )
-        
-        // 다음 갱신 타이머 설정
-        setupTokenRefreshTimer()
-        
-        print("✅ Token refreshed successfully")
     }
     
     // MARK: - 로그인 상태 저장
@@ -520,23 +571,7 @@ class LoginManager: ObservableObject {
             return
         }
         
-        refreshAccessTokenInternal(refreshToken: refreshToken)
-    }
-    
-    private func refreshAccessTokenInternal(refreshToken: String) {
-        // 실제 구현에서는 서버에 refresh token을 보내서 새로운 access token을 받아야 함
-        // 여기서는 예시로 간단히 처리
-        print("Refreshing access token...")
-        
-        // 서버 API 호출 예시 (실제 구현 필요)
-        // refreshTokenAPI(refreshToken: refreshToken) { [weak self] result in
-        //     switch result {
-        //     case .success(let newToken):
-        //         self?.updateToken(newToken: newToken)
-        //     case .failure:
-        //         self?.logout()
-        //     }
-        // }
+        refreshAccessTokenInternal()
     }
     
     // MARK: - 로그아웃
@@ -1280,6 +1315,88 @@ class LoginManager: ObservableObject {
                 }
             } else {
                 print("❌ WebView에서 refreshToken을 찾을 수 없습니다.")
+            }
+        }
+    }
+    
+    // MARK: - 토큰 상태 확인 및 동기화
+    func checkTokenStatus() {
+        print("=== checkTokenStatus called ===")
+        
+        let accessToken = userDefaults.string(forKey: "accessToken") ?? ""
+        let refreshToken = userDefaults.string(forKey: "refreshToken") ?? ""
+        let expiresAt = userDefaults.object(forKey: "tokenExpiresAt") as? Date
+        
+        print("Current token status:")
+        print("- accessToken exists: \(!accessToken.isEmpty)")
+        print("- refreshToken exists: \(!refreshToken.isEmpty)")
+        print("- expiresAt: \(expiresAt?.description ?? "nil")")
+        
+        if let expiresAt = expiresAt {
+            let timeUntilExpiry = expiresAt.timeIntervalSinceNow
+            print("- timeUntilExpiry: \(timeUntilExpiry) seconds")
+            
+            if timeUntilExpiry < 0 {
+                print("❌ Token already expired")
+                if !refreshToken.isEmpty {
+                    print("🔄 Attempting token refresh...")
+                    refreshAccessToken()
+                } else {
+                    print("❌ No refresh token available, logging out")
+                    logout()
+                }
+            } else if timeUntilExpiry < 300 { // 5분 이내 만료
+                print("⚠️ Token expires soon, refreshing...")
+                refreshAccessToken()
+            } else {
+                print("✅ Token is still valid")
+            }
+        } else {
+            print("⚠️ No expiresAt found")
+            if !refreshToken.isEmpty {
+                print("🔄 Attempting token refresh...")
+                refreshAccessToken()
+            }
+        }
+    }
+    
+    // MARK: - 웹뷰와 토큰 동기화 강화
+    func syncTokenWithWebView(webView: WKWebView) {
+        print("=== syncTokenWithWebView called ===")
+        
+        let accessToken = userDefaults.string(forKey: "accessToken") ?? ""
+        let refreshToken = userDefaults.string(forKey: "refreshToken") ?? ""
+        
+        if !accessToken.isEmpty {
+            let script = """
+            if (typeof window !== 'undefined') {
+                // 웹뷰에 토큰 동기화
+                if (window.localStorage) {
+                    window.localStorage.setItem('accessToken', '\(accessToken)');
+                    window.sessionStorage.setItem('accessToken', '\(accessToken)');
+                }
+                if (window.document && window.document.cookie) {
+                    document.cookie = 'accessToken=\(accessToken); path=/';
+                }
+                if ('\(refreshToken)' !== '') {
+                    if (window.localStorage) {
+                        window.localStorage.setItem('refreshToken', '\(refreshToken)');
+                        window.sessionStorage.setItem('refreshToken', '\(refreshToken)');
+                    }
+                    if (window.document && window.document.cookie) {
+                        document.cookie = 'refreshToken=\(refreshToken); path=/';
+                    }
+                }
+                console.log('Token synchronized from native app');
+            }
+            """
+            
+            webView.evaluateJavaScript(script) { result, error in
+                if let error = error {
+                    print("❌ Failed to sync token with webview: \(error)")
+                } else {
+                    print("✅ Token synchronized with webview")
+                }
             }
         }
     }

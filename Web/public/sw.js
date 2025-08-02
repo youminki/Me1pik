@@ -1,7 +1,7 @@
 // Service Worker for Melpik Web App
-const CACHE_NAME = 'melpik-v1.0.0';
-const STATIC_CACHE_NAME = 'melpik-static-v1.0.0';
-const DYNAMIC_CACHE_NAME = 'melpik-dynamic-v1.0.0';
+const CACHE_NAME = 'melpik-v1.0.1';
+const STATIC_CACHE_NAME = 'melpik-static-v1.0.1';
+const DYNAMIC_CACHE_NAME = 'melpik-dynamic-v1.0.1';
 
 // 캐시할 정적 리소스들
 const STATIC_ASSETS = [
@@ -81,6 +81,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // GET 요청이 아닌 경우 캐싱하지 않음
+  if (request.method !== 'GET') {
+    return;
+  }
+
   // API 요청 처리
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(handleApiRequest(request));
@@ -99,27 +104,35 @@ self.addEventListener('fetch', (event) => {
 
 // API 요청 처리 (네트워크 우선, 캐시 폴백)
 async function handleApiRequest(request) {
+  // POST 요청은 캐시하지 않음
+  if (
+    request.method === 'POST' ||
+    request.method === 'PUT' ||
+    request.method === 'DELETE'
+  ) {
+    try {
+      return await fetch(request);
+    } catch (error) {
+      console.log('🌐 API 요청 실패:', request.url);
+      return getOfflinePage();
+    }
+  }
+
   try {
-    // 네트워크 요청 시도
     const networkResponse = await fetch(request);
 
-    // 성공한 응답을 캐시에 저장
-    if (networkResponse.ok) {
+    if (networkResponse.ok && request.method === 'GET') {
       const cache = await caches.open(DYNAMIC_CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
 
     return networkResponse;
   } catch (error) {
-    console.log('🌐 네트워크 실패, 캐시에서 응답:', request.url);
-
-    // 캐시에서 응답 찾기
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
     }
 
-    // 오프라인 페이지 반환
     return getOfflinePage();
   }
 }
@@ -155,10 +168,24 @@ async function handleStaticAsset(request) {
 
 // 동적 리소스 처리 (네트워크 우선, 캐시 폴백)
 async function handleDynamicRequest(request) {
+  // POST 요청은 캐시하지 않음
+  if (
+    request.method === 'POST' ||
+    request.method === 'PUT' ||
+    request.method === 'DELETE'
+  ) {
+    try {
+      return await fetch(request);
+    } catch (error) {
+      console.log('🌐 동적 요청 실패:', request.url);
+      return getOfflinePage();
+    }
+  }
+
   try {
     const networkResponse = await fetch(request);
 
-    if (networkResponse.ok) {
+    if (networkResponse.ok && request.method === 'GET') {
       const cache = await caches.open(DYNAMIC_CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }

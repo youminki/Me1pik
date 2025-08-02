@@ -395,6 +395,52 @@ struct WebView: UIViewRepresentable {
             }
         });
         
+        // 인스타그램 방식: 토큰 갱신 실패 이벤트 수신
+        window.addEventListener('tokenRefreshFailed', function(e) {
+            console.log('=== tokenRefreshFailed event received ===');
+            
+            // 토큰 갱신 실패 시 사용자에게 알림
+            if (typeof window.showTokenRefreshError === 'function') {
+                window.showTokenRefreshError();
+            } else {
+                console.log('⚠️ Token refresh failed - manual login may be required');
+            }
+        });
+        
+        // 인스타그램 방식: 토큰 상태 주기적 확인
+        setInterval(function() {
+            const accessToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+            const refreshToken = localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
+            
+            if (!accessToken && !refreshToken) {
+                console.log('⚠️ No tokens found in web storage');
+                // 네이티브 앱에 토큰 상태 확인 요청
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nativeBridge) {
+                    window.webkit.messageHandlers.nativeBridge.postMessage({
+                        action: 'checkTokenStatus'
+                    });
+                }
+            } else if (accessToken) {
+                // 토큰이 있으면 만료 시간 확인
+                try {
+                    const payload = JSON.parse(atob(accessToken.split('.')[1]));
+                    const currentTime = Date.now() / 1000;
+                    
+                    if (payload.exp && payload.exp < currentTime) {
+                        console.log('⚠️ Token expired in web storage');
+                        // 네이티브 앱에 토큰 갱신 요청
+                        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.nativeBridge) {
+                            window.webkit.messageHandlers.nativeBridge.postMessage({
+                                action: 'refreshToken'
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.log('⚠️ Failed to parse token in web storage');
+                }
+            }
+        }, 60000); // 1분마다 확인
+        
         // 인스타그램 방식: 로그아웃 이벤트 수신
         window.addEventListener('logoutSuccess', function(e) {
             console.log('=== logoutSuccess event received ===');
@@ -852,6 +898,15 @@ struct WebView: UIViewRepresentable {
                 // 로그인 상태 디버깅
                 DebugHelper.shared.debugLoginState(loginManager: parent.loginManager, webView: parent.webView)
                 
+            case "checkTokenStatus":
+                // 토큰 상태 확인
+                parent.loginManager.checkTokenStatus()
+                parent.loginManager.syncTokenWithWebView(webView: parent.webView)
+                
+            case "refreshToken":
+                // 토큰 갱신 요청
+                parent.loginManager.refreshAccessToken()
+                
             case "forceSendLoginInfo":
                 // 강제 로그인 정보 전송
                 DebugHelper.shared.forceSendLoginInfo(loginManager: parent.loginManager, webView: parent.webView)
@@ -1108,6 +1163,9 @@ struct ContentViewMain: View {
                 sendTokenRefreshToWeb(tokenData: tokenData)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("TokenRefreshFailed"))) { _ in
+            sendTokenRefreshFailedToWeb()
+        }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LogoutRequested"))) { _ in
             sendLogoutToWeb()
         }
@@ -1204,6 +1262,22 @@ struct ContentViewMain: View {
         }
     }
     
+    private func sendTokenRefreshFailedToWeb() {
+        print("sendTokenRefreshFailedToWeb called")
+        
+        let script = """
+        window.dispatchEvent(new CustomEvent('tokenRefreshFailed'));
+        """
+        
+        webViewStore.webView.evaluateJavaScript(script) { result, error in
+            if let error = error {
+                print("Error sending token refresh failed to web: \(error)")
+            } else {
+                print("✅ Token refresh failed sent to web successfully")
+            }
+        }
+    }
+    
     private func sendLogoutToWeb() {
         print("sendLogoutToWeb called")
         
@@ -1292,12 +1366,28 @@ struct ContentViewMain: View {
             // 앱이 활성화될 때 토큰 저장 상태 확인
             loginManager.verifyTokenStorage()
             
+            // 토큰 상태 상세 확인
+            loginManager.checkTokenStatus()
+            
+            // 웹뷰와 토큰 동기화
+            loginManager.syncTokenWithWebView(webView: webViewStore.webView)
+            
             // 토큰 유효성 확인 및 갱신
             if let userInfo = loginManager.userInfo, let expiresAt = userInfo.expiresAt {
-                if expiresAt.timeIntervalSinceNow < 300 { // 5분 이내 만료
+                let timeUntilExpiry = expiresAt.timeIntervalSinceNow
+                print("Token expires in: \(timeUntilExpiry) seconds")
+                
+                if timeUntilExpiry < 300 { // 5분 이내 만료
                     print("⚠️ Token expires soon, refreshing...")
                     loginManager.refreshAccessToken()
+                } else if timeUntilExpiry < 0 { // 이미 만료됨
+                    print("❌ Token already expired, attempting refresh...")
+                    loginManager.refreshAccessToken()
                 }
+            } else {
+                // expiresAt이 없으면 토큰 갱신 시도
+                print("⚠️ No expiresAt found, attempting token refresh...")
+                loginManager.refreshAccessToken()
             }
             
         case .inactive:
