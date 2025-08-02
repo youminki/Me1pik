@@ -124,17 +124,31 @@ const ModalSearchBar = styled.div`
   justify-content: center;
   gap: 0;
   margin-top: 18px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1.5px solid #ccc;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: #ffbe4b;
+    box-shadow: 0 0 0 2px rgba(255, 190, 75, 0.2);
+  }
 `;
 
 const ModalSearchInput = styled.input`
-  border: 1.5px solid #ccc;
-  border-radius: 6px 0 0 6px;
+  border: none;
+  border-radius: 0;
   font-size: 17px;
   padding: 12px 16px;
   width: 100%;
   outline: none;
   box-sizing: border-box;
   background: #fafafa;
+  position: relative;
+
+  &:focus {
+    background: #ffffff;
+  }
 `;
 
 const ModalSearchIconButton = styled.button`
@@ -143,15 +157,22 @@ const ModalSearchIconButton = styled.button`
   justify-content: center;
   height: 48px;
   width: 48px;
-  border: 1.5px solid #ccc;
-  border-left: none;
-  border-radius: 0 6px 6px 0;
+  border: none;
+  border-radius: 0;
   cursor: pointer;
   transition: background 0.2s;
   padding: 0;
+  outline: none;
+  background: #fafafa;
+
   &:hover {
     background: #ffbe4b;
   }
+
+  &:focus {
+    background: #ffbe4b;
+  }
+
   img {
     width: 20px;
     height: 20px;
