@@ -481,13 +481,63 @@ export const debugTokenStatus = (): void => {
 
 // 브라우저 콘솔에서 접근할 수 있도록 전역 함수로 노출
 if (typeof window !== 'undefined') {
-  (window as any).debugTokenStatus = debugTokenStatus;
-  (window as any).refreshToken = refreshToken;
-  (window as any).getCurrentToken = getCurrentToken;
-  (window as any).getRefreshToken = getRefreshToken;
+  (
+    window as Window &
+      typeof globalThis & {
+        debugTokenStatus: typeof debugTokenStatus;
+        refreshToken: typeof refreshToken;
+        getCurrentToken: typeof getCurrentToken;
+        getRefreshToken: typeof getRefreshToken;
+        simulateTokenExpiry: () => void;
+        testAutoRefresh: () => Promise<boolean>;
+      }
+  ).debugTokenStatus = debugTokenStatus;
+  (
+    window as Window &
+      typeof globalThis & {
+        debugTokenStatus: typeof debugTokenStatus;
+        refreshToken: typeof refreshToken;
+        getCurrentToken: typeof getCurrentToken;
+        getRefreshToken: typeof getRefreshToken;
+        simulateTokenExpiry: () => void;
+        testAutoRefresh: () => Promise<boolean>;
+      }
+  ).refreshToken = refreshToken;
+  (
+    window as Window &
+      typeof globalThis & {
+        debugTokenStatus: typeof debugTokenStatus;
+        refreshToken: typeof refreshToken;
+        getCurrentToken: typeof getCurrentToken;
+        getRefreshToken: typeof getRefreshToken;
+        simulateTokenExpiry: () => void;
+        testAutoRefresh: () => Promise<boolean>;
+      }
+  ).getCurrentToken = getCurrentToken;
+  (
+    window as Window &
+      typeof globalThis & {
+        debugTokenStatus: typeof debugTokenStatus;
+        refreshToken: typeof refreshToken;
+        getCurrentToken: typeof getCurrentToken;
+        getRefreshToken: typeof getRefreshToken;
+        simulateTokenExpiry: () => void;
+        testAutoRefresh: () => Promise<boolean>;
+      }
+  ).getRefreshToken = getRefreshToken;
 
   // 토큰 만료 시뮬레이션 함수
-  (window as any).simulateTokenExpiry = () => {
+  (
+    window as Window &
+      typeof globalThis & {
+        debugTokenStatus: typeof debugTokenStatus;
+        refreshToken: typeof refreshToken;
+        getCurrentToken: typeof getCurrentToken;
+        getRefreshToken: typeof getRefreshToken;
+        simulateTokenExpiry: () => void;
+        testAutoRefresh: () => Promise<boolean>;
+      }
+  ).simulateTokenExpiry = () => {
     console.log('🧪 토큰 만료 시뮬레이션 시작');
     const accessToken = getCurrentToken();
     if (!accessToken) {
@@ -532,7 +582,17 @@ if (typeof window !== 'undefined') {
   };
 
   // 자동 갱신 테스트 함수
-  (window as any).testAutoRefresh = async () => {
+  (
+    window as Window &
+      typeof globalThis & {
+        debugTokenStatus: typeof debugTokenStatus;
+        refreshToken: typeof refreshToken;
+        getCurrentToken: typeof getCurrentToken;
+        getRefreshToken: typeof getRefreshToken;
+        simulateTokenExpiry: () => void;
+        testAutoRefresh: () => Promise<boolean>;
+      }
+  ).testAutoRefresh = async () => {
     console.log('🧪 자동 갱신 테스트 시작');
 
     // 1. 현재 토큰 상태 확인
