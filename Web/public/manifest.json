@@ -12,19 +12,19 @@
   "categories": ["lifestyle", "shopping", "fashion"],
   "icons": [
     {
-      "src": "/src/assets/favicon.svg",
+      "src": "/assets/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/src/assets/favicon.svg",
+      "src": "/assets/favicon.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/src/assets/favicon.svg",
+      "src": "/assets/favicon.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any"
@@ -38,7 +38,7 @@
       "url": "/home",
       "icons": [
         {
-          "src": "/src/assets/favicon.svg",
+          "src": "/assets/favicon.svg",
           "sizes": "96x96"
         }
       ]
@@ -50,7 +50,7 @@
       "url": "/brand",
       "icons": [
         {
-          "src": "/src/assets/favicon.svg",
+          "src": "/assets/favicon.svg",
           "sizes": "96x96"
         }
       ]
@@ -62,7 +62,7 @@
       "url": "/lockerRoom",
       "icons": [
         {
-          "src": "/src/assets/favicon.svg",
+          "src": "/assets/favicon.svg",
           "sizes": "96x96"
         }
       ]
@@ -70,7 +70,7 @@
   ],
   "screenshots": [
     {
-      "src": "/src/assets/landings/7X5A9526.jpg",
+      "src": "/assets/landings/7X5A9526.jpg",
       "sizes": "1280x720",
       "type": "image/jpeg",
       "form_factor": "wide",
