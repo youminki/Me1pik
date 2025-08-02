@@ -108,6 +108,14 @@ export const saveTokens = (
   setToken(accessToken, refreshToken);
   setupTokenRefreshTimer(accessToken);
   syncTokenWithApp(accessToken, refreshToken);
+
+  // 디버깅: 토큰 저장 확인
+  console.log('🔐 토큰 저장됨:', {
+    hasAccessToken: !!accessToken,
+    hasRefreshToken: !!refreshToken,
+    autoLogin: localStorage.getItem('autoLogin'),
+    timestamp: new Date().toLocaleString(),
+  });
 };
 
 /**
@@ -148,18 +156,23 @@ const setupTokenRefreshTimer = (token: string): void => {
     // 자동로그인 여부에 따라 갱신 시점 조정
     const autoLogin = localStorage.getItem('autoLogin') === 'true';
     // 자동로그인: 만료 1일 전에 갱신
-    // 일반로그인: 만료 5분 전에 갱신
-    const refreshOffset = autoLogin ? 24 * 60 * 60 : 300; // 24시간 또는 5분
+    // 일반로그인: 만료 30분 전에 갱신 (안전성 향상)
+    const refreshOffset = autoLogin ? 24 * 60 * 60 : 30 * 60; // 24시간 또는 30분
     const refreshTime = (expiresAt - currentTime - refreshOffset) * 1000;
 
     const refreshAt = new Date(Date.now() + refreshTime);
-    console.log('토큰 갱신 예정:', {
+    console.log('⏰ 토큰 갱신 타이머 설정:', {
       autoLogin,
       refreshAt: refreshAt.toLocaleString(),
       offsetMinutes: refreshOffset / 60,
+      refreshTimeMs: refreshTime,
+      currentTime: new Date().toLocaleString(),
+      tokenExpiresAt: new Date(expiresAt * 1000).toLocaleString(),
     });
 
-    if (refreshTime > 0) {
+    // 음수 값이면 즉시 갱신, 너무 큰 값이면 기본값 사용
+    if (refreshTime > 0 && refreshTime < 30 * 24 * 60 * 60 * 1000) {
+      // 30일 이하
       // 기존 타이머 정리
       if (tokenRefreshTimer) {
         clearTimeout(tokenRefreshTimer);
@@ -167,8 +180,23 @@ const setupTokenRefreshTimer = (token: string): void => {
 
       tokenRefreshTimer = setTimeout(async () => {
         console.log('토큰 갱신 타이머 실행');
-        await refreshToken();
+        const success = await refreshToken();
+        if (!success) {
+          console.log('토큰 갱신 타이머 실패, 재설정 시도');
+          // 실패 시 5분 후 재시도
+          setTimeout(
+            async () => {
+              await refreshToken();
+            },
+            5 * 60 * 1000
+          );
+        }
       }, refreshTime);
+    } else {
+      console.log('⚠️ 토큰 갱신 타이머 설정 건너뜀:', {
+        reason: refreshTime <= 0 ? '이미 만료됨' : '시간이 너무 김',
+        refreshTime,
+      });
     }
   } catch (error) {
     console.error('토큰 갱신 타이머 설정 실패:', error);
@@ -178,11 +206,11 @@ const setupTokenRefreshTimer = (token: string): void => {
 /**
  * 토큰 갱신 (인스타그램 방식)
  */
-export const refreshToken = async (): Promise<boolean> => {
+export const refreshToken = async (retryCount = 0): Promise<boolean> => {
   try {
     const refreshToken = getRefreshToken();
     const autoLogin = localStorage.getItem('autoLogin') === 'true';
-    console.log('토큰 갱신 시도:', { autoLogin });
+    console.log('토큰 갱신 시도:', { autoLogin, retryCount });
 
     if (!refreshToken) {
       console.log('Refresh 토큰이 없음');
@@ -190,6 +218,13 @@ export const refreshToken = async (): Promise<boolean> => {
     }
 
     // 토큰 갱신 API 호출
+    console.log('🔄 토큰 갱신 API 호출:', {
+      endpoint: '/auth/refresh',
+      hasRefreshToken: !!refreshToken,
+      autoLogin,
+      refreshTokenLength: refreshToken?.length,
+    });
+
     const response = await Axios.post('/auth/refresh', {
       refreshToken,
       autoLogin,
@@ -205,15 +240,46 @@ export const refreshToken = async (): Promise<boolean> => {
       console.error('새 토큰 디코딩 실패:', e);
     }
 
-    // 새 토큰 저장
-    saveTokens(accessToken, newRefreshToken);
-    console.log('토큰 갱신 완료');
+    // 새 토큰 저장 (리프레시 토큰이 없으면 기존 것 유지)
+    if (newRefreshToken) {
+      saveTokens(accessToken, newRefreshToken);
+    } else {
+      // 리프레시 토큰이 없으면 액세스 토큰만 업데이트
+      const currentRefreshToken = getRefreshToken();
+      saveTokens(accessToken, currentRefreshToken || undefined);
+      console.log('⚠️ 서버에서 새 리프레시 토큰을 반환하지 않음, 기존 것 유지');
+    }
+
+    console.log('✅ 토큰 갱신 완료:', {
+      newTokenLength: accessToken.length,
+      newRefreshTokenLength: newRefreshToken?.length,
+      timestamp: new Date().toLocaleString(),
+    });
 
     return true;
   } catch (error) {
     console.error('토큰 갱신 실패:', error);
-    // 갱신 실패 시 로그아웃
-    await logout();
+
+    // 재시도 로직 (최대 2회)
+    if (retryCount < 2) {
+      console.log(`토큰 갱신 재시도 ${retryCount + 1}/2`);
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1000 * (retryCount + 1))
+      ); // 지수 백오프
+      return refreshToken(retryCount + 1);
+    }
+
+    // 최대 재시도 후에도 실패하면 토큰 상태 확인
+    console.log('토큰 갱신 최대 재시도 실패');
+    const remainingToken = getRefreshToken();
+    if (!remainingToken) {
+      console.log('리프레시 토큰이 없어서 로그아웃 처리');
+      await logout();
+    } else {
+      console.log('리프레시 토큰은 있지만 갱신 실패, 수동 로그인 필요');
+      // 토큰은 유지하되 사용자에게 알림
+      window.dispatchEvent(new CustomEvent('tokenRefreshFailed'));
+    }
     return false;
   }
 };
@@ -376,4 +442,134 @@ export function getErrorMessage(error: unknown): string {
   }
   if (typeof error === 'string') return error;
   return '알 수 없는 오류';
+}
+
+/**
+ * 현재 토큰 상태를 확인하는 디버깅 함수
+ */
+export const debugTokenStatus = (): void => {
+  const accessToken = getCurrentToken();
+  const refreshToken = getRefreshToken();
+  const autoLogin = localStorage.getItem('autoLogin');
+
+  console.log('🔍 토큰 상태 디버깅:', {
+    hasAccessToken: !!accessToken,
+    hasRefreshToken: !!refreshToken,
+    autoLogin,
+    accessTokenLength: accessToken?.length || 0,
+    refreshTokenLength: refreshToken?.length || 0,
+    timestamp: new Date().toLocaleString(),
+  });
+
+  if (accessToken) {
+    try {
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const expiresAt = new Date(payload.exp * 1000);
+      const currentTime = new Date();
+      const timeUntilExpiry = expiresAt.getTime() - currentTime.getTime();
+
+      console.log('📅 토큰 만료 정보:', {
+        expiresAt: expiresAt.toLocaleString(),
+        timeUntilExpiry: Math.floor(timeUntilExpiry / 1000 / 60) + '분',
+        isExpired: timeUntilExpiry < 0,
+      });
+    } catch (e) {
+      console.error('토큰 디코딩 실패:', e);
+    }
+  }
+};
+
+// 브라우저 콘솔에서 접근할 수 있도록 전역 함수로 노출
+if (typeof window !== 'undefined') {
+  (window as any).debugTokenStatus = debugTokenStatus;
+  (window as any).refreshToken = refreshToken;
+  (window as any).getCurrentToken = getCurrentToken;
+  (window as any).getRefreshToken = getRefreshToken;
+
+  // 토큰 만료 시뮬레이션 함수
+  (window as any).simulateTokenExpiry = () => {
+    console.log('🧪 토큰 만료 시뮬레이션 시작');
+    const accessToken = getCurrentToken();
+    if (!accessToken) {
+      console.log('❌ 액세스 토큰이 없습니다');
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      const timeUntilExpiry = payload.exp - currentTime;
+
+      console.log('📊 현재 토큰 상태:', {
+        expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+        timeUntilExpiry: Math.floor(timeUntilExpiry / 60) + '분',
+        isExpired: timeUntilExpiry < 0,
+      });
+
+      if (timeUntilExpiry > 0) {
+        console.log(
+          '⚠️ 토큰이 아직 유효합니다. 만료 시뮬레이션을 위해 1분 후로 설정'
+        );
+        // 테스트용으로 1분 후 만료로 설정
+        const testExpiry = currentTime + 60;
+        const testPayload = { ...payload, exp: testExpiry };
+        const testToken =
+          accessToken.split('.')[0] +
+          '.' +
+          btoa(JSON.stringify(testPayload)) +
+          '.' +
+          accessToken.split('.')[2];
+
+        // 테스트 토큰으로 임시 저장
+        localStorage.setItem('testAccessToken', testToken);
+        console.log('✅ 테스트 토큰이 설정되었습니다. 1분 후 만료됩니다.');
+      } else {
+        console.log('✅ 토큰이 이미 만료되었습니다.');
+      }
+    } catch (e) {
+      console.error('토큰 디코딩 실패:', e);
+    }
+  };
+
+  // 자동 갱신 테스트 함수
+  (window as any).testAutoRefresh = async () => {
+    console.log('🧪 자동 갱신 테스트 시작');
+
+    // 1. 현재 토큰 상태 확인
+    debugTokenStatus();
+
+    // 2. 수동 갱신 시도
+    console.log('🔄 수동 갱신 테스트...');
+    const success = await refreshToken();
+    console.log('수동 갱신 결과:', success ? '성공' : '실패');
+
+    // 3. 갱신 후 상태 확인
+    debugTokenStatus();
+
+    return success;
+  };
+
+  // 토큰 갱신 실패 이벤트 리스너
+  window.addEventListener('tokenRefreshFailed', () => {
+    console.log('⚠️ 토큰 갱신 실패 이벤트 발생');
+    // 여기에 사용자에게 알림을 표시하는 로직 추가 가능
+  });
+
+  // 토큰 갱신 성공 이벤트 리스너
+  window.addEventListener('tokenRefreshSuccess', (event: Event) => {
+    const customEvent = event as CustomEvent;
+    console.log('✅ 토큰 갱신 성공 이벤트 발생:', {
+      hasAccessToken: !!customEvent.detail?.accessToken,
+      hasRefreshToken: !!customEvent.detail?.refreshToken,
+      timestamp: new Date().toLocaleString(),
+    });
+  });
+
+  console.log('🔧 디버깅 함수들이 전역으로 노출되었습니다:');
+  console.log('- debugTokenStatus(): 토큰 상태 확인');
+  console.log('- refreshToken(): 수동 토큰 갱신');
+  console.log('- getCurrentToken(): 현재 액세스 토큰');
+  console.log('- getRefreshToken(): 현재 리프레시 토큰');
+  console.log('- simulateTokenExpiry(): 토큰 만료 시뮬레이션');
+  console.log('- testAutoRefresh(): 자동 갱신 테스트');
 }

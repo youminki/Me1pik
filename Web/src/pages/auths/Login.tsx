@@ -314,11 +314,13 @@ const Login: React.FC = () => {
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
 
-        // 자동로그인 여부 저장
+        // 자동로그인 여부 저장 (명시적으로 설정)
         if (keepLogin) {
           localStorage.setItem('autoLogin', 'true');
+          console.log('자동로그인 설정됨');
         } else {
           localStorage.removeItem('autoLogin');
+          console.log('자동로그인 해제됨');
         }
       }
 
