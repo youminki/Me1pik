@@ -1,51 +1,15 @@
-/**
- * 언어 선택기 컴포넌트 (LanguageSelector.tsx)
- *
- * 다국어 지원을 위한 언어 선택 컴포넌트를 제공합니다.
- * 드롭다운 형태로 다양한 언어 옵션을 제공하며,
- * 현재 선택된 언어를 시각적으로 표시합니다.
- *
- * @description
- * - 다국어 지원
- * - 드롭다운 UI
- * - 현재 언어 표시
- * - 접근성 지원
- * - 반응형 디자인
- */
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useLanguageSelector } from '@/hooks/useI18n';
 import { Locale } from '@/utils/i18n';
 
-/**
- * 언어 선택기 속성 인터페이스
- *
- * 언어 선택기 컴포넌트의 props를 정의합니다.
- *
- * @property variant - 표시 형태 (기본값: 'dropdown')
- * @property size - 크기 옵션 (기본값: 'medium')
- * @property className - CSS 클래스명 (선택적)
- */
 interface LanguageSelectorProps {
-  variant?: 'dropdown' | 'buttons'; // 표시 형태 (기본값: 'dropdown')
-  size?: 'small' | 'medium' | 'large'; // 크기 옵션 (기본값: 'medium')
-  className?: string; // CSS 클래스명 (선택적)
+  variant?: 'dropdown' | 'buttons';
+  size?: 'small' | 'medium' | 'large';
+  className?: string;
 }
 
-/**
- * 언어 선택기 컴포넌트
- *
- * 다국어 지원을 위한 언어 선택 컴포넌트를 렌더링합니다.
- * 드롭다운과 버튼 형태의 두 가지 변형을 지원하며,
- * 국기 아이콘과 언어명을 함께 표시합니다.
- *
- * @param variant - 표시 형태 (기본값: 'dropdown')
- * @param size - 크기 옵션 (기본값: 'medium')
- * @param className - CSS 클래스명 (선택적)
- * @returns 언어 선택기 컴포넌트
- */
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   variant = 'dropdown',
   size = 'medium',

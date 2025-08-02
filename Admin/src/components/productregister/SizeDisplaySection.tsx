@@ -1,10 +1,3 @@
-/**
- * 사이즈 표기 섹션(SizeDisplaySection)
- *
- * - 제품의 사이즈 표기 이미지와 라벨 정보 관리
- * - 사이즈 가이드 이미지 표시, 라벨 편집, 부모 컴포넌트와 동기화 등 지원
- * - config 기반 초기 라벨 설정 및 동적 업데이트
- */
 // src/components/productregister/SizeDisplaySection.tsx
 import React, { useState, ChangeEvent, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
@@ -13,10 +6,6 @@ import { sizeGuideConfig } from '@config/sizeGuideConfig';
 // BulletIcon을 불러옵니다. (Webpack/CRA 기준)
 import BulletIcon from '@assets/BulletIcon.svg';
 
-/**
- * 사이즈 표기 섹션 props
- * - 제품 데이터, 사이즈 이미지, 라벨 변경 콜백 등
- */
 interface SizeDisplaySectionProps {
   product?: ProductDetailResponse;
   sizeProductImg: string;
@@ -25,11 +14,6 @@ interface SizeDisplaySectionProps {
   style?: React.CSSProperties;
 }
 
-/**
- * 사이즈 표기 섹션 컴포넌트
- * - 사이즈 가이드 이미지와 라벨 정보를 표시하고 관리
- * - 라벨 편집, 부모 컴포넌트와 동기화, 타이틀/노트 관리 등 지원
- */
 const SizeDisplaySection: React.FC<SizeDisplaySectionProps> = ({
   product,
   sizeProductImg,
@@ -65,10 +49,7 @@ const SizeDisplaySection: React.FC<SizeDisplaySectionProps> = ({
     }
   }, [initialLabels, product?.size_label_guide, onLabelChange]);
 
-  /**
-   * 라벨 변경 핸들러
-   * - 사용자 입력으로 라벨 변경 시 상태 업데이트 및 부모에게 전달
-   */
+  // 3) 사용자 입력으로 변경된 경우에만 부모 콜백 호출
   const handleLabelChange = (key: string, e: ChangeEvent<HTMLInputElement>) => {
     const next = { ...labelMap, [key]: e.target.value };
     setLabelMap(next);
@@ -92,10 +73,6 @@ const SizeDisplaySection: React.FC<SizeDisplaySectionProps> = ({
     note: '*측정 위치에 따라 약간의 오차 있음.',
   });
 
-  /**
-   * 필드 변경 핸들러
-   * - 타이틀, 스펙 타이틀, 노트 등 필드 값 변경 처리
-   */
   const handleFieldChange = (field: keyof typeof labelsState, e: ChangeEvent<HTMLInputElement>) => {
     setLabelsState((prev) => ({ ...prev, [field]: e.target.value }));
   };

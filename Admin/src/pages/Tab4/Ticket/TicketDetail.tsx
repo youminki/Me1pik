@@ -52,12 +52,7 @@ const TicketDetail: React.FC<TicketDetailProps> = ({ isCreate = false }) => {
   const [modalMessage, setModalMessage] = useState('');
   const [pendingAction, setPendingAction] = useState<'save' | 'delete' | null>(null);
 
-  /**
-   * StrictMode에서 useEffect 두 번 실행 방지
-   *
-   * React 18의 StrictMode에서는 개발 환경에서 useEffect가 두 번 호출될 수 있으므로,
-   * didFetchRef 플래그를 사용해 실제 데이터 fetch가 한 번만 일어나도록 제어합니다.
-   */
+  // StrictMode에서 useEffect 두 번 실행 방지
   const didFetchRef = useRef(false);
 
   useEffect(() => {

@@ -1,36 +1,29 @@
-// 닉네임 변경 모달 컴포넌트 - 사용자 닉네임 변경 기능 제공
 // src/components/myinfos/ChangeNicknameModal.tsx
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import styled from 'styled-components';
 
-// 닉네임 변경 모달 Props 인터페이스
 interface ChangeNicknameModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-// 메인 닉네임 변경 모달 컴포넌트
 const ChangeNicknameModal: React.FC<ChangeNicknameModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  // 닉네임 상태 관리
   const [nickname, setNickname] = useState('');
 
-  // 닉네임 변경 핸들러
   const handleNicknameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNickname(e.target.value);
   };
 
-  // 폼 제출 핸들러
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onClose();
     setNickname('');
   };
 
-  // 키보드 이벤트 핸들러 (Escape 키로 모달 닫기)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -56,7 +49,6 @@ const ChangeNicknameModal: React.FC<ChangeNicknameModalProps> = ({
         </Header>
         <Body>
           <FormContainer onSubmit={handleSubmit}>
-            {/* 닉네임 입력 필드 */}
             <Label htmlFor='cn-nickname'>새 닉네임</Label>
             <Input
               id='cn-nickname'
@@ -69,7 +61,6 @@ const ChangeNicknameModal: React.FC<ChangeNicknameModalProps> = ({
 
             <Divider />
 
-            {/* 닉네임 저장 버튼 */}
             <SubmitBtn type='submit'>닉네임 저장</SubmitBtn>
           </FormContainer>
         </Body>
@@ -80,7 +71,7 @@ const ChangeNicknameModal: React.FC<ChangeNicknameModalProps> = ({
 
 export default ChangeNicknameModal;
 
-// 스타일 컴포넌트들
+/* Styled Components */
 const Overlay = styled.div`
   position: fixed;
   top: 0;

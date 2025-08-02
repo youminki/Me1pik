@@ -12,41 +12,10 @@ import LandingPage5 from '@/components/landings/LandingPage5';
 import LandingPage6 from '@/components/landings/LandingPage6';
 import LandingPage7 from '@/components/landings/LandingPage7';
 
-/**
- * 랜딩 페이지 컴포넌트 (Landing.tsx)
- *
- * 애플리케이션의 메인 랜딩 페이지를 제공합니다.
- * 스크롤 기반 애니메이션, 페이드인 효과, 반응형 디자인을 포함하며,
- * 사용자에게 서비스 소개와 가입 유도를 제공합니다.
- *
- * @description
- * - 메인 랜딩 페이지
- * - 스크롤 기반 애니메이션
- * - 페이드인 효과
- * - 이미지 프리로드
- * - 반응형 디자인
- * - 서비스 소개 섹션
- */
-
-/**
- * 스크롤 페이드인 컴포넌트 속성 인터페이스
- *
- * 스크롤 페이드인 효과를 적용할 컴포넌트의 속성을 정의합니다.
- *
- * @property children - 페이드인 효과를 적용할 자식 컴포넌트
- */
 interface ScrollFadeInProps {
-  children: React.ReactNode; // 페이드인 효과를 적용할 자식 컴포넌트
+  children: React.ReactNode;
 }
 
-/**
- * 스크롤 방향 감지 훅
- *
- * 사용자의 스크롤 방향(위/아래)을 감지하는 커스텀 훅입니다.
- * 스크롤 애니메이션과 페이드인 효과에 활용됩니다.
- *
- * @returns 현재 스크롤 방향 ('up' | 'down')
- */
 const useScrollDirection = () => {
   const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
   const lastScrollY = useRef(window.scrollY);
@@ -64,15 +33,6 @@ const useScrollDirection = () => {
   return scrollDirection;
 };
 
-/**
- * 스크롤 페이드인 컴포넌트
- *
- * 스크롤 시 요소가 화면에 나타날 때 페이드인 효과를 적용하는 컴포넌트입니다.
- * Intersection Observer API를 사용하여 성능을 최적화합니다.
- *
- * @param children - 페이드인 효과를 적용할 자식 컴포넌트
- * @returns 페이드인 효과가 적용된 컴포넌트
- */
 const ScrollFadeIn: React.FC<ScrollFadeInProps> = ({ children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -108,12 +68,7 @@ const ScrollFadeIn: React.FC<ScrollFadeInProps> = ({ children }) => {
 };
 
 const Landing: React.FC = () => {
-  /**
-   * 이미지 프리로드
-   *
-   * 랜딩 페이지 배경 이미지를 미리 로드하여
-   * 사용자 경험을 개선합니다.
-   */
+  // 이미지 프리로드
   useEffect(() => {
     const img = new Image();
     img.src = LandingBackground;

@@ -1,16 +1,13 @@
-// 비밀번호 변경 모달 컴포넌트 - 사용자 비밀번호 변경 기능 제공
 // src/components/ChangePasswordModal.tsx
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import styled from 'styled-components';
 
-// 비밀번호 변경 모달 Props 인터페이스
 interface ChangePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-// 메인 비밀번호 변경 모달 컴포넌트
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   isOpen,
   onClose,
@@ -21,22 +18,16 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // 이름 변경 핸들러
+  // 입력값 핸들러
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
-
-  // 전화번호 변경 핸들러
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPhone(e.target.value);
   };
-
-  // 새 비밀번호 변경 핸들러
   const handleNewPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewPassword(e.target.value);
   };
-
-  // 비밀번호 확인 변경 핸들러
   const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setConfirmPassword(e.target.value);
   };
@@ -59,7 +50,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     setConfirmPassword('');
   };
 
-  // 키보드 이벤트 핸들러 (Escape 키로 모달 닫기)
+  // Esc 키 누르면 모달 닫기
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -93,8 +84,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               style={{ display: 'none' }}
               aria-hidden='true'
             />
-
-            {/* 이름 입력 필드 */}
             <Label htmlFor='cp-name'>이름</Label>
             <Input
               id='cp-name'
@@ -105,7 +94,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               required
             />
 
-            {/* 전화번호 입력 필드 */}
             <Label htmlFor='cp-phone'>전화번호</Label>
             <Input
               id='cp-phone'
@@ -116,7 +104,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               required
             />
 
-            {/* 새 비밀번호 입력 필드 */}
             <Label htmlFor='cp-new-password'>새 비밀번호</Label>
             <Input
               id='cp-new-password'
@@ -128,7 +115,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               required
             />
 
-            {/* 비밀번호 확인 입력 필드 */}
             <Label htmlFor='cp-confirm-password'>새 비밀번호 확인</Label>
             <Input
               id='cp-confirm-password'
@@ -143,7 +129,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             {/* Divider 추가: 버튼 위에 경계선 */}
             <Divider />
 
-            {/* 비밀번호 재설정 버튼 */}
             <SubmitBtn type='submit'>비밀번호 재설정</SubmitBtn>
           </FormContainer>
         </Body>

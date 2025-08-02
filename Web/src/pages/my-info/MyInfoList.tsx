@@ -1,18 +1,4 @@
-/**
- * 내 정보 목록 페이지 컴포넌트 (MyInfoList.tsx)
- *
- * 사용자의 개인정보 관리 메인 페이지를 제공합니다.
- * 회원정보 변경, 비밀번호 변경, 배송지 관리 등의
- * 개인정보 관련 기능에 접근할 수 있는 메뉴를 제공합니다.
- *
- * @description
- * - 개인정보 관리 메인 화면
- * - 회원정보 변경 메뉴
- * - 비밀번호 변경 메뉴
- * - 배송지 관리 메뉴
- * - 프로필 정보 표시
- * - 인증 상태 확인
- */
+// src/pages/MyinfoList.tsx
 
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaUserCircle, FaLongArrowAltRight } from 'react-icons/fa';
@@ -32,30 +18,24 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
 
-/**
- * 내 정보 메뉴 아이템 배열
- *
- * 내 정보 페이지에서 제공하는 개인정보 관리 기능들의 메뉴 정보를 정의합니다.
- * 각 메뉴는 키, 제목, 설명, 아이콘을 포함합니다.
- */
 const MENU_ITEMS = [
   {
-    key: 'info', // 메뉴 식별자
-    title: '회원정보 변경', // 메뉴 제목
-    desc: '이름, 생년월일, 성별, 휴대전화, 서비스 지역', // 메뉴 설명
-    iconSrc: userInfoIcon, // 메뉴 아이콘
+    key: 'info',
+    title: '회원정보 변경',
+    desc: '이름, 생년월일, 성별, 휴대전화, 서비스 지역',
+    iconSrc: userInfoIcon,
   },
   {
-    key: 'password', // 메뉴 식별자
-    title: '비밀번호 변경', // 메뉴 제목
-    desc: '8자리 이상 (문자, 숫자, 특수문자 조합)', // 메뉴 설명
-    iconSrc: passwordIcon, // 메뉴 아이콘
+    key: 'password',
+    title: '비밀번호 변경',
+    desc: '8자리 이상 (문자, 숫자, 특수문자 조합)',
+    iconSrc: passwordIcon,
   },
   {
-    key: 'address', // 메뉴 식별자
-    title: '배송지 관리', // 메뉴 제목
-    desc: '배송지명, 우편번호, 상세주소', // 메뉴 설명
-    iconSrc: deliveryIcon, // 메뉴 아이콘
+    key: 'address',
+    title: '배송지 관리',
+    desc: '배송지명, 우편번호, 상세주소',
+    iconSrc: deliveryIcon,
   },
 ];
 
@@ -74,12 +54,7 @@ const MyinfoList: React.FC = () => {
   const navigate = useNavigate();
   const [notifyOn, setNotifyOn] = useState(false);
 
-  /**
-   * 프로필 정보 상태 관리
-   *
-   * API 호출 결과로 받은 헤더 정보를 저장하는 상태입니다.
-   * 사용자 정보 표시에 활용됩니다.
-   */
+  // 프로필 관련: API 호출 결과 저장
   const [headerInfo, setHeaderInfo] = useState<HeaderInfoResponse | null>(null);
   const [loadingHeader, setLoadingHeader] = useState<boolean>(true);
 

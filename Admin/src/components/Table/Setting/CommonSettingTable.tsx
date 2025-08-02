@@ -1,18 +1,6 @@
-/**
- * 공통 설정 테이블(CommonSettingTable)
- *
- * - 설정 정보를 표 형태로 렌더링하는 범용 테이블 컴포넌트
- * - 로딩 상태 스켈레톤, 최소 행 수, 행 클릭 이벤트 등 지원
- * - 제네릭 타입으로 다양한 데이터 구조 지원
- * - 재사용 가능한 공통 컴포넌트
- */
 import React from 'react';
 import styled from 'styled-components';
 
-/**
- * 공통 설정 테이블 컬럼 인터페이스
- * - 컬럼 키, 라벨, 너비, 렌더링 함수 등 포함
- */
 export interface CommonSettingTableColumn<T> {
   key: keyof T;
   label: string;
@@ -20,10 +8,6 @@ export interface CommonSettingTableColumn<T> {
   render?: (value: unknown, row: T) => React.ReactNode;
 }
 
-/**
- * 공통 설정 테이블 props
- * - 컬럼 정의, 데이터, 행 클릭 이벤트, 최소 행 수, 로딩 상태 등
- */
 interface CommonSettingTableProps<T> {
   columns: CommonSettingTableColumn<T>[];
   data: T[];
@@ -32,10 +16,7 @@ interface CommonSettingTableProps<T> {
   isLoading?: boolean;
 }
 
-/**
- * 스켈레톤 셀 컴포넌트
- * - 로딩 중에 표시되는 애니메이션 셀
- */
+// 스켈레톤 셀 컴포넌트
 const SkeletonCell = () => (
   <div
     style={{
@@ -49,10 +30,6 @@ const SkeletonCell = () => (
   />
 );
 
-/**
- * 공통 설정 테이블 컴포넌트
- * - 설정 정보를 테이블 형태로 표시하는 범용 컴포넌트
- */
 function CommonSettingTable<T extends object>({
   columns,
   data,
@@ -60,10 +37,6 @@ function CommonSettingTable<T extends object>({
   minRows = 10,
   isLoading = false,
 }: CommonSettingTableProps<T>) {
-  /**
-   * 빈 행 수 계산
-   * - 최소 행 수를 유지하기 위한 빈 행 개수 계산
-   */
   const emptyRowsCount = Math.max(0, minRows - data.length);
 
   return (
@@ -124,10 +97,6 @@ function CommonSettingTable<T extends object>({
 
 export default CommonSettingTable;
 
-/**
- * 테이블 스타일드 컴포넌트
- * - 테이블 기본 스타일링
- */
 const Table = styled.table`
   width: 100%;
   table-layout: fixed;

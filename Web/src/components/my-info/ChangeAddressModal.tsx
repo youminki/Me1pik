@@ -1,44 +1,13 @@
-/**
- * 배송지 변경 모달 컴포넌트 (ChangeAddressModal.tsx)
- *
- * 사용자의 배송지 정보를 변경할 수 있는 모달 컴포넌트입니다.
- * 배송지명, 우편번호, 상세주소를 입력받아 배송지 정보를 관리합니다.
- *
- * @description
- * - 배송지 정보 입력
- * - 배송지명, 우편번호, 상세주소 관리
- * - 폼 유효성 검사
- * - 키보드 이벤트 처리 (Escape)
- * - 접근성 지원
- * - 반응형 디자인
- */
+// src/components/ChangeAddressModal.tsx
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import styled from 'styled-components';
 
-/**
- * 배송지 변경 모달 속성 인터페이스
- *
- * 배송지 변경 모달 컴포넌트의 props를 정의합니다.
- *
- * @property isOpen - 모달 열림 상태
- * @property onClose - 모달 닫기 핸들러
- */
 interface ChangeAddressModalProps {
-  isOpen: boolean; // 모달 열림 상태
-  onClose: () => void; // 모달 닫기 핸들러
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-/**
- * 배송지 변경 모달 컴포넌트
- *
- * 사용자의 배송지 정보를 변경할 수 있는 모달을 렌더링합니다.
- * 배송지명, 우편번호, 상세주소를 입력받아 배송지 정보를 관리합니다.
- *
- * @param isOpen - 모달 열림 상태
- * @param onClose - 모달 닫기 핸들러
- * @returns 배송지 변경 모달 컴포넌트
- */
 const ChangeAddressModal: React.FC<ChangeAddressModalProps> = ({
   isOpen,
   onClose,

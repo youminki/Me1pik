@@ -30,12 +30,7 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { theme } from '@/styles/Theme';
 
-/**
- * 비밀번호 찾기 유효성 검사 스키마
- *
- * 이름, 이메일, 전화번호, 새 비밀번호, 비밀번호 확인에 대한 유효성 검사 규칙을 정의합니다.
- * 각 필드별로 적절한 형식과 보안 요구사항을 설정합니다.
- */
+// Validation schema
 const schemaFindPassword = yup.object().shape({
   name: yup
     .string()
@@ -65,12 +60,7 @@ const schemaFindPassword = yup.object().shape({
 
 type FormValues = yup.InferType<typeof schemaFindPassword>;
 
-/**
- * 비밀번호 표시 아이콘
- *
- * 비밀번호를 보이게 하는 토글 기능을 제공하는 아이콘 컴포넌트입니다.
- * 사용자가 입력한 비밀번호를 확인할 수 있도록 시각적 피드백을 제공합니다.
- */
+// 네이버 스타일 눈(보기) 아이콘
 const ShowPasswordIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
@@ -83,12 +73,7 @@ const ShowPasswordIcon = () => (
     </g>
   </svg>
 );
-/**
- * 비밀번호 숨김 아이콘
- *
- * 비밀번호를 숨기는 토글 기능을 제공하는 아이콘 컴포넌트입니다.
- * 보안을 위해 비밀번호를 가려서 표시합니다.
- */
+// 네이버 스타일 눈감김(숨김) 아이콘
 const HidePasswordIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
@@ -108,12 +93,7 @@ const HidePasswordIcon = () => (
   </svg>
 );
 
-/**
- * 비밀번호 찾기 페이지 컴포넌트
- *
- * 사용자가 비밀번호를 재설정할 수 있는 페이지를 제공합니다.
- * 이름, 이메일, 전화번호 인증을 통해 새 비밀번호를 설정할 수 있습니다.
- */
+// FormSectionWrapper 스타일 오버라이드 삭제
 
 const FindPassword: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

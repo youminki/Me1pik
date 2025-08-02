@@ -1,31 +1,5 @@
 import * as yup from 'yup';
 
-/**
- * useValidationYup - Yup 기반의 폼 유효성 검사 스키마 모음
- *
- * 회원가입, 마이페이지, 비밀번호 변경 등 다양한 폼에 사용할 수 있는 yup 스키마를 제공합니다.
- *
- * @description
- * - schemaPassword: 비밀번호 변경 폼
- * - schemaMyStyle: 내 스타일 설정 폼
- * - schemaSignupContemporary: 컨템포러리 회원가입 폼
- * - schemaInfo: 내 정보 수정 폼
- * - schemaSignup: 일반 회원가입 폼
- * - schemaLogin: 로그인 폼
- * - schemaFindPassword: 비밀번호 찾기 폼
- * - schemaFindId: 아이디 찾기 폼
- * - schemaCardRegistration: 카드 등록 폼
- *
- * @example
- * import { schemaSignup } from './useValidationYup';
- * const schema = schemaSignup;
- */
-
-/**
- * schemaPassword - 비밀번호 변경 폼 스키마
- *
- * 현재 비밀번호, 새 비밀번호, 비밀번호 확인을 검증합니다.
- */
 export const schemaPassword = yup.object({
   currentPassword: yup.string().required('현재 비밀번호를 입력하세요.'),
   newPassword: yup
@@ -38,11 +12,6 @@ export const schemaPassword = yup.object({
     .oneOf([yup.ref('newPassword')], '비밀번호가 일치하지 않습니다.'),
 });
 
-/**
- * schemaMyStyle - 내 스타일 설정 폼 스키마
- *
- * 키, 몸무게, 사이즈, 선호 브랜드 정보를 검증합니다.
- */
 export const schemaMyStyle = yup.object({
   height: yup.string().required('키를 선택해주세요.'),
   size: yup.string().required('몸무게를 선택해주세요.'),
@@ -52,11 +21,6 @@ export const schemaMyStyle = yup.object({
   brand: yup.string().required('선호 브랜드를 선택해주세요.'),
 });
 
-/**
- * schemaSignupContemporary - 컨템포러리 회원가입 폼 스키마
- *
- * 컨템포러리 회원가입에 필요한 모든 정보를 검증합니다.
- */
 export const schemaSignupContemporary = yup.object({
   height: yup.string().required('키를 선택해주세요.'),
   size: yup.string().required('사이즈를 선택해주세요.'),
@@ -68,11 +32,7 @@ export const schemaSignupContemporary = yup.object({
   exposureFrequency: yup.string().required('노출 빈도를 선택해주세요.'),
 });
 
-/**
- * schemaInfo - 내 정보 수정 폼 스키마
- *
- * 이메일, 비밀번호, 개인정보 수정을 검증합니다.
- */
+// MyInfo 폼 전용 스키마 (currentPassword, newPassword, confirmNewPassword 로 변경)
 export const schemaInfo = yup.object({
   email: yup
     .string()
@@ -138,11 +98,6 @@ export const schemaInfo = yup.object({
     ),
 });
 
-/**
- * schemaSignup - 일반 회원가입 폼 스키마
- *
- * 회원가입에 필요한 모든 정보를 검증합니다.
- */
 export const schemaSignup = yup
   .object({
     email: yup
@@ -244,11 +199,6 @@ export const schemaSignup = yup
   })
   .required();
 
-/**
- * schemaLogin - 로그인 폼 스키마
- *
- * 이메일과 비밀번호 로그인을 검증합니다.
- */
 export const schemaLogin = yup.object({
   email: yup
     .string()
@@ -270,11 +220,6 @@ export const schemaLogin = yup.object({
     ),
 });
 
-/**
- * schemaFindPassword - 비밀번호 찾기 폼 스키마
- *
- * 이메일과 닉네임을 통한 비밀번호 찾기를 검증합니다.
- */
 export const schemaFindPassword = yup.object({
   email: yup
     .string()
@@ -289,11 +234,6 @@ export const schemaFindPassword = yup.object({
     ),
 });
 
-/**
- * schemaFindId - 아이디 찾기 폼 스키마
- *
- * 닉네임과 생년월일을 통한 아이디 찾기를 검증합니다.
- */
 export const schemaFindId = yup.object({
   nickname: yup
     .string()
@@ -308,11 +248,6 @@ export const schemaFindId = yup.object({
     .matches(/^\d{4}$/, '태어난 해는 4자리 숫자로 입력해주세요.'),
 });
 
-/**
- * schemaCardRegistration - 카드 등록 폼 스키마
- *
- * 카드번호, 유효기간, 비밀번호, 생년월일/사업자번호를 검증합니다.
- */
 export const schemaCardRegistration = yup.object({
   cardNumber: yup
     .string()

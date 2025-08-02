@@ -6,29 +6,8 @@ import FailIcon from '@/assets/completes/FailIcon.svg';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
-/**
- * 결제 실패 페이지 컴포넌트 (Paymentfail.tsx)
- *
- * 결제가 실패했음을 사용자에게 알리는 페이지를 제공합니다.
- * 실패 아이콘, 실패 메시지, 확인 버튼을 포함합니다.
- *
- * @description
- * - 결제 실패 알림 메시지
- * - 사용자 친화적 에러 메시지
- * - 다양한 닫기 방식 지원 (콜백/팝업/라우팅)
- * - 서비스팀 연락 안내
- */
-
-/**
- * 결제 실패 페이지 속성 인터페이스
- *
- * 결제 실패 페이지에서 사용되는 속성을 정의합니다.
- * 부모 컴포넌트로부터 전달받는 콜백 함수를 포함합니다.
- *
- * @property onClose - 페이지 닫기 콜백 함수 (선택적)
- */
 interface PaymentFailProps {
-  onClose?: () => void; // 페이지 닫기 콜백 함수 (선택적)
+  onClose?: () => void;
 }
 
 const PaymentFail: React.FC<PaymentFailProps> = ({ onClose }) => {

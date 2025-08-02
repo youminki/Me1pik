@@ -1,7 +1,5 @@
-// 하단 바 컴포넌트 - 장바구니 및 주문 버튼을 포함한 고정 하단 네비게이션
 import styled from 'styled-components';
 
-// 하단 바 Props 인터페이스
 interface BottomBarProps {
   cartIconSrc: string;
   orderButtonLabel: string;
@@ -10,7 +8,6 @@ interface BottomBarProps {
   orderButtonDisabled?: boolean;
 }
 
-// 메인 하단 바 컴포넌트
 const BottomBar: React.FC<BottomBarProps> = ({
   cartIconSrc,
   orderButtonLabel,
@@ -20,12 +17,9 @@ const BottomBar: React.FC<BottomBarProps> = ({
 }) => {
   return (
     <BottomBarContainer>
-      {/* 장바구니 버튼 */}
       <CartButton onClick={onCartClick}>
         <CartImage src={cartIconSrc} alt='Shopping Basket' />
       </CartButton>
-
-      {/* 주문 버튼 */}
       <OrderButton onClick={onOrderClick} disabled={orderButtonDisabled}>
         {orderButtonLabel}
       </OrderButton>
@@ -35,7 +29,6 @@ const BottomBar: React.FC<BottomBarProps> = ({
 
 export default BottomBar;
 
-// 스타일 컴포넌트들
 const BottomBarContainer = styled.div`
   position: fixed;
   bottom: 0;

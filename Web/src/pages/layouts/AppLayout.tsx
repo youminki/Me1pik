@@ -1,17 +1,4 @@
-/**
- * 앱 레이아웃 컴포넌트 (AppLayout.tsx)
- *
- * 애플리케이션의 기본 레이아웃 구조를 제공합니다.
- * 헤더, 콘텐츠 영역, 하단 네비게이션을 포함하며,
- * 경로에 따라 동적으로 UI 요소를 표시/숨김 처리합니다.
- *
- * @description
- * - 동적 헤더 표시 (경로별 설정)
- * - 콘텐츠 영역 관리
- * - 하단 네비게이션 표시/숨김
- * - 반응형 레이아웃 구조
- * - 스크롤바 숨김 처리
- */
+// src/layouts/AppLayout.tsx
 import React from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
@@ -33,12 +20,9 @@ const AppLayout: React.FC = () => {
     headerTitle,
   } = useHeaderConfig(location.pathname);
 
-  /**
-   * 하단 네비게이션 표시 대상 경로
-   *
-   * 하단 네비게이션이 표시되어야 하는 경로들을 정의합니다.
-   * 메인 네비게이션 탭들에 해당하는 경로들입니다.
-   */
+  // 앱 초기화 코드 제거됨
+
+  // BottomNav 표시 대상 경로
   const bottomNavPaths = [
     '/home',
     '/brand',
@@ -77,12 +61,7 @@ const AppLayout: React.FC = () => {
 
 export default AppLayout;
 
-/**
- * 스타일드 컴포넌트
- *
- * 레이아웃 구성 요소들의 스타일을 정의합니다.
- * 반응형 디자인과 사용자 경험을 고려한 스타일링을 제공합니다.
- */
+// --- Styled Components ---
 
 const AppContainer = styled.div`
   height: 100vh;

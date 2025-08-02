@@ -5,10 +5,6 @@ import { getPaymentStatusBadge } from 'src/components/CommonTable/statusUtils';
 import styled from 'styled-components';
 import { FaCopy } from 'react-icons/fa';
 
-/**
- * 스타일 품번 컨테이너 스타일드 컴포넌트
- * - 스타일 품번과 복사 버튼을 가로로 배치
- */
 const StyleCodeContainer = styled.div`
   display: flex;
   align-items: center;
@@ -16,19 +12,11 @@ const StyleCodeContainer = styled.div`
   gap: 8px;
 `;
 
-/**
- * 스타일 품번 텍스트 스타일드 컴포넌트
- * - 스타일 품번 텍스트 스타일링
- */
 const StyleCodeText = styled.span`
   font-size: 12px;
   color: #333;
 `;
 
-/**
- * 복사 버튼 스타일드 컴포넌트
- * - 스타일 품번 복사 버튼 스타일링
- */
 const CopyButton = styled.button`
   background: none;
   border: none;
@@ -45,10 +33,6 @@ const CopyButton = styled.button`
   }
 `;
 
-/**
- * 주문 컬럼 생성 함수
- * - 주문 테이블에 필요한 컬럼 정의 및 렌더링 로직
- */
 export function getOrderColumns<
   T extends {
     no: number;

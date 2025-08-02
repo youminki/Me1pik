@@ -1,17 +1,3 @@
-/**
- * 상품 카드 컴포넌트 (ItemCard.tsx)
- *
- * 홈/브랜드/멜픽 등에서 사용되는 개별 상품 카드 컴포넌트입니다.
- * 상품 이미지, 브랜드, 설명, 가격, 찜(좋아요) 기능, 스켈레톤 로딩, 모달 연동을 제공합니다.
- *
- * @description
- * - 상품 이미지 및 정보 표시
- * - 찜(좋아요) 토글 및 애니메이션
- * - 옷장 추가/삭제 API 연동
- * - 스켈레톤 로딩 지원
- * - 오류/확인 모달 연동
- * - 반응형 디자인 지원
- */
 // src/components/ItemCard.tsx
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
@@ -24,20 +10,6 @@ import PickIconOff from '@/assets/homes/PickIconOff.svg';
 import PickIconOn from '@/assets/homes/PickIconOn.svg';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
-/**
- * 상품 카드 컴포넌트 Props
- *
- * @property id - 상품 고유 ID
- * @property image - 상품 이미지 URL
- * @property brand - 브랜드명
- * @property description - 상품 설명
- * @property price - 상품 가격
- * @property discount - 할인율
- * @property isLiked - 찜(좋아요) 여부
- * @property onOpenModal - 상세 모달 오픈 함수
- * @property onDelete - 옷장에서 삭제 시 콜백 (선택)
- * @property isFirstItem - 첫 번째 아이템 여부 (프리로드 최적화)
- */
 interface ItemCardProps {
   id: string;
   image: string;
@@ -53,24 +25,6 @@ interface ItemCardProps {
 
 type ConfirmAction = 'add' | 'remove' | null;
 
-/**
- * 상품 카드 컴포넌트
- *
- * 개별 상품 정보를 카드 형태로 표시하고, 찜(좋아요) 및 상세 모달 기능을 제공합니다.
- * React.memo로 감싸 렌더링 최적화가 적용되어 있습니다.
- *
- * @param id - 상품 고유 ID
- * @param image - 상품 이미지 URL
- * @param brand - 브랜드명
- * @param description - 상품 설명
- * @param price - 상품 가격
- * @param discount - 할인율
- * @param isLiked - 찜(좋아요) 여부
- * @param onOpenModal - 상세 모달 오픈 함수
- * @param onDelete - 옷장에서 삭제 시 콜백 (선택)
- * @param isFirstItem - 첫 번째 아이템 여부 (프리로드 최적화)
- * @returns 상품 카드 JSX 요소
- */
 // 기존 함수형 컴포넌트 → React.memo로 감싸기
 const ItemCard = React.memo(function ItemCard({
   id,

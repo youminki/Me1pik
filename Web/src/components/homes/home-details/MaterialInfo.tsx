@@ -1,18 +1,14 @@
-// 소재 정보 컴포넌트 - 제품 소재 특성 표시 및 시각적 가이드 제공
 import React from 'react';
 import styled from 'styled-components';
 
-// 소재 데이터 타입 정의
 export interface MaterialData {
   [key: string]: string;
 }
 
-// 소재 정보 Props 인터페이스
 export interface MaterialInfoProps {
   materialData: MaterialData;
 }
 
-// 소재 옵션 정의 (각 특성별 옵션들)
 const materialOptions: Record<string, string[]> = {
   두께감: ['매우 두꺼움', '두꺼움', '적당', '얇음'],
   신축성: ['좋음', '약간있음', '없음', '허리밴딩'],
@@ -21,7 +17,6 @@ const materialOptions: Record<string, string[]> = {
   비침: ['비침있음', '약간있음', '적당', '비침없음'],
 };
 
-// 선택된 값 가져오기 함수
 const getSelectedValue = (
   key: string,
   options: string[],
@@ -31,11 +26,9 @@ const getSelectedValue = (
   return options.includes(value) ? value : options[0];
 };
 
-// 슬라이더 위치 계산 함수
 const calculatePosition = (index: number, total: number) =>
   `${(index / total) * 100 + 100 / total / 2}%`;
 
-// 옵션별 색상 정의 (회색 계열)
 const optionColors: Record<string, string[]> = {
   두께감: ['#696969', '#808080', '#A9A9A9', '#D3D3D3'],
   신축성: ['#696969', '#808080', '#A9A9A9', '#D3D3D3'],
@@ -44,7 +37,6 @@ const optionColors: Record<string, string[]> = {
   비침: ['#696969', '#808080', '#A9A9A9', '#D3D3D3'],
 };
 
-// 메인 소재 정보 컴포넌트
 const MaterialInfo: React.FC<MaterialInfoProps> = ({ materialData }) => (
   <Container>
     <Title>제품소재 정보</Title>
@@ -60,7 +52,6 @@ const MaterialInfo: React.FC<MaterialInfoProps> = ({ materialData }) => (
           <Item key={key}>
             <Label>{key}</Label>
             <BarWrapper>
-              {/* 슬라이더 트랙 */}
               <Track>
                 {options.map((option, index) => (
                   <ColoredBar
@@ -74,7 +65,6 @@ const MaterialInfo: React.FC<MaterialInfoProps> = ({ materialData }) => (
                 ))}
                 <Thumb style={{ left: position }} />
               </Track>
-              {/* 옵션 라벨 */}
               <OptionList>
                 {options.map((option, index) => (
                   <Option
@@ -99,7 +89,6 @@ const MaterialInfo: React.FC<MaterialInfoProps> = ({ materialData }) => (
 
 export default MaterialInfo;
 
-// 스타일 컴포넌트들
 const Container = styled.div`
   margin-top: 40px;
 `;

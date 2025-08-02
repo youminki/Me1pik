@@ -1,18 +1,5 @@
-/**
- * 홈 페이지 컴포넌트 (Home.tsx)
- *
- * 상품 리스트를 표시하는 메인 홈 페이지를 제공합니다.
- * React Query를 사용한 데이터 관리, 무한 스크롤, 검색/필터링,
- * 카테고리별 상품 분류, 반응형 디자인을 포함합니다.
- *
- * @description
- * - React Query를 사용한 상품 데이터 관리 (캐싱/중복 방지)
- * - 검색/필터 useMemo 적용으로 성능 최적화
- * - 무한 스크롤 IntersectionObserver 적용
- * - 모든 카테고리 상품을 미리 로드하여 즉시 표시
- * - 반응형 디자인 (모바일/데스크톱)
- * - 실시간 검색 및 필터링
- */
+// src/pages/homes.tsx
+
 import React, {
   useState,
   useEffect,
@@ -39,10 +26,12 @@ import ReusableModal from '@/components/shared/modals/ReusableModal';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
 /**
- * 색상 매핑 테이블
- *
- * 한국어 색상명을 영문 코드로 변환하는 매핑 테이블입니다.
- * 필터링 및 검색 기능에서 색상 비교를 위해 사용됩니다.
+ * Home(상품 리스트) 페이지 - 최적화 버전
+ * - react-query로 상품 데이터 관리(캐싱/중복방지)
+ * - 검색/필터 useMemo 적용
+ * - 무한스크롤 IntersectionObserver 적용
+ * - 상태 최소화, 타입 보강, 주석 추가
+ * - 모든 카테고리 상품을 미리 로드하여 카테고리 전환 시 즉시 표시
  */
 
 // 컴포넌트 함수 바깥에 위치

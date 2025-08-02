@@ -1,20 +1,8 @@
-/**
- * 일괄 변경 컴포넌트(BulkChangeComponent)
- *
- * - 선택된 사용자들의 멤버십을 일괄적으로 변경
- * - 멤버십 목록 조회, 변경 확인, 성공/실패 콜백 등 지원
- * - 로딩 상태 관리 및 사용자 피드백 제공
- */
-
 // src/components/BulkChangeComponent.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { getAllMemberships, changeUserMembership, GetAllMembershipsResponse } from '@api/adminUser';
 
-/**
- * 일괄 변경 컴포넌트 props
- * - 선택된 사용자 목록, 성공/실패 콜백 등
- */
 interface BulkChangeComponentProps {
   selectedRows: Set<number>;
   onSuccess?: () => void;
@@ -36,10 +24,6 @@ const BulkChangeComponent: React.FC<BulkChangeComponentProps> = ({
       .catch((err) => console.error('멤버십 목록 조회 실패:', err));
   }, []);
 
-  /**
-   * 일괄 변경 핸들러
-   * - 멤버십 선택/사용자 선택 검증, 확인 다이얼로그, API 호출 등
-   */
   const handleBulkChange = () => {
     if (newMembershipId === '') {
       alert('변경할 멤버십을 선택해주세요.');

@@ -33,22 +33,11 @@ interface BasketItem {
   rating?: number; // 별점(0~5)
 }
 
-/**
- * 제품 리뷰 작성 페이지 컴포넌트
- *
- * 사용자가 제품에 대한 리뷰를 작성하고 이미지를 업로드할 수 있는 페이지입니다.
- *
- * @description
- * - 별점 평가 기능
- * - 리뷰 텍스트 작성
- * - 이미지 업로드 (S3)
- * - 리뷰 등록 및 모달 처리
- */
 const ProductReview: React.FC = () => {
   const navigate = useNavigate();
   const [selectedPeriod] = useState(6);
 
-  // 아이템 데이터 (예시: 1개만 사용)
+  // 아이템(예: 1개만 사용)
   const [items] = useState<BasketItem[]>([
     {
       id: 1,
@@ -67,11 +56,10 @@ const ProductReview: React.FC = () => {
     },
   ]);
 
-  // 선택된 기간에 따라 아이템 목록 필터링
-  // 예시: 3개월이면 앞 3개, 6개월이면 전체
+  // 선택된 기간에 따라 아이템 목록 필터링 (예시: 3개월이면 앞 3개, 6개월이면 전체)
   const filteredItems = selectedPeriod === 3 ? items.slice(0, 3) : items;
 
-  // 리뷰 작성 관련 상태 관리
+  // ★ 위쪽에 들어갈 상태 예시 (별점, 후기 텍스트, 사진 업로드)
   const [starRating, setStarRating] = useState(items[0].rating || 0); // 별점
   const [reviewText, setReviewText] = useState(''); // 후기 텍스트
   const [fileName, setFileName] = useState(''); // 업로드 파일명
@@ -79,58 +67,35 @@ const ProductReview: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  /**
-   * 별점 선택 핸들러
-   *
-   * @param idx - 선택된 별점 인덱스 (0-4)
-   */
+  // 별점 선택
   const handleStarClick = (idx: number) => {
     setStarRating(idx + 1);
   };
 
-  /**
-   * 리뷰 텍스트 변경 핸들러
-   *
-   * @param e - 텍스트 영역 변경 이벤트
-   */
+  // 후기 작성
   const handleReviewChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setReviewText(e.target.value);
   };
 
-  /**
-   * 파일 업로드 핸들러 (presigned URL + S3 업로드)
-   *
-   * 1. presigned URL 요청
-   * 2. S3에 직접 업로드
-   * 3. 업로드된 이미지 URL 저장
-   *
-   * @param e - 파일 입력 변경 이벤트
-   */
+  // 파일 업로드 (presigned URL + S3 업로드)
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setFileName(file.name);
-
       // 1. presigned URL 요청
       const { url, key } = await getReviewPresignedUrl(file.name, file.type);
-
       // 2. S3에 직접 업로드
       await fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': file.type },
         body: file,
       });
-
       // 3. 업로드된 이미지 URL 저장
       setImageUrl(`https://melpik-static.s3.us-east-2.amazonaws.com/${key}`);
     }
   };
 
-  /**
-   * 리뷰 등록 핸들러
-   *
-   * 작성된 리뷰를 서버에 등록하고 성공 시 모달을 표시합니다.
-   */
+  // 리뷰 등록
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
@@ -150,11 +115,7 @@ const ProductReview: React.FC = () => {
     }
   };
 
-  /**
-   * 모달 확인 핸들러
-   *
-   * 모달을 닫고 /product-review 페이지로 이동합니다.
-   */
+  // 모달 "예" 클릭 시: 모달 닫고 /product-review로 이동
   const handleConfirmModal = () => {
     setIsModalOpen(false);
     navigate('/product-review');

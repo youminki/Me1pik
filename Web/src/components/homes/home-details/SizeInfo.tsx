@@ -1,8 +1,6 @@
-// 사이즈 정보 컴포넌트 - 제품 사이즈 정보 표시 및 사이즈 가이드 제공
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-// 사이즈 정보 Props 인터페이스
 export interface SizeInfoProps {
   productSizes: {
     size: string;
@@ -13,10 +11,8 @@ export interface SizeInfoProps {
   labelGuide?: Record<string, string>;
 }
 
-// 사이즈 이미지 기본값
 const SIZE_PLACEHOLDER = '/images/size-placeholder.png';
 
-// 사이즈 라벨 매핑 (숫자 → 알파벳)
 const SIZE_LABELS: Record<string, string> = {
   '44': 'S',
   '55': 'M',
@@ -24,31 +20,26 @@ const SIZE_LABELS: Record<string, string> = {
   '77': 'XL',
 };
 
-// 메인 사이즈 정보 컴포넌트
 const SizeInfo: React.FC<SizeInfoProps> = ({
   productSizes,
   size_picture,
   labelGuide,
 }) => {
-  // 이미지 로딩 상태 관리
   const [imgSrc, setImgSrc] = useState(size_picture);
   const handleImageError = () => setImgSrc(SIZE_PLACEHOLDER);
 
-  // 사이즈 정보가 없는 경우 처리
   if (!productSizes?.length) {
     return <Message>사이즈 정보가 없습니다.</Message>;
   }
 
-  // 측정 항목 키 추출 및 정렬
   const measurementKeys = Object.keys(productSizes[0].measurements || {});
   const sortedKeys = measurementKeys.sort((a, b) => a.localeCompare(b));
 
-  // 표 헤더에는 알파벳만 표시 (A, B, C, ...)
+  // 표 헤더에는 알파벳만 표시
   const columnLabels = sortedKeys.map((_, idx) =>
     String.fromCharCode(65 + idx)
   );
 
-  // 사이즈 포맷팅 함수 (숫자 + 라벨)
   const formatSize = (raw: string) => {
     if (/free/i.test(raw)) return 'Free';
     const num = raw.replace(/\D/g, '');
@@ -61,7 +52,6 @@ const SizeInfo: React.FC<SizeInfoProps> = ({
       <Title>사이즈 정보</Title>
 
       <InfoWrapper>
-        {/* 사이즈 가이드 이미지 */}
         <PictureWrapper>
           <StyledImg
             src={imgSrc}
@@ -71,7 +61,6 @@ const SizeInfo: React.FC<SizeInfoProps> = ({
           />
         </PictureWrapper>
 
-        {/* 측정 항목 설명 */}
         <LabelInfoContainer>
           <LabelList>
             {sortedKeys.map((key, idx) => {
@@ -89,7 +78,6 @@ const SizeInfo: React.FC<SizeInfoProps> = ({
         </LabelInfoContainer>
       </InfoWrapper>
 
-      {/* 사이즈 테이블 */}
       <TableWrapper>
         <Table>
           <thead>

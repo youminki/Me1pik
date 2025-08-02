@@ -1,19 +1,12 @@
-/**
- * 작업 이력 테이블(TaskHistoryTable)
- *
- * - 관리자 작업 이력을 표 형태로 렌더링
- * - 작업일자, 작업내용, 변경일시 등 표시
- * - 10행 고정 레이아웃, 반응형 디자인 등 지원
- * - 재사용 가능한 공통 컴포넌트
- */
-
 // src/components/Table/admin/TaskHistoryTable.tsx
 import React from 'react';
 import styled from 'styled-components';
 
 /**
- * 작업 이력 행 인터페이스
- * - 작업 이력에 필요한 행 데이터 구조
+ * 스크린샷에 맞춰 컬럼 구성
+ *  - 작업일자 (workDate)
+ *  - 작업내용 (workContent)
+ *  - 변경일시 (changedAt)
  */
 export interface TaskHistoryRow {
   workDate: string; // 예: "서비스 > 제품목록 관리"
@@ -21,23 +14,12 @@ export interface TaskHistoryRow {
   changedAt: string; // 예: "2025-03-02 00:00:00"
 }
 
-/**
- * 작업 이력 테이블 props
- * - 작업 이력 데이터 등
- */
 interface TaskHistoryTableProps {
   data: TaskHistoryRow[];
 }
 
-/**
- * 작업 이력 테이블 컴포넌트
- * - 작업 이력을 테이블 형태로 표시
- */
 const TaskHistoryTable: React.FC<TaskHistoryTableProps> = ({ data }) => {
-  /**
-   * 10행 고정을 위해 부족한 행의 개수를 계산
-   * - 테이블 레이아웃을 일정하게 유지하기 위한 빈 행 개수 계산
-   */
+  // 10행 고정을 위해 부족한 행의 개수를 계산
   const emptyRowsCount = Math.max(0, 10 - data.length);
 
   return (
@@ -63,10 +45,7 @@ const TaskHistoryTable: React.FC<TaskHistoryTableProps> = ({ data }) => {
               <Td title={row.changedAt}>{row.changedAt}</Td>
             </tr>
           ))}
-          {/**
-           * 데이터가 10행 미만이면 빈 행 추가
-           * - 테이블 레이아웃을 일정하게 유지하기 위한 빈 행 추가
-           */}
+          {/* 데이터가 10행 미만이면 빈 행 추가 */}
           {Array.from({ length: emptyRowsCount }).map((_, idx) => (
             <tr key={`empty-${idx}`}>
               <Td />
@@ -82,10 +61,8 @@ const TaskHistoryTable: React.FC<TaskHistoryTableProps> = ({ data }) => {
 
 export default TaskHistoryTable;
 
-/**
- * 테이블 컨테이너 스타일드 컴포넌트
- * - 테이블 컨테이너 스타일링
- */
+/* ====================== Styled Components ====================== */
+
 const TableContainer = styled.div`
   min-width: 834px;
   min-height: 600px;

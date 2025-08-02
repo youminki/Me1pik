@@ -104,9 +104,7 @@ const PurchaseOfPasses: React.FC = () => {
         <Label>구매할 이용권 *</Label>
         <CustomSelect
           value={purchaseOption}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-            setPurchaseOption(e.target.value)
-          }
+          onChange={(e) => setPurchaseOption(e.target.value)}
         >
           {templates.map((tpl: { id: number; name: string }) => (
             <option key={tpl.id} value={tpl.name}>

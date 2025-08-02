@@ -1,10 +1,3 @@
-/**
- * 사이즈 가이드 섹션(SizeGuideSection)
- *
- * - 제품 카테고리별 사이즈 가이드 테이블 관리
- * - 라벨 편집, 사이즈 데이터 변경, 부모 컴포넌트와 동기화 등 지원
- * - config 기반 초기 라벨 설정 및 동적 업데이트
- */
 // src/components/productregister/SizeGuideSection.tsx
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
@@ -19,10 +12,6 @@ interface Column {
 }
 type RowData = Record<string, string>;
 
-/**
- * 사이즈 가이드 섹션 props
- * - 카테고리, 사이즈 데이터, 변경 콜백, 라벨 관리 등
- */
 export interface SizeGuideSectionProps {
   category: string;
   sizes: SizeRow[];
@@ -34,11 +23,6 @@ export interface SizeGuideSectionProps {
   style?: React.CSSProperties;
 }
 
-/**
- * 사이즈 가이드 섹션 컴포넌트
- * - 카테고리별 사이즈 가이드 테이블을 렌더링하고 관리
- * - 라벨 편집, 사이즈 데이터 변경, 부모 컴포넌트와 동기화 지원
- */
 const SizeGuideSection: React.FC<SizeGuideSectionProps> = ({
   category,
   sizes,
@@ -119,10 +103,7 @@ const SizeGuideSection: React.FC<SizeGuideSectionProps> = ({
     }
   }, [labelMap, onLabelChange, editedLabels, getCurrentLabels]);
 
-  /**
-   * 라벨 변경 핸들러
-   * - 편집된 라벨을 상태에 저장하고 부모에게 전달
-   */
+  // 라벨 변경 핸들러
   const handleLabelChange = (key: string, value: string) => {
     console.log('handleLabelChange 호출:', key, value);
 
@@ -192,10 +173,9 @@ const SizeGuideSection: React.FC<SizeGuideSectionProps> = ({
     setRows(newRows);
   }, [sizes, labelMap]);
 
-  /**
-   * 셀 변경 핸들러
-   * - 사이즈 데이터 변경 시 부모에게 전달
-   */
+  //
+  // 5) 셀 변경 핸들러
+  //
   const handleCellChange = (ri: number, key: string, value: string) => {
     const updated = rows.map((r, i) => (i === ri ? { ...r, [key]: value } : r));
     setRows(updated);
@@ -211,10 +191,9 @@ const SizeGuideSection: React.FC<SizeGuideSectionProps> = ({
     );
   };
 
-  /**
-   * 사이즈 라벨 포맷팅 함수
-   * - 사이즈 값을 표시용 라벨로 변환
-   */
+  //
+  // 6) 사이즈를 “44(S)”, “55(M)” 등으로 포맷팅
+  //
   const formatSizeLabel = (size: string) => {
     switch (size) {
       case '44':

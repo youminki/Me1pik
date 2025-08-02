@@ -1,41 +1,31 @@
-// 환불 계좌정보 변경 모달 컴포넌트 - 사용자 환불 계좌정보 변경 기능 제공
 // src/components/myinfos/ChangeRefundAccountModal.tsx
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import styled from 'styled-components';
 
-// 환불 계좌정보 변경 모달 Props 인터페이스
 interface ChangeRefundAccountModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-// 메인 환불 계좌정보 변경 모달 컴포넌트
 const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  // 계좌정보 상태 관리
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [accountHolder, setAccountHolder] = useState('');
 
-  // 은행명 변경 핸들러
   const handleBankNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setBankName(e.target.value);
   };
-
-  // 계좌번호 변경 핸들러
   const handleAccountNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAccountNumber(e.target.value);
   };
-
-  // 예금주 변경 핸들러
   const handleAccountHolderChange = (e: ChangeEvent<HTMLInputElement>) => {
     setAccountHolder(e.target.value);
   };
 
-  // 폼 제출 핸들러
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onClose();
@@ -44,7 +34,6 @@ const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
     setAccountHolder('');
   };
 
-  // 키보드 이벤트 핸들러 (Escape 키로 모달 닫기)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -70,7 +59,6 @@ const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
         </Header>
         <Body>
           <FormContainer onSubmit={handleSubmit}>
-            {/* 은행명 입력 필드 */}
             <Label htmlFor='ra-bank'>은행명</Label>
             <Input
               id='ra-bank'
@@ -81,7 +69,6 @@ const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
               required
             />
 
-            {/* 계좌번호 입력 필드 */}
             <Label htmlFor='ra-account-number'>계좌번호</Label>
             <Input
               id='ra-account-number'
@@ -92,7 +79,6 @@ const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
               required
             />
 
-            {/* 예금주 입력 필드 */}
             <Label htmlFor='ra-holder'>예금주</Label>
             <Input
               id='ra-holder'
@@ -105,7 +91,6 @@ const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
 
             <Divider />
 
-            {/* 계좌정보 저장 버튼 */}
             <SubmitBtn type='submit'>계좌정보 저장</SubmitBtn>
           </FormContainer>
         </Body>
@@ -116,7 +101,8 @@ const ChangeRefundAccountModal: React.FC<ChangeRefundAccountModalProps> = ({
 
 export default ChangeRefundAccountModal;
 
-// 스타일 컴포넌트들
+/* ───────────────────────── Styled Components ───────────────────────── */
+
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -134,8 +120,9 @@ const ModalWrapper = styled.div`
   width: 100%;
   max-width: 300px;
   background: #fff;
+
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+   0 2px 10px rgba(0, 0, 0, 0.2);
 `;
 
 const Header = styled.div`

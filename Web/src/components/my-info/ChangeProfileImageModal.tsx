@@ -1,4 +1,3 @@
-// 프로필 이미지 변경 모달 컴포넌트 - 사용자 프로필 이미지 변경 기능 제공
 // src/components/myinfos/ChangeProfileImageModal.tsx
 import React, {
   useState,
@@ -10,18 +9,15 @@ import React, {
 import { FaTimes, FaUserCircle } from 'react-icons/fa';
 import styled from 'styled-components';
 
-// 프로필 이미지 변경 모달 Props 인터페이스
 interface ChangeProfileImageModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-// 메인 프로필 이미지 변경 모달 컴포넌트
 const ChangeProfileImageModal: React.FC<ChangeProfileImageModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  // 파일 및 미리보기 상태 관리
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +30,7 @@ const ChangeProfileImageModal: React.FC<ChangeProfileImageModalProps> = ({
     }
   }, [isOpen]);
 
-  // 키보드 이벤트 핸들러 (Escape 키로 모달 닫기)
+  // Escape 키로 모달 닫기
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -47,7 +43,7 @@ const ChangeProfileImageModal: React.FC<ChangeProfileImageModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // 파일 선택 시 미리보기 생성 핸들러
+  // 파일 선택 시 미리보기 생성
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
@@ -62,7 +58,7 @@ const ChangeProfileImageModal: React.FC<ChangeProfileImageModalProps> = ({
     }
   };
 
-  // 아바타 클릭 시 파일 입력 트리거 핸들러
+  // Avatar 클릭 시 파일 입력 트리거
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -96,7 +92,7 @@ const ChangeProfileImageModal: React.FC<ChangeProfileImageModalProps> = ({
 
         {/* 본문 */}
         <Body>
-          {/* 아바타 및 플러스 배지 */}
+          {/* Avatar & PlusBadge */}
           <AvatarContainer>
             <AvatarWrapper onClick={handleAvatarClick}>
               {previewUrl ? (

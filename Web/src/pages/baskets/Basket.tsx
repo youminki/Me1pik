@@ -1,19 +1,4 @@
-/**
- * 장바구니 페이지 컴포넌트 (Basket.tsx)
- *
- * 사용자의 장바구니를 관리하는 페이지를 제공합니다.
- * 상품 선택, 수정, 삭제, 결제 등의 기능을 포함하며,
- * 대여/구매 서비스 타입을 지원합니다.
- *
- * @description
- * - 장바구니 상품 목록 표시
- * - 상품 선택/해제 기능
- * - 상품 수정 및 삭제
- * - 전체 선택/해제
- * - 결제 페이지 연동
- * - 대여/구매 서비스 지원
- * - 빈 장바구니 상태 처리
- */
+// src/pages/Basket.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -36,82 +21,36 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
-/**
- * 결제용 장바구니 아이템 인터페이스
- *
- * 결제 페이지로 전달되는 장바구니 아이템의 데이터 구조를 정의합니다.
- * 결제에 필요한 최소한의 정보만 포함합니다.
- *
- * @property id - 장바구니 아이템 고유 식별자
- * @property brand - 브랜드명
- * @property nameCode - 상품 코드
- * @property nameType - 상품 타입
- * @property type - 서비스 타입 (대여/구매)
- * @property servicePeriod - 서비스 기간 (선택적)
- * @property size - 선택된 사이즈
- * @property color - 선택된 색상
- * @property price - 상품 가격
- * @property imageUrl - 상품 이미지 URL
- * @property $isSelected - 선택 여부
- */
 interface BasketItemForPayment {
-  id: number; // 장바구니 아이템 고유 식별자
-  brand: string; // 브랜드명
-  nameCode: string; // 상품 코드
-  nameType: string; // 상품 타입
-  type: 'rental' | 'purchase'; // 서비스 타입 (대여/구매)
-  servicePeriod?: string; // 서비스 기간 (선택적)
-  size: string; // 선택된 사이즈
-  color: string; // 선택된 색상
-  price: number; // 상품 가격
-  imageUrl: string; // 상품 이미지 URL
-  $isSelected: boolean; // 선택 여부
+  id: number;
+  brand: string;
+  nameCode: string;
+  nameType: string;
+  type: 'rental' | 'purchase';
+  servicePeriod?: string;
+  size: string;
+  color: string;
+  price: number;
+  imageUrl: string;
+  $isSelected: boolean;
 }
 
-/**
- * 장바구니 아이템 인터페이스
- *
- * 장바구니에서 관리되는 상품의 데이터 구조를 정의합니다.
- * 상품 정보, 서비스 타입, 가격, 선택 상태 등을 포함합니다.
- *
- * @property id - 장바구니 아이템 고유 식별자
- * @property productId - 상품 고유 식별자
- * @property product_num - 상품 번호
- * @property name - 상품명
- * @property productBrand - 상품 브랜드
- * @property productThumbnail - 상품 썸네일 이미지
- * @property serviceType - 서비스 타입 (대여/구매)
- * @property rentalStartDate - 대여 시작일 (선택적)
- * @property rentalEndDate - 대여 종료일 (선택적)
- * @property size - 선택된 사이즈
- * @property color - 선택된 색상
- * @property totalPrice - 총 가격
- * @property $isSelected - 선택 여부
- */
 interface BasketItem {
-  id: number; // 장바구니 아이템 고유 식별자
-  productId: number; // 상품 고유 식별자
-  product_num: string; // 상품 번호
-  name: string; // 상품명
-  productBrand: string; // 상품 브랜드
-  productThumbnail: string; // 상품 썸네일 이미지
-  serviceType: 'rental' | 'purchase'; // 서비스 타입 (대여/구매)
-  rentalStartDate?: string; // 대여 시작일 (선택적)
-  rentalEndDate?: string; // 대여 종료일 (선택적)
-  size: string; // 선택된 사이즈
-  color: string; // 선택된 색상
-  totalPrice: number; // 총 가격
-  $isSelected: boolean; // 선택 여부
+  id: number;
+  productId: number;
+  product_num: string;
+  name: string;
+  productBrand: string;
+  productThumbnail: string;
+  serviceType: 'rental' | 'purchase';
+  rentalStartDate?: string;
+  rentalEndDate?: string;
+  size: string;
+  color: string;
+  totalPrice: number;
+  $isSelected: boolean;
 }
 
-/**
- * 서비스 타입 라벨 변환 함수
- *
- * 서비스 타입을 사용자 친화적인 한국어 라벨로 변환합니다.
- *
- * @param type - 서비스 타입 ('rental' | 'purchase')
- * @returns 한국어 서비스 타입 라벨
- */
 const getServiceLabel = (type: string) => {
   if (type === 'rental') return '대여';
   if (type === 'purchase') return '구매';

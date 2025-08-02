@@ -1,51 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-/**
- * useCache 훅 모음
- *
- * 다양한 캐싱 기능을 제공하는 커스텀 훅 집합입니다.
- * - useCache: 메모리 기반 캐시
- * - useApiCache: API 응답 캐싱
- * - useLocalStorageCache: 로컬 스토리지 캐싱
- */
-
-/**
- * CacheItem 인터페이스
- *
- * @template T - 캐시할 데이터 타입
- * @property data - 캐시된 데이터
- * @property timestamp - 캐시 생성 시간
- * @property ttl - Time to live (밀리초)
- */
 interface CacheItem<T> {
   data: T;
   timestamp: number;
   ttl: number;
 }
 
-/**
- * CacheOptions 인터페이스
- *
- * @property ttl - Time to live in milliseconds
- * @property maxSize - Maximum number of items in cache
- */
 interface CacheOptions {
   ttl?: number; // Time to live in milliseconds
   maxSize?: number; // Maximum number of items in cache
 }
 
-/**
- * UseCacheReturn 인터페이스
- *
- * @template T - 캐시할 데이터 타입
- * @property get - 캐시에서 데이터 조회
- * @property set - 캐시에 데이터 저장
- * @property remove - 특정 키의 데이터 제거
- * @property clear - 전체 캐시 초기화
- * @property has - 특정 키 존재 여부 확인
- * @property size - 캐시 크기
- * @property cache - 캐시 Map 객체
- */
 interface UseCacheReturn<T> {
   get: (key: string) => T | null;
   set: (key: string, data: T, ttl?: number) => void;
@@ -57,12 +22,8 @@ interface UseCacheReturn<T> {
 }
 
 /**
- * useCache 훅
- *
- * 메모리 기반 캐시를 관리하는 훅입니다. TTL과 최대 크기 제한을 지원합니다.
- *
- * @template T - 캐시할 데이터 타입
- * @param options - 캐시 옵션
+ * 메모리 기반 캐시 훅
+ * @param options 캐시 옵션
  * @returns 캐시 메서드들
  */
 export const useCache = <T>(options: CacheOptions = {}): UseCacheReturn<T> => {
@@ -165,12 +126,8 @@ export const useCache = <T>(options: CacheOptions = {}): UseCacheReturn<T> => {
 };
 
 /**
- * useApiCache 훅
- *
- * API 응답을 캐싱하여 중복 요청을 방지하는 훅입니다.
- *
- * @template T - 캐시할 데이터 타입
- * @param options - 캐시 옵션
+ * API 응답 캐싱 훅
+ * @param options 캐시 옵션
  * @returns API 캐시 메서드들
  */
 export const useApiCache = <T>(options: CacheOptions = {}) => {
@@ -221,13 +178,9 @@ export const useApiCache = <T>(options: CacheOptions = {}) => {
 };
 
 /**
- * useLocalStorageCache 훅
- *
- * 로컬 스토리지를 활용한 영구 캐시 훅입니다.
- *
- * @template T - 캐시할 데이터 타입
- * @param prefix - 키 접두사
- * @param options - 캐시 옵션
+ * 로컬 스토리지 캐시 훅
+ * @param prefix 키 접두사
+ * @param options 캐시 옵션
  * @returns 로컬 스토리지 캐시 메서드들
  */
 export const useLocalStorageCache = <T>(

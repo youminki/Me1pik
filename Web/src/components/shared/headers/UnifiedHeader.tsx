@@ -1,19 +1,4 @@
-/**
- * 통합 헤더 컴포넌트 (UnifiedHeader.tsx)
- *
- * 애플리케이션의 모든 페이지에서 사용하는 통합 헤더 컴포넌트를 제공합니다.
- * 검색, 네비게이션, 사용자 메뉴, 알림 등의 기능을 포함하며,
- * 다양한 변형과 반응형 디자인을 지원합니다.
- *
- * @description
- * - 통합 헤더 시스템
- * - 검색 기능 (히스토리 포함)
- * - 네비게이션 버튼 (뒤로가기, 홈)
- * - 사용자 메뉴 및 알림
- * - 반응형 디자인
- * - 접근성 지원
- * - 다양한 헤더 변형 지원
- */
+// src/components/UnifiedHeader.tsx
 
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { BiTime } from 'react-icons/bi';
@@ -34,30 +19,14 @@ import MypageModal from '@/components/shared/modals/MypageModal';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
 
-/**
- * 헤더 컨테이너 속성 인터페이스
- *
- * 헤더 컨테이너의 스타일 속성을 정의합니다.
- *
- * @property $variant - 헤더 변형 타입
- */
-interface HeaderContainerProps {
-  $variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth'; // 헤더 변형 타입
-}
 
-/**
- * 통합 헤더 속성 인터페이스
- *
- * 통합 헤더 컴포넌트의 props를 정의합니다.
- *
- * @property variant - 헤더 변형 타입 (기본값: 'default')
- * @property title - 헤더 제목 (선택적)
- * @property onBack - 뒤로가기 핸들러 (선택적)
- */
+interface HeaderContainerProps {
+  $variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
+}
 interface UnifiedHeaderProps {
-  variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth'; // 헤더 변형 타입 (기본값: 'default')
-  title?: string; // 헤더 제목 (선택적)
-  onBack?: () => void; // 뒤로가기 핸들러 (선택적)
+  variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
+  title?: string;
+  onBack?: () => void;
 }
 
 const HISTORY_KEY = 'search_history';

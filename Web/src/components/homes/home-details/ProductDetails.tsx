@@ -1,30 +1,24 @@
-// 제품 상세 정보 컴포넌트 - 원단 정보 및 제품 상세 제공고시 표시
 import React from 'react';
 import styled from 'styled-components';
 
-// 제품 상세 정보 Props 인터페이스
 export interface ProductDetailsProps {
   fabricComposition: Record<'겉감' | '안감' | '배색' | '부속', string>;
   detailsData: Record<string, string>;
 }
 
-// 원단 카테고리 키 상수
 const CATEGORY_KEYS = ['겉감', '안감', '배색', '부속'] as const;
 
-// 메인 제품 상세 정보 컴포넌트
 const ProductDetails: React.FC<ProductDetailsProps> = ({
   fabricComposition,
   detailsData,
 }) => {
   return (
     <Container>
-      {/* 원단 정보 섹션 */}
       <Section>
         <Title>제품 원단정보</Title>
         <Table>
           <tbody>
             {CATEGORY_KEYS.map((key) => {
-              // 원단 정보를 쉼표로 분리하여 태그 형태로 표시
               const parts = (fabricComposition[key] || '')
                 .split(',')
                 .map((s) => s.trim())
@@ -46,7 +40,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
         </Table>
       </Section>
 
-      {/* 제품 상세 제공고시 섹션 */}
       <DetailSection>
         <Title>제품상세 제공고시</Title>
         <DetailInfo>
@@ -64,7 +57,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
 
 export default ProductDetails;
 
-// 스타일 컴포넌트들
 const Container = styled.div`
   position: relative;
 `;

@@ -1,169 +1,70 @@
 /**
- * 성능 측정 및 최적화 유틸리티 (performance.ts)
- *
- * 웹 애플리케이션의 성능을 종합적으로 측정하고 최적화하는 도구들을 제공합니다.
- * Core Web Vitals 및 기타 성능 지표를 실시간으로 수집하고 분석하여
- * 사용자 경험 개선을 위한 인사이트를 제공합니다.
- *
- * @description
- * - Core Web Vitals 측정 (LCP, CLS, FID, TBT)
- * - 메모리 사용량 및 네트워크 상태 모니터링
- * - 이미지/폰트 성능 분석 및 최적화 권장
- * - 실시간 성능 모니터링 및 알림
- * - 성능 데이터 수집 및 분석 리포트 생성
+ * 성능 측정 유틸리티
  */
 
-/**
- * 네트워크 연결 정보 인터페이스
- *
- * Network Information API를 통해 제공되는 네트워크 상태 정보를 정의합니다.
- * 사용자의 네트워크 환경을 파악하여 성능 최적화에 활용합니다.
- *
- * @property effectiveType - 연결 타입 (4g, 3g, 2g 등)
- * @property downlink - 다운로드 속도 (Mbps 단위)
- * @property rtt - 왕복 시간 (Round Trip Time, ms 단위)
- * @property saveData - 데이터 절약 모드 활성화 여부
- */
+// 네트워크 연결 타입 정의
 interface NetworkConnection {
-  effectiveType: string; // 연결 타입 (4g, 3g 등)
-  downlink: number; // 다운로드 속도 (Mbps)
-  rtt: number; // 왕복 시간 (ms)
-  saveData: boolean; // 데이터 절약 모드 여부
+  effectiveType: string;
+  downlink: number;
+  rtt: number;
+  saveData: boolean;
 }
 
-/**
- * 네트워크 정보를 포함한 Navigator 인터페이스
- *
- * 표준 Navigator 인터페이스를 확장하여 네트워크 연결 정보에 접근할 수 있도록 합니다.
- * 브라우저 호환성을 고려하여 선택적 속성으로 정의합니다.
- *
- * @property connection - 네트워크 연결 정보 (브라우저 지원 여부에 따라 선택적)
- */
 interface NavigatorWithConnection extends Navigator {
-  connection?: NetworkConnection; // 네트워크 연결 정보
+  connection?: NetworkConnection;
 }
 
-/**
- * 요소 정보를 포함한 성능 엔트리 인터페이스
- *
- * 표준 PerformanceEntry를 확장하여 DOM 요소와 관련된 추가 정보를 포함합니다.
- * 레이아웃 변화나 사용자 입력과 관련된 성능 측정에 활용됩니다.
- *
- * @property element - 성능 측정과 관련된 DOM 요소
- * @property hadRecentInput - 최근 사용자 입력 발생 여부
- * @property value - 측정된 성능 값
- * @property processingStart - 이벤트 처리 시작 시간
- */
 interface PerformanceEntryWithElement extends PerformanceEntry {
-  element?: Element; // 관련 DOM 요소
-  hadRecentInput?: boolean; // 최근 사용자 입력 여부
-  value?: number; // 성능 값
-  processingStart?: number; // 처리 시작 시간
+  element?: Element;
+  hadRecentInput?: boolean;
+  value?: number;
+  processingStart?: number;
 }
 
-/**
- * 웹 성능 측정 지표 인터페이스
- *
- * Google에서 정의한 Core Web Vitals 및 기타 주요 성능 지표들을 정의합니다.
- * 사용자 경험을 정량적으로 평가하고 성능 최적화를 위한 기준으로 활용됩니다.
- *
- * @property loadTime - 페이지 완전 로드 시간 (ms)
- * @property domContentLoaded - DOM 콘텐츠 로드 완료 시간 (ms)
- * @property firstPaint - 첫 번째 픽셀 렌더링 시간 (ms)
- * @property firstContentfulPaint - 첫 번째 콘텐츠 렌더링 시간 (ms)
- * @property largestContentfulPaint - 가장 큰 콘텐츠 렌더링 시간 (ms)
- * @property cumulativeLayoutShift - 누적 레이아웃 변화량 (점수)
- * @property firstInputDelay - 첫 번째 사용자 입력 지연 시간 (ms)
- * @property timeToInteractive - 상호작용 가능 시간 (ms)
- * @property totalBlockingTime - 총 차단 시간 (ms)
- * @property speedIndex - 속도 지수 (점수)
- */
 interface PerformanceMetrics {
-  loadTime: number; // 페이지 로드 시간
-  domContentLoaded: number; // DOM 콘텐츠 로드 완료 시간
-  firstPaint: number; // 첫 번째 페인트 시간
-  firstContentfulPaint: number; // 첫 번째 콘텐츠 페인트 시간
-  largestContentfulPaint: number; // 가장 큰 콘텐츠 페인트 시간
-  cumulativeLayoutShift: number; // 누적 레이아웃 변화량
-  firstInputDelay: number; // 첫 번째 입력 지연 시간
-  timeToInteractive: number; // 상호작용 가능 시간
-  totalBlockingTime: number; // 총 차단 시간
-  speedIndex: number; // 속도 지수
+  loadTime: number;
+  domContentLoaded: number;
+  firstPaint: number;
+  firstContentfulPaint: number;
+  largestContentfulPaint: number;
+  cumulativeLayoutShift: number;
+  firstInputDelay: number;
+  timeToInteractive: number;
+  totalBlockingTime: number;
+  speedIndex: number;
 }
 
-/**
- * JavaScript 힙 메모리 정보 인터페이스
- *
- * 브라우저의 JavaScript 힙 메모리 사용량을 추적하기 위한 정보를 정의합니다.
- * 메모리 누수 감지 및 성능 최적화에 활용됩니다.
- *
- * @property usedJSHeapSize - 현재 사용 중인 힙 메모리 크기 (bytes)
- * @property totalJSHeapSize - 할당된 총 힙 메모리 크기 (bytes)
- * @property jsHeapSizeLimit - 힙 메모리 최대 제한 크기 (bytes)
- */
 interface MemoryInfo {
-  usedJSHeapSize: number; // 사용 중인 힙 메모리
-  totalJSHeapSize: number; // 총 힙 메모리
-  jsHeapSizeLimit: number; // 힙 메모리 제한
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
 }
 
-/**
- * PerformanceWithMemory 인터페이스
- *
- * 메모리 정보를 포함한 Performance 인터페이스입니다.
- *
- * @property memory - 메모리 사용량 정보
- */
 interface PerformanceWithMemory extends Performance {
   memory?: {
-    usedJSHeapSize: number; // 사용 중인 힙 메모리
-    totalJSHeapSize: number; // 총 힙 메모리
-    jsHeapSizeLimit: number; // 힙 메모리 제한
+    usedJSHeapSize: number;
+    totalJSHeapSize: number;
+    jsHeapSizeLimit: number;
   };
 }
 
-/**
- * performanceData 변수
- *
- * 측정된 성능 메트릭을 임시로 저장하는 객체입니다.
- */
+// 성능 데이터 저장소
 const performanceData: Record<string, number> = {};
 
-/**
- * PerformanceWarning 인터페이스
- *
- * 성능 임계값을 초과했을 때 생성되는 경고 정보입니다.
- *
- * @property type - 경고 유형
- * @property message - 경고 메시지
- * @property metric - 관련 메트릭
- * @property value - 측정된 값
- * @property threshold - 임계값
- * @property timestamp - 경고 발생 시간
- */
+// 성능 경고 시스템
 interface PerformanceWarning {
-  type: 'warning' | 'error' | 'info'; // 경고 유형
-  message: string; // 경고 메시지
-  metric: string; // 관련 메트릭
-  value: number; // 측정된 값
-  threshold: number; // 임계값
-  timestamp: number; // 경고 발생 시간
+  type: 'warning' | 'error' | 'info';
+  message: string;
+  metric: string;
+  value: number;
+  threshold: number;
+  timestamp: number;
 }
 
-/**
- * performanceWarnings 변수
- *
- * 발생한 성능 경고들을 저장하는 배열입니다.
- */
 const performanceWarnings: PerformanceWarning[] = [];
 
 /**
- * collectPerformanceMetrics 함수
- *
- * Navigation Timing API를 사용하여 페이지 로드 성능을 측정하고
- * 내부 저장소에 저장합니다.
- *
- * @returns 수집된 성능 데이터 객체
+ * 성능 메트릭 수집 및 저장
  */
 export const collectPerformanceMetrics = () => {
   const navigation = performance.getEntriesByType(
@@ -171,20 +72,13 @@ export const collectPerformanceMetrics = () => {
   )[0] as PerformanceNavigationTiming;
 
   if (navigation) {
-    // 페이지 로드 시간 측정
     performanceData.loadTime =
       navigation.loadEventEnd - navigation.loadEventStart;
-
-    // DOM 콘텐츠 로드 완료 시간 측정
     performanceData.domContentLoaded =
       navigation.domContentLoadedEventEnd -
       navigation.domContentLoadedEventStart;
-
-    // 첫 번째 페인트 시간 측정
     performanceData.firstPaint =
       navigation.responseStart - navigation.requestStart;
-
-    // 첫 번째 콘텐츠 페인트 시간 측정
     performanceData.firstContentfulPaint =
       navigation.responseEnd - navigation.requestStart;
   }
@@ -193,11 +87,7 @@ export const collectPerformanceMetrics = () => {
 };
 
 /**
- * measurePageLoadPerformance 함수
- *
- * 페이지 로드 성능을 측정합니다.
- *
- * @returns PerformanceMetrics 객체
+ * 페이지 로드 성능 측정
  */
 export const measurePageLoadPerformance = (): PerformanceMetrics => {
   const navigation = performance.getEntriesByType(
@@ -221,14 +111,7 @@ export const measurePageLoadPerformance = (): PerformanceMetrics => {
 };
 
 /**
- * measureExecutionTime 함수
- *
- * 함수 실행 시간을 측정합니다.
- *
- * @template T - 함수 반환 타입
- * @param fn - 측정할 함수
- * @param name - 함수 이름
- * @returns 실행 결과와 실행 시간
+ * 함수 실행 시간 측정
  */
 export const measureExecutionTime = async <T>(
   fn: () => Promise<T> | T,
@@ -243,11 +126,7 @@ export const measureExecutionTime = async <T>(
 };
 
 /**
- * getMemoryUsage 함수
- *
- * 메모리 사용량을 측정합니다.
- *
- * @returns MemoryInfo 객체 또는 null
+ * 메모리 사용량 측정
  */
 export const getMemoryUsage = (): MemoryInfo | null => {
   const perf = performance as PerformanceWithMemory;
@@ -262,11 +141,8 @@ export const getMemoryUsage = (): MemoryInfo | null => {
 };
 
 /**
- * getNetworkInfo 함수
- *
- * 네트워크 정보를 측정합니다.
- *
- * @returns NetworkConnection 객체 또는 null
+ * 네트워크 정보 측정
+ * @returns 네트워크 정보
  */
 export const getNetworkInfo = (): NetworkConnection | null => {
   const nav = navigator as NavigatorWithConnection;
@@ -282,11 +158,7 @@ export const getNetworkInfo = (): NetworkConnection | null => {
 };
 
 /**
- * exportPerformanceData 함수
- *
- * 성능 데이터를 내보냅니다.
- *
- * @returns 성능 데이터 객체
+ * 성능 데이터 내보내기
  */
 export const exportPerformanceData = () => {
   const memoryInfo = getMemoryUsage();
@@ -303,9 +175,7 @@ export const exportPerformanceData = () => {
 };
 
 /**
- * setupPerformanceObservers 함수
- *
- * 성능 관찰자를 설정합니다.
+ * 성능 관찰자 설정
  */
 export const setupPerformanceObservers = () => {
   // Largest Contentful Paint (LCP)
@@ -477,15 +347,7 @@ export const setupPerformanceObservers = () => {
 };
 
 /**
- * addPerformanceWarning 함수
- *
- * 성능 경고를 추가합니다.
- *
- * @param type - 경고 유형
- * @param message - 경고 메시지
- * @param metric - 관련 메트릭
- * @param value - 측정된 값
- * @param threshold - 임계값
+ * 성능 경고 추가
  */
 const addPerformanceWarning = (
   type: 'warning' | 'error' | 'info',
@@ -504,22 +366,6 @@ const addPerformanceWarning = (
   });
 };
 
-/**
- * ImageAnalysis 인터페이스
- *
- * 이미지 성능 분석 결과를 담는 인터페이스입니다.
- *
- * @property src - 이미지 소스 URL
- * @property naturalWidth - 원본 너비
- * @property naturalHeight - 원본 높이
- * @property displayWidth - 표시 너비
- * @property displayHeight - 표시 높이
- * @property loading - 로딩 속성
- * @property decoding - 디코딩 속성
- * @property complete - 로딩 완료 여부
- * @property fileSize - 파일 크기
- * @property suggestions - 최적화 제안사항
- */
 interface ImageAnalysis {
   src: string;
   naturalWidth: number;
@@ -534,11 +380,7 @@ interface ImageAnalysis {
 }
 
 /**
- * analyzeImagePerformance 함수
- *
- * 이미지 성능을 분석합니다.
- *
- * @returns ImageAnalysis 배열
+ * 이미지 성능 분석
  */
 export const analyzeImagePerformance = (): ImageAnalysis[] => {
   const images = document.querySelectorAll('img');
@@ -585,17 +427,6 @@ export const analyzeImagePerformance = (): ImageAnalysis[] => {
   return imageAnalysis;
 };
 
-/**
- * FontAnalysis 인터페이스
- *
- * 폰트 성능 분석 결과를 담는 인터페이스입니다.
- *
- * @property family - 폰트 패밀리
- * @property weight - 폰트 굵기
- * @property style - 폰트 스타일
- * @property status - 폰트 상태
- * @property loaded - 폰트 로딩 Promise
- */
 interface FontAnalysis {
   family: string;
   weight: string;
@@ -605,11 +436,7 @@ interface FontAnalysis {
 }
 
 /**
- * analyzeFontPerformance 함수
- *
- * 폰트 성능을 분석합니다.
- *
- * @returns FontAnalysis 배열
+ * 폰트 성능 분석
  */
 export const analyzeFontPerformance = (): FontAnalysis[] => {
   const fontAnalysis: FontAnalysis[] = [];
@@ -640,15 +467,6 @@ export const analyzeFontPerformance = (): FontAnalysis[] => {
   return fontAnalysis;
 };
 
-/**
- * UnusedPreload 인터페이스
- *
- * 사용되지 않는 프리로드 리소스 정보를 담는 인터페이스입니다.
- *
- * @property href - 리소스 URL
- * @property as - 리소스 타입
- * @property reason - 미사용 이유
- */
 interface UnusedPreload {
   href: string | null;
   as: string | null;
@@ -656,11 +474,7 @@ interface UnusedPreload {
 }
 
 /**
- * optimizeResourcePreloading 함수
- *
- * 리소스 프리로딩을 최적화합니다.
- *
- * @returns UnusedPreload 배열
+ * 리소스 프리로딩 최적화
  */
 export const optimizeResourcePreloading = (): UnusedPreload[] => {
   const preloadLinks = document.querySelectorAll('link[rel="preload"]');
@@ -705,11 +519,7 @@ export const optimizeResourcePreloading = (): UnusedPreload[] => {
 };
 
 /**
- * getPerformanceRecommendations 함수
- *
- * 성능 권장사항을 생성합니다.
- *
- * @returns 성능 권장사항 배열
+ * 성능 권장사항 생성
  */
 export const getPerformanceRecommendations = () => {
   const recommendations = [];
@@ -766,11 +576,7 @@ export const getPerformanceRecommendations = () => {
 };
 
 /**
- * generatePerformanceReport 함수
- *
- * 성능 리포트를 생성합니다.
- *
- * @returns 성능 리포트 객체
+ * 성능 리포트 생성
  */
 export const generatePerformanceReport = () => {
   const metrics = measurePageLoadPerformance();
@@ -796,12 +602,7 @@ export const generatePerformanceReport = () => {
 };
 
 /**
- * calculatePerformanceScore 함수
- *
- * 성능 점수를 계산합니다.
- *
- * @param metrics - 성능 메트릭
- * @returns 성능 점수 (0-100)
+ * 성능 점수 계산
  */
 const calculatePerformanceScore = (metrics: PerformanceMetrics): number => {
   let score = 100;
@@ -829,12 +630,7 @@ const calculatePerformanceScore = (metrics: PerformanceMetrics): number => {
 };
 
 /**
- * collectAndSendPerformanceData 함수
- *
- * 성능 데이터를 수집하고 전송합니다.
- *
- * @param endpoint - 전송할 엔드포인트
- * @returns 전송 결과
+ * 성능 데이터 수집 및 전송
  */
 export const collectAndSendPerformanceData = async (endpoint: string) => {
   try {
@@ -861,9 +657,7 @@ export const collectAndSendPerformanceData = async (endpoint: string) => {
 };
 
 /**
- * startPerformanceMonitoring 함수
- *
- * 실시간 성능 모니터링을 시작합니다.
+ * 실시간 성능 모니터링 시작
  */
 export const startPerformanceMonitoring = () => {
   // 초기 성능 데이터 수집
@@ -893,9 +687,7 @@ export const startPerformanceMonitoring = () => {
 };
 
 /**
- * applyPerformanceOptimizations 함수
- *
- * 성능 최적화를 자동으로 적용합니다.
+ * 성능 최적화 자동 적용
  */
 export const applyPerformanceOptimizations = () => {
   // 이미지 최적화

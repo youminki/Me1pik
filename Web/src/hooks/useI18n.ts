@@ -3,20 +3,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { i18n, Locale } from '@/utils/i18n';
 
 /**
- * useI18n 훅 모음
- *
- * 다국어 지원을 위한 다양한 기능을 제공하는 커스텀 훅 집합입니다.
- * - useI18n: 기본 i18n 기능
- * - useLanguageSelector: 언어 선택 기능
- * - useTranslation: 타입 안전한 번역
- */
-
-/**
- * useI18n 훅
- *
- * 다국어 번역, 날짜/숫자/통화 포맷, 언어 변경 기능을 제공하는 훅입니다.
- *
- * @returns { t, locale, setLocale, formatDate, formatNumber, formatCurrency, pluralize }
+ * i18n 훅
+ * @returns { t, locale, setLocale, formatDate, formatNumber, formatCurrency }
  */
 export const useI18n = () => {
   const [locale, setLocaleState] = useState<Locale>(i18n.getCurrentLocale());
@@ -91,10 +79,7 @@ export const useI18n = () => {
 };
 
 /**
- * useLanguageSelector 훅
- *
- * 현재 언어, 지원 언어 목록, 언어 변경 함수를 제공하는 훅입니다.
- *
+ * 언어 선택 훅
  * @returns { currentLanguage, availableLanguages, changeLanguage }
  */
 export const useLanguageSelector = () => {
@@ -126,12 +111,9 @@ export const useLanguageSelector = () => {
 };
 
 /**
- * useTranslation 훅
- *
- * 타입 안전한 번역 기능을 제공하는 훅입니다.
- *
- * @param key - 번역 키
- * @param params - 번역 매개변수
+ * 번역 키 훅 (타입 안전성)
+ * @param key 번역 키
+ * @param params 매개변수
  * @returns 번역된 텍스트
  */
 export const useTranslation = (

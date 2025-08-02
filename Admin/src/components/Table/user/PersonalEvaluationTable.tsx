@@ -1,11 +1,3 @@
-/**
- * 개인 평가 테이블(PersonalEvaluationTable)
- *
- * - 사용자별 개인 평가 정보를 표 형태로 렌더링
- * - 이용형태, 제품상태, 서비스 품질, 이용 기간, 브랜드, 스타일, 사이즈, 색상 등 표시
- * - 스타일 품번 복사 기능, 상태별 뱃지 표시, 체크박스 선택 기능 지원
- * - 재사용 가능한 공통 컴포넌트
- */
 // src/components/Table/user/PersonalEvaluationTable.tsx
 import React from 'react';
 import CommonTable, { Column } from '@/components/CommonTable';
@@ -14,10 +6,6 @@ import { getStatusBadge } from '@/utils/statusUtils';
 import styled from 'styled-components';
 import { FaCopy } from 'react-icons/fa';
 
-/**
- * 개인 평가 행 인터페이스
- * - 개인 평가에 필요한 행 데이터 구조
- */
 export interface PersonalEvaluationRow {
   no: number; // No.
   usageType: string; // 이용형태
@@ -31,10 +19,6 @@ export interface PersonalEvaluationRow {
   [key: string]: unknown;
 }
 
-/**
- * 개인 평가 테이블 props
- * - 데이터, 선택 상태, 선택 이벤트 등
- */
 interface PersonalEvaluationTableProps {
   data: PersonalEvaluationRow[];
   selectedRows?: Set<number>;
@@ -42,10 +26,6 @@ interface PersonalEvaluationTableProps {
   onSelectRow?: (row: PersonalEvaluationRow, checked: boolean) => void;
 }
 
-/**
- * 스타일 품번 컨테이너 스타일드 컴포넌트
- * - 스타일 품번과 복사 버튼을 가로로 배치
- */
 const StyleCodeContainer = styled.div`
   display: flex;
   align-items: center;
@@ -53,19 +33,11 @@ const StyleCodeContainer = styled.div`
   gap: 8px;
 `;
 
-/**
- * 스타일 품번 텍스트 스타일드 컴포넌트
- * - 스타일 품번 텍스트 스타일링
- */
 const StyleCodeText = styled.span`
   font-size: 12px;
   color: #333;
 `;
 
-/**
- * 복사 버튼 스타일드 컴포넌트
- * - 스타일 품번 복사 버튼 스타일링
- */
 const CopyButton = styled.button`
   background: none;
   border: none;
@@ -82,10 +54,6 @@ const CopyButton = styled.button`
   }
 `;
 
-/**
- * 테이블 컬럼 정의
- * - No., 이용형태, 제품상태, 서비스 품질, 이용 기간, 브랜드, 스타일, 사이즈, 색상 등
- */
 const columns: Column<PersonalEvaluationRow>[] = [
   { key: 'no', label: 'No.', width: '60px' },
   { key: 'usageType', label: '이용형태', width: '100px' },
@@ -130,15 +98,6 @@ const columns: Column<PersonalEvaluationRow>[] = [
   { key: 'color', label: '제품색상', width: '80px' },
 ];
 
-/**
- * 스타일 품번 복사 핸들러
- * - 클립보드에 스타일 품번을 복사하는 기능
- */
-
-/**
- * 개인 평가 테이블 컴포넌트
- * - 개인 평가 정보를 테이블 형태로 표시
- */
 const PersonalEvaluationTable: React.FC<PersonalEvaluationTableProps> = ({
   data,
   selectedRows = new Set(),

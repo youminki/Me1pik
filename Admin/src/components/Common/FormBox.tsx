@@ -1,13 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-/**
- * 폼 박스 공통 컴포넌트(FormBox)
- *
- * - 폼 섹션을 구성하는 컨테이너, 행, 라벨, 입력 요소 등
- * - 일관된 폼 레이아웃과 스타일링 제공
- * - 재사용 가능한 공통 컴포넌트
- */
 export const FormBox: React.FC<{
   title: string;
   children: React.ReactNode;
@@ -22,43 +15,24 @@ export const FormBox: React.FC<{
   </SectionBox>
 );
 
-/**
- * 폼 박스 컴포넌트
- * - 제목과 자식 요소를 포함하는 폼 섹션 컨테이너
- */
 export const FormRow: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <InputRow>{children}</InputRow>
 );
 
-/**
- * 폼 라벨 컴포넌트
- * - 입력 요소의 라벨을 표시하는 컴포넌트
- */
 export const FormLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <Label>{children}</Label>
 );
 
-/**
- * 폼 입력 컴포넌트
- * - ref를 전달할 수 있는 입력 요소 컴포넌트
- */
 export const FormInput = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement>
 >((props, ref) => <Input ref={ref} {...props} />);
 
-/**
- * 폼 셀렉트 컴포넌트
- * - 드롭다운 선택 요소 컴포넌트
- */
 export const FormSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (props) => (
   <Select {...props} />
 );
 
-/**
- * 스타일드 컴포넌트들
- * - 섹션 박스, 헤더, 불릿, 수직선, 입력 행, 라벨, 입력, 셀렉트 등
- */
+// 스타일 컴포넌트
 const SectionBox = styled.div`
   position: relative;
   margin-bottom: 20px;

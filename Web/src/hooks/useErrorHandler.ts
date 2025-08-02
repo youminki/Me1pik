@@ -1,35 +1,11 @@
 import { useState, useCallback } from 'react';
 
-/**
- * useErrorHandler 훅 모음
- *
- * 다양한 에러 처리 기능을 제공하는 커스텀 훅 집합입니다.
- * - useErrorHandler: 기본 에러 상태 관리
- * - useNetworkErrorHandler: 네트워크 에러 처리
- * - useApiErrorHandler: API 에러 처리
- */
-
-/**
- * ErrorState 인터페이스
- *
- * @property hasError - 에러 발생 여부
- * @property error - 에러 객체
- * @property message - 에러 메시지
- */
 interface ErrorState {
   hasError: boolean;
   error: Error | null;
   message: string;
 }
 
-/**
- * UseErrorHandlerReturn 인터페이스
- *
- * @property error - 에러 상태
- * @property setError - 에러 설정 함수
- * @property clearError - 에러 초기화 함수
- * @property handleAsyncError - 비동기 함수 에러 처리
- */
 interface UseErrorHandlerReturn {
   error: ErrorState;
   setError: (error: Error | string) => void;
@@ -37,13 +13,6 @@ interface UseErrorHandlerReturn {
   handleAsyncError: <T>(asyncFn: () => Promise<T>) => Promise<T | null>;
 }
 
-/**
- * ApiError 인터페이스
- *
- * @property response - API 응답 에러 정보
- * @property request - 요청 에러 정보
- * @property message - 에러 메시지
- */
 interface ApiError {
   response?: {
     status: number;
@@ -56,10 +25,7 @@ interface ApiError {
 }
 
 /**
- * useErrorHandler 훅
- *
- * 컴포넌트 단위에서 에러 상태를 일관되게 관리하는 훅입니다.
- *
+ * 에러 처리 훅
  * @returns { error, setError, clearError, handleAsyncError }
  */
 export const useErrorHandler = (): UseErrorHandlerReturn => {
@@ -109,10 +75,7 @@ export const useErrorHandler = (): UseErrorHandlerReturn => {
 };
 
 /**
- * useNetworkErrorHandler 훅
- *
- * 네트워크 관련 에러를 감지하고 상태를 관리하는 훅입니다.
- *
+ * 네트워크 에러 처리 훅
  * @returns { handleNetworkError, isNetworkError }
  */
 export const useNetworkErrorHandler = () => {
@@ -134,10 +97,7 @@ export const useNetworkErrorHandler = () => {
 };
 
 /**
- * useApiErrorHandler 훅
- *
- * API 호출 시 발생하는 에러를 일관되게 처리하는 훅입니다.
- *
+ * API 에러 처리 훅
  * @returns { handleApiError, getErrorMessage }
  */
 export const useApiErrorHandler = () => {

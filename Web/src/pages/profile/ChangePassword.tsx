@@ -1,18 +1,4 @@
-/**
- * 비밀번호 변경 페이지 컴포넌트 (ChangePassword.tsx)
- *
- * 사용자의 비밀번호를 안전하게 변경할 수 있는 페이지를 제공합니다.
- * 현재 비밀번호 확인, 새 비밀번호 입력, 비밀번호 확인을 통해
- * 보안성을 강화한 비밀번호 변경 기능을 제공합니다.
- *
- * @description
- * - 현재 비밀번호 확인
- * - 새 비밀번호 입력 및 유효성 검사
- * - 비밀번호 확인 및 일치 검증
- * - 실시간 유효성 검사
- * - 보안 강화된 비밀번호 변경
- * - 성공/실패 메시지 표시
- */
+// src/pages/Profile/ChangePassword.tsx
 
 import React, { useState } from 'react';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
@@ -25,20 +11,10 @@ import CommonField from '@/components/shared/forms/CommonField';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
-/**
- * 비밀번호 변경 폼 데이터 인터페이스
- *
- * 비밀번호 변경 페이지에서 사용되는 폼 데이터의 구조를 정의합니다.
- * React Hook Form과 연동하여 타입 안전성을 보장합니다.
- *
- * @property currentPassword - 현재 비밀번호
- * @property newPassword - 새 비밀번호
- * @property confirmPassword - 새 비밀번호 확인
- */
 export interface ChangePasswordFormData {
-  currentPassword: string; // 현재 비밀번호
-  newPassword: string; // 새 비밀번호
-  confirmPassword: string; // 새 비밀번호 확인
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 const ChangePassword: React.FC = () => {

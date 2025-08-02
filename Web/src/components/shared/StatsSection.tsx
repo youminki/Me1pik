@@ -1,57 +1,15 @@
-/**
- * 통계 섹션 컴포넌트 (StatsSection.tsx)
- *
- * 방문자 수, 매출 등의 통계 정보를 표시하는 컴포넌트를 제공합니다.
- * 두 개의 통계 박스로 구성되어 있으며, 날짜 범위 정보도 포함합니다.
- * 반응형 디자인으로 다양한 화면 크기에 대응합니다.
- *
- * @description
- * - 통계 정보 표시 (방문자 수, 매출)
- * - 날짜 범위 표시 (선택적)
- * - 반응형 디자인
- * - 커스터마이징 가능한 라벨
- * - 시각적 구분을 위한 색상 테마
- */
-
 import React from 'react';
 import styled from 'styled-components';
 
-/**
- * 통계 섹션 속성 인터페이스
- *
- * 통계 섹션 컴포넌트의 props를 정의합니다.
- *
- * @property visits - 방문자 수
- * @property sales - 매출
- * @property dateRange - 날짜 범위 (선택적)
- * @property visitLabel - 방문자 라벨
- * @property salesLabel - 매출 라벨
- * @property showDateLabel - 날짜 라벨 표시 여부 (기본값: true)
- */
 interface StatsSectionProps {
-  visits: string | number; // 방문자 수
-  sales: string | number; // 매출
-  dateRange?: string; // 날짜 범위 (선택적)
-  visitLabel: string; // 방문자 라벨
-  salesLabel: string; // 매출 라벨
-  showDateLabel?: boolean; // 날짜 라벨 표시 여부 (기본값: true)
+  visits: string | number;
+  sales: string | number;
+  dateRange?: string;
+  visitLabel: string;
+  salesLabel: string;
+  showDateLabel?: boolean;
 }
 
-/**
- * 통계 섹션 컴포넌트
- *
- * 통계 정보를 표시하는 섹션을 렌더링하는 컴포넌트입니다.
- * 방문자 수와 매출을 두 개의 박스로 나누어 표시하며,
- * 날짜 범위 정보도 포함할 수 있습니다.
- *
- * @param visits - 방문자 수
- * @param sales - 매출
- * @param dateRange - 날짜 범위 (선택적)
- * @param visitLabel - 방문자 라벨
- * @param salesLabel - 매출 라벨
- * @param showDateLabel - 날짜 라벨 표시 여부 (기본값: true)
- * @returns 통계 섹션 컴포넌트
- */
 const StatsSection: React.FC<StatsSectionProps> = ({
   visits,
   sales,

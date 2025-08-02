@@ -1,3 +1,4 @@
+// src/page/Login.tsx
 import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -32,57 +33,17 @@ import { theme } from '@/styles/Theme';
 import { forceSaveAppToken } from '@/utils/auth';
 import { isNativeApp } from '@/utils/nativeApp';
 
-/**
- * 로그인 페이지 컴포넌트 (Login.tsx)
- *
- * 사용자 인증을 위한 로그인 페이지를 제공합니다.
- * 이메일/비밀번호 기반 로그인, 네이티브 앱 연동, 자동 로그인 옵션,
- * 비밀번호 표시/숨김 토글, 폼 유효성 검사 및 에러 처리를 포함합니다.
- *
- * @description
- * - 이메일/비밀번호 기반 로그인
- * - 네이티브 앱 연동 (iOS/Android WebView)
- * - 자동 로그인 옵션 (체크박스)
- * - 비밀번호 표시/숨김 토글 (보안성)
- * - 폼 유효성 검사 및 실시간 에러 처리
- * - Caps Lock 감지 및 알림
- */
-
-/**
- * 로그인 폼 데이터 인터페이스
- *
- * 로그인 폼에서 사용되는 데이터 구조를 정의합니다.
- * React Hook Form과 연동하여 타입 안전성을 보장합니다.
- */
 interface LoginFormValues {
-  email: string; // 이메일 주소
-  password: string; // 비밀번호
+  email: string;
+  password: string;
 }
 
-/**
- * 로그인 응답 데이터 인터페이스
- *
- * 서버로부터 받는 로그인 응답 데이터의 구조를 정의합니다.
- * JWT 토큰 기반 인증 시스템을 위한 토큰 정보를 포함합니다.
- */
 interface LoginResponse {
-  accessToken: string; // 액세스 토큰
-  refreshToken: string; // 리프레시 토큰
+  accessToken: string;
+  refreshToken: string;
 }
 
-/**
- * 입력 필드 아이콘 컴포넌트들
- *
- * 로그인 폼에서 사용되는 다양한 아이콘 컴포넌트들을 정의합니다.
- * 사용자 경험 개선을 위한 시각적 피드백을 제공합니다.
- */
-
-/**
- * 입력 필드 초기화 아이콘
- *
- * 입력 필드의 내용을 모두 지우는 기능을 제공하는 아이콘 컴포넌트입니다.
- * 사용자가 쉽게 입력 내용을 초기화할 수 있도록 시각적 피드백을 제공합니다.
- */
+// 네이버 스타일 X(전체삭제) 아이콘
 const ClearIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
@@ -96,13 +57,7 @@ const ClearIcon = () => (
     </g>
   </svg>
 );
-
-/**
- * 비밀번호 표시 아이콘
- *
- * 비밀번호를 보이게 하는 토글 기능을 제공하는 아이콘 컴포넌트입니다.
- * 사용자가 입력한 비밀번호를 확인할 수 있도록 시각적 피드백을 제공합니다.
- */
+// 네이버 스타일 눈(보기) 아이콘
 const ShowPasswordIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>
@@ -115,11 +70,7 @@ const ShowPasswordIcon = () => (
     </g>
   </svg>
 );
-
-/**
- * 비밀번호 숨김 아이콘
- * 비밀번호를 숨기는 토글 기능을 제공
- */
+// 네이버 스타일 눈감김(숨김) 아이콘
 const HidePasswordIcon = () => (
   <svg width='20' height='20' viewBox='0 0 20 20'>
     <g fill='none' fillRule='evenodd'>

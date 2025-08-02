@@ -1,9 +1,4 @@
-/**
- * 상품 목록(ProductList) 페이지
- *
- * - 상품 상태/카테고리/색상/브랜드 등 다양한 필터 및 일괄변경 지원
- * - react-query 기반 데이터 관리, 검색/정규화/매핑 등 유틸 포함
- */
+// src/pages/Tab4/Product/ProductList.tsx
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -15,10 +10,6 @@ import BulkChangeUI from '@components/BulkChangeUI';
 import { useQuery } from '@tanstack/react-query';
 import { getProducts, updateProductsStatus } from '@api/adminProduct';
 
-/**
- * 상품 상태 탭 옵션
- * - 전체/등록완료/등록대기/판매종료 등
- */
 const tabs: TabItem[] = [
   { label: '전체보기', path: '전체보기' },
   { label: '등록완료', path: '등록완료' },
@@ -26,20 +17,12 @@ const tabs: TabItem[] = [
   { label: '판매종료', path: '판매종료' },
 ];
 
-/**
- * 상품 상태 옵션
- * - 등록완료/등록대기/판매종료 등 상태 값
- */
 const statuses: Array<{ label: string; value: string }> = [
   { label: '등록완료', value: '1' },
   { label: '등록대기', value: '0' },
   { label: '판매종료', value: '2' },
 ];
 
-/**
- * 색상 옵션
- * - 화이트, 블랙, 그레이 등 다양한 색상 옵션
- */
 const colorOptions = [
   { label: '화이트', value: 'WHITE', ko: '화이트' },
   { label: '블랙', value: 'BLACK', ko: '블랙' },
@@ -62,10 +45,6 @@ const colorOptions = [
   // 필요시 추가
 ];
 
-/**
- * 카테고리 옵션
- * - 미니원피스, 미디원피스, 롱 원피스 등 다양한 카테고리 옵션
- */
 const categoryOptions = [
   { label: '미니원피스', value: 'MiniDress', ko: '미니원피스' },
   { label: '미디원피스', value: 'MidiDress', ko: '미디원피스' },
@@ -88,30 +67,19 @@ const categoryOptions = [
   // 필요시 추가
 ];
 
-/**
- * 색상/카테고리/브랜드 한영 매핑 및 정규화 유틸
- * - 한글/영문/유사어 모두 검색 가능하도록 지원
- */
 const getColorKo = (color: string) => {
   if (!color) return '';
   const found = colorOptions.find((opt) => opt.value.toLowerCase() === color.toLowerCase());
   return found ? found.ko : color;
 };
 
-/**
- * 카테고리 한글 매핑 함수
- * - 영문 카테고리 값을 한글로 변환하는 함수
- */
 const getCategoryKo = (category: string) => {
   if (!category) return '';
   const found = categoryOptions.find((opt) => opt.value.toLowerCase() === category.toLowerCase());
   return found ? found.ko : category;
 };
 
-/**
- * 문자열 정규화 함수
- * - 공백, 특수문자 제거 및 소문자 변환
- */
+// 문자열 정규화 함수 (공백, 특수문자 제거, 소문자)
 function normalize(str: string) {
   return (str || '')
     .toLowerCase()
@@ -148,10 +116,7 @@ categoryOptions.forEach((opt) => {
   });
 });
 
-/**
- * 칩 컴포넌트
- * - 필터 표시를 위한 칩 컴포넌트
- */
+// Chip 컴포넌트
 const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
   <span
     style={{
@@ -196,10 +161,6 @@ const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
   </span>
 );
 
-/**
- * 상품 목록 페이지 컴포넌트
- * - 상품 목록을 표시하고 관리하는 메인 컴포넌트
- */
 const ProductList: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -252,10 +213,7 @@ const ProductList: React.FC = () => {
     setSelectedTab(matchedTab);
   }, [matchedTab]);
 
-  /**
-   * 탭 변경 핸들러
-   * - 탭 클릭 시 URL 파라미터와 상태를 업데이트하는 핸들러
-   */
+  // 탭 변경
   const handleTabChange = (tab: TabItem) => {
     setSelectedTab(tab);
     const params = Object.fromEntries(searchParams.entries());
@@ -313,10 +271,7 @@ const ProductList: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(filtered.length / limit));
   const paginated = filtered.slice((page - 1) * limit, page * limit);
 
-  /**
-   * 일괄 변경 핸들러
-   * - 선택된 상품들의 상태를 일괄적으로 변경하는 핸들러
-   */
+  // 5) 일괄 상태 변경
   const handleBulkChange = async () => {
     if (!newStatus) {
       alert('변경할 상태를 선택해주세요.');
@@ -346,10 +301,7 @@ const ProductList: React.FC = () => {
     }
   };
 
-  /**
-   * 행 토글 핸들러
-   * - 개별 행의 선택 상태를 토글하는 핸들러
-   */
+  // 체크박스 토글
   const toggleRow = (no: number) => {
     const copy = new Set(selectedRows);
     if (copy.has(no)) {
@@ -359,10 +311,6 @@ const ProductList: React.FC = () => {
     }
     setSelectedRows(copy);
   };
-  /**
-   * 전체 토글 핸들러
-   * - 모든 행의 선택 상태를 토글하는 핸들러
-   */
   const toggleAll = () => {
     if (selectedRows.size === paginated.length) {
       setSelectedRows(new Set());
@@ -371,10 +319,7 @@ const ProductList: React.FC = () => {
     }
   };
 
-  /**
-   * 편집 핸들러
-   * - 상품 편집 페이지로 이동하는 핸들러
-   */
+  // 편집 이동
   const handleEdit = (_styleCode: string, no: number) => {
     navigate(`/productdetail/${no}${window.location.search}`);
   };
@@ -382,10 +327,7 @@ const ProductList: React.FC = () => {
   // 검색어 키워드 분리 (공백 기준)
   const chipKeywords = useMemo(() => searchTerm.trim().split(/\s+/).filter(Boolean), [searchTerm]);
 
-  /**
-   * 칩 삭제 핸들러
-   * - 필터 칩을 삭제하는 핸들러
-   */
+  // Chip 삭제 핸들러
   const handleDeleteChip = (chip: string) => {
     const newKeywords = chipKeywords.filter((k) => k !== chip);
     const newSearch = newKeywords.join(' ');

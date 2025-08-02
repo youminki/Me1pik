@@ -1,20 +1,4 @@
-/**
- * 입력 필드 컴포넌트 (InputField.tsx)
- *
- * 폼에서 사용하는 고급 입력 필드 컴포넌트를 제공합니다.
- * 라벨, 에러 처리, 버튼, 접두사/접미사, 토글 기능 등을 포함하며,
- * 다양한 입력 타입과 옵션을 지원합니다.
- *
- * @description
- * - 다양한 입력 타입 지원
- * - 라벨 및 에러 처리
- * - 버튼 내장 기능
- * - 접두사/접미사 콘텐츠
- * - 토글 기능
- * - 셀렉트 박스 지원
- * - 접근성 지원
- * - 반응형 디자인
- */
+// src/components/InputField.tsx
 
 import React, {
   useState,
@@ -43,51 +27,27 @@ const StyledInput = styled(BaseStyledInput)`
   ${({ readOnly, disabled }) => (readOnly || disabled) && readonlyStyle}
 `;
 
-/**
- * 입력 필드 속성 인터페이스
- *
- * 입력 필드 컴포넌트의 props를 정의합니다.
- * HTML input 속성을 상속받으며, 추가적인 커스텀 속성들을 제공합니다.
- *
- * @property label - 라벨 텍스트 (선택적)
- * @property id - 필드 ID (선택적)
- * @property type - 입력 타입 (기본값: 'text')
- * @property error - 에러 객체 (선택적)
- * @property buttonLabel - 버튼 라벨 (선택적)
- * @property buttonColor - 버튼 색상 (기본값: 'yellow')
- * @property onButtonClick - 버튼 클릭 핸들러 (선택적)
- * @property prefix - 접두사 텍스트 (선택적)
- * @property prefixcontent - 접두사 콘텐츠 (선택적)
- * @property suffixcontent - 접미사 콘텐츠 (선택적)
- * @property as - 렌더링할 요소 타입 (선택적)
- * @property useToggle - 토글 기능 사용 여부 (기본값: false)
- * @property options - 셀렉트 옵션 목록 (선택적)
- * @property onSelectChange - 셀렉트 변경 핸들러 (선택적)
- * @property readOnly - 읽기전용 여부 (기본값: false)
- * @property disabledOptions - 비활성화된 옵션 목록 (선택적)
- * @property onChange - 변경 핸들러 (선택적)
- */
 interface InputFieldProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix' | 'onChange'> {
-  label?: string; // 라벨 텍스트 (선택적)
-  id?: string; // 필드 ID (선택적)
-  type?: string; // 입력 타입 (기본값: 'text')
-  error?: FieldError | { message: string }; // 에러 객체 (선택적)
-  buttonLabel?: string; // 버튼 라벨 (선택적)
-  buttonColor?: 'yellow' | 'blue' | 'red' | 'black'; // 버튼 색상 (기본값: 'yellow')
-  onButtonClick?: (e: React.MouseEvent<HTMLButtonElement>) => void; // 버튼 클릭 핸들러 (선택적)
-  prefix?: string; // 접두사 텍스트 (선택적)
-  prefixcontent?: string | React.ReactNode; // 접두사 콘텐츠 (선택적)
-  suffixcontent?: string | React.ReactNode; // 접미사 콘텐츠 (선택적)
-  as?: React.ElementType; // 렌더링할 요소 타입 (선택적)
-  useToggle?: boolean; // 토글 기능 사용 여부 (기본값: false)
-  options?: string[]; // 셀렉트 옵션 목록 (선택적)
-  onSelectChange?: (value: string) => void; // 셀렉트 변경 핸들러 (선택적)
-  readOnly?: boolean; // 읽기전용 여부 (기본값: false)
-  disabledOptions?: string[]; // 비활성화된 옵션 목록 (선택적)
+  label?: string;
+  id?: string;
+  type?: string;
+  error?: FieldError | { message: string };
+  buttonLabel?: string;
+  buttonColor?: 'yellow' | 'blue' | 'red' | 'black';
+  onButtonClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  prefix?: string;
+  prefixcontent?: string | React.ReactNode;
+  suffixcontent?: string | React.ReactNode;
+  as?: React.ElementType;
+  useToggle?: boolean;
+  options?: string[];
+  onSelectChange?: (value: string) => void;
+  readOnly?: boolean;
+  disabledOptions?: string[];
   onChange?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => void; // 변경 핸들러 (선택적)
+  ) => void;
 }
 
 function parsePrefixContent(content: string) {

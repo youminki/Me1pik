@@ -1,18 +1,4 @@
-/**
- * 결제 페이지 컴포넌트 (Payment.tsx)
- *
- * 상품 결제 및 주문 처리를 담당하는 페이지를 제공합니다.
- * 배송 정보 입력, 결제 방식 선택, 이용권 사용, 주소 검색,
- * 결제 처리 및 주문 완료 등의 기능을 포함합니다.
- *
- * @description
- * - 배송/반납 주소 및 연락처 입력
- * - 결제 방식 선택 (이용권/일반 결제)
- * - 이용권 사용 및 잔여 횟수 확인
- * - 주소 검색 및 자동 입력
- * - 결제 처리 및 주문 완료
- * - 실시간 유효성 검사
- */
+// src/pages/PaymentPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -52,12 +38,7 @@ declare global {
   }
 }
 
-/**
- * 결제 페이지 유효성 검사 스키마
- *
- * 배송 연락처, 반납 연락처에 대한 유효성 검사 규칙을 정의합니다.
- * 전화번호 형식 검증과 배송/반납 주소 동일 여부에 따른 조건부 검증을 포함합니다.
- */
+// 전화번호 검증 스키마
 const paymentSchema = yup.object().shape({
   deliveryContact: yup
     .string()
@@ -81,36 +62,18 @@ const paymentSchema = yup.object().shape({
     ),
 });
 
-/**
- * 결제용 장바구니 아이템 인터페이스
- *
- * 결제 페이지에서 사용되는 장바구니 아이템의 데이터 구조를 정의합니다.
- * 상품 정보, 서비스 타입, 가격, 선택 상태 등을 포함합니다.
- *
- * @property id - 상품 고유 식별자
- * @property brand - 브랜드명
- * @property nameCode - 상품 코드
- * @property nameType - 상품 타입
- * @property type - 서비스 타입 (대여/구매)
- * @property servicePeriod - 서비스 기간 (YYYY.MM.DD ~ YYYY.MM.DD 형식)
- * @property size - 선택된 사이즈
- * @property color - 선택된 색상
- * @property price - 상품 가격
- * @property imageUrl - 상품 이미지 URL
- * @property $isSelected - 선택 여부
- */
 interface BasketItemForPayment {
-  id: number; // 상품 고유 식별자
-  brand: string; // 브랜드명
-  nameCode: string; // 상품 코드
-  nameType: string; // 상품 타입
-  type: 'rental' | 'purchase'; // 서비스 타입 (대여/구매)
-  servicePeriod?: string; // 서비스 기간 (YYYY.MM.DD ~ YYYY.MM.DD 형식)
-  size: string; // 선택된 사이즈
-  color: string; // 선택된 색상
-  price: number; // 상품 가격
-  imageUrl: string; // 상품 이미지 URL
-  $isSelected: boolean; // 선택 여부
+  id: number;
+  brand: string;
+  nameCode: string;
+  nameType: string;
+  type: 'rental' | 'purchase';
+  servicePeriod?: string; // "YYYY.MM.DD ~ YYYY.MM.DD"
+  size: string;
+  color: string;
+  price: number;
+  imageUrl: string;
+  $isSelected: boolean;
 }
 
 const PaymentPage: React.FC = () => {

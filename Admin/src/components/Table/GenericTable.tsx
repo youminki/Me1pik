@@ -31,10 +31,7 @@ function GenericTable<T extends Record<string, unknown>, R extends Record<string
   style,
   isLoading = false,
 }: GenericTableProps<T, R>) {
-  /**
-   * row 데이터 가공 (예: handleEdit, no 등 추가)
-   * processRow가 주어지면 각 row를 변환하여 테이블에 전달합니다.
-   */
+  // row 가공 (handleEdit, no 등)
   const processedData = React.useMemo(
     () => (processRow ? data.map((item, idx) => processRow(item, idx)) : (data as unknown as R[])),
     [data, processRow],

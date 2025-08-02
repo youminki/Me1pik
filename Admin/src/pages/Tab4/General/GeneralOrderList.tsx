@@ -1,11 +1,3 @@
-/**
- * 일반 주문 목록(GeneralOrderList) 페이지
- *
- * - 주문 상태별 필터링, 검색, 상세 조회 등 지원
- * - 더미 데이터 기반 테이블 렌더링, Chip 컴포넌트로 필터 표시
- * - 결제 방법/상태별 분류 및 관리 기능
- */
-
 // src/pages/GeneralOrderList.tsx
 
 import React, { useState } from 'react';
@@ -16,10 +8,7 @@ import SubHeader, { TabItem } from '@/components/Header/SearchSubHeader';
 import Pagination from '@/components/Pagination';
 import { advancedSearchFilter, normalize } from '@utils/advancedSearch';
 
-/**
- * 더미 일반 주문 데이터
- * - 주문번호, 구매자, 브랜드, 스타일코드, 사이즈, 색상, 결제방법/상태 등
- */
+/** 더미 데이터 */
 const dummyGeneralOrderList: GeneralOrderListItem[] = [
   {
     no: 13486,
@@ -118,10 +107,7 @@ const tabs: TabItem[] = [
   { label: '취소내역', path: '취소' },
 ];
 
-/**
- * 칩 컴포넌트
- * - 필터 표시를 위한 칩 컴포넌트
- */
+// Chip 컴포넌트 (제품 관리에서 복사)
 const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
   <span
     style={{
@@ -166,10 +152,6 @@ const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
   </span>
 );
 
-/**
- * 일반 주문 목록 페이지 컴포넌트
- * - 일반 주문 목록을 표시하고 관리하는 메인 컴포넌트
- */
 const GeneralOrderList: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -182,10 +164,7 @@ const GeneralOrderList: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<TabItem>(tabs[0]);
   const [data] = useState<GeneralOrderListItem[]>(dummyGeneralOrderList);
 
-  /**
-   * 탭 변경 핸들러
-   * - 탭 클릭 시 URL 파라미터와 상태를 업데이트하는 핸들러
-   */
+  // 탭 변경 핸들러 (페이지 리셋)
   const handleTabChange = (tab: TabItem) => {
     setSelectedTab(tab);
     setSearchParams({ status: tab.path, page: '1' });
@@ -229,10 +208,7 @@ const GeneralOrderList: React.FC = () => {
   // 검색어 키워드 분리 (공백 기준)
   const chipKeywords = searchTerm.trim().split(/\s+/).filter(Boolean);
 
-  /**
-   * 칩 삭제 핸들러
-   * - 필터 칩을 삭제하는 핸들러
-   */
+  // Chip 삭제 핸들러
   const handleDeleteChip = (chip: string) => {
     const newKeywords = chipKeywords.filter((k) => k !== chip);
     const newSearch = newKeywords.join(' ');
@@ -242,10 +218,7 @@ const GeneralOrderList: React.FC = () => {
     setSearchParams(params);
   };
 
-  /**
-   * 편집 핸들러
-   * - 주문 상세 페이지로 이동하는 핸들러
-   */
+  // 상세 페이지로 이동
   const handleEdit = (no: number) => {
     navigate(`/generalorderdetail/${no}`, {
       state: { selectOptions: tabs },

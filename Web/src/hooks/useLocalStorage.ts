@@ -1,15 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 
 /**
- * useLocalStorage 훅
- *
- * 브라우저의 localStorage를 React 상태와 동기화합니다.
- * 다른 탭에서의 변경사항도 자동으로 감지합니다.
- *
- * @template T - 저장할 데이터 타입
- * @param key - 스토리지 키
- * @param initialValue - 초기값
- * @returns [저장된 값, 설정 함수, 제거 함수]
+ * 로컬 스토리지 훅
+ * @param key 스토리지 키
+ * @param initialValue 초기값
+ * @returns [값, 설정 함수, 제거 함수]
  */
 export const useLocalStorage = <T>(
   key: string,
@@ -72,15 +67,10 @@ export const useLocalStorage = <T>(
 };
 
 /**
- * useSessionStorage 훅
- *
- * 브라우저의 sessionStorage를 React 상태와 동기화합니다.
- * 현재 탭에서만 유지되며, 탭을 닫으면 데이터가 삭제됩니다.
- *
- * @template T - 저장할 데이터 타입
- * @param key - 스토리지 키
- * @param initialValue - 초기값
- * @returns [저장된 값, 설정 함수, 제거 함수]
+ * 세션 스토리지 훅
+ * @param key 스토리지 키
+ * @param initialValue 초기값
+ * @returns [값, 설정 함수, 제거 함수]
  */
 export const useSessionStorage = <T>(
   key: string,

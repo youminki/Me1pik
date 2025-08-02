@@ -1,18 +1,3 @@
-/**
- * 멜픽 콘텐츠 리스트 컴포넌트 (ContentList.tsx)
- *
- * 멜픽 생성 페이지에서 사용할 수 있는 콘텐츠 목록을 표시하는 컴포넌트입니다.
- * 각 콘텐츠는 이미지, 제목, 사이즈 정보, 브랜드, 노출 정보 등을 포함합니다.
- *
- * @description
- * - 멜픽 콘텐츠 목록 표시
- * - 콘텐츠 클릭 시 설정 페이지 이동
- * - 사이즈 정보 표시 (원피스, 상의, 하의)
- * - 브랜드 및 노출 정보 표시
- * - 반응형 디자인
- * - 네비게이션 기능
- */
-
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';

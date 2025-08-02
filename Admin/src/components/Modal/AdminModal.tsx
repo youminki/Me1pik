@@ -2,15 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { AdminCreateRequest, AdminUpdateRequest } from '@/api/admin';
 
-/**
- * 관리자 모달(AdminModal)
- *
- * - 관리자 등록/수정을 위한 모달 컴포넌트
- * - 생성/수정 모드에 따른 조건부 렌더링 및 유효성 검사
- * - 폼 상태 관리, 이벤트 핸들링, API 요청 등 지원
- * - 재사용 가능한 공통 컴포넌트
- */
-
 interface AdminModalProps {
   mode: 'create' | 'edit';
   initialData?: Partial<AdminCreateRequest & AdminUpdateRequest>;
@@ -19,10 +10,7 @@ interface AdminModalProps {
 }
 
 const AdminModal: React.FC<AdminModalProps> = ({ mode, initialData, onSubmit, onClose }) => {
-  /**
-   * 폼 상태 관리
-   * - 초기 데이터 또는 기본값으로 폼 상태 초기화
-   */
+  // 폼 상태 관리
   const [form, setForm] = useState<Partial<AdminCreateRequest & AdminUpdateRequest>>({
     id: initialData?.id || '',
     name: initialData?.name || '',
@@ -32,10 +20,6 @@ const AdminModal: React.FC<AdminModalProps> = ({ mode, initialData, onSubmit, on
     status: initialData?.status || 'active',
   });
 
-  /**
-   * 입력 필드 변경 핸들러
-   * - 폼 필드 값 변경 시 상태 업데이트
-   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev: Partial<AdminCreateRequest & AdminUpdateRequest>) => ({
@@ -44,10 +28,6 @@ const AdminModal: React.FC<AdminModalProps> = ({ mode, initialData, onSubmit, on
     }));
   };
 
-  /**
-   * 확인 핸들러
-   * - 생성/수정 모드에 따른 유효성 검사 및 데이터 제출
-   */
   const handleConfirm = () => {
     if (mode === 'create') {
       // 필수값 체크
@@ -135,10 +115,7 @@ const AdminModal: React.FC<AdminModalProps> = ({ mode, initialData, onSubmit, on
 
 export default AdminModal;
 
-/**
- * 스타일드 모달 컴포넌트
- * - 모달 오버레이, 배경, 포지셔닝 등 스타일링
- */
+// 스타일 컴포넌트
 const StyledModal = styled.div`
   position: fixed;
   top: 50%;

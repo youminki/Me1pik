@@ -1,30 +1,14 @@
-/**
- * 설정 상세 테이블(SettingsDetailTable)
- *
- * - 설정 정보를 편집 가능한 테이블 형태로 렌더링
- * - 제목, 구분, 내용 필드의 실시간 편집 및 변경 이벤트 지원
- * - 부모 컴포넌트로부터 전달받은 옵션으로 구분 선택 지원
- * - 재사용 가능한 공통 컴포넌트
- */
 // src/components/Table/Setting/SettingsDetailTable.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { TabItem } from '@components/Header/SearchSubHeader';
 
-/**
- * 설정 상세 행 인터페이스
- * - 설정 상세 정보에 필요한 행 데이터 구조
- */
 export interface SettingsDetailRow {
   title: string;
   category: string;
   content: string;
 }
 
-/**
- * 설정 상세 테이블 props
- * - 데이터, 변경 이벤트, 선택 옵션 등
- */
 interface SettingsDetailTableProps {
   data: SettingsDetailRow[];
   onChange?: (row: SettingsDetailRow) => void;
@@ -32,10 +16,6 @@ interface SettingsDetailTableProps {
   selectOptions: TabItem[];
 }
 
-/**
- * 설정 상세 테이블 컴포넌트
- * - 설정 정보를 편집 가능한 테이블 형태로 표시
- */
 const SettingsDetailTable: React.FC<SettingsDetailTableProps> = ({
   data,
   onChange,
@@ -51,30 +31,18 @@ const SettingsDetailTable: React.FC<SettingsDetailTableProps> = ({
     }
   }, [data]);
 
-  /**
-   * 제목 변경 핸들러
-   * - 제목 입력 필드 변경 시 상태 업데이트 및 부모 컴포넌트에 알림
-   */
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedRow = { ...row, title: e.target.value };
     setRow(updatedRow);
     if (onChange) onChange(updatedRow);
   };
 
-  /**
-   * 구분 변경 핸들러
-   * - 구분 선택 필드 변경 시 상태 업데이트 및 부모 컴포넌트에 알림
-   */
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const updatedRow = { ...row, category: e.target.value };
     setRow(updatedRow);
     if (onChange) onChange(updatedRow);
   };
 
-  /**
-   * 내용 변경 핸들러
-   * - 내용 입력 필드 변경 시 상태 업데이트 및 부모 컴포넌트에 알림
-   */
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const updatedRow = { ...row, content: e.target.value };
     setRow(updatedRow);
@@ -122,10 +90,8 @@ const SettingsDetailTable: React.FC<SettingsDetailTableProps> = ({
 
 export default SettingsDetailTable;
 
-/**
- * 테이블 컨테이너 스타일드 컴포넌트
- * - 테이블 컨테이너 스타일링
- */
+/* ====================== Styled Components ====================== */
+
 const TableContainer = styled.div`
   min-width: 834px;
   min-height: 600px;

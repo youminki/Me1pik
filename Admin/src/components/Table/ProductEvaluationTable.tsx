@@ -1,12 +1,3 @@
-/**
- * 제품 평가 테이블(ProductEvaluationTable)
- *
- * - 사용자별 제품 평가 정보를 표 형태로 렌더링
- * - 등급, 이름, 닉네임, 인스타그램, 제품상태, 서비스 품질, 제품후기 등 표시
- * - 인스타그램 계정 클릭 시 상세 페이지 이동, 체크박스 선택 기능 지원
- * - 재사용 가능한 공통 컴포넌트
- */
-
 // src/components/Table/ProductEvaluationTable.tsx
 import React from 'react';
 import { Column, default as CommonTable } from '@components/CommonTable';
@@ -14,10 +5,6 @@ import { InstaContainer, Avatar, InstaText } from '@components/Common/Profile';
 import StatusBadge from '@components/Common/StatusBadge';
 import { getStatusBadge } from '@utils/statusUtils';
 
-/**
- * 사용자 인터페이스
- * - 제품 평가 목록에 필요한 사용자 정보 구조
- */
 export interface User {
   no: number;
   grade: string;
@@ -30,10 +17,6 @@ export interface User {
   registeredAt: string;
 }
 
-/**
- * 제품 평가 테이블 props
- * - 필터링된 데이터, 편집 핸들러, 선택 상태, 로딩 상태 등
- */
 interface ProductEvaluationTableProps {
   filteredData: User[];
   handleEdit: (no: number) => void;
@@ -43,10 +26,6 @@ interface ProductEvaluationTableProps {
   isLoading?: boolean; // 추가
 }
 
-/**
- * 테이블 컬럼 정의
- * - No., 등급, 이름, 닉네임, 인스타그램, 제품상태, 서비스 품질, 제품후기 등
- */
 const columns: Column<User & { handleEdit: (no: number) => void }>[] = [
   { key: 'no', label: 'No.', width: '60px' },
   { key: 'grade', label: '등급', width: '60px' },
@@ -84,10 +63,6 @@ const columns: Column<User & { handleEdit: (no: number) => void }>[] = [
   { key: 'registeredAt', label: '등록일자', width: '100px' },
 ];
 
-/**
- * 제품 평가 테이블 컴포넌트
- * - 사용자별 제품 평가 정보를 테이블 형태로 표시
- */
 const ProductEvaluationTable: React.FC<ProductEvaluationTableProps> = ({
   filteredData,
   handleEdit,
@@ -96,9 +71,7 @@ const ProductEvaluationTable: React.FC<ProductEvaluationTableProps> = ({
   onSelectRow,
   isLoading,
 }) => {
-  /**
-   * handleEdit을 각 row에 추가하여, 사용자 클릭 시 상세/수정 진입이 가능하도록 합니다.
-   */
+  // handleEdit을 row에 추가
   const dataWithEdit = filteredData.map((user) => ({ ...user, handleEdit }));
 
   return (

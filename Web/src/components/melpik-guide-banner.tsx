@@ -1,18 +1,3 @@
-/**
- * 멜픽 가이드 배너 컴포넌트 (melpik-guide-banner.tsx)
- *
- * 멜픽 서비스 이용 가이드를 제공하는 배너 컴포넌트입니다.
- * 클릭 시 모달을 통해 상세한 이용 가이드를 표시하며,
- * 사용자에게 서비스 이용 방법을 안내합니다.
- *
- * @description
- * - 멜픽 서비스 이용 가이드 배너
- * - 클릭 시 모달 표시
- * - 서비스 이용 방법 안내
- * - 반응형 디자인
- * - 접근성 고려
- */
-
 import { useState } from 'react';
 import styled from 'styled-components';
 
@@ -94,14 +79,6 @@ const InfoList = styled.ol`
   }
 `;
 
-/**
- * 멜픽 가이드 배너 컴포넌트
- *
- * 멜픽 서비스 이용 가이드를 표시하는 배너를 렌더링합니다.
- * 클릭 시 모달을 통해 상세한 이용 가이드를 제공합니다.
- *
- * @returns 멜픽 가이드 배너 컴포넌트
- */
 const MelpikGuideBanner = () => {
   const [open, setOpen] = useState(false);
 

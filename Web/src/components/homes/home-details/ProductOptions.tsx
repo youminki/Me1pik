@@ -1,11 +1,9 @@
-// 제품 옵션 컴포넌트 - 사이즈 및 색상 선택 기능 제공
 import React from 'react';
 import styled from 'styled-components';
 
 import { CustomSelect } from '@/components/shared/forms/CustomSelect';
 import { theme } from '@/styles/Theme';
 
-// 제품 옵션 Props 인터페이스
 export interface ProductOptionsProps {
   selectedSize: string;
   setSelectedSize: (size: string) => void;
@@ -15,7 +13,6 @@ export interface ProductOptionsProps {
   colorOptions: string[];
 }
 
-// 메인 제품 옵션 컴포넌트
 const ProductOptions: React.FC<ProductOptionsProps> = ({
   selectedSize,
   setSelectedSize,
@@ -28,7 +25,6 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
     <OptionsContainer>
       <label>제품옵션 (선택)</label>
       <OptionsWrapper>
-        {/* 사이즈 선택 드롭다운 */}
         <CustomSelect
           value={selectedSize}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -42,8 +38,6 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
             </option>
           ))}
         </CustomSelect>
-
-        {/* 색상 선택 드롭다운 */}
         <CustomSelect
           value={selectedColor}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -64,7 +58,6 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
 
 export default ProductOptions;
 
-// 스타일 컴포넌트들
 const OptionsContainer = styled.div`
   display: flex;
   flex-direction: column;

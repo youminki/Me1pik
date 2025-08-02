@@ -1,18 +1,4 @@
-/**
- * 서브 헤더 컴포넌트 (SubHeader.tsx)
- *
- * 홈 페이지에서 카테고리 선택을 위한 서브 헤더 컴포넌트입니다.
- * 의류 카테고리 아이콘들을 가로 스크롤 형태로 표시하며,
- * 선택된 카테고리 하이라이트, 스켈레톤 로딩, 반응형 디자인을 지원합니다.
- *
- * @description
- * - 의류 카테고리 아이콘 표시
- * - 가로 스크롤 네비게이션
- * - 선택된 카테고리 하이라이트
- * - 스켈레톤 로딩 지원
- * - 반응형 디자인
- * - 접근성 지원
- */
+// src/components/Header/SubHeader.tsx
 import React, { useRef, useState, useEffect } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
@@ -60,21 +46,11 @@ const homeIcons = [
   { src: Padding, alt: '패딩', category: 'Padding' },
 ];
 
-/**
- * 서브 헤더 속성 인터페이스
- *
- * 서브 헤더 컴포넌트의 props를 정의합니다.
- *
- * @property selectedCategory - 현재 선택된 카테고리
- * @property setSelectedCategory - 카테고리 선택 핸들러
- * @property onCategoryClick - 카테고리 클릭 핸들러
- * @property isLoading - 로딩 상태 (기본값: false)
- */
 interface SubHeaderProps {
-  selectedCategory: string; // 현재 선택된 카테고리
-  setSelectedCategory: (category: string) => void; // 카테고리 선택 핸들러
-  onCategoryClick: () => void; // 카테고리 클릭 핸들러
-  isLoading?: boolean; // 로딩 상태 (기본값: false)
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
+  onCategoryClick: () => void;
+  isLoading?: boolean;
 }
 
 const ICON_WIDTH = 80;
@@ -133,19 +109,6 @@ const SubHeaderSkeleton: React.FC = () => {
   );
 };
 
-/**
- * 서브 헤더 컴포넌트
- *
- * 홈 페이지에서 카테고리 선택을 위한 서브 헤더를 렌더링하는 컴포넌트입니다.
- * 의류 카테고리 아이콘들을 가로 스크롤 형태로 표시하며,
- * 선택된 카테고리 하이라이트, 스켈레톤 로딩, 반응형 디자인을 지원합니다.
- *
- * @param selectedCategory - 현재 선택된 카테고리
- * @param setSelectedCategory - 카테고리 선택 핸들러
- * @param onCategoryClick - 카테고리 클릭 핸들러
- * @param isLoading - 로딩 상태 (기본값: false)
- * @returns 서브 헤더 컴포넌트
- */
 const SubHeader: React.FC<SubHeaderProps> = ({
   selectedCategory,
   setSelectedCategory,

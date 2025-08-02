@@ -1,18 +1,4 @@
-/**
- * 락커룸 페이지 컴포넌트 (LockerRoom.tsx)
- *
- * 사용자의 개인 저장소 및 관리 기능을 제공하는 페이지입니다.
- * 내 옷장, 이용내역, 포인트, 이용권, 결제수단, 상품리뷰 등의
- * 개인 관리 기능에 접근할 수 있는 메뉴를 제공합니다.
- *
- * @description
- * - 락커룸 메인 화면
- * - 개인 통계 정보 표시
- * - 개인 관리 기능 메뉴
- * - 멤버십 정보 표시
- * - 비활성화된 메뉴 처리
- * - 반응형 디자인
- */
+// src/pages/locker-rooms.tsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -31,12 +17,6 @@ import LockerRoomIcons from '@/assets/LockerRoomIcons.svg';
 import StatsSection from '@/components/locker-rooms/StatsSection';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
-/**
- * 락커룸 메뉴 아이템 배열
- *
- * 락커룸에서 제공하는 개인 관리 기능들의 메뉴 정보를 정의합니다.
- * 각 메뉴는 아이콘, 라벨, 경로, 비활성화 상태를 포함합니다.
- */
 const menuItems = [
   { icon: ClosetIcon, label: '내 옷장', path: '/my-closet', disabled: false },
   {

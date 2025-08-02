@@ -12,49 +12,17 @@ import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { schemaMyStyle } from '@/hooks/useValidationYup';
 import { theme } from '@/styles/Theme';
 
-/**
- * 내 스타일 페이지 컴포넌트 (MyStyle.tsx)
- *
- * 사용자의 신체 정보와 선호 스타일을 관리하는 페이지를 제공합니다.
- * 키, 사이즈, 선호 브랜드, 신체 치수 등을 입력하고 저장할 수 있습니다.
- *
- * @description
- * - 신체 정보 입력 (키, 사이즈)
- * - 의류 사이즈 설정 (드레스, 상의, 하의)
- * - 선호 브랜드 선택
- * - 신체 치수 입력 (어깨, 가슴, 허리, 소매)
- * - 실시간 유효성 검사
- * - 기존 데이터 불러오기 및 수정
- */
-
-/**
- * 내 스타일 폼 데이터 인터페이스
- *
- * 내 스타일 페이지에서 사용되는 폼 데이터의 구조를 정의합니다.
- * React Hook Form과 연동하여 타입 안전성을 보장합니다.
- *
- * @property height - 키 (cm)
- * @property size - 사이즈 (S/M/L/XL)
- * @property dress - 드레스 사이즈
- * @property top - 상의 사이즈
- * @property bottom - 하의 사이즈
- * @property brand - 선호 브랜드
- * @property shoulder - 어깨 너비 (선택적)
- * @property chest - 가슴 둘레 (선택적)
- * @property waist - 허리 둘레 (선택적)
- * @property sleeve - 소매 길이 (선택적)
- */
 interface FormData {
-  height: string; // 키 (cm)
-  size: string; // 사이즈 (S/M/L/XL)
-  dress: string; // 드레스 사이즈
-  top: string; // 상의 사이즈
-  bottom: string; // 하의 사이즈
-  brand: string; // 선호 브랜드
-  shoulder?: string; // 어깨 너비 (선택적)
-  chest?: string; // 가슴 둘레 (선택적)
-  waist?: string; // 허리 둘레 (선택적)
-  sleeve?: string; // 소매 길이 (선택적)
+  height: string;
+  size: string;
+  dress: string;
+  top: string;
+  bottom: string;
+  brand: string;
+  shoulder?: string;
+  chest?: string;
+  waist?: string;
+  sleeve?: string;
 }
 
 const HEIGHT_OPTIONS = Array.from(
@@ -114,11 +82,7 @@ const MyStyle: React.FC = () => {
 
   const { data } = useUserStyle();
 
-  /**
-   * React Query를 사용한 스타일 데이터 조회
-   *
-   * 서버에서 사용자의 현재 스타일 정보를 가져와서 폼에 표시합니다.
-   */
+  // react-query로 스타일 데이터 패칭
   useEffect(() => {
     // 데이터가 없으면 반환
     if (!data) return;

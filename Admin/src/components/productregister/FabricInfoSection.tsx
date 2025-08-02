@@ -1,10 +1,3 @@
-/**
- * 제품 원단정보 섹션(FabricInfoSection)
- *
- * - 겉감, 안감, 배색, 부속 등 원단 구성 정보 관리
- * - 동적 컬럼 추가/삭제, 소재별 퍼센트 입력, 부모 컴포넌트와 동기화 등 지원
- * - 복합 소재 정보를 구조화된 형태로 관리
- */
 // src/components/productregister/FabricInfoSection.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
@@ -12,10 +5,6 @@ import { FaPlus, FaTimes } from 'react-icons/fa';
 import { ProductDetailResponse } from '@api/adminProduct';
 import BulletIcon from '@assets/BulletIcon.svg';
 
-/**
- * 제품 원단정보 섹션 props
- * - 제품 데이터, 변경 콜백 등
- */
 interface FabricInfoSectionProps {
   product: ProductDetailResponse;
   onChange?: (data: Partial<ProductDetailResponse>) => void;
@@ -50,18 +39,9 @@ type SlotItem = { material: string; percent: string };
 type SlotsMap = Record<string, SlotItem[]>;
 const FABRIC_KEYS = ['겉감', '안감', '배색', '부속'] as const;
 
-/**
- * 제품 원단정보 섹션 컴포넌트
- * - 원단 구성 정보를 동적 테이블 형태로 관리
- * - 소재별 퍼센트 입력, 컬럼 추가/삭제, 부모와 데이터 동기화 지원
- */
 const FabricInfoSection: React.FC<FabricInfoSectionProps> = ({ product, onChange }) => {
   const [columnCount, setColumnCount] = useState(INITIAL_COLUMN_COUNT);
 
-  /**
-   * 빈 슬롯 생성 함수
-   * - 지정된 컬럼 수만큼 빈 소재/퍼센트 슬롯 생성
-   */
   const createEmptySlots = (cols: number): SlotsMap =>
     FABRIC_KEYS.reduce((acc, key) => {
       acc[key] = Array.from({ length: cols }, () => ({
@@ -96,10 +76,6 @@ const FabricInfoSection: React.FC<FabricInfoSectionProps> = ({ product, onChange
     setSlots(newSlots);
   }, [product.fabricComposition]);
 
-  /**
-   * 변경 알림 함수
-   * - 슬롯 데이터를 부모 컴포넌트 형식으로 변환하여 전달
-   */
   const notifyChange = (updated: SlotsMap) => {
     const comp: Record<string, string> = {};
     FABRIC_KEYS.forEach((key) => {
@@ -111,10 +87,6 @@ const FabricInfoSection: React.FC<FabricInfoSectionProps> = ({ product, onChange
     onChange?.({ fabricComposition: comp } as Partial<ProductDetailResponse>);
   };
 
-  /**
-   * 소재 변경 핸들러
-   * - 특정 슬롯의 소재 정보 업데이트
-   */
   const handleMaterial = (key: string, idx: number, material: string) => {
     setSlots((prev) => {
       const updated = { ...prev };
@@ -123,10 +95,6 @@ const FabricInfoSection: React.FC<FabricInfoSectionProps> = ({ product, onChange
     });
   };
 
-  /**
-   * 퍼센트 변경 핸들러
-   * - 숫자만 입력 허용, 자동 % 추가, 합계 검증 등
-   */
   const handlePercent = (key: string, idx: number, raw: string) => {
     let num = parseInt(raw.replace(/\D/g, ''), 10);
     if (isNaN(num)) num = 0;

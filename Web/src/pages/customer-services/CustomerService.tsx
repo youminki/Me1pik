@@ -11,27 +11,6 @@ import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
-/**
- * 고객센터 페이지 컴포넌트 (CustomerService.tsx)
- *
- * 고객 지원 및 서비스 정보를 제공하는 페이지입니다.
- * 공지사항, 자주 묻는 질문, 이용약관, 개인정보처리방침 등의
- * 고객 지원 기능에 접근할 수 있는 메뉴를 제공합니다.
- *
- * @description
- * - 고객센터 메인 화면
- * - 공지사항 및 서비스 안내
- * - 고객 지원 기능 메뉴
- * - 이용약관 및 개인정보처리방침
- * - 반응형 디자인
- */
-
-/**
- * 고객센터 메뉴 아이템 배열
- *
- * 고객센터에서 제공하는 고객 지원 기능들의 메뉴 정보를 정의합니다.
- * 각 메뉴는 아이콘, 라벨, 경로를 포함합니다.
- */
 const menuItems = [
   { icon: NoticeBox, label: '공지사항', path: '/customerService/notice' },
   {

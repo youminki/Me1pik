@@ -14,15 +14,6 @@ import { getProductDetail, updateProduct, ProductDetailResponse, SizeRow } from 
 
 import React, { useState, useEffect, useCallback, FormEvent } from 'react';
 
-/**
- * 제품 상세 페이지(ProductDetail)
- *
- * - 제품의 상세 정보를 조회, 편집, 삭제하는 페이지
- * - 스켈레톤 로딩, 모달, 이미지 관리, 사이즈 가이드 등 다양한 기능 지원
- * - 제품 정보 수정, 삭제, 이미지 업로드/삭제/재정렬 등 지원
- * - 재사용 가능한 공통 컴포넌트
- */
-
 // 스켈레톤 애니메이션
 const shimmer = keyframes`
   0% {
@@ -33,10 +24,7 @@ const shimmer = keyframes`
   }
 `;
 
-/**
- * 스켈레톤 박스 스타일드 컴포넌트
- * - 기본 스켈레톤 박스 스타일링
- */
+// 스켈레톤 컴포넌트들
 const SkeletonBox = styled.div<{ width?: string; height?: string }>`
   width: ${(props) => props.width || '100%'};
   height: ${(props) => props.height || '32px'};
@@ -47,48 +35,29 @@ const SkeletonBox = styled.div<{ width?: string; height?: string }>`
   margin-bottom: 12px;
 `;
 
-/**
- * 스켈레톤 입력 필드 스타일드 컴포넌트
- * - 입력 필드 스켈레톤 스타일링
- */
 const SkeletonInput = styled(SkeletonBox)`
   border-radius: 0;
 `;
 
-/**
- * 스켈레톤 라벨 스타일드 컴포넌트
- * - 라벨 스켈레톤 스타일링
- */
 const SkeletonLabel = styled(SkeletonBox)`
   width: 80px;
   height: 16px;
   border-radius: 2px;
 `;
 
-/**
- * 스켈레톤 버튼 스타일드 컴포넌트
- * - 버튼 스켈레톤 스타일링
- */
 const SkeletonButton = styled(SkeletonBox)`
   width: 100px;
   height: 40px;
   border-radius: 4px;
 `;
 
-/**
- * 스켈레톤 이미지 스타일드 컴포넌트
- * - 이미지 스켈레톤 스타일링
- */
 const SkeletonImage = styled(SkeletonBox)`
   width: 120px;
   height: 120px;
   border-radius: 8px;
 `;
 
-/**
- * 실제 DetailTopBoxes 구조에 맞는 스켈레톤
- * - 기본 정보와 추가 정보 섹션의 스켈레톤 구조
- */
+// 실제 DetailTopBoxes 구조에 맞는 스켈레톤
 const SkeletonDetailTopBoxes = () => (
   <DetailTopBoxesWrapper>
     <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
@@ -110,10 +79,7 @@ const SkeletonDetailTopBoxes = () => (
   </DetailTopBoxesWrapper>
 );
 
-/**
- * 실제 SizeGuideSection 구조에 맞는 스켈레톤
- * - 사이즈 가이드 섹션의 스켈레톤 구조
- */
+// 실제 SizeGuideSection 구조에 맞는 스켈레톤
 const SkeletonSizeGuideSection = () => (
   <div style={{ flex: 1 }}>
     <SkeletonLabel style={{ marginBottom: '16px' }} />
@@ -141,10 +107,7 @@ const SkeletonSizeGuideSection = () => (
   </div>
 );
 
-/**
- * 실제 SizeDisplaySection 구조에 맞는 스켈레톤
- * - 사이즈 디스플레이 섹션의 스켈레톤 구조
- */
+// 실제 SizeDisplaySection 구조에 맞는 스켈레톤
 const SkeletonSizeDisplaySection = () => (
   <div style={{ flex: 1 }}>
     <SkeletonLabel style={{ marginBottom: '16px' }} />
@@ -168,10 +131,7 @@ const SkeletonSizeDisplaySection = () => (
   </div>
 );
 
-/**
- * 실제 MaterialInfoSection 구조에 맞는 스켈레톤
- * - 재료 정보 섹션의 스켈레톤 구조
- */
+// 실제 MaterialInfoSection 구조에 맞는 스켈레톤
 const SkeletonMaterialInfoSection = () => (
   <div>
     <SkeletonLabel style={{ marginBottom: '16px' }} />
@@ -194,10 +154,7 @@ const SkeletonMaterialInfoSection = () => (
   </div>
 );
 
-/**
- * 실제 FabricInfoSection 구조에 맞는 스켈레톤
- * - 섬유 정보 섹션의 스켈레톤 구조
- */
+// 실제 FabricInfoSection 구조에 맞는 스켈레톤
 const SkeletonFabricInfoSection = () => (
   <div>
     <SkeletonLabel style={{ marginBottom: '16px' }} />
@@ -220,10 +177,7 @@ const SkeletonFabricInfoSection = () => (
   </div>
 );
 
-/**
- * 실제 ProductImageSection 구조에 맞는 스켈레톤
- * - 제품 이미지 섹션의 스켈레톤 구조
- */
+// 실제 ProductImageSection 구조에 맞는 스켈레톤
 const SkeletonProductImageSection = () => (
   <div>
     <SkeletonLabel style={{ marginBottom: '16px' }} />
@@ -253,10 +207,7 @@ const SkeletonProductImageSection = () => (
   </div>
 );
 
-/**
- * 전체 페이지 스켈레톤
- * - 제품 상세 페이지의 전체 스켈레톤 구조
- */
+// 전체 페이지 스켈레톤
 const SkeletonProductDetail = () => (
   <Container>
     <HeaderRow>
@@ -298,20 +249,11 @@ const SkeletonProductDetail = () => (
   </Container>
 );
 
-/**
- * 페이로드 정리 유틸리티 함수
- * - API 요청 시 불필요한 필드를 제거하는 함수
- */
 const cleanPayload = <T extends object>(obj: T): Partial<T> => {
   const result = { ...(obj as Record<string, unknown>) } as Partial<T>;
   Object.entries(result).forEach(([key, value]) => {
     if (key === 'product_img') return;
-    /**
-     * size_label_guide는 빈 객체여도 유지
-     *
-     * 사이즈 가이드 정보는 빈 객체라도 필수 필드로 간주하여
-     * API 요청 시 제거되지 않도록 합니다.
-     */
+    // size_label_guide는 빈 객체여도 유지
     if (key === 'size_label_guide') {
       console.log('cleanPayload에서 size_label_guide 발견:', value);
       return;
@@ -328,19 +270,12 @@ const cleanPayload = <T extends object>(obj: T): Partial<T> => {
   return result;
 };
 
-/**
- * 제품 상세 페이지 컴포넌트
- * - 제품 상세 정보를 표시하고 편집하는 메인 컴포넌트
- */
 const ProductDetail: React.FC = () => {
   const { no } = useParams<{ no: string }>();
   const productId = no ? Number(no) : null;
   const navigate = useNavigate();
 
-  /**
-   * 디버깅을 위한 navigate 함수 래핑
-   * - 개발 환경에서 페이지 이동을 위한 디버그 함수
-   */
+  // 디버깅을 위한 navigate 함수 래핑
   const debugNavigate = (path: string) => {
     console.log('debugNavigate 호출됨:', path);
     console.log('navigate 함수 타입:', typeof navigate);
@@ -367,17 +302,9 @@ const ProductDetail: React.FC = () => {
     message: string;
   }>({ open: false, message: '' });
 
-  /**
-   * 확인 모달 열기 함수
-   * - 확인 모달을 표시하는 함수
-   */
   const openConfirm = (message: string, onConfirm?: () => Promise<void>) => {
     setConfirmConfig({ open: true, message, onConfirm });
   };
-  /**
-   * 결과 모달 열기 함수
-   * - 결과 모달을 표시하는 함수
-   */
   const openResult = (message: string) => {
     setResultConfig({ open: true, message });
   };
@@ -385,12 +312,7 @@ const ProductDetail: React.FC = () => {
   const handleProductChange = useCallback(
     (data: Partial<ProductDetailResponse & { sizes: SizeRow[] }>) => {
       console.log('handleProductChange 호출:', data);
-      /**
-       * 가격 필드가 변경될 때 price(문자열)도 동기화
-       *
-       * retailPrice가 숫자로 변경되면 price 필드도 문자열로 동기화하여
-       * API 요청 시 일관성을 유지합니다.
-       */
+      // 가격 필드가 변경될 때 price(문자열)도 동기화
       const extra: Partial<ProductDetailResponse & { price?: string }> =
         typeof data.retailPrice === 'number' ? { price: String(data.retailPrice) } : {};
       setProduct((prev) => (prev ? { ...prev, ...data, ...extra } : prev));
@@ -418,17 +340,9 @@ const ProductDetail: React.FC = () => {
       return next;
     });
   };
-  /**
-   * 이미지 링크 업로드 핸들러
-   * - 이미지 링크를 업로드하는 핸들러
-   */
   const handleImageLinkUpload = (idx: number, url: string) => {
     updateImage(idx, url);
   };
-  /**
-   * 이미지 삭제 핸들러
-   * - 특정 인덱스의 이미지를 삭제하는 핸들러
-   */
   const handleImageDelete = (idx: number) => updateImage(idx, null);
   const handleImageReorder = (from: number, to: number) => {
     setImages((prev) => {
@@ -440,10 +354,6 @@ const ProductDetail: React.FC = () => {
     });
   };
 
-  /**
-   * 상세 정보 조회 함수
-   * - 제품 상세 정보를 API로부터 조회하는 함수
-   */
   const fetchDetail = async (id: number) => {
     setLoading(true);
     try {
@@ -508,10 +418,6 @@ const ProductDetail: React.FC = () => {
     }
   }, [product?.category, sizeGuides, product]);
 
-  /**
-   * 저장 핸들러
-   * - 제품 정보를 저장하는 핸들러
-   */
   const handleSave = () => {
     if (!product) return;
     openConfirm('변경 내용을 저장하시겠습니까?', async () => {
@@ -575,12 +481,7 @@ const ProductDetail: React.FC = () => {
 
         const cleaned = cleanPayload(payload);
 
-        /**
-         * size_label_guide가 제거되었을 경우 강제로 추가
-         *
-         * cleanPayload 함수에서 size_label_guide가 제거되었더라도
-         * 현재 라벨 정보가 있다면 강제로 추가하여 데이터 무결성을 보장합니다.
-         */
+        // size_label_guide가 제거되었을 경우 강제로 추가
         if (!cleaned.size_label_guide && currentLabels && Object.keys(currentLabels).length > 0) {
           cleaned.size_label_guide = currentLabels;
           console.log('cleaned에서 size_label_guide가 제거되어 강제로 추가:', currentLabels);
@@ -605,10 +506,6 @@ const ProductDetail: React.FC = () => {
     });
   };
 
-  /**
-   * 삭제 핸들러
-   * - 제품을 삭제하는 핸들러
-   */
   const handleDelete = () => {
     openConfirm('정말 삭제하시겠습니까?', async () => {
       openResult('삭제에 실패했습니다.');

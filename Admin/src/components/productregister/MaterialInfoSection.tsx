@@ -1,20 +1,9 @@
-/**
- * 제품 소재정보 섹션(MaterialInfoSection)
- *
- * - 제품의 두께감, 신축성, 안감, 촉감, 비침 등 소재 정보 관리
- * - 체크박스 기반 옵션 선택, 편집 가능/읽기 전용 모드 지원
- * - 부모 컴포넌트와 데이터 동기화 및 변경 콜백 제공
- */
 // src/components/productregister/MaterialInfoSection.tsx
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ProductDetailResponse } from '@api/adminProduct';
 import BulletIcon from '@assets/BulletIcon.svg';
 
-/**
- * 제품 소재정보 섹션 props
- * - 제품 데이터, 변경 콜백, 편집 가능 여부 등
- */
 interface MaterialInfoSectionProps {
   product: ProductDetailResponse;
   onChange?: (data: Partial<ProductDetailResponse>) => void;
@@ -22,10 +11,7 @@ interface MaterialInfoSectionProps {
   style?: React.CSSProperties;
 }
 
-/**
- * 선택된 옵션 인터페이스
- * - 두께감, 신축성, 안감, 촉감, 비침 등 소재 속성
- */
+// selectedOptions, onChange의 any 타입을 명확하게 지정
 interface SelectedOptions {
   thickness: string;
   elasticity: string;
@@ -34,10 +20,6 @@ interface SelectedOptions {
   transparency: string;
 }
 
-/**
- * 소재 옵션 정의
- * - 각 속성별 라벨과 옵션 값들
- */
 const materialOptions = [
   {
     key: 'thickness',
@@ -66,11 +48,6 @@ const materialOptions = [
   },
 ];
 
-/**
- * 제품 소재정보 섹션 컴포넌트
- * - 제품의 소재 정보를 체크박스 형태로 표시하고 관리
- * - 편집 가능/읽기 전용 모드 지원, 부모와 데이터 동기화
- */
 const MaterialInfoSection: React.FC<MaterialInfoSectionProps> = ({
   product,
   onChange,
@@ -94,10 +71,6 @@ const MaterialInfoSection: React.FC<MaterialInfoSectionProps> = ({
     });
   }, [product]);
 
-  /**
-   * 체크박스 변경 핸들러
-   * - 옵션 선택 시 상태 업데이트 및 부모에게 변경 알림
-   */
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editable) return;
     const { name, value } = e.target;
