@@ -17,6 +17,7 @@ import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import NoResultMessageComponent from '@/components/shared/NoResultMessage';
 import ProductDetailModal from '@/components/shared/ProductDetailModal';
@@ -312,10 +313,10 @@ const BrandDetail: React.FC = () => {
       <UnifiedHeader variant='oneDepth' />
       <PageWrapper>
         <Container>
-          <Header>
-            <Title>{brand?.name}</Title>
-            <Subtitle>새로운 시즌 제품들을 내 손안에!</Subtitle>
-          </Header>
+          <PageHeader
+            title={brand?.name || '브랜드'}
+            subtitle='새로운 시즌 제품들을 내 손안에!'
+          />
 
           <StatsSection
             brandCount={1}
@@ -432,22 +433,6 @@ const Container = styled.div`
   width: 100%;
   position: relative;
   min-height: 100vh; /* CLS 개선을 위한 최소 높이 설정 */
-`;
-
-const Header = styled.div`
-  width: 100%;
-  margin-bottom: 6px;
-`;
-
-const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 800;
-  margin: 0;
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  color: #ccc;
 `;
 
 const Divider = styled.div`

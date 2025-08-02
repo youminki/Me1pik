@@ -6,6 +6,7 @@ import {
   getTermsPolicyDetail,
 } from '@/api-utils/user-managements/terms/termsApi';
 import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
+import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsSection from '@/components/stats-section';
 
@@ -59,10 +60,10 @@ const Notice: React.FC = () => {
     <>
       <UnifiedHeader variant='twoDepth' title='공지사항' />
       <ResponsiveContainer>
-        <Header>
-          <ResponsiveTitle>공지사항</ResponsiveTitle>
-          <Subtitle>새로운 소식 및 서비스 안내를 드립니다.</Subtitle>
-        </Header>
+        <PageHeader
+          title='공지사항'
+          subtitle='새로운 소식 및 서비스 안내를 드립니다.'
+        />
         <StatsRow>
           <StatsSection
             visits={999}
@@ -292,36 +293,7 @@ const ArrowIcon = styled.span`
   color: #888;
 `;
 
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 6px;
-  @media (min-width: 1024px) {
-    margin-bottom: 24px;
-  }
-`;
 
-const ResponsiveTitle = styled.h1`
-  font-weight: 800;
-  font-size: 24px;
-  margin: 0;
-  color: #000;
-  @media (min-width: 1024px) {
-    font-size: 32px;
-    margin-bottom: 10px;
-  }
-`;
-
-const Subtitle = styled.p`
-  font-size: 12px;
-  line-height: 28px;
-  margin: 0;
-  color: #ccc;
-  font-weight: 400;
-  @media (min-width: 1024px) {
-    font-size: 16px;
-  }
-`;
 
 const StatsRow = styled.div`
   display: flex;
