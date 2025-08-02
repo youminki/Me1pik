@@ -48,7 +48,6 @@ const colorOptions = [
 ];
 
 const categoryOptions = [
-  { label: '카테고리를 선택하세요', value: 'Entire', icon: null },
   { label: '미니원피스', value: 'MiniDress', icon: IconMiniDress },
   { label: '미디원피스', value: 'MidiDress', icon: IconMidiDress },
   { label: '롱 원피스', value: 'LongDress', icon: IconLongDress },
