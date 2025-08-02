@@ -1,13 +1,7 @@
 // src/pages/brands/BrandDetail.tsx
 
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-} from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
@@ -18,17 +12,19 @@ import {
   getProductsByBrand,
   Product as ApiProduct,
 } from '@/api-utils/product-managements/products/product';
-import ArrowIconSvg from '@/assets/ArrowIcon.svg';
-import CancleIconIcon from '@/assets/headers/CancleIcon.svg';
-import HomeIcon from '@/assets/headers/HomeIcon.svg';
-import ShareIcon from '@/assets/headers/ShareIcon.svg';
 import StatsSection from '@/components/brands/StatsSection';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
-import HomeDetail from '@/pages/homes/HomeDetail';
+import NoResultMessageComponent from '@/components/shared/NoResultMessage';
+import ProductDetailModal from '@/components/shared/ProductDetailModal';
+import ScrollToTopButtonComponent from '@/components/shared/ScrollToTopButton';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useNoResultHandler } from '@/hooks/useNoResultHandler';
+import { useProductFilter } from '@/hooks/useProductFilter';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 /**
  * BrandDetail 페이지 - 최적화 버전
@@ -47,38 +43,9 @@ interface LocalBrand {
   productCount: number;
 }
 
-const colorMap: Record<string, string> = {
-  화이트: 'WHITE',
-  블랙: 'BLACK',
-  그레이: 'GRAY',
-  네이비: 'NAVY',
-  아이보리: 'IVORY',
-  베이지: 'BEIGE',
-  브라운: 'BROWN',
-  카키: 'KHAKI',
-  그린: 'GREEN',
-  블루: 'BLUE',
-  퍼플: 'PURPLE',
-  버건디: 'BURGUNDY',
-  레드: 'RED',
-  핑크: 'PINK',
-  옐로우: 'YELLOW',
-  오렌지: 'ORANGE',
-  마젠타: 'MAGENTA',
-  민트: 'MINT',
-};
-
-const sizeMap: Record<string, string[]> = {
-  '44(S)': ['44'],
-  '55(M)': ['55'],
-  '66(L)': ['66'],
-  '77(XL)': ['77'],
-};
-
 const BrandDetail: React.FC = () => {
   const { brandId } = useParams<{ brandId: string }>();
   const idNum = brandId ? parseInt(brandId, 10) : NaN;
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // UnifiedHeader 검색창에서 ?search=... 이 설정되면 여기서 읽어옴
@@ -115,79 +82,8 @@ const BrandDetail: React.FC = () => {
   // viewCols 상태 및 관련 로직 제거, 아래처럼 고정값으로 대체
   const viewCols = useMemo(() => (isMobileView ? 2 : 4), [isMobileView]);
 
-  const scrollToTop = useCallback(() => {
-    // 모든 스크롤 방법을 시도
-    const scrollMethods = [
-      () => window.scrollTo(0, 0),
-      () => window.scrollTo({ top: 0, behavior: 'instant' }),
-      () => {
-        if (document.documentElement) {
-          document.documentElement.scrollTop = 0;
-        }
-      },
-      () => {
-        if (document.body) {
-          document.body.scrollTop = 0;
-        }
-      },
-      () => {
-        const root = document.getElementById('root');
-        if (root) {
-          root.scrollTop = 0;
-        }
-      },
-      () => {
-        const html = document.querySelector('html');
-        if (html) {
-          html.scrollTop = 0;
-        }
-      },
-      () => {
-        const firstElement = document.querySelector('body > *:first-child');
-        if (firstElement) {
-          firstElement.scrollIntoView({ behavior: 'instant', block: 'start' });
-        }
-      },
-      () => {
-        const header =
-          document.querySelector('header') ||
-          document.querySelector('[data-testid="header"]');
-        if (header) {
-          header.scrollIntoView({ behavior: 'instant', block: 'start' });
-        }
-      },
-    ];
-
-    // 스크롤 가능한 모든 요소에 대해 시도
-    const allElements = document.querySelectorAll('*');
-    const scrollableElements = Array.from(allElements).filter((el) => {
-      const style = window.getComputedStyle(el);
-      return (
-        style.overflow === 'auto' ||
-        style.overflow === 'scroll' ||
-        style.overflowY === 'auto' ||
-        style.overflowY === 'scroll'
-      );
-    });
-
-    // 모든 방법을 순차적으로 시도
-    scrollMethods.forEach((method) => {
-      try {
-        method();
-      } catch {
-        // 에러 무시하고 계속 진행
-      }
-    });
-
-    // 스크롤 가능한 요소들도 초기화
-    scrollableElements.forEach((el) => {
-      try {
-        el.scrollTop = 0;
-      } catch {
-        // 에러 무시하고 계속 진행
-      }
-    });
-  }, []);
+  // 스크롤 맨 위로 이동 (재사용 가능한 훅 사용)
+  const { scrollToTop } = useScrollToTop();
 
   // URL 쿼리 'category' 변경 시 selectedCategory에 반영
   useEffect(() => {
@@ -289,107 +185,13 @@ const BrandDetail: React.FC = () => {
     return categorizedProducts[selectedCategory] || [];
   }, [categorizedProducts, selectedCategory]);
 
-  // 검색/필터된 상품 목록 (useMemo로 연산 최소화)
-  const filteredProducts = useMemo(() => {
-    if (!currentCategoryProducts) return [];
-    const term = searchQuery.trim().toLowerCase();
-    // 쉼표로 분리된 여러 검색어 처리
-    const terms = term
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
-
-    // 색상 매핑: 한글 <-> 영문
-    const colorMapEntries = Object.entries(colorMap);
-    const allColorKeywords = [
-      ...colorMapEntries.map(([kor]) => kor.toLowerCase()),
-      ...colorMapEntries.map(([, eng]) => eng.toLowerCase()),
-    ];
-
-    // 검색어 중 색상 키워드와 일반 키워드 분리
-    const searchColors: string[] = [];
-    const searchKeywords: string[] = [];
-    terms.forEach((t) => {
-      if (allColorKeywords.includes(t)) {
-        searchColors.push(t);
-      } else if (t) {
-        searchKeywords.push(t);
-      }
-    });
-
-    const filtered = currentCategoryProducts.filter((item) => {
-      const name = (item.name || '').toLowerCase();
-      const desc = (item.description || '').toLowerCase();
-      const color = item.color?.toLowerCase() || '';
-      const sizes = item.sizes || [];
-
-      // 이름/설명 검색: 모든 일반 키워드가 이름/설명에 하나라도 포함되면 true
-      const matchesNameOrDesc =
-        searchKeywords.length === 0 ||
-        searchKeywords.some((kw) => name.includes(kw) || desc.includes(kw));
-
-      // 색상 검색: 검색어에 색상 키워드가 있으면, 상품 색상에 하나라도 포함되면 true
-      let matchesSearchColors = true;
-      if (searchColors.length > 0) {
-        matchesSearchColors = searchColors.some((searchColor) => {
-          // 한글로 입력한 경우 영문도 체크, 영문으로 입력한 경우 한글도 체크
-          const found = colorMapEntries.find(
-            ([kor, eng]) =>
-              kor.toLowerCase() === searchColor ||
-              eng.toLowerCase() === searchColor
-          );
-          if (found) {
-            const [kor, eng] = found;
-            return (
-              color.includes(kor.toLowerCase()) ||
-              color.includes(eng.toLowerCase()) ||
-              color.toUpperCase().includes(eng.toUpperCase())
-            );
-          }
-          return color.includes(searchColor);
-        });
-      }
-
-      // 여러 색상 필터(필터 모달): selectedColors 중 하나라도 포함되면 true
-      let matchesSelectedColors = true;
-      if (selectedColors.length > 0) {
-        matchesSelectedColors = selectedColors.some((selected) => {
-          const engColor = colorMap[selected] || selected;
-          return (
-            color.toUpperCase().includes(engColor) || color.includes(selected)
-          );
-        });
-      }
-
-      // 사이즈 필터: selectedSizes 중 하나라도 상품의 sizes에 포함되면 true
-      let matchesSelectedSizes = true;
-      if (selectedSizes.length > 0) {
-        matchesSelectedSizes = selectedSizes.some((selectedSize) => {
-          // 사이즈 매핑 테이블에서 해당하는 숫자 사이즈들 가져오기
-          const mappedSizes = sizeMap[selectedSize] || [selectedSize];
-          // 상품 사이즈와 매핑된 사이즈들 중 하나라도 일치하는지 확인
-          return mappedSizes.some((mappedSize) => {
-            return sizes.some((productSize) => {
-              // FREE 사이즈 특별 처리
-              if (selectedSize === 'FREE') {
-                return /free/i.test(productSize);
-              }
-              // 숫자 사이즈 매칭 - 정확한 숫자 비교
-              return productSize === mappedSize;
-            });
-          });
-        });
-      }
-
-      return (
-        matchesNameOrDesc &&
-        matchesSearchColors &&
-        matchesSelectedColors &&
-        matchesSelectedSizes
-      );
-    });
-    return filtered;
-  }, [currentCategoryProducts, searchQuery, selectedColors, selectedSizes]);
+  // 검색/필터된 상품 목록 (재사용 가능한 훅 사용)
+  const { filteredProducts } = useProductFilter({
+    products: currentCategoryProducts,
+    searchQuery,
+    selectedColors,
+    selectedSizes,
+  });
 
   // 상세 모달 ID
   const modalId = searchParams.get('id');
@@ -458,7 +260,6 @@ const BrandDetail: React.FC = () => {
     setSearchQuery('');
     setSelectedColors([]);
     setSelectedSizes([]);
-    setShowNoResult(false); // showNoResult 상태도 초기화
     // URL에서 search 파라미터 제거
     setSearchParams(
       (prev) => {
@@ -483,103 +284,23 @@ const BrandDetail: React.FC = () => {
     }));
   }, [filteredProducts, brand?.name]);
 
-  // 무한스크롤 관련 상태
-  const [visibleCount, setVisibleCount] = useState(40);
-  const observerRef = useRef<HTMLDivElement | null>(null);
+  // 무한스크롤 (재사용 가능한 훅 사용)
+  const { visibleItems, observerRef } = useInfiniteScroll({
+    items: uiItems,
+    resetKey: selectedCategory, // 카테고리 변경 시 초기화
+  });
 
-  // 무한스크롤 IntersectionObserver
-  useEffect(() => {
-    if (!observerRef.current) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount((prev) => Math.min(prev + 40, uiItems.length));
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(observerRef.current);
-    return () => observer.disconnect();
-  }, [uiItems.length]);
-
-  const visibleItems = uiItems.slice(0, visibleCount);
-
-  // 검색/필터 결과 없음일 때 문구만 표시
-  const [showNoResult, setShowNoResult] = useState(false);
-  const [countdown, setCountdown] = useState(3);
-
-  // 검색 결과 없음 감지 및 자동 초기화
-  useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
-    let countdownTimer: NodeJS.Timeout | null = null;
-
-    // 검색어나 필터가 있고, 로딩이 완료되었으며, 결과가 없을 때
-    const hasActiveFilters =
-      searchQuery.trim() ||
-      selectedColors.length > 0 ||
-      selectedSizes.length > 0;
-    const shouldShowNoResult =
-      !loadingProducts && uiItems.length === 0 && hasActiveFilters;
-
-    // 검색어나 필터가 변경되면 즉시 showNoResult를 false로 설정
-    if (!hasActiveFilters) {
-      setShowNoResult(false);
-      setCountdown(3);
-      return;
-    }
-
-    if (shouldShowNoResult) {
-      timer = setTimeout(() => {
-        setShowNoResult(true);
-        setCountdown(3);
-
-        // 3초 카운트다운 후 자동 초기화
-        countdownTimer = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev <= 1) {
-              // 카운트다운 완료 시 모든 필터 초기화
-              setSearchQuery('');
-              setSelectedColors([]);
-              setSelectedSizes([]);
-              setShowNoResult(false);
-              setCountdown(3);
-
-              // URL에서 search 파라미터 제거
-              setSearchParams(
-                (prev) => {
-                  const params = Object.fromEntries(prev.entries());
-                  delete params.search;
-                  return params;
-                },
-                { replace: true }
-              );
-
-              if (countdownTimer) {
-                clearInterval(countdownTimer);
-              }
-              return 3;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      }, 300);
-    } else {
-      setShowNoResult(false);
-      setCountdown(3);
-    }
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      if (countdownTimer) clearInterval(countdownTimer);
-    };
-  }, [
-    loadingProducts,
-    uiItems.length,
+  // 검색 결과 없음 처리 (재사용 가능한 훅 사용)
+  const { showNoResult, countdown } = useNoResultHandler({
+    items: uiItems,
     searchQuery,
     selectedColors,
     selectedSizes,
+    isLoading: loadingProducts,
+    selectedCategory,
+    onClearFilters: handleClearFilters,
     setSearchParams,
-  ]);
+  });
 
   // 에러 처리
   if (errorProducts) {
@@ -606,9 +327,17 @@ const BrandDetail: React.FC = () => {
             selectedCategory={selectedCategory}
             setSelectedCategory={(cat) => {
               setSelectedCategory(cat);
-              scrollToTop();
+              // 카테고리 변경 시 스크롤을 맨 위로 이동
+              setTimeout(() => {
+                scrollToTop();
+              }, 100);
             }}
-            onCategoryClick={scrollToTop}
+            onCategoryClick={() => {
+              // 카테고리 클릭 시 스크롤을 맨 위로 이동
+              setTimeout(() => {
+                scrollToTop();
+              }, 100);
+            }}
             isLoading={loadingProducts}
           />
 
@@ -661,13 +390,7 @@ const BrandDetail: React.FC = () => {
               <ItemList items={[]} columns={viewCols} isLoading={true} />
             ) : showNoResult ? (
               <ContentWrapper>
-                <NoResultMessage>
-                  조건에 맞는 상품이 없습니다.
-                  <br />
-                  <CountdownText>
-                    {countdown}초 후 전체 상품으로 이동합니다...
-                  </CountdownText>
-                </NoResultMessage>
+                <NoResultMessageComponent countdown={countdown} />
               </ContentWrapper>
             ) : (
               <>
@@ -676,7 +399,6 @@ const BrandDetail: React.FC = () => {
                   columns={viewCols}
                   onItemClick={handleItemClick}
                   observerRef={observerRef as React.RefObject<HTMLDivElement>}
-                  visibleCount={visibleCount}
                 />
                 <div ref={observerRef} style={{ height: 1 }} />
               </>
@@ -684,41 +406,16 @@ const BrandDetail: React.FC = () => {
           </MainContent>
 
           {/* 하단 스크롤 탑 버튼(유지) */}
-          <ScrollToTopButton onClick={scrollToTop}>
-            <ArrowIconImg src={ArrowIconSvg} alt='위로 이동' />
-          </ScrollToTopButton>
+          <ScrollToTopButtonComponent onClick={scrollToTop} />
         </Container>
 
         {/* 상세 모달 */}
-        {isModalOpen && modalId && (
-          <ModalOverlay>
-            <ModalBox>
-              <ModalHeaderWrapper>
-                <ModalHeaderContainer>
-                  <LeftSection>
-                    <CancleIcon
-                      src={CancleIconIcon}
-                      alt='취소'
-                      onClick={handleCloseModal}
-                    />
-                  </LeftSection>
-                  <CenterSection />
-                  <RightSection>
-                    <Icon src={ShareIcon} alt='공유' onClick={handleShare} />
-                    <Icon
-                      src={HomeIcon}
-                      alt='홈'
-                      onClick={() => navigate('/home')}
-                    />
-                  </RightSection>
-                </ModalHeaderContainer>
-              </ModalHeaderWrapper>
-              <ModalBody>
-                <HomeDetail id={modalId} />
-              </ModalBody>
-            </ModalBox>
-          </ModalOverlay>
-        )}
+        <ProductDetailModal
+          isOpen={isModalOpen}
+          modalId={modalId}
+          onClose={handleCloseModal}
+          onShare={handleShare}
+        />
       </PageWrapper>
     </>
   );
@@ -760,113 +457,6 @@ const Divider = styled.div`
   margin: 30px 0 0;
 `;
 
-const ScrollToTopButton = styled.button`
-  position: fixed;
-  bottom: 100px;
-  right: 14px;
-  width: 48px;
-  height: 48px;
-  border: none;
-  cursor: pointer;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  background: #555555;
-  border-radius: 6px;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s,
-    opacity 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-
-  &:hover {
-    transform: scale(1.1);
-    background: #666666;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  @media (min-width: 1000px) {
-    right: calc((100vw - 1000px) / 2 + 20px);
-  }
-`;
-
-const ArrowIconImg = styled.img`
-  width: 24px;
-  height: 24px;
-  display: block;
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  overscroll-behavior: contain;
-`;
-
-const ModalBox = styled.div`
-  background: #fff;
-  width: 100%;
-  max-width: 1000px;
-  height: 100%;
-  overflow-y: auto;
-  position: relative;
-  overscroll-behavior: contain;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const ModalHeaderWrapper = styled.div`
-  position: fixed;
-  top: 0;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-  background: #fff;
-  z-index: 2100;
-`;
-
-const ModalHeaderContainer = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-`;
-
-const ModalBody = styled.div`
-  padding-top: 70px;
-`;
-
-const LeftSection = styled.div`
-  cursor: pointer;
-`;
-const CenterSection = styled.div`
-  flex: 1;
-`;
-const RightSection = styled.div`
-  display: flex;
-  gap: 19px;
-`;
-
-const CancleIcon = styled.img`
-  cursor: pointer;
-`;
-const Icon = styled.img`
-  cursor: pointer;
-`;
-
 // styled-components: Home.tsx에서 ContentWrapper, NoResultText, CountdownText 복사 (파일 하단에 위치)
 const PageWrapper = styled.div`
   display: flex;
@@ -879,7 +469,7 @@ const MainContent = styled.div`
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
+
   width: 100%;
   min-height: 400px; /* CLS 개선을 위한 최소 높이 설정 */
 `;
@@ -891,28 +481,4 @@ const ContentWrapper = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 400px; /* CLS 개선을 위한 최소 높이 설정 */
-`;
-
-const NoResultMessage = styled.div`
-  min-width: 220px;
-  max-width: 90vw;
-  margin: 0 auto;
-  text-align: center;
-  font-size: 18px;
-  color: #888;
-  font-weight: 600;
-  padding: 40px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border-radius: 12px;
-`;
-
-const CountdownText = styled.div`
-  font-size: 14px;
-  color: #999;
-  font-weight: 400;
-  margin-top: 8px;
 `;
