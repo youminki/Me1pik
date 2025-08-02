@@ -1,7 +1,36 @@
 import { matchPath } from 'react-router-dom';
 
+/**
+ * useHeaderConfig 훅
+ *
+ * 현재 경로(path)에 따라 헤더의 뎁스, 타이틀, 하단 네비게이션 등 UI 구성을 반환합니다.
+ *
+ * @param path - 현재 라우트 경로
+ * @returns HeaderConfig 객체 (헤더 포함 여부, 타이틀, 패딩 등)
+ */
+
+/**
+ * Variant 타입
+ *
+ * 헤더의 깊이를 나타내는 타입입니다.
+ * - default: 기본 헤더
+ * - oneDepth: 1단계 헤더
+ * - twoDepth: 2단계 헤더
+ * - threeDepth: 3단계 헤더
+ */
 type Variant = 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
 
+/**
+ * HeaderConfig 인터페이스
+ *
+ * @property includeHeader1 - 기본 헤더 포함 여부
+ * @property includeHeader2 - 1단계 헤더 포함 여부
+ * @property includeHeader3 - 2단계 헤더 포함 여부
+ * @property includeHeader4 - 3단계 헤더 포함 여부
+ * @property includeBottomNav - 하단 네비게이션 포함 여부
+ * @property headerTitle - 헤더 타이틀
+ * @property disablePadding - 패딩 비활성화 여부
+ */
 interface HeaderConfig {
   includeHeader1: boolean;
   includeHeader2: boolean;
@@ -12,6 +41,11 @@ interface HeaderConfig {
   disablePadding: boolean;
 }
 
+/**
+ * 헤더 규칙 배열
+ *
+ * 경로 패턴에 따른 헤더 설정 규칙을 정의합니다.
+ */
 const headerRules: {
   paths: string[];
   variant: Variant;
@@ -88,6 +122,7 @@ export default function useHeaderConfig(path: string): HeaderConfig {
   let variant: Variant = 'default';
   let getTitle: ((path: string) => string) | undefined;
 
+  // 경로에 맞는 헤더 규칙 찾기
   for (const rule of headerRules) {
     if (rule.paths.some((p) => matchPath(p, path))) {
       variant = rule.variant;
@@ -115,6 +150,14 @@ export default function useHeaderConfig(path: string): HeaderConfig {
   };
 }
 
+/**
+ * getTwoDepthTitle 함수
+ *
+ * 2단계 헤더의 타이틀을 경로에 따라 반환합니다.
+ *
+ * @param path - 현재 경로
+ * @returns 헤더 타이틀 문자열
+ */
 function getTwoDepthTitle(path: string): string {
   const map: Record<string, string> = {
     '/createMelpik/settings': '컨템포러리',
@@ -141,6 +184,14 @@ function getTwoDepthTitle(path: string): string {
   return '';
 }
 
+/**
+ * getThreeDepthTitle 함수
+ *
+ * 3단계 헤더의 타이틀을 경로에 따라 반환합니다.
+ *
+ * @param path - 현재 경로
+ * @returns 헤더 타이틀 문자열
+ */
 function getThreeDepthTitle(path: string): string {
   const map: Record<string, string> = {
     '/signup': '회원가입',

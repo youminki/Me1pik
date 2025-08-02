@@ -1,4 +1,13 @@
-// s../../components/Link.tsx
+/**
+ * 링크 공유 페이지 컴포넌트
+ *
+ * 쿠폰 코드 복사, 브랜드 소개, 기능 안내 등을 제공하는 랜딩 페이지입니다.
+ *
+ * @description
+ * - 쿠폰 코드 클립보드 복사 기능
+ * - 브랜드 소개 및 기능 안내
+ * - 반응형 디자인 지원
+ */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -12,13 +21,18 @@ import phoneMock from '@/assets/links/phone-mock.png';
 const Link: React.FC = () => {
   const navigate = useNavigate();
 
-  // 복사할 코드(예시)
+  // 복사할 쿠폰 코드 (예시)
   const couponCode = 'ABC2QWR345';
 
   // 복사 상태 관리
   const [isCopied, setIsCopied] = useState(false);
 
-  // 클립보드 복사 함수
+  /**
+   * 클립보드 복사 함수
+   *
+   * 쿠폰 코드를 클립보드에 복사하고 상태를 업데이트합니다.
+   * 2초 후 자동으로 복사 상태를 초기화합니다.
+   */
   const handleCopy = () => {
     navigator.clipboard.writeText(couponCode).then(() => {
       setIsCopied(true);

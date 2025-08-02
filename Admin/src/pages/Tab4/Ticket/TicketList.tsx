@@ -1,3 +1,10 @@
+/**
+ * 이용권 목록(TicketList) 페이지
+ *
+ * - 이용권 상태별 필터링, 검색, 일괄 상태 변경 등 지원
+ * - react-query 기반 데이터 관리, 페이지네이션, 체크박스 등 포함
+ * - Chip 컴포넌트로 필터 표시, BulkChangeUI로 일괄 변경
+ */
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -12,6 +19,10 @@ import {
 } from '@api/Ticket/TicketApi';
 import { advancedSearchFilter, normalize } from '@utils/advancedSearch';
 
+/**
+ * 이용권 상태 탭 옵션
+ * - 전체/결제완료/결제대기/이용완료/취소내역 등
+ */
 const tabs: TabItem[] = [
   { label: '전체보기', path: '' },
   { label: '결제완료', path: '결제완료' },
@@ -20,6 +31,10 @@ const tabs: TabItem[] = [
   { label: '취소내역', path: '취소완료' },
 ];
 
+/**
+ * 이용권 상태 옵션
+ * - 결제완료, 결제대기, 이용완료, 취소완료 등
+ */
 const statusOptions = [
   { label: '결제완료', value: '결제완료' },
   { label: '결제대기', value: '결제대기' },
@@ -27,7 +42,10 @@ const statusOptions = [
   { label: '취소완료', value: '취소완료' },
 ];
 
-// Chip 컴포넌트 (제품 관리에서 복사)
+/**
+ * Chip 컴포넌트 (제품 관리에서 복사)
+ * - 필터 표시용, 삭제 기능 포함
+ */
 const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
   <span
     style={{
@@ -72,6 +90,11 @@ const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
   </span>
 );
 
+/**
+ * 이용권 목록 컴포넌트
+ * - 이용권 목록을 표시하고 필터링/일괄변경 기능 제공
+ * - react-query를 사용하여 데이터를 관리하며, 클라이언트 페이지네이션 지원
+ */
 const TicketList: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();

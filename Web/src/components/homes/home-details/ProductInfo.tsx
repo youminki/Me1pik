@@ -1,3 +1,4 @@
+// 제품 정보 컴포넌트 - 제품 기본 정보 표시 및 찜 기능 제공
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -5,6 +6,7 @@ import { addToCloset } from '@/api-utils/product-managements/closets/closetApi';
 import AddTekIcon from '@/assets/homes/home-details/AddTek.svg';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
+// 제품 정보 Props 인터페이스
 export interface ProductInfoProps {
   item: {
     brand: string;
@@ -17,11 +19,14 @@ export interface ProductInfoProps {
   productId: number;
 }
 
+// 메인 제품 정보 컴포넌트
 const ProductInfo: React.FC<ProductInfoProps> = ({ item, productId }) => {
+  // 모달 상태 관리
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [modalTitle, setModalTitle] = useState('');
 
+  // 찜 추가 클릭 핸들러
   const handleAddTekClick = async () => {
     try {
       await addToCloset(productId);
@@ -42,15 +47,19 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ item, productId }) => {
 
   return (
     <InfoContainer>
+      {/* 브랜드 정보 */}
       <CategoryText>
         브랜드 <span className='gt'>&gt;</span>{' '}
         <span className='brand'>{item.brand}</span>
       </CategoryText>
+
+      {/* 제품명 */}
       <ProductTitle>
         {item.product_num} / {item.name}
       </ProductTitle>
 
       <ContentContainer>
+        {/* 가격 정보 */}
         <PriceContainer>
           <OriginalPrice>{item.retailPrice.toLocaleString()}원</OriginalPrice>
           <DiscountRow>
@@ -61,11 +70,13 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ item, productId }) => {
           </DiscountRow>
         </PriceContainer>
 
+        {/* 찜 버튼 */}
         <TekImageContainer onClick={handleAddTekClick}>
           <img src={AddTekIcon} alt='찜 추가' width={80} height={80} />
         </TekImageContainer>
       </ContentContainer>
 
+      {/* 결과 모달 */}
       <ReusableModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -79,6 +90,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ item, productId }) => {
 
 export default ProductInfo;
 
+// 스타일 컴포넌트들
 const InfoContainer = styled.div`
   width: 100%;
   margin-bottom: 30px;
@@ -123,20 +135,17 @@ const DiscountRow = styled.div`
   align-items: baseline;
   margin-top: 10px;
 `;
-
 const DiscountPercent = styled.span`
   color: #f6ae24;
   margin-right: 10px;
   font-weight: 900;
   font-size: 18px;
 `;
-
 const DiscountPrice = styled.span`
   font-weight: 900;
   font-size: 18px;
   line-height: 20px;
 `;
-
 const TekImageContainer = styled.div`
   cursor: pointer;
 `;

@@ -1,4 +1,18 @@
-// Signup.tsx
+/**
+ * 회원가입 페이지 컴포넌트 (Signup.tsx)
+ *
+ * 새로운 사용자의 회원가입을 처리하는 페이지를 제공합니다.
+ * 이메일, 비밀번호, 개인정보, 신체 정보, 선호 브랜드 등 다양한 정보를 수집하며,
+ * 실시간 유효성 검사, 중복 확인, 인증 코드 검증 등의 기능을 포함합니다.
+ *
+ * @description
+ * - 다단계 회원가입 폼
+ * - 실시간 유효성 검사 및 중복 확인
+ * - 이메일/전화번호 인증 코드 검증
+ * - 신체 정보 및 선호 브랜드 수집
+ * - 키보드 상태 감지 및 UI 최적화
+ * - 약관 동의 및 개인정보 처리
+ */
 import { yupResolver } from '@hookform/resolvers/yup';
 import React, { useState, useRef, useEffect } from 'react';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';

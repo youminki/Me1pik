@@ -1,3 +1,11 @@
+/**
+ * 주문 테이블(OrderTable)
+ *
+ * - 주문 정보를 표 형태로 렌더링
+ * - 주문일, 주문자, 브랜드, 스타일, 사이즈, 결제 정보 등 표시
+ * - 주문자 계정 클릭 시 상세 페이지 이동, 체크박스 선택 기능 지원
+ * - 재사용 가능한 공통 컴포넌트
+ */
 // src/components/OrderTable.tsx
 import React, { useCallback } from 'react';
 import StatusBadge from 'src/components/Common/StatusBadge';
@@ -6,7 +14,10 @@ import CommonTable from '@components/CommonTable'; // default import
 import { AccountContainer, ProfileCircle, AccountText } from '@components/Common/Profile';
 import { getStatusBadge } from 'src/utils/statusUtils';
 
-/** 주문 인터페이스 */
+/**
+ * 주문 인터페이스
+ * - 주문 목록에 필요한 주문 정보 구조
+ */
 export interface Order {
   no: number; // No.
   orderDate: string; // 주문일
@@ -19,7 +30,10 @@ export interface Order {
   paymentStatus: string; // 결제상태 (결제 완료, 취소일정 등)
 }
 
-/** OrderTable Props */
+/**
+ * 주문 테이블 props
+ * - 주문 데이터, 편집 핸들러, 선택 상태 등
+ */
 interface OrderTableProps {
   data: Order[]; // 또는 data: T[];
   handleEdit: (no: number) => void; // 주문자(계정) 클릭 시 이벤트
@@ -28,6 +42,10 @@ interface OrderTableProps {
   onSelectRow?: (row: Order, checked: boolean) => void;
 }
 
+/**
+ * 주문 컬럼 생성 함수
+ * - 주문 테이블에 필요한 컬럼 정의 및 렌더링 로직
+ */
 function getOrderColumns<
   T extends {
     no: number;
@@ -71,6 +89,10 @@ function getOrderColumns<
   ];
 }
 
+/**
+ * 주문 테이블 컴포넌트
+ * - 주문 정보를 테이블 형태로 표시
+ */
 const OrderTable: React.FC<OrderTableProps> = ({
   data,
   handleEdit,
@@ -79,13 +101,18 @@ const OrderTable: React.FC<OrderTableProps> = ({
   onSelectRow,
   ...props
 }) => {
-  // handleEdit을 각 row에 추가
+  /**
+   * handleEdit을 각 row에 추가하여, 주문자 클릭 시 상세/수정 진입이 가능하도록 합니다.
+   */
   const dataWithEdit = data.map((order) => ({
     ...order,
     handleEdit,
   }));
 
-  // useCallback으로 최적화된 핸들러 생성
+  /**
+   * useCallback으로 최적화된 핸들러 생성
+   * - 주문자 계정 클릭 시 편집 핸들러 호출
+   */
   const handleAccountClick = useCallback(
     (no: number) => {
       handleEdit(no);

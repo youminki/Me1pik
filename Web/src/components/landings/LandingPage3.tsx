@@ -1,3 +1,15 @@
+/**
+ * AI 매칭 랜딩 페이지 컴포넌트 (LandingPage3.tsx)
+ *
+ * 멜픽의 AI 기반 스타일 매칭 시스템을 소개하는 랜딩 페이지입니다.
+ * 애니메이션, 시각적 효과, 스타일 분석 메시지를 통해 서비스의 특징을 강조합니다.
+ *
+ * @description
+ * - AI 스타일 매칭 서비스 소개
+ * - 애니메이션 효과 및 메시지 순차 노출
+ * - 반응형 디자인 지원
+ * - 시각적 임팩트 강조
+ */
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
@@ -7,6 +19,14 @@ import SampleJacket from '@/assets/landings/SampleJacket.jpg';
 
 const cycleDuration = '8s';
 
+/**
+ * AI 매칭 랜딩 페이지 컴포넌트
+ *
+ * 멜픽의 AI 스타일 매칭 시스템을 시각적으로 소개하는 랜딩 페이지입니다.
+ * 순차적으로 메시지가 노출되며, 다양한 애니메이션 효과를 포함합니다.
+ *
+ * @returns AI 매칭 랜딩 페이지 JSX 요소
+ */
 const LandingPage3: React.FC = () => {
   return (
     <Container>
@@ -51,6 +71,12 @@ const LandingPage3: React.FC = () => {
 
 export default LandingPage3;
 
+/**
+ * 전체 컨테이너
+ *
+ * 랜딩 페이지 전체를 감싸는 컨테이너입니다.
+ * 배경색, 라운드, 중앙 정렬을 제공합니다.
+ */
 const Container = styled.div`
   height: 760px;
   margin: 0 auto;
@@ -62,6 +88,11 @@ const Container = styled.div`
   justify-content: flex-start;
 `;
 
+/**
+ * 상단 구분 아이콘
+ *
+ * 상단에 위치한 구분용 슬래시 아이콘입니다.
+ */
 const BulletIcon = styled.div`
   font-size: 35px;
   margin-bottom: 10px;
@@ -69,12 +100,22 @@ const BulletIcon = styled.div`
   transform: rotate(10deg);
 `;
 
+/**
+ * 상단 섹션
+ *
+ * 타이틀과 서브타이틀을 포함하는 상단 영역입니다.
+ */
 const TopSection = styled.div`
   width: 100%;
   text-align: center;
   margin-top: 30px;
 `;
 
+/**
+ * AI 매칭 타이틀
+ *
+ * AI 매칭 시스템을 강조하는 서브타이틀입니다.
+ */
 const MatchingTitle = styled.div`
   font-weight: 700;
   font-size: 15px;
@@ -84,6 +125,11 @@ const MatchingTitle = styled.div`
   margin-bottom: 10px;
 `;
 
+/**
+ * 메인 타이틀
+ *
+ * AI 매칭 서비스의 메인 메시지를 표시합니다.
+ */
 const MainTitle = styled.h1`
   font-weight: 700;
   font-size: 23px;
@@ -92,6 +138,11 @@ const MainTitle = styled.h1`
   color: #000000;
 `;
 
+/**
+ * 중간 섹션
+ *
+ * 이미지와 메시지 박스를 포함하는 중간 영역입니다.
+ */
 const MiddleSection = styled.div`
   width: 100%;
   display: flex;
@@ -99,6 +150,11 @@ const MiddleSection = styled.div`
   margin-top: 20px;
 `;
 
+/**
+ * 이미지 래퍼
+ *
+ * 샘플 자켓 이미지와 아이콘, 메시지 박스를 감싸는 컨테이너입니다.
+ */
 const ImageWrapper = styled.div`
   position: relative;
   width: 228px;

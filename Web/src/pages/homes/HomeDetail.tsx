@@ -1,4 +1,18 @@
-// src/pages/homesDetail.tsx
+/**
+ * 상품 상세 페이지 컴포넌트 (HomeDetail.tsx)
+ *
+ * 개별 상품의 상세 정보를 표시하는 페이지를 제공합니다.
+ * 상품 이미지 슬라이더, 상품 정보, 옵션 선택, 장바구니 추가,
+ * 구매/대여 서비스 선택 등의 기능을 포함합니다.
+ *
+ * @description
+ * - 상품 이미지 슬라이더 및 갤러리
+ * - 상품 정보 및 옵션 선택 (사이즈, 색상)
+ * - 구매/대여 서비스 선택
+ * - 장바구니 추가 및 수정
+ * - 상품 상세 정보 표시 (재질, 사이즈 가이드)
+ * - 결제 방법 및 서비스 기간 선택
+ */
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';

@@ -1,16 +1,60 @@
+/**
+ * 커스텀 모달 컴포넌트 (CustomModal.tsx)
+ *
+ * 특정 용도에 맞게 커스터마이징된 모달 컴포넌트를 제공합니다.
+ * 테마 시스템과 연동되어 일관된 디자인을 유지하며,
+ * 다양한 크기와 스타일 옵션을 지원합니다.
+ *
+ * @description
+ * - 테마 기반 스타일링
+ * - 다양한 크기 옵션
+ * - 커스터마이징 가능한 헤더와 바디
+ * - 접근성 지원
+ * - 애니메이션 효과
+ * - 반응형 디자인
+ */
+
 import React from 'react';
 import styled from 'styled-components';
 
+/**
+ * 커스텀 모달 속성 인터페이스
+ *
+ * 커스텀 모달 컴포넌트의 props를 정의합니다.
+ *
+ * @property isOpen - 모달 열림 상태
+ * @property onClose - 모달 닫기 핸들러
+ * @property onConfirm - 확인 버튼 클릭 핸들러 (선택적)
+ * @property title - 모달 제목 (선택적)
+ * @property children - 모달 내용
+ * @property width - 모달 너비 (기본값: '100%')
+ * @property height - 모달 높이 (기본값: '360px')
+ */
 interface CustomModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm?: () => void;
-  title?: string;
-  children: React.ReactNode;
-  width?: string;
-  height?: string;
+  isOpen: boolean; // 모달 열림 상태
+  onClose: () => void; // 모달 닫기 핸들러
+  onConfirm?: () => void; // 확인 버튼 클릭 핸들러 (선택적)
+  title?: string; // 모달 제목 (선택적)
+  children: React.ReactNode; // 모달 내용
+  width?: string; // 모달 너비 (기본값: '100%')
+  height?: string; // 모달 높이 (기본값: '360px')
 }
 
+/**
+ * 커스텀 모달 컴포넌트
+ *
+ * 특정 용도에 맞춤화된 모달을 렌더링하는 컴포넌트입니다.
+ * 고정된 크기와 레이아웃을 가지며, 취소/확인 버튼을 포함합니다.
+ *
+ * @param isOpen - 모달 열림 상태
+ * @param onClose - 모달 닫기 핸들러
+ * @param onConfirm - 확인 버튼 클릭 핸들러 (선택적)
+ * @param title - 모달 제목 (선택적)
+ * @param children - 모달 내용
+ * @param width - 모달 너비 (기본값: '100%')
+ * @param height - 모달 높이 (기본값: '360px')
+ * @returns 커스텀 모달 컴포넌트
+ */
 const CustomModal: React.FC<CustomModalProps> = ({
   isOpen,
   onClose,

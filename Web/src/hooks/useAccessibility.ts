@@ -1,8 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * 키보드 네비게이션 훅
- * @param items 아이템 배열
+ * useAccessibility 훅 모음
+ *
+ * 웹 접근성을 향상시키는 다양한 기능을 제공하는 커스텀 훅 집합입니다.
+ * - useKeyboardNavigation: 키보드 네비게이션
+ * - useFocusTrap: 포커스 트랩
+ * - useScreenReaderAnnouncement: 스크린 리더 안내
+ * - useHighContrastMode: 고대비 모드 감지
+ * - useDarkMode: 다크 모드 감지
+ */
+
+/**
+ * useKeyboardNavigation 훅
+ *
+ * 리스트 등에서 키보드로 포커스 이동을 제어하는 훅입니다.
+ *
+ * @template T - 아이템 타입
+ * @param items - 아이템 배열
  * @returns { selectedIndex, handleKeyDown, setSelectedIndex }
  */
 export const useKeyboardNavigation = <T>(items: T[]) => {
@@ -33,8 +48,11 @@ export const useKeyboardNavigation = <T>(items: T[]) => {
 };
 
 /**
- * 포커스 트랩 훅
- * @param isActive 트랩 활성화 여부
+ * useFocusTrap 훅
+ *
+ * 모달 등에서 포커스가 외부로 빠져나가지 않도록 제어하는 훅입니다.
+ *
+ * @param isActive - 트랩 활성화 여부
  * @returns { ref }
  */
 export const useFocusTrap = (isActive: boolean) => {
@@ -80,9 +98,12 @@ export const useFocusTrap = (isActive: boolean) => {
 };
 
 /**
- * 스크린 리더 안내 훅
- * @param message 안내 메시지
- * @param shouldAnnounce 발표 여부
+ * useScreenReaderAnnouncement 훅
+ *
+ * 스크린 리더 사용자에게 동적으로 메시지를 안내하는 훅입니다.
+ *
+ * @param message - 안내 메시지
+ * @param shouldAnnounce - 발표 여부
  */
 export const useScreenReaderAnnouncement = (
   message: string,
@@ -117,7 +138,10 @@ export const useScreenReaderAnnouncement = (
 };
 
 /**
- * 고대비 모드 감지 훅
+ * useHighContrastMode 훅
+ *
+ * 사용자의 고대비 모드 설정을 감지하는 훅입니다.
+ *
  * @returns { isHighContrast }
  */
 export const useHighContrastMode = () => {
@@ -142,7 +166,10 @@ export const useHighContrastMode = () => {
 };
 
 /**
- * 다크 모드 감지 훅
+ * useDarkMode 훅
+ *
+ * 사용자의 다크 모드 설정을 감지하는 훅입니다.
+ *
  * @returns { isDarkMode }
  */
 export const useDarkMode = () => {

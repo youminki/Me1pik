@@ -1,24 +1,48 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+/**
+ * 권한 설정 테이블(PermissionSettingsTable)
+ *
+ * - 관리자 권한 설정을 체크박스 형태로 렌더링
+ * - 권한 그룹별로 체크박스 그룹화, 상태 관리 등 지원
+ * - 실시간 권한 변경 및 상태 업데이트 기능
+ * - 재사용 가능한 공통 컴포넌트
+ */
+
 interface PermissionItem {
   label: string;
   checked: boolean;
 }
 
+/**
+ * 권한 아이템 인터페이스
+ * - 개별 권한에 대한 라벨과 체크 상태
+ */
 export interface PermissionGroup {
   category: string;
   permissions: PermissionItem[];
 }
 
+/**
+ * 권한 설정 테이블 props
+ * - 권한 그룹 데이터 등
+ */
 interface PermissionSettingsTableProps {
   data: PermissionGroup[];
 }
 
+/**
+ * 권한 설정 테이블 컴포넌트
+ * - 권한 설정을 체크박스 형태로 표시
+ */
 const PermissionSettingsTable: React.FC<PermissionSettingsTableProps> = ({ data }) => {
   const [permissionState, setPermissionState] = useState<PermissionGroup[]>(data);
 
-  // 체크박스 상태 변경 핸들러
+  /**
+   * 체크박스 상태 변경 핸들러
+   * - 체크박스 클릭 시 해당 권한의 상태를 토글
+   */
   const handleCheckboxChange = (groupIdx: number, permIdx: number) => {
     const newState = [...permissionState];
     newState[groupIdx].permissions[permIdx].checked =
@@ -60,6 +84,10 @@ const PermissionSettingsTable: React.FC<PermissionSettingsTableProps> = ({ data 
 
 export default PermissionSettingsTable;
 
+/**
+ * 섹션 박스 스타일드 컴포넌트
+ * - 권한 설정 섹션의 컨테이너 스타일링
+ */
 const SectionBox = styled.div`
   position: relative;
   width: 100%;

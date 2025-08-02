@@ -1,3 +1,10 @@
+/**
+ * 제품 이미지 섹션(ProductImageSection)
+ *
+ * - 제품 이미지 업로드, 삭제, 순서 변경 등 관리
+ * - 드래그 앤 드롭으로 순서 변경, 일괄 URL 등록, 클립보드 복사 등 지원
+ * - 메인 이미지 표시, 삭제 버튼, URL 입력 등 다양한 기능 제공
+ */
 // src/components/productregister/ProductImageSection.tsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -5,6 +12,10 @@ import { FaTimes, FaLink } from 'react-icons/fa';
 
 import BulletIcon from '@assets/BulletIcon.svg'; // SVG 아이콘 import
 
+/**
+ * 제품 이미지 섹션 props
+ * - 이미지 배열, 핸들러 함수들, 제품 URL 등
+ */
 interface ProductImageSectionProps {
   images: string[];
   handleImageLinkUpload: (index: number, url: string) => void;
@@ -14,6 +25,11 @@ interface ProductImageSectionProps {
   style?: React.CSSProperties;
 }
 
+/**
+ * 제품 이미지 섹션 컴포넌트
+ * - 제품 이미지를 표시하고 관리하는 기능 제공
+ * - 드래그 앤 드롭, URL 입력, 일괄 등록, 복사 등 다양한 기능 지원
+ */
 const ProductImageSection: React.FC<ProductImageSectionProps> = ({
   images,
   handleImageLinkUpload,
@@ -23,11 +39,19 @@ const ProductImageSection: React.FC<ProductImageSectionProps> = ({
 }) => {
   const [isCopied, setIsCopied] = useState(false);
 
+  /**
+   * URL 추가 핸들러
+   * - 개별 이미지 URL 입력 및 검증
+   */
   const onAddUrl = (idx: number) => {
     const url = window.prompt('이미지 URL을 입력해주세요\n예: https://…jpg#addimg');
     if (url?.trim()) handleImageLinkUpload(idx, url.trim());
   };
 
+  /**
+   * 일괄 URL 등록 핸들러
+   * - 여러 이미지 URL을 한 번에 입력하여 등록
+   */
   const onBatchUrl = () => {
     const input = window.prompt(
       '여러 이미지 URL을 붙여넣으세요.\n쉼표(,) 또는 공백·줄바꿈으로 구분',
@@ -45,6 +69,10 @@ const ProductImageSection: React.FC<ProductImageSectionProps> = ({
     urls.forEach((url, i) => handleImageLinkUpload(startIdx + i, url));
   };
 
+  /**
+   * 드래그 앤 드롭 핸들러들
+   * - 드래그 시작, 오버, 드롭 이벤트 처리
+   */
   const onDragStart = (e: React.DragEvent, idx: number) => {
     e.dataTransfer.setData('text/plain', String(idx));
     e.dataTransfer.effectAllowed = 'move';
@@ -59,6 +87,10 @@ const ProductImageSection: React.FC<ProductImageSectionProps> = ({
     if (!isNaN(from) && from !== idx) handleImageReorder(from, idx);
   };
 
+  /**
+   * 클립보드 복사 핸들러
+   * - 제품 URL을 클립보드에 복사하고 피드백 제공
+   */
   const handleCopyClick = () => {
     if (!productUrl) return;
     navigator.clipboard

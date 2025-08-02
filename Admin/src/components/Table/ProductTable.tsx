@@ -1,3 +1,10 @@
+/**
+ * 상품 테이블(ProductTable)
+ *
+ * - 상품 목록을 표 형태로 렌더링
+ * - 스타일(품번) 복사, 상태 뱃지, 체크박스 등 다양한 기능 지원
+ * - GenericTable 기반으로 재사용성 강화
+ */
 // src/components/Table/ProductTable.tsx
 import React from 'react';
 import { Column } from '@components/CommonTable';
@@ -26,6 +33,10 @@ export interface ProductItem extends Record<string, unknown> {
   status: string;
 }
 
+/**
+ * 상품 테이블 props
+ * - 필터링된 데이터, 편집 핸들러, 선택/토글 등
+ */
 interface ProductTableProps {
   filteredData: ProductItem[];
   handleEdit: (styleCode: string, no: number) => void;
@@ -65,6 +76,10 @@ const CopyButton = styled.button`
   }
 `;
 
+/**
+ * 사이즈 표기 변환 함수
+ * - 숫자(44, 55 등)를 S/M/L/XL 등으로 변환
+ */
 const formatSize = (raw: string) => {
   if (/free/i.test(raw)) return 'Free';
   const parts = raw.match(/\d+/g);
@@ -83,6 +98,11 @@ type ProductRow = ProductItem & {
   [key: string]: unknown;
 };
 
+/**
+ * 테이블 컬럼 정의
+ * - No, 스타일(품번), 브랜드, 카테고리, 색상, 사이즈, 가격, 등록일, 상태 등
+ * - 각 컬럼별 렌더/포맷/핸들러 지정
+ */
 const columns: Column<ProductRow>[] = [
   {
     key: 'rowNo',

@@ -1,7 +1,19 @@
+/**
+ * 제품 가격 섹션(PriceSection)
+ *
+ * - 리테일, 판매, 대여 등 제품의 다양한 가격 정보 입력 폼
+ * - 스타일드 컴포넌트로 일관된 UI 제공
+ * - 재사용 가능한 공통 컴포넌트
+ */
+
 // src/components/productregister/PriceSection.tsx
 import React from 'react';
 import styled from 'styled-components';
 
+/**
+ * 제품 가격 섹션 컴포넌트
+ * - 리테일, 판매, 대여 등 가격 정보 입력 필드 제공
+ */
 const PriceSection: React.FC = () => {
   return (
     <SectionBox>
@@ -28,6 +40,10 @@ const PriceSection: React.FC = () => {
 
 export default PriceSection;
 
+/**
+ * 스타일드 컴포넌트들
+ * - 섹션 박스, 헤더, 불릿, 수직선, 입력 행, 라벨 등
+ */
 const SectionBox = styled.div`
   position: relative;
   margin-bottom: 20px;

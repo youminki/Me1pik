@@ -1,3 +1,19 @@
+/**
+ * 공통 필드 컴포넌트 (CommonField.tsx)
+ *
+ * 다양한 입력 필드 타입을 지원하는 공통 컴포넌트를 제공합니다.
+ * 텍스트 입력, 셀렉트, 텍스트에어리어 등을 포함하며,
+ * 에러 상태, 읽기 전용, 비활성화 상태를 지원합니다.
+ *
+ * @description
+ * - 다양한 입력 타입 지원
+ * - 에러 상태 표시
+ * - 읽기 전용 및 비활성화 상태
+ * - 접근성 지원
+ * - 테마 기반 스타일링
+ * - 버튼 내장 지원
+ */
+
 import React from 'react';
 import styled, { css } from 'styled-components';
 
@@ -150,17 +166,33 @@ const BaseTextarea = styled.textarea<{ $hasError?: boolean }>`
   ${({ readOnly, disabled }) => (readOnly || disabled) && readonlyStyle}
 `;
 
+/**
+ * 공통 필드 속성 타입
+ *
+ * 공통 필드 컴포넌트의 props를 정의합니다.
+ * HTML input, select, textarea 속성을 모두 상속받으며,
+ * 추가적인 커스텀 속성들을 제공합니다.
+ *
+ * @property as - 필드 타입 (기본값: 'input')
+ * @property options - select 옵션 목록 (선택적)
+ * @property error - 에러 메시지 (선택적)
+ * @property label - 라벨 텍스트 또는 컴포넌트 (선택적)
+ * @property buttonLabel - 버튼 라벨 (선택적)
+ * @property buttonColorType - 버튼 색상 타입 (선택적)
+ * @property onButtonClick - 버튼 클릭 핸들러 (선택적)
+ * @property prefix - 접두사 텍스트 (선택적)
+ */
 type CommonFieldProps = React.InputHTMLAttributes<HTMLInputElement> &
   React.SelectHTMLAttributes<HTMLSelectElement> &
   React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
-    as?: 'input' | 'select' | 'textarea';
-    options?: string[];
-    error?: string;
-    label?: string | React.ReactNode;
-    buttonLabel?: string;
-    buttonColorType?: 'blue' | 'red' | 'yellow';
-    onButtonClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
-    prefix?: string;
+    as?: 'input' | 'select' | 'textarea'; // 필드 타입 (기본값: 'input')
+    options?: string[]; // select 옵션 목록 (선택적)
+    error?: string; // 에러 메시지 (선택적)
+    label?: string | React.ReactNode; // 라벨 텍스트 또는 컴포넌트 (선택적)
+    buttonLabel?: string; // 버튼 라벨 (선택적)
+    buttonColorType?: 'blue' | 'red' | 'yellow'; // 버튼 색상 타입 (선택적)
+    onButtonClick?: (e: React.MouseEvent<HTMLButtonElement>) => void; // 버튼 클릭 핸들러 (선택적)
+    prefix?: string; // 접두사 텍스트 (선택적)
     // ...suffix 등 확장 가능
   };
 
@@ -193,6 +225,23 @@ const InputFieldWrapper = styled.div`
   align-items: stretch;
 `;
 
+/**
+ * 공통 필드 컴포넌트
+ *
+ * 폼에서 사용하는 공통 입력 필드를 렌더링하는 컴포넌트입니다.
+ * input, select, textarea 타입을 지원하며, 버튼, 라벨, 에러 처리 등을 포함합니다.
+ *
+ * @param as - 필드 타입 (기본값: 'input')
+ * @param options - select 옵션 목록 (선택적)
+ * @param error - 에러 메시지 (선택적)
+ * @param label - 라벨 텍스트 또는 컴포넌트 (선택적)
+ * @param buttonLabel - 버튼 라벨 (선택적)
+ * @param buttonColorType - 버튼 색상 타입 (선택적)
+ * @param onButtonClick - 버튼 클릭 핸들러 (선택적)
+ * @param prefix - 접두사 텍스트 (선택적)
+ * @param rest - 기타 HTML 속성들
+ * @returns 공통 필드 컴포넌트
+ */
 const CommonField: React.FC<CommonFieldProps> = ({
   as = 'input',
   options,

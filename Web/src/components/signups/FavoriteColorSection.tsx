@@ -1,10 +1,41 @@
+/**
+ * 선호 색상 섹션 컴포넌트 (FavoriteColorSection.tsx)
+ *
+ * 회원가입 시 사용자가 선호하는 색상을 선택할 수 있는 섹션 컴포넌트입니다.
+ * 드롭다운 형태로 다양한 색상 옵션을 제공하며, 각 색상에 맞는 배경색과 텍스트 색상을 적용합니다.
+ *
+ * @description
+ * - 선호 색상 선택 기능
+ * - 드롭다운 형태 UI
+ * - 다양한 색상 옵션 (24가지)
+ * - 색상별 배경색 및 텍스트 색상 적용
+ * - 접근성 지원
+ * - 반응형 디자인
+ */
+
 import React from 'react';
 import styled from 'styled-components';
 
+/**
+ * 선호 색상 섹션 속성 인터페이스
+ *
+ * 선호 색상 섹션 컴포넌트의 props를 정의합니다.
+ *
+ * @property onChange - 색상 선택 변경 핸들러 (선택적)
+ */
 interface FavoriteColorSectionProps {
-  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void; // 색상 선택 변경 핸들러 (선택적)
 }
 
+/**
+ * 선호 색상 섹션 컴포넌트
+ *
+ * 회원가입 시 사용자가 선호하는 색상을 선택할 수 있는 섹션을 렌더링합니다.
+ * 드롭다운 형태로 다양한 색상 옵션을 제공하며, 각 색상에 맞는 배경색과 텍스트 색상을 적용합니다.
+ *
+ * @param onChange - 색상 선택 변경 핸들러 (선택적)
+ * @returns 선호 색상 섹션 컴포넌트
+ */
 const FavoriteColorSection: React.FC<FavoriteColorSectionProps> = ({
   onChange,
 }) => (

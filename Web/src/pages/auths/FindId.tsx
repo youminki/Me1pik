@@ -29,7 +29,15 @@ import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
-// 전화번호 포맷 함수
+/**
+ * 전화번호 포맷 함수
+ *
+ * 숫자만 입력된 전화번호를 하이픈이 포함된 형식으로 변환합니다.
+ * 01012345678 → 010-1234-5678 형태로 포맷팅합니다.
+ *
+ * @param digits - 숫자만 포함된 전화번호 문자열
+ * @returns 하이픈이 포함된 포맷된 전화번호
+ */
 const formatPhone = (digits: string) => {
   const part1 = digits.slice(0, 3);
   const part2 = digits.length > 3 ? digits.slice(3, 7) : '';
@@ -37,7 +45,12 @@ const formatPhone = (digits: string) => {
   return [part1, part2, part3].filter(Boolean).join('-');
 };
 
-// Validation schema: 이름, 태어난 해, 전화번호
+/**
+ * 아이디 찾기 유효성 검사 스키마
+ *
+ * 이름, 태어난 해, 전화번호에 대한 유효성 검사 규칙을 정의합니다.
+ * 각 필드별로 적절한 형식과 길이 제한을 설정합니다.
+ */
 const schemaFindId = yup.object().shape({
   name: yup
     .string()
@@ -97,7 +110,15 @@ const FindId: React.FC = () => {
   const handlePhoneClear = () =>
     setValue('phone', '', { shouldValidate: true });
 
-  // 이메일 마스킹 함수
+  /**
+   * 이메일 마스킹 함수
+   *
+   * 이메일 주소의 일부를 '*'로 마스킹하여 개인정보를 보호합니다.
+   * 예: user@example.com → u***@example.com
+   *
+   * @param email - 마스킹할 이메일 주소
+   * @returns 마스킹된 이메일 주소
+   */
   const maskEmail = (email: string) => {
     const [local, domain] = email.split('@');
     const masked = `${local.slice(0, 2)}*****`;

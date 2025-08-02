@@ -1,4 +1,5 @@
 // src/page/RentalOptions.tsx
+// 대여 옵션 컴포넌트 - 날짜 선택, 기간 설정, 대여 옵션 관리
 import { isSameDay, isBefore, addDays as _addDays } from 'date-fns';
 import Holidays from 'date-holidays';
 import React, { useState, useEffect } from 'react';
@@ -11,8 +12,10 @@ import ReusableModal2 from '@/components/homes/home-details/HomeDetailModal';
 import { CustomSelect } from '@/components/shared/forms/CustomSelect';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
+// 한국 공휴일 설정
 const hd = new Holidays('KR');
 
+// 전역 스타일 정의 - 달력 UI 커스터마이징
 const GlobalStyle = createGlobalStyle`
   /* 달력 외곽일 숨김 */
   .react-datepicker__day--outside-month {

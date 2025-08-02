@@ -1,6 +1,8 @@
+// 홈 상세 모달 컴포넌트 - 재사용 가능한 모달 UI 제공
 import React from 'react';
 import styled from 'styled-components';
 
+// 모달 Props 타입 정의
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -9,6 +11,7 @@ type ModalProps = {
   height?: string;
 };
 
+// 메인 모달 컴포넌트
 const ReusableModal2: React.FC<ModalProps> = ({
   isOpen,
   onClose,
@@ -16,13 +19,16 @@ const ReusableModal2: React.FC<ModalProps> = ({
   width = '100%',
   height = '360px',
 }) => {
+  // 모달이 닫혀있으면 렌더링하지 않음
   if (!isOpen) return null;
 
+  // 배경 클릭 시 모달 닫기 핸들러
   const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     onClose();
   };
 
+  // 모달 내용 클릭 시 이벤트 전파 방지
   const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
   };
@@ -38,6 +44,7 @@ const ReusableModal2: React.FC<ModalProps> = ({
 
 export default ReusableModal2;
 
+// 스타일 컴포넌트들
 const StyledModal = styled.div`
   position: fixed;
   top: 0;

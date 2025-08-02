@@ -1,3 +1,11 @@
+/**
+ * 모니터링 테이블(MonitoringTable)
+ *
+ * - 대여 신청 모니터링 정보를 표 형태로 렌더링
+ * - 신청일, 주문자, 대여기간, 브랜드, 종류, 스타일, 색상, 사이즈, 배송상태 등 표시
+ * - 주문자 클릭 시 상세 페이지 이동, 스타일 품번 복사 기능 지원
+ * - 재사용 가능한 공통 컴포넌트
+ */
 // src/components/Table/MonitoringTable.tsx
 import React from 'react';
 import { Column, default as CommonTable } from '@components/CommonTable';
@@ -6,6 +14,10 @@ import { getStatusBadge } from 'src/utils/statusUtils';
 import styled from 'styled-components';
 import { FaCopy } from 'react-icons/fa';
 
+/**
+ * 모니터링 아이템 인터페이스
+ * - 모니터링 목록에 필요한 아이템 정보 구조
+ */
 export interface MonitoringItem {
   no: number;
   신청일: string;
@@ -19,6 +31,10 @@ export interface MonitoringItem {
   배송상태: string;
 }
 
+/**
+ * 모니터링 테이블 props
+ * - 필터링된 데이터, 편집 핸들러, 선택 상태, 상태 관리 등
+ */
 interface Props {
   filteredData: MonitoringItem[];
   handleEdit: (no: number) => void;
@@ -30,6 +46,10 @@ interface Props {
   isLoading?: boolean; // 추가
 }
 
+/**
+ * 스타일 품번 컨테이너 스타일드 컴포넌트
+ * - 스타일 품번과 복사 버튼을 가로로 배치
+ */
 const StyleCodeContainer = styled.div`
   display: flex;
   align-items: center;
@@ -37,11 +57,19 @@ const StyleCodeContainer = styled.div`
   gap: 8px;
 `;
 
+/**
+ * 스타일 품번 텍스트 스타일드 컴포넌트
+ * - 스타일 품번 텍스트 스타일링
+ */
 const StyleCodeText = styled.span`
   font-size: 12px;
   color: #333;
 `;
 
+/**
+ * 복사 버튼 스타일드 컴포넌트
+ * - 스타일 품번 복사 버튼 스타일링
+ */
 const CopyButton = styled.button`
   background: none;
   border: none;
@@ -58,6 +86,10 @@ const CopyButton = styled.button`
   }
 `;
 
+/**
+ * 테이블 컬럼 정의
+ * - 번호, 신청일, 주문자, 대여기간, 브랜드, 종류, 스타일, 색상, 사이즈, 배송상태 등
+ */
 const columns: Column<MonitoringItem & { handleEdit: (no: number) => void }>[] = [
   { key: 'no', label: '번호', width: '50px' },
   { key: '신청일', label: '신청일', width: '100px' },
@@ -82,6 +114,10 @@ const columns: Column<MonitoringItem & { handleEdit: (no: number) => void }>[] =
     label: '스타일(품번)',
     width: '120px',
     render: (value, row) => {
+      /**
+       * 스타일 품번 복사 핸들러
+       * - 클립보드에 스타일 품번을 복사하는 기능
+       */
       const handleCopy = async (e: React.MouseEvent) => {
         e.stopPropagation();
         try {
@@ -115,6 +151,10 @@ const columns: Column<MonitoringItem & { handleEdit: (no: number) => void }>[] =
   },
 ];
 
+/**
+ * 모니터링 테이블 컴포넌트
+ * - 대여 신청 모니터링 정보를 테이블 형태로 표시
+ */
 const MonitoringTable: React.FC<Props> = ({
   filteredData,
   handleEdit,
@@ -123,7 +163,9 @@ const MonitoringTable: React.FC<Props> = ({
   toggleAll,
   isLoading,
 }) => {
-  // handleEdit을 row에 추가
+  /**
+   * handleEdit을 각 row에 추가하여, 주문자 클릭 시 상세/수정 진입이 가능하도록 합니다.
+   */
   const dataWithEdit = filteredData.map((item) => ({ ...item, handleEdit }));
 
   const onSelectAll = () => {

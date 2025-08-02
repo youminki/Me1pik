@@ -1,7 +1,20 @@
 /**
- * 로깅 시스템
+ * 애플리케이션 로깅 시스템 (logger.ts)
+ *
+ * 개발 및 프로덕션 환경에서 일관된 로깅을 제공하는 시스템입니다.
+ * 로그 레벨 관리, 성능 추적, 에러 처리, 사용자 액션 추적 기능을 포함하며,
+ * 메모리 효율성을 고려한 로그 관리 시스템을 제공합니다.
  */
 
+/**
+ * 로그 레벨 열거형
+ *
+ * 로그의 중요도와 우선순위에 따라 분류되는 레벨을 정의합니다:
+ * - DEBUG: 개발용 상세 정보 (가장 낮은 우선순위)
+ * - INFO: 일반 정보 및 상태 변경
+ * - WARN: 경고 및 잠재적 문제
+ * - ERROR: 오류 및 예외 상황 (가장 높은 우선순위)
+ */
 export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
@@ -9,19 +22,32 @@ export enum LogLevel {
   ERROR = 3,
 }
 
+/**
+ * 로그 엔트리 인터페이스
+ *
+ * 각 로그 항목의 구조와 메타데이터를 정의합니다.
+ * 로그 분석과 디버깅을 위한 충분한 정보를 포함합니다.
+ */
 interface LogEntry {
-  timestamp: number;
-  level: LogLevel;
-  message: string;
-  data?: unknown;
-  error?: Error;
-  context?: Record<string, unknown>;
+  timestamp: number; // 로그 생성 시간
+  level: LogLevel; // 로그 레벨
+  message: string; // 로그 메시지
+  data?: unknown; // 추가 데이터 (선택사항)
+  error?: Error; // 에러 객체 (선택사항)
+  context?: Record<string, unknown>; // 컨텍스트 정보 (선택사항)
 }
 
+/**
+ * 로거 클래스
+ *
+ * 로그 수집, 저장, 출력을 담당하는 메인 클래스입니다.
+ * 메모리 효율성을 위해 최대 로그 개수를 제한하며,
+ * 환경별 로그 레벨 관리와 성능 최적화를 제공합니다.
+ */
 class Logger {
-  private logs: LogEntry[] = [];
-  private maxLogs = 1000;
-  private currentLevel = LogLevel.INFO;
+  private logs: LogEntry[] = []; // 로그 저장 배열
+  private maxLogs = 1000; // 최대 로그 개수
+  private currentLevel = LogLevel.INFO; // 현재 로그 레벨
 
   constructor(level: LogLevel = LogLevel.INFO) {
     this.currentLevel = level;
@@ -29,13 +55,21 @@ class Logger {
 
   /**
    * 로그 레벨 설정
+   *
+   * @param level - 설정할 로그 레벨
    */
   setLevel(level: LogLevel): void {
     this.currentLevel = level;
   }
 
   /**
-   * 로그 추가
+   * 로그 추가 (내부 메서드)
+   *
+   * @param level - 로그 레벨
+   * @param message - 로그 메시지
+   * @param data - 추가 데이터 (선택사항)
+   * @param error - 에러 객체 (선택사항)
+   * @param context - 컨텍스트 정보 (선택사항)
    */
   private addLog(
     level: LogLevel,

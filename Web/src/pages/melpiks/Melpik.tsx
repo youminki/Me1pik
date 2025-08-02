@@ -11,6 +11,27 @@ import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
+/**
+ * 멜픽 다이어리 페이지 컴포넌트 (Melpik.tsx)
+ *
+ * 사용자의 멜픽 다이어리 메인 페이지를 제공합니다.
+ * 멜픽 생성, 판매 스케줄, 판매 정산, 멜픽 설정 등의
+ * 기능에 접근할 수 있는 메뉴를 제공합니다.
+ *
+ * @description
+ * - 멜픽 다이어리 메인 화면
+ * - 통계 정보 표시 (방문수, 판매수)
+ * - 멜픽 관련 기능 메뉴
+ * - 비활성화된 메뉴 처리
+ * - 반응형 디자인
+ */
+
+/**
+ * 멜픽 메뉴 아이템 배열
+ *
+ * 멜픽 다이어리에서 제공하는 주요 기능들의 메뉴 정보를 정의합니다.
+ * 각 메뉴는 아이콘, 라벨, 경로를 포함합니다.
+ */
 const menuItems = [
   { icon: MelpikCreateIcon, label: '멜픽 생성', path: '/create-melpik' },
   { icon: MelpikScheduelerIcon, label: '판매 스케줄', path: '/sales-schedule' },
@@ -18,7 +39,13 @@ const menuItems = [
   { icon: MelpikOptionIcon, label: '멜픽설정', path: '/melpik-settings' },
 ];
 
-const disabledMenuIndexes = [0, 2]; // 0: 내 옷장, 2: 포인트
+/**
+ * 비활성화된 메뉴 인덱스 배열
+ *
+ * 현재 개발 중이거나 사용할 수 없는 메뉴들의 인덱스를 정의합니다.
+ * 0: 멜픽 생성, 2: 판매 정산
+ */
+const disabledMenuIndexes = [0, 2]; // 0: 멜픽 생성, 2: 판매 정산
 
 const MelpikPage: React.FC = () => {
   const navigate = useNavigate();

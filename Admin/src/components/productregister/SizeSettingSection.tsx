@@ -1,7 +1,18 @@
+/**
+ * 종류 및 사이즈 설정 섹션(SizeSettingSection)
+ *
+ * - 제품 종류, 사이즈, 색상 등 기본 설정 정보 입력 폼
+ * - 체크박스 기반 사이즈 선택, 드롭다운 기반 종류/색상 선택 등 지원
+ * - 스타일드 컴포넌트로 일관된 UI 제공
+ */
 // src/components/productregister/SizeSettingSection.tsx
 import React from 'react';
 import styled from 'styled-components';
 
+/**
+ * 종류 및 사이즈 설정 섹션 컴포넌트
+ * - 제품 종류, 사이즈, 색상 등 기본 설정 정보 입력 필드 제공
+ */
 const SizeSettingSection: React.FC = () => {
   return (
     <SectionBox>
@@ -59,6 +70,10 @@ const SizeSettingSection: React.FC = () => {
 
 export default SizeSettingSection;
 
+/**
+ * 스타일드 컴포넌트들
+ * - 섹션 박스, 헤더, 불릿, 수직선, 입력 행, 라벨, 체크박스 등
+ */
 const SectionBox = styled.div`
   position: relative;
   margin-bottom: 20px;

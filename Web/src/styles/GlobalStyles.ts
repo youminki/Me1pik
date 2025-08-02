@@ -2,7 +2,20 @@ import { createGlobalStyle } from 'styled-components';
 
 import { isNativeApp, getStatusBarHeight } from '@/utils/nativeApp';
 
+/**
+ * 전역 스타일(GlobalStyles)
+ *
+ * - CSS 변수 및 리셋, 폰트, 색상, 간격, 반응형 등 전체 앱 공통 스타일 정의
+ * - 네이티브 앱 환경 대응(상태바, 세이프에어리어)
+ * - 접근성, 스크롤바 커스텀 등 포함
+ */
 const GlobalStyles = createGlobalStyle`
+  /**
+   * :root - CSS 변수 정의
+   *
+   * 앱 전체에서 일관된 레이아웃/색상/폰트/간격/반응형을 위해 변수화
+   * 네이티브 앱 환경에서는 상태바/세이프에어리어도 변수로 제공
+   */
   :root {
     /* 기본 CSS 변수들 */
     --header-height: 70px;
@@ -66,12 +79,16 @@ const GlobalStyles = createGlobalStyle`
   }
 
   /* 네이티브 앱 환경에서 전체 높이 조정 */
-  ${isNativeApp() ? `
+  ${
+    isNativeApp()
+      ? `
     html, body {
       height: calc(100% - var(--status-bar-height));
       padding-top: var(--status-bar-height);
     }
-  ` : ''}
+  `
+      : ''
+  }
 
   /* 스크롤바 스타일링 */
   ::-webkit-scrollbar {
@@ -131,7 +148,9 @@ const GlobalStyles = createGlobalStyle`
   }
 
   /* 네이티브 앱 환경에서 터치 하이라이트 제거 */
-  ${isNativeApp() ? `
+  ${
+    isNativeApp()
+      ? `
     * {
       -webkit-tap-highlight-color: transparent;
       -webkit-touch-callout: none;
@@ -149,7 +168,9 @@ const GlobalStyles = createGlobalStyle`
       -ms-user-select: text;
       user-select: text;
     }
-  ` : ''}
+  `
+      : ''
+  }
 `;
 
-export default GlobalStyles; 
+export default GlobalStyles;

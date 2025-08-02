@@ -510,6 +510,15 @@ export const useScrollOptimization = (
 
 /**
  * 가상화 훅 (대용량 리스트 최적화)
+ *
+ * 대용량 리스트를 렌더링할 때 성능을 최적화하기 위한 가상화 기능을 제공합니다.
+ * 화면에 보이는 항목만 렌더링하여 메모리 사용량을 줄입니다.
+ *
+ * @param items - 렌더링할 아이템 배열
+ * @param itemHeight - 각 아이템의 높이 (픽셀)
+ * @param containerHeight - 컨테이너의 높이 (픽셀)
+ * @param overscan - 화면 밖에 미리 렌더링할 아이템 수 (기본값: 5)
+ * @returns 가상화된 아이템 정보와 스크롤 핸들러
  */
 export const useVirtualization = <T>(
   items: T[],
@@ -519,6 +528,7 @@ export const useVirtualization = <T>(
 ) => {
   const [scrollTop, setScrollTop] = useState(0);
 
+  // 화면에 보이는 아이템 범위 계산
   const visibleRange = useMemo(() => {
     const start = Math.floor(scrollTop / itemHeight);
     const visibleCount = Math.ceil(containerHeight / itemHeight);
@@ -528,6 +538,7 @@ export const useVirtualization = <T>(
     return { start: startIndex, end };
   }, [scrollTop, itemHeight, containerHeight, overscan, items.length]);
 
+  // 화면에 보이는 아이템들만 필터링하여 렌더링
   const visibleItems = useMemo(() => {
     return items
       .slice(visibleRange.start, visibleRange.end)
@@ -545,6 +556,7 @@ export const useVirtualization = <T>(
 
   const totalHeight = items.length * itemHeight;
 
+  // 스크롤 이벤트 핸들러
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     setScrollTop(event.currentTarget.scrollTop);
   }, []);
@@ -558,6 +570,14 @@ export const useVirtualization = <T>(
 
 /**
  * 웹 워커 훅 (무거운 계산 최적화)
+ *
+ * CPU 집약적인 작업을 별도 스레드에서 실행하여 메인 스레드 블로킹을 방지합니다.
+ *
+ * @param workerFunction - 워커에서 실행할 함수
+ * @param options - 워커 설정 옵션
+ * @param options.enableWorker - 워커 사용 여부 (기본값: true)
+ * @param options.timeout - 작업 타임아웃 (밀리초, 기본값: 30000)
+ * @returns 워커 실행 결과와 상태
  */
 export const useWebWorker = <T, R>(
   workerFunction: (data: T) => R,
@@ -572,6 +592,7 @@ export const useWebWorker = <T, R>(
   const [error, setError] = useState<Error | null>(null);
   const workerRef = useRef<Worker | null>(null);
 
+  // 워커에서 작업 실행
   const executeTask = useCallback(
     (data: T): Promise<R> => {
       return new Promise((resolve, reject) => {
@@ -589,7 +610,7 @@ export const useWebWorker = <T, R>(
         setIsLoading(true);
         setError(null);
 
-        // 워커 생성
+        // 워커 생성 및 코드 주입
         const workerCode = `
           self.onmessage = function(e) {
             try {
@@ -605,6 +626,7 @@ export const useWebWorker = <T, R>(
         const worker = new Worker(URL.createObjectURL(blob));
         workerRef.current = worker;
 
+        // 타임아웃 설정
         const timeoutId = setTimeout(() => {
           worker.terminate();
           reject(new Error('Worker timeout'));

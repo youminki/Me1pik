@@ -1,4 +1,18 @@
-// src/components/BottomNav.tsx
+/**
+ * 하단 네비게이션 컴포넌트 (bottom-navigation.tsx)
+ *
+ * 모바일 앱과 유사한 하단 네비게이션을 제공하는 컴포넌트입니다.
+ * 주요 기능으로는 탭 간 이동, 스크롤에 따른 자동 숨김/표시,
+ * 활성 탭 표시 애니메이션, 접근성 지원을 포함합니다.
+ *
+ * @description
+ * - 탭 간 이동 및 라우팅 기능
+ * - 스크롤 기반 자동 숨김/표시 (UX 개선)
+ * - 활성 탭 표시 애니메이션 (글로우 효과)
+ * - 접근성 지원 (키보드 네비게이션, 스크린 리더)
+ * - 반응형 디자인 (모바일 최적화)
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,13 +23,35 @@ import HomeIcon from '@/assets/bottom-navigations/HomeIcon.svg';
 import LockerRoomIcon from '@/assets/bottom-navigations/LockerRoomIcon.svg';
 import MelpikIcon from '@/assets/bottom-navigations/MelpikIcon.svg';
 
+/**
+ * 탭 정보 인터페이스
+ *
+ * 네비게이션 탭의 기본 정보를 정의합니다.
+ * 각 탭의 식별자, 라우트, 아이콘, 라벨을 포함합니다.
+ *
+ * @property key - 탭 식별자 (고유한 키)
+ * @property route - 라우트 경로 (React Router 경로)
+ * @property icon - 아이콘 경로 (SVG 파일 경로)
+ * @property label - 표시 라벨 (사용자에게 보여지는 텍스트)
+ */
 interface Tab {
-  key: string;
-  route: string;
-  icon: string;
-  label: string;
+  key: string; // 탭 식별자
+  route: string; // 라우트 경로
+  icon: string; // 아이콘 경로
+  label: string; // 표시 라벨
 }
 
+/**
+ * 네비게이션 탭 설정 상수
+ *
+ * 애플리케이션의 주요 섹션들을 정의하는 탭 설정입니다.
+ * 각 탭은 사용자의 주요 작업 영역을 나타냅니다:
+ * - 홈: 메인 페이지 (대시보드)
+ * - 브랜드: 브랜드 목록 및 검색
+ * - 다이어리: 개인 스타일 다이어리
+ * - 락커룸: 개인 저장소 및 컬렉션
+ * - 고객센터: 고객 지원 및 문의
+ */
 const TABS: Tab[] = [
   { key: 'home', route: '/home', icon: HomeIcon, label: '홈' },
   { key: 'brand', route: '/brand', icon: BrandIcon, label: '브랜드' },
@@ -34,20 +70,40 @@ const TABS: Tab[] = [
   },
 ];
 
+/**
+ * 활성 탭 표시 바 너비 상수
+ *
+ * 활성 탭을 시각적으로 표시하는 바의 너비를 정의합니다.
+ * 애니메이션과 시각적 피드백을 위한 크기 설정입니다.
+ */
 const BAR_WIDTH = 40;
 
+/**
+ * 하단 네비게이션 컴포넌트
+ *
+ * 모바일 앱과 유사한 하단 네비게이션을 렌더링하는 메인 컴포넌트입니다.
+ * 탭 간 이동, 스크롤 기반 자동 숨김/표시, 애니메이션 효과를 포함합니다.
+ *
+ * @returns 하단 네비게이션 JSX 엘리먼트
+ */
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
 
-  const [activeKey, setActiveKey] = useState<string | null>(null);
-  const [glow, setGlow] = useState(false);
-  const [barPos, setBarPos] = useState(0);
-  const [visible, setVisible] = useState(true);
-  const lastScrollY = useRef(0);
+  // 상태 관리
+  const [activeKey, setActiveKey] = useState<string | null>(null); // 현재 활성 탭
+  const [glow, setGlow] = useState(false); // 글로우 애니메이션 상태
+  const [barPos, setBarPos] = useState(0); // 활성 탭 표시 바 위치
+  const [visible, setVisible] = useState(true); // 네비게이션 표시 상태
+  const lastScrollY = useRef(0); // 이전 스크롤 위치
 
-  // 스크롤에 따라 숨김 토글
+  /**
+   * 스크롤에 따른 네비게이션 자동 숨김/표시
+   *
+   * 스크롤 방향과 위치에 따라 네비게이션을 자동으로 숨기거나 표시합니다.
+   * 사용자가 아래로 스크롤할 때는 숨기고, 위로 스크롤할 때는 표시합니다.
+   */
   useEffect(() => {
     lastScrollY.current = window.scrollY;
     const onScroll = () => {
@@ -59,7 +115,12 @@ const BottomNav: React.FC = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // activeKey, barPos 계산
+  /**
+   * 현재 라우트에 따른 활성 탭 및 표시 바 위치 계산
+   *
+   * 현재 경로에 맞는 탭을 활성화하고, 해당 탭의 위치에 표시 바를 배치합니다.
+   * 글로우 애니메이션도 함께 처리합니다.
+   */
   useEffect(() => {
     const current = TABS.find((t) => t.route === location.pathname);
     if (current && navRef.current) {
@@ -82,6 +143,14 @@ const BottomNav: React.FC = () => {
     return () => clearTimeout(t);
   }, [location.pathname]);
 
+  /**
+   * handleClick 함수
+   *
+   * 탭 클릭 핸들러입니다.
+   *
+   * @param tab - 클릭된 탭 정보
+   * @param enabled - 탭 활성화 여부
+   */
   const handleClick = (tab: Tab, enabled: boolean) => {
     if (!enabled) return;
     if (tab.key !== activeKey) {
@@ -128,6 +197,14 @@ export default BottomNav;
 
 /* Styled Components */
 
+/**
+ * DockContainer 스타일 컴포넌트
+ *
+ * 네비게이션 컨테이너의 스타일을 정의합니다.
+ * 스크롤에 따른 표시/숨김 애니메이션을 포함합니다.
+ *
+ * @property $visible - 표시 여부
+ */
 const DockContainer = styled.nav<{ $visible: boolean }>`
   position: fixed;
   bottom: 0;
@@ -147,6 +224,12 @@ const DockContainer = styled.nav<{ $visible: boolean }>`
   }
 `;
 
+/**
+ * Dock 스타일 컴포넌트
+ *
+ * 네비게이션 도크의 스타일을 정의합니다.
+ * 블러 효과와 그림자를 포함합니다.
+ */
 const Dock = styled.div`
   position: relative;
   display: flex;
@@ -163,6 +246,13 @@ const Dock = styled.div`
   }
 `;
 
+/**
+ * NavItem 스타일 컴포넌트
+ *
+ * 네비게이션 아이템의 스타일을 정의합니다.
+ *
+ * @property $disabled - 비활성화 여부
+ */
 const NavItem = styled.div<{ $disabled: boolean }>`
   flex: 1;
   display: flex;
@@ -173,7 +263,15 @@ const NavItem = styled.div<{ $disabled: boolean }>`
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
 `;
 
-// 아이콘 래퍼 배경 호버 색변경, 비활성 제외
+/**
+ * IconWrapper 스타일 컴포넌트
+ *
+ * 아이콘 래퍼의 스타일을 정의합니다.
+ * 배경 호버 색변경과 비활성 상태를 처리합니다.
+ *
+ * @property $isActive - 활성 상태
+ * @property $disabled - 비활성화 여부
+ */
 const IconWrapper = styled.div<{ $isActive: boolean; $disabled: boolean }>`
   position: relative;
   width: 48px;
@@ -201,6 +299,14 @@ const IconWrapper = styled.div<{ $isActive: boolean; $disabled: boolean }>`
   }
 `;
 
+/**
+ * Icon 스타일 컴포넌트
+ *
+ * 아이콘의 스타일을 정의합니다.
+ * 활성 시 흰색, 비활성 시 회색으로 필터를 적용합니다.
+ *
+ * @property $isActive - 활성 상태
+ */
 const Icon = styled.img<{ $isActive: boolean }>`
   width: auto;
   height: auto;
@@ -209,6 +315,14 @@ const Icon = styled.img<{ $isActive: boolean }>`
     $isActive ? 'brightness(0) invert(1)' : 'brightness(0) invert(0.7)'};
 `;
 
+/**
+ * Label 스타일 컴포넌트
+ *
+ * 라벨의 스타일을 정의합니다.
+ *
+ * @property $isActive - 활성 상태
+ * @property $disabled - 비활성화 여부
+ */
 const Label = styled.span<{ $isActive: boolean; $disabled: boolean }>`
   font-size: 11px;
   color: ${({ $isActive, $disabled }) => {
@@ -222,6 +336,11 @@ const Label = styled.span<{ $isActive: boolean; $disabled: boolean }>`
   }
 `;
 
+/**
+ * Bar 스타일 컴포넌트
+ *
+ * 활성 탭 표시 바의 스타일을 정의합니다.
+ */
 const Bar = styled.div`
   position: absolute;
   top: 0;

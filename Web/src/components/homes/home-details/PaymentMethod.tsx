@@ -1,11 +1,15 @@
+// 결제 방식 컴포넌트 - 즉시 결제 및 할부 옵션 선택 기능 제공
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { theme } from '@/styles/Theme';
 
+// 메인 결제 방식 컴포넌트
 const PaymentMethod: React.FC = () => {
+  // 선택된 결제 옵션 상태 관리
   const [selectedOption, setSelectedOption] = useState<string>('12');
 
+  // 결제 옵션 클릭 핸들러
   const handleOptionClick = (option: string) => {
     setSelectedOption(option);
   };
@@ -14,12 +18,15 @@ const PaymentMethod: React.FC = () => {
     <PaymentMethodContainer>
       <PaymentMethodText>결제방식 (선택)</PaymentMethodText>
       <InstallmentOptions>
+        {/* 즉시 결제 옵션 */}
         <NowOptionWrapper onClick={() => handleOptionClick('NOW')}>
           <NowOption active={selectedOption === 'NOW'}>
             {selectedOption === 'NOW' && <Circle />}
             <OptionText>NOW</OptionText>
           </NowOption>
         </NowOptionWrapper>
+
+        {/* 할부 옵션들 */}
         <OptionContainer>
           {['6', '12', '18', '24', '36'].map((option) => (
             <OptionWrapper
@@ -40,6 +47,7 @@ const PaymentMethod: React.FC = () => {
 
 export default PaymentMethod;
 
+// 스타일 컴포넌트들
 const PaymentMethodContainer = styled.div`
   margin-top: 54px;
   margin-bottom: 24px;

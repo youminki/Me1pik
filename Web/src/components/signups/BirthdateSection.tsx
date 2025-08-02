@@ -1,11 +1,43 @@
+/**
+ * 생년월일 섹션 컴포넌트 (BirthdateSection.tsx)
+ *
+ * 회원가입 시 사용자의 생년월일을 선택할 수 있는 섹션 컴포넌트입니다.
+ * 년, 월, 일을 각각 드롭다운으로 선택할 수 있으며, 실시간으로 선택된 값을 콜백으로 전달합니다.
+ *
+ * @description
+ * - 생년월일 선택 기능
+ * - 년/월/일 드롭다운
+ * - 실시간 값 업데이트
+ * - 콜백 함수 지원
+ * - 접근성 지원
+ * - 반응형 디자인
+ */
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+/**
+ * 생년월일 섹션 속성 인터페이스
+ *
+ * 생년월일 섹션 컴포넌트의 props를 정의합니다.
+ *
+ * @property onChange - 생년월일 선택 시 호출되는 콜백 (선택적)
+ * @property label - 라벨 텍스트 (선택적)
+ */
 interface BirthdateSectionProps {
-  onChange?: (birthdate: { year: string; month: string; day: string }) => void; // 생년월일 선택 시 호출되는 콜백
-  label?: string;
+  onChange?: (birthdate: { year: string; month: string; day: string }) => void; // 생년월일 선택 시 호출되는 콜백 (선택적)
+  label?: string; // 라벨 텍스트 (선택적)
 }
 
+/**
+ * 생년월일 섹션 컴포넌트
+ *
+ * 회원가입 시 사용자의 생년월일을 선택할 수 있는 섹션을 렌더링합니다.
+ * 년, 월, 일을 각각 드롭다운으로 선택할 수 있으며, 실시간으로 선택된 값을 콜백으로 전달합니다.
+ *
+ * @param onChange - 생년월일 선택 시 호출되는 콜백 (선택적)
+ * @returns 생년월일 섹션 컴포넌트
+ */
 const BirthdateSection: React.FC<BirthdateSectionProps> = ({ onChange }) => {
   const [birthYear, setBirthYear] = useState('');
   const [birthMonth, setBirthMonth] = useState('');

@@ -4,6 +4,19 @@ import styled from 'styled-components';
 
 import NotFoundIcon from '@/assets/404icon.svg';
 
+/**
+ * 404 에러 페이지 컴포넌트 (NotFound.tsx)
+ *
+ * 존재하지 않는 페이지에 접근했을 때 표시되는 에러 페이지를 제공합니다.
+ * 사용자 친화적인 에러 메시지와 홈으로 돌아가는 기능을 포함합니다.
+ *
+ * @description
+ * - 404 에러 페이지
+ * - 사용자 친화적 에러 메시지
+ * - 홈으로 돌아가기 버튼
+ * - 반응형 디자인
+ * - 접근성 고려
+ */
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
   return (

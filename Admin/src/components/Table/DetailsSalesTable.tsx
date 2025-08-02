@@ -1,8 +1,19 @@
+/**
+ * 상세 판매 테이블(DetailsSalesTable)
+ *
+ * - 사용자별 상세 판매 정보를 표 형태로 렌더링
+ * - 등급, 이름, 닉네임, 인스타그램, 시즌, 제품수, 구매 정보, 판매금액 등 표시
+ * - 인스타그램 계정 클릭 시 상세 페이지 이동, 10행 고정 레이아웃 지원
+ * - 재사용 가능한 공통 컴포넌트
+ */
 // src/components/Table/DetailsSalesTable.tsx
 import React from 'react';
 import styled from 'styled-components';
 
-/** User 인터페이스 */
+/**
+ * 사용자 인터페이스
+ * - 상세 판매 목록에 필요한 사용자 정보 구조
+ */
 export interface User {
   no: number;
   grade: string; // 등급
@@ -16,12 +27,19 @@ export interface User {
   totalSum: number; // 총 판매금액
 }
 
-/** DetailsSalesTable 컴포넌트 Props */
+/**
+ * 상세 판매 테이블 props
+ * - 필터링된 데이터, 편집 핸들러 등
+ */
 interface DetailsSalesTableProps {
   filteredData: User[];
   handleEdit: (no: number) => void;
 }
 
+/**
+ * 상세 판매 테이블 컴포넌트
+ * - 사용자별 상세 판매 정보를 테이블 형태로 표시
+ */
 const DetailsSalesTable: React.FC<DetailsSalesTableProps> = ({ filteredData, handleEdit }) => {
   return (
     <Table>
@@ -33,8 +51,8 @@ const DetailsSalesTable: React.FC<DetailsSalesTableProps> = ({ filteredData, han
         <col style={{ width: '150px' }} /> {/* 계정(인스타) */}
         <col style={{ width: '100px' }} /> {/* 시즌 편집참여 */}
         <col style={{ width: '80px' }} /> {/* 등록 제품수 */}
-        <col style={{ width: '80px' }} /> {/* 구매 횟수 */}
-        <col style={{ width: '80px' }} /> {/* 구매 갯수 */}
+        <col style={{ width: '80px' }} /> {/* 구매자 수 */}
+        <col style={{ width: '80px' }} /> {/* 판매제품 수 */}
         <col style={{ width: '100px' }} /> {/* 총 판매금액 */}
       </colgroup>
       <thead>
@@ -95,8 +113,10 @@ const DetailsSalesTable: React.FC<DetailsSalesTableProps> = ({ filteredData, han
 
 export default DetailsSalesTable;
 
-/* ====================== Styled Components ====================== */
-
+/**
+ * 테이블 스타일드 컴포넌트
+ * - 테이블 기본 스타일링
+ */
 const Table = styled.table`
   width: 100%;
   table-layout: fixed;

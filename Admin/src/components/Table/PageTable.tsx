@@ -3,6 +3,10 @@ import { Column } from '@components/CommonTable';
 import GradeBadgeCell from '@components/Table/GradeBadgeCell';
 import GenericTable from './GenericTable';
 
+/**
+ * 사용자 인터페이스
+ * - 페이지 목록에 필요한 사용자 정보 구조
+ */
 export interface User {
   no: number;
   grade: string;
@@ -18,6 +22,10 @@ export interface User {
   [key: string]: unknown;
 }
 
+/**
+ * 페이지 테이블 props
+ * - 사용자 데이터, 편집 핸들러, 선택 상태, 로딩 상태 등
+ */
 interface PageTableProps {
   data: User[];
   handleEdit: (no: number) => void;
@@ -27,6 +35,10 @@ interface PageTableProps {
   isLoading?: boolean; // 추가
 }
 
+/**
+ * 테이블 컬럼 정의
+ * - No., 등급, 이름, 닉네임, 인스타그램, 시즌, 콘텐츠 수, 등록 제출 수, 평균, 총합 등
+ */
 const columns: Column<User & { handleEdit?: (no: number) => void }>[] = [
   { key: 'no', label: 'No.', width: '60px' },
   {
@@ -63,6 +75,10 @@ const columns: Column<User & { handleEdit?: (no: number) => void }>[] = [
   { key: 'totalSum', label: '총 합', width: '80px' },
 ];
 
+/**
+ * 페이지 테이블 컴포넌트
+ * - 사용자 정보를 테이블 형태로 표시
+ */
 const PageTable: React.FC<PageTableProps> = ({
   data,
   handleEdit,
@@ -71,7 +87,10 @@ const PageTable: React.FC<PageTableProps> = ({
   onSelectRow,
   isLoading,
 }) => {
-  // handleEdit을 row에 추가 (GenericTable의 processRow로 대체)
+  /**
+   * handleEdit을 row에 추가 (GenericTable의 processRow로 대체)
+   * - 사용자 클릭 시 상세/수정 진입이 가능하도록 합니다.
+   */
   const processRow = React.useCallback((user: User) => ({ ...user, handleEdit }), [handleEdit]);
 
   return (

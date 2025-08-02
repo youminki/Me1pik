@@ -1,3 +1,11 @@
+/**
+ * 이용 이력 테이블(UsageHistoryTable)
+ *
+ * - 사용자별 이용 이력 정보를 표 형태로 렌더링
+ * - 신청일자, 이용목적, 이용기간, 브랜드, 스타일, 사이즈, 재질/색상, 상태 등 표시
+ * - 스타일 코드 복사 기능, 상태별 뱃지 표시, 체크박스 선택 기능 지원
+ * - 재사용 가능한 공통 컴포넌트
+ */
 // src/components/Table/user/UsageHistoryTable.tsx
 import React from 'react';
 import CommonTable, { Column } from '@/components/CommonTable';
@@ -6,6 +14,10 @@ import { getStatusBadge } from '@/utils/statusUtils';
 import styled from 'styled-components';
 import { FaCopy } from 'react-icons/fa';
 
+/**
+ * 이용 이력 행 인터페이스
+ * - 이용 이력에 필요한 행 데이터 구조
+ */
 export interface UsageHistoryRow {
   applicationDate: string; // 신청일자
   purpose: string; // 이용목적 (대여, 구매 등)
@@ -18,6 +30,10 @@ export interface UsageHistoryRow {
   [key: string]: unknown;
 }
 
+/**
+ * 이용 이력 테이블 props
+ * - 데이터, 선택 상태, 선택 이벤트 등
+ */
 interface UsageHistoryTableProps {
   data: UsageHistoryRow[];
   selectedRows?: Set<number>;
@@ -25,6 +41,10 @@ interface UsageHistoryTableProps {
   onSelectRow?: (row: UsageHistoryRow & { no: number }, checked: boolean) => void;
 }
 
+/**
+ * 스타일 코드 컨테이너 스타일드 컴포넌트
+ * - 스타일 코드와 복사 버튼을 가로로 배치
+ */
 const StyleCodeContainer = styled.div`
   display: flex;
   align-items: center;
@@ -32,11 +52,19 @@ const StyleCodeContainer = styled.div`
   gap: 8px;
 `;
 
+/**
+ * 스타일 코드 텍스트 스타일드 컴포넌트
+ * - 스타일 코드 텍스트 스타일링
+ */
 const StyleCodeText = styled.span`
   font-size: 12px;
   color: #333;
 `;
 
+/**
+ * 복사 버튼 스타일드 컴포넌트
+ * - 스타일 코드 복사 버튼 스타일링
+ */
 const CopyButton = styled.button`
   background: none;
   border: none;
@@ -53,6 +81,10 @@ const CopyButton = styled.button`
   }
 `;
 
+/**
+ * 테이블 컬럼 정의
+ * - No., 신청일자, 이용목적, 이용기간, 브랜드, 스타일, 사이즈, 재질/색상, 상태 등
+ */
 const columns: Column<UsageHistoryRow & { no: number }>[] = [
   { key: 'no', label: 'No.', width: '60px' },
   { key: 'applicationDate', label: '신청일자', width: '120px' },
@@ -64,6 +96,10 @@ const columns: Column<UsageHistoryRow & { no: number }>[] = [
     label: '스타일(코드)',
     width: '120px',
     render: (value, row) => {
+      /**
+       * 스타일 코드 복사 핸들러
+       * - 클립보드에 스타일 코드를 복사하는 기능
+       */
       const handleCopy = async (e: React.MouseEvent) => {
         e.stopPropagation();
         try {
@@ -97,6 +133,10 @@ const columns: Column<UsageHistoryRow & { no: number }>[] = [
   },
 ];
 
+/**
+ * 이용 이력 테이블 컴포넌트
+ * - 이용 이력 정보를 테이블 형태로 표시
+ */
 const UsageHistoryTable: React.FC<UsageHistoryTableProps> = ({
   data,
   selectedRows = new Set(),

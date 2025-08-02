@@ -1,9 +1,12 @@
+// 달력 컴포넌트 - 날짜 선택 및 범위 선택 기능
 import Holidays from 'date-holidays';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+// 한국 공휴일 설정
 const hd = new Holidays('KR');
 
+// 달력 컴포넌트 Props 인터페이스
 interface CalendarProps {
   startDate: Date | null;
   endDate: Date | null;
@@ -13,6 +16,7 @@ interface CalendarProps {
   monthsShown?: number;
 }
 
+// 월별 달력 매트릭스 생성 함수
 const getMonthMatrix = (year: number, month: number) => {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -34,6 +38,7 @@ const getMonthMatrix = (year: number, month: number) => {
   return matrix;
 };
 
+// 두 날짜가 같은 날인지 확인하는 함수
 const isSameDay = (a: Date | null, b: Date | null) => {
   if (!a || !b) return false;
   return (
@@ -43,11 +48,13 @@ const isSameDay = (a: Date | null, b: Date | null) => {
   );
 };
 
+// 날짜가 범위 내에 있는지 확인하는 함수
 const isBetween = (date: Date, start: Date | null, end: Date | null) => {
   if (!start || !end) return false;
   return date > start && date < end;
 };
 
+// 메인 달력 컴포넌트
 const Calendar: React.FC<CalendarProps> = ({
   startDate,
   endDate,
@@ -61,7 +68,7 @@ const Calendar: React.FC<CalendarProps> = ({
     startDate ? new Date(startDate) : new Date()
   );
 
-  // 공휴일/일요일 체크
+  // 공휴일/일요일 체크 함수
   const isHoliday = (date: Date) => {
     // 2025년 7월 17일은 예외로 일반 날짜 처리
     if (
@@ -74,6 +81,7 @@ const Calendar: React.FC<CalendarProps> = ({
   };
   const isSunday = (date: Date) => date.getDay() === 0;
 
+  // 날짜 클릭 핸들러 - 범위 선택 로직
   const handleDayClick = (date: Date) => {
     if (!startDate || (startDate && endDate)) {
       onChange([date, null]);
@@ -86,14 +94,17 @@ const Calendar: React.FC<CalendarProps> = ({
     }
   };
 
+  // 예약된 날짜인지 확인
   const isReserved = (date: Date) =>
     reservedDates.some((d) => isSameDay(d, date));
 
+  // 과거 날짜인지 확인
   const isPast = (date: Date) => {
     if (minDate && date < minDate) return true;
     return date < today;
   };
 
+  // 이전 달로 이동
   const handlePrev = () => {
     setBaseMonth(
       (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)

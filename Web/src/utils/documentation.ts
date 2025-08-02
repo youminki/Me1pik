@@ -1,7 +1,26 @@
 /**
  * 문서화 유틸리티
+ *
+ * 프로젝트의 컴포넌트, 훅, 유틸리티, API 등을 체계적으로 문서화하는 기능을 제공합니다.
+ *
+ * @description
+ * - 컴포넌트 문서화
+ * - 훅 문서화
+ * - 유틸리티 함수 문서화
+ * - API 문서화
+ * - JSON, Markdown, HTML 형식으로 내보내기
  */
 
+/**
+ * 문서 아이템 인터페이스
+ *
+ * @property name - 문서화할 항목의 이름
+ * @property description - 항목에 대한 설명
+ * @property type - 항목의 타입 (component, hook, utility, api)
+ * @property props - Props 정보 (컴포넌트의 경우)
+ * @property examples - 사용 예시 코드
+ * @property tags - 검색용 태그들
+ */
 interface DocItem {
   name: string;
   description: string;
@@ -11,6 +30,14 @@ interface DocItem {
   tags?: string[];
 }
 
+/**
+ * 문서화 데이터 구조
+ *
+ * @property components - 컴포넌트 문서 목록
+ * @property hooks - 훅 문서 목록
+ * @property utilities - 유틸리티 문서 목록
+ * @property apis - API 문서 목록
+ */
 interface Documentation {
   components: DocItem[];
   hooks: DocItem[];
@@ -19,7 +46,9 @@ interface Documentation {
 }
 
 /**
- * 문서화 매니저
+ * 문서화 매니저 클래스
+ *
+ * 프로젝트의 모든 문서를 관리하고 다양한 형식으로 내보낼 수 있는 기능을 제공합니다.
  */
 class DocumentationManager {
   private docs: Documentation = {
@@ -31,6 +60,8 @@ class DocumentationManager {
 
   /**
    * 컴포넌트 문서 추가
+   *
+   * @param doc - 추가할 컴포넌트 문서 정보
    */
   addComponent(doc: DocItem) {
     this.docs.components.push({ ...doc, type: 'component' });
@@ -38,6 +69,8 @@ class DocumentationManager {
 
   /**
    * 훅 문서 추가
+   *
+   * @param doc - 추가할 훅 문서 정보
    */
   addHook(doc: DocItem) {
     this.docs.hooks.push({ ...doc, type: 'hook' });
@@ -45,6 +78,8 @@ class DocumentationManager {
 
   /**
    * 유틸리티 문서 추가
+   *
+   * @param doc - 추가할 유틸리티 문서 정보
    */
   addUtility(doc: DocItem) {
     this.docs.utilities.push({ ...doc, type: 'utility' });
@@ -52,6 +87,8 @@ class DocumentationManager {
 
   /**
    * API 문서 추가
+   *
+   * @param doc - 추가할 API 문서 정보
    */
   addApi(doc: DocItem) {
     this.docs.apis.push({ ...doc, type: 'api' });
@@ -59,6 +96,8 @@ class DocumentationManager {
 
   /**
    * 모든 문서 가져오기
+   *
+   * @returns 전체 문서 데이터
    */
   getAllDocs(): Documentation {
     return this.docs;
@@ -66,6 +105,9 @@ class DocumentationManager {
 
   /**
    * 타입별 문서 가져오기
+   *
+   * @param type - 가져올 문서 타입
+   * @returns 해당 타입의 문서 목록
    */
   getDocsByType(type: DocItem['type']): DocItem[] {
     return this.docs[`${type}s` as keyof Documentation] || [];
@@ -73,6 +115,9 @@ class DocumentationManager {
 
   /**
    * 태그로 문서 검색
+   *
+   * @param tag - 검색할 태그
+   * @returns 해당 태그를 가진 문서 목록
    */
   searchByTag(tag: string): DocItem[] {
     return Object.values(this.docs)
@@ -82,6 +127,9 @@ class DocumentationManager {
 
   /**
    * 이름으로 문서 검색
+   *
+   * @param name - 검색할 문서 이름
+   * @returns 해당 이름의 문서 또는 undefined
    */
   searchByName(name: string): DocItem | undefined {
     return Object.values(this.docs)
@@ -91,6 +139,8 @@ class DocumentationManager {
 
   /**
    * 문서를 JSON으로 내보내기
+   *
+   * @returns JSON 형식의 문서 문자열
    */
   exportToJSON(): string {
     return JSON.stringify(this.docs, null, 2);

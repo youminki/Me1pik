@@ -1,18 +1,64 @@
-import React, { useRef, useEffect, useState } from 'react';
+/**
+ * 재사용 가능한 모달 컴포넌트 (ReusableModal.tsx)
+ *
+ * 다양한 상황에서 재사용할 수 있는 모달 컴포넌트를 제공합니다.
+ * 제목, 내용, 액션 버튼을 커스터마이징할 수 있으며,
+ * 접근성과 키보드 네비게이션을 지원합니다.
+ *
+ * @description
+ * - 커스터마이징 가능한 제목과 내용
+ * - 액션 버튼 지원
+ * - 접근성 지원 (ARIA 속성)
+ * - 키보드 네비게이션 (Escape, Enter)
+ * - 애니메이션 효과
+ * - 반응형 디자인
+ */
+
+import React, { useState, useEffect, useRef } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import styled from 'styled-components';
 
+/**
+ * 모달 속성 인터페이스
+ *
+ * 재사용 가능한 모달 컴포넌트의 props를 정의합니다.
+ *
+ * @property isOpen - 모달 열림 상태
+ * @property onClose - 모달 닫기 핸들러
+ * @property onConfirm - 확인 버튼 클릭 핸들러 (선택적)
+ * @property title - 모달 제목 (선택적)
+ * @property children - 모달 내용
+ * @property width - 모달 너비 (기본값: 'auto')
+ * @property actions - 커스텀 액션 버튼들 (선택적)
+ * @property showConfirmButton - 확인 버튼 표시 여부 (기본값: false)
+ */
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm?: () => void;
-  title?: string;
-  children: React.ReactNode;
-  width?: string;
-  actions?: React.ReactNode;
-  showConfirmButton?: boolean;
+  isOpen: boolean; // 모달 열림 상태
+  onClose: () => void; // 모달 닫기 핸들러
+  onConfirm?: () => void; // 확인 버튼 클릭 핸들러 (선택적)
+  title?: string; // 모달 제목 (선택적)
+  children: React.ReactNode; // 모달 내용
+  width?: string; // 모달 너비 (기본값: 'auto')
+  actions?: React.ReactNode; // 커스텀 액션 버튼들 (선택적)
+  showConfirmButton?: boolean; // 확인 버튼 표시 여부 (기본값: false)
 }
 
+/**
+ * 재사용 가능한 모달 컴포넌트
+ *
+ * 다양한 용도로 사용할 수 있는 모달을 렌더링하는 컴포넌트입니다.
+ * 접근성, 키보드 네비게이션, 포커스 트랩, 애니메이션 등을 지원합니다.
+ *
+ * @param isOpen - 모달 열림 상태
+ * @param onClose - 모달 닫기 핸들러
+ * @param onConfirm - 확인 버튼 클릭 핸들러 (선택적)
+ * @param title - 모달 제목 (선택적)
+ * @param children - 모달 내용
+ * @param width - 모달 너비 (기본값: 'auto')
+ * @param actions - 커스텀 액션 버튼들 (선택적)
+ * @param showConfirmButton - 확인 버튼 표시 여부 (기본값: false)
+ * @returns 재사용 가능한 모달 컴포넌트
+ */
 const ReusableModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,

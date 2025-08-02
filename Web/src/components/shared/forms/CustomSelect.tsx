@@ -1,3 +1,19 @@
+/**
+ * 커스텀 셀렉트 컴포넌트 (CustomSelect.tsx)
+ *
+ * 프로젝트에 맞춤화된 셀렉트 박스 스타일 컴포넌트를 제공합니다.
+ * 테마 시스템과 연동되며, 접근성과 사용자 경험을 고려한
+ * 스타일링을 적용합니다.
+ *
+ * @description
+ * - 커스텀 셀렉트 스타일링
+ * - 테마 시스템 연동
+ * - 접근성 지원 (포커스, 읽기전용, 비활성화)
+ * - 커스텀 화살표 아이콘
+ * - 반응형 디자인
+ * - 트랜지션 효과
+ */
+
 import styled from 'styled-components';
 
 export const CustomSelect = styled.select`

@@ -1,20 +1,74 @@
+/**
+ * 접근성 버튼 컴포넌트 (AccessibleButton.tsx)
+ *
+ * 웹 접근성을 고려한 고급 버튼 컴포넌트를 제공합니다.
+ * 키보드 네비게이션, 스크린 리더 지원, ARIA 속성 등을 포함하며,
+ * 다양한 스타일과 크기를 지원합니다.
+ *
+ * @description
+ * - 키보드 네비게이션 지원 (Enter, Space)
+ * - ARIA 속성 지원 (aria-label, aria-describedby, aria-busy)
+ * - 다양한 스타일 변형 (primary, secondary, danger, ghost)
+ * - 크기 옵션 (small, medium, large)
+ * - 로딩 상태 표시
+ * - 포커스 스타일링
+ * - 전체 너비 옵션
+ */
+
 import React from 'react';
 import styled from 'styled-components';
 
+/**
+ * 접근성 버튼 속성 인터페이스
+ *
+ * 접근성 버튼 컴포넌트의 props를 정의합니다.
+ *
+ * @property children - 버튼 내용
+ * @property onClick - 클릭 핸들러 (선택적)
+ * @property disabled - 비활성화 여부 (기본값: false)
+ * @property loading - 로딩 상태 여부 (기본값: false)
+ * @property variant - 버튼 스타일 변형 (기본값: 'primary')
+ * @property size - 버튼 크기 (기본값: 'medium')
+ * @property fullWidth - 전체 너비 사용 여부 (기본값: false)
+ * @property ariaLabel - ARIA 라벨 (선택적)
+ * @property ariaDescribedBy - ARIA 설명 ID (선택적)
+ * @property type - 버튼 타입 (기본값: 'button')
+ * @property className - CSS 클래스명 (선택적)
+ */
 interface AccessibleButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
-  size?: 'small' | 'medium' | 'large';
-  fullWidth?: boolean;
-  ariaLabel?: string;
-  ariaDescribedBy?: string;
-  type?: 'button' | 'submit' | 'reset';
-  className?: string;
+  children: React.ReactNode; // 버튼 내용
+  onClick?: () => void; // 클릭 핸들러 (선택적)
+  disabled?: boolean; // 비활성화 여부 (기본값: false)
+  loading?: boolean; // 로딩 상태 여부 (기본값: false)
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'; // 버튼 스타일 변형 (기본값: 'primary')
+  size?: 'small' | 'medium' | 'large'; // 버튼 크기 (기본값: 'medium')
+  fullWidth?: boolean; // 전체 너비 사용 여부 (기본값: false)
+  ariaLabel?: string; // ARIA 라벨 (선택적)
+  ariaDescribedBy?: string; // ARIA 설명 ID (선택적)
+  type?: 'button' | 'submit' | 'reset'; // 버튼 타입 (기본값: 'button')
+  className?: string; // CSS 클래스명 (선택적)
 }
 
+/**
+ * 접근성 버튼 컴포넌트
+ *
+ * 웹 접근성을 고려한 버튼을 렌더링하는 컴포넌트입니다.
+ * 키보드 네비게이션, ARIA 속성, 로딩 상태 등을 지원하며,
+ * 다양한 스타일과 크기를 제공합니다.
+ *
+ * @param children - 버튼 내용
+ * @param onClick - 클릭 핸들러 (선택적)
+ * @param disabled - 비활성화 여부 (기본값: false)
+ * @param loading - 로딩 상태 여부 (기본값: false)
+ * @param variant - 버튼 스타일 변형 (기본값: 'primary')
+ * @param size - 버튼 크기 (기본값: 'medium')
+ * @param fullWidth - 전체 너비 사용 여부 (기본값: false)
+ * @param ariaLabel - ARIA 라벨 (선택적)
+ * @param ariaDescribedBy - ARIA 설명 ID (선택적)
+ * @param type - 버튼 타입 (기본값: 'button')
+ * @param className - CSS 클래스명 (선택적)
+ * @returns 접근성 버튼 컴포넌트
+ */
 const AccessibleButton: React.FC<AccessibleButtonProps> = ({
   children,
   onClick,

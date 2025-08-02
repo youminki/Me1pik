@@ -6,8 +6,29 @@ import CompleteIcon from '@/assets/completes/CompleteIcon.svg';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
+/**
+ * 결제 완료 페이지 컴포넌트 (PaymentComplete.tsx)
+ *
+ * 결제가 성공적으로 완료되었음을 사용자에게 알리는 페이지를 제공합니다.
+ * 완료 아이콘 애니메이션, 성공 메시지, 확인 버튼을 포함합니다.
+ *
+ * @description
+ * - 결제 완료 확인 메시지
+ * - 애니메이션 효과 (슬라이드 애니메이션)
+ * - 다양한 닫기 방식 지원 (콜백/팝업/라우팅)
+ * - 사용자 친화적 UI
+ */
+
+/**
+ * 결제 완료 페이지 속성 인터페이스
+ *
+ * 결제 완료 페이지에서 사용되는 속성을 정의합니다.
+ * 부모 컴포넌트로부터 전달받는 콜백 함수를 포함합니다.
+ *
+ * @property onClose - 페이지 닫기 콜백 함수 (선택적)
+ */
 interface PaymentCompleteProps {
-  onClose?: () => void;
+  onClose?: () => void; // 페이지 닫기 콜백 함수 (선택적)
 }
 
 const PaymentComplete: React.FC<PaymentCompleteProps> = ({ onClose }) => {
@@ -51,7 +72,12 @@ const PaymentComplete: React.FC<PaymentCompleteProps> = ({ onClose }) => {
 
 export default PaymentComplete;
 
-// 애니메이션: 화면 왼쪽 밖 → 화면 오른쪽 밖
+/**
+ * 슬라이드 애니메이션
+ *
+ * 완료 아이콘이 화면 왼쪽 밖에서 오른쪽 밖으로 이동하는 애니메이션을 정의합니다.
+ * 무한 반복으로 사용자에게 동적인 피드백을 제공합니다.
+ */
 const slideAcross = keyframes`
   0% {
     left: -80px;

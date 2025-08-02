@@ -1,23 +1,40 @@
+/**
+ * nativeApp 유틸리티 모음
+ *
+ * 네이티브 앱 연동 시스템을 제공합니다.
+ * 웹뷰 환경에서 네이티브 앱과의 통신을 담당하며 iOS WKWebView와 Android WebView 모두를 지원합니다.
+ *
+ * @description
+ * - 네이티브 앱 환경 감지
+ * - 상태바 높이 관리
+ * - 로그인 정보 동기화
+ * - 플랫폼별 메시지 전송
+ */
+
 import { setToken, syncTokenWithApp } from '@/utils/auth';
 
-// 네이티브 앱 타입 선언
+/**
+ * 네이티브 앱 타입 선언
+ *
+ * 웹뷰에서 네이티브 앱의 JavaScript 인터페이스에 접근하기 위한 타입 정의입니다.
+ */
 declare global {
   interface Window {
     nativeApp?: {
-      requestLogin?: () => void;
-      saveLoginInfo?: (data: Record<string, unknown>) => void;
-      getStatusBarHeight?: () => number;
+      requestLogin?: () => void; // 로그인 요청
+      saveLoginInfo?: (data: Record<string, unknown>) => void; // 로그인 정보 저장
+      getStatusBarHeight?: () => number; // 상태바 높이 조회
     };
     ReactNativeWebView?: {
-      postMessage: (message: string) => void;
+      postMessage: (message: string) => void; // React Native WebView 메시지 전송
     };
     webkit?: {
       messageHandlers?: {
         loginHandler?: {
-          postMessage: (message: Record<string, unknown>) => void;
+          postMessage: (message: Record<string, unknown>) => void; // iOS 로그인 핸들러
         };
         statusBarHandler?: {
-          postMessage: (message: Record<string, unknown>) => void;
+          postMessage: (message: Record<string, unknown>) => void; // iOS 상태바 핸들러
         };
       };
     };
@@ -25,7 +42,12 @@ declare global {
 }
 
 /**
- * 네이티브 앱 환경인지 확인합니다
+ * isNativeApp 함수
+ *
+ * 네이티브 앱 환경인지 확인합니다.
+ * 웹뷰 환경에서 실행 중인지 판단합니다.
+ *
+ * @returns 네이티브 앱 환경이면 true, 웹 브라우저면 false
  */
 export const isNativeApp = (): boolean => {
   return !!(
@@ -37,7 +59,12 @@ export const isNativeApp = (): boolean => {
 };
 
 /**
- * 안드로이드 앱 환경인지 확인합니다
+ * isAndroidApp 함수
+ *
+ * 안드로이드 앱 환경인지 확인합니다.
+ * React Native WebView나 Android UserAgent를 통해 판단합니다.
+ *
+ * @returns 안드로이드 앱 환경이면 true, 그렇지 않으면 false
  */
 export const isAndroidApp = (): boolean => {
   return !!(
@@ -48,7 +75,12 @@ export const isAndroidApp = (): boolean => {
 };
 
 /**
- * iOS 앱 환경인지 확인합니다
+ * isIOSApp 함수
+ *
+ * iOS 앱 환경인지 확인합니다.
+ * WKWebView의 messageHandlers를 통해 판단합니다.
+ *
+ * @returns iOS 앱 환경이면 true, 그렇지 않으면 false
  */
 export const isIOSApp = (): boolean => {
   return !!(
@@ -58,7 +90,13 @@ export const isIOSApp = (): boolean => {
 };
 
 /**
- * 안드로이드 상태바 높이를 가져옵니다
+ * getStatusBarHeight 함수
+ *
+ * 상태바 높이를 가져옵니다.
+ * 네이티브 앱 환경에서 상태바 높이를 조회합니다.
+ * CSS 변수, 네이티브 인터페이스, 메시지 전송을 통해 높이를 확인합니다.
+ *
+ * @returns 상태바 높이 (픽셀 단위)
  */
 export const getStatusBarHeight = (): number => {
   // 기본값 (대부분의 안드로이드 기기)
@@ -100,7 +138,11 @@ export const getStatusBarHeight = (): number => {
 };
 
 /**
- * 네이티브 앱에서 상태바 높이를 설정합니다
+ * setStatusBarHeight 함수
+ *
+ * 네이티브 앱에서 상태바 높이를 설정합니다.
+ *
+ * @param height - 설정할 상태바 높이
  */
 export const setStatusBarHeight = (height: number): void => {
   if (typeof window !== 'undefined') {
@@ -122,7 +164,9 @@ export const setStatusBarHeight = (height: number): void => {
 };
 
 /**
- * 네이티브 앱에서 상태바 높이 이벤트 리스너를 설정합니다
+ * setupStatusBarHeightListener 함수
+ *
+ * 네이티브 앱에서 상태바 높이 이벤트 리스너를 설정합니다.
  */
 export const setupStatusBarHeightListener = (): void => {
   if (typeof window !== 'undefined') {
@@ -157,7 +201,9 @@ export const setupStatusBarHeightListener = (): void => {
 };
 
 /**
- * 네이티브 앱에 로그인 요청 전송
+ * requestNativeLogin 함수
+ *
+ * 네이티브 앱에 로그인 요청을 전송합니다.
  */
 export const requestNativeLogin = (): void => {
   if (typeof window !== 'undefined' && window.nativeApp?.requestLogin) {
@@ -179,7 +225,17 @@ export const requestNativeLogin = (): void => {
 };
 
 /**
- * 네이티브 앱에서 로그인 정보를 저장합니다 (앱에서는 항상 영구 저장)
+ * saveNativeLoginInfo 함수
+ *
+ * 네이티브 앱에서 로그인 정보를 저장합니다 (앱에서는 항상 영구 저장).
+ *
+ * @param loginInfo - 저장할 로그인 정보
+ * @param loginInfo.id - 사용자 ID
+ * @param loginInfo.email - 사용자 이메일
+ * @param loginInfo.name - 사용자 이름
+ * @param loginInfo.token - 액세스 토큰
+ * @param loginInfo.refreshToken - 리프레시 토큰
+ * @param loginInfo.expiresAt - 토큰 만료 시간
  */
 export const saveNativeLoginInfo = (loginInfo: {
   id: string;

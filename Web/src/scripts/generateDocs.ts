@@ -5,7 +5,15 @@ import { exportDocumentation } from '@/utils/documentation';
 
 /**
  * 문서 생성 스크립트
- * Node.js 환경에서만 실행되어야 함
+ *
+ * 프로젝트의 컴포넌트, 함수, 타입 등의 문서를 자동으로 생성합니다.
+ * Node.js 환경에서만 실행되어야 합니다.
+ *
+ * @description
+ * - JSON 형식 문서 생성
+ * - Markdown 형식 문서 생성
+ * - HTML 형식 문서 생성
+ * - docs 디렉토리 자동 생성
  */
 const generateDocumentation = () => {
   // 브라우저 환경에서는 실행하지 않음

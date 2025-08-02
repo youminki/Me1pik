@@ -1,3 +1,4 @@
+// 필터 칩 컨테이너 컴포넌트 - 검색 및 필터링 기능을 제공하는 칩 컨테이너
 import React, { memo } from 'react';
 import styled from 'styled-components';
 
@@ -5,6 +6,7 @@ import FilterContainer from '@/components/homes/FilterContainer';
 import SearchModal from '@/components/homes/SearchModal';
 import FilterModal from '@/components/shared/modals/FilterModal';
 
+// 스타일 컴포넌트들
 const RowAlignBox = styled.div`
   display: flex;
   flex-direction: row;
@@ -77,6 +79,7 @@ const ChipClose = styled.button`
   padding: 0;
 `;
 
+// 메모이제이션된 칩 컴포넌트
 const MemoizedChip = memo<{
   label: string;
   onRemove: () => void;
@@ -86,37 +89,30 @@ const MemoizedChip = memo<{
     <ChipClose onClick={onRemove}>&times;</ChipClose>
   </Chip>
 ));
-MemoizedChip.displayName = 'MemoizedChip';
 
-const ControlsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  margin: 20px 0;
-`;
-
+// 필터 칩 컨테이너 Props 인터페이스
 interface FilterChipContainerProps {
-  searchQuery: string;
-  onSearchQueryChange: (query: string) => void;
-  onSearchSubmit: (searchTerm: string) => void;
-  selectedColors: string[];
-  selectedSizes: string[];
-  onColorsChange: (colors: string[]) => void;
-  onSizesChange: (sizes: string[]) => void;
-  isSearchModalOpen: boolean;
-  isFilterModalOpen: boolean;
-  onSearchModalToggle: (isOpen: boolean) => void;
-  onFilterModalToggle: (isOpen: boolean) => void;
-  tempSelectedColors: string[];
-  tempSelectedSizes: string[];
-  onTempColorsChange: React.Dispatch<React.SetStateAction<string[]>>;
-  onTempSizesChange: React.Dispatch<React.SetStateAction<string[]>>;
-  historyKey?: string;
-  searchPlaceholder?: string;
-  onClearAll?: () => void;
+  searchQuery: string; // 현재 검색어
+  onSearchQueryChange: (query: string) => void; // 검색어 변경 핸들러
+  onSearchSubmit: (searchTerm: string) => void; // 검색 제출 핸들러
+  selectedColors: string[]; // 선택된 색상 목록
+  selectedSizes: string[]; // 선택된 사이즈 목록
+  onColorsChange: (colors: string[]) => void; // 색상 변경 핸들러
+  onSizesChange: (sizes: string[]) => void; // 사이즈 변경 핸들러
+  isSearchModalOpen: boolean; // 검색 모달 열림 상태
+  isFilterModalOpen: boolean; // 필터 모달 열림 상태
+  onSearchModalToggle: (isOpen: boolean) => void; // 검색 모달 토글 핸들러
+  onFilterModalToggle: (isOpen: boolean) => void; // 필터 모달 토글 핸들러
+  tempSelectedColors: string[]; // 임시 선택된 색상 목록
+  tempSelectedSizes: string[]; // 임시 선택된 사이즈 목록
+  onTempColorsChange: React.Dispatch<React.SetStateAction<string[]>>; // 임시 색상 변경 핸들러
+  onTempSizesChange: React.Dispatch<React.SetStateAction<string[]>>; // 임시 사이즈 변경 핸들러
+  historyKey?: string; // 검색 히스토리 키 (기본값: 'searchHistory')
+  searchPlaceholder?: string; // 검색 플레이스홀더 (기본값: '브랜드 또는 설명으로 검색...')
+  onClearAll?: () => void; // 전체 삭제 핸들러 (선택적)
 }
 
+// 메인 필터 칩 컨테이너 컴포넌트
 const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
   searchQuery,
   onSearchQueryChange,
@@ -137,68 +133,82 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
   searchPlaceholder = '브랜드 또는 설명으로 검색...',
   onClearAll,
 }) => {
+  // 검색어 칩 삭제 핸들러
   const handleSearchChipDelete = (idx: number) => {
-    const terms = searchQuery
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
-    const newTerms = terms.filter((_, i) => i !== idx);
-    onSearchQueryChange(newTerms.join(', '));
+    const words = searchQuery.split(' ').filter(Boolean);
+    words.splice(idx, 1);
+    onSearchQueryChange(words.join(' '));
   };
+
+  // 색상 칩 삭제 핸들러
   const handleColorChipDelete = (idx: number) => {
     const newColors = selectedColors.filter((_, i) => i !== idx);
     onColorsChange(newColors);
   };
+
+  // 사이즈 칩 삭제 핸들러
   const handleSizeChipDelete = (idx: number) => {
     const newSizes = selectedSizes.filter((_, i) => i !== idx);
     onSizesChange(newSizes);
   };
 
-  // 필터가 있는지 확인
+  // 검색어를 단어별로 분리
+  const searchWords = searchQuery.split(' ').filter(Boolean);
   const hasFilters =
-    searchQuery.trim() || selectedColors.length > 0 || selectedSizes.length > 0;
+    searchWords.length > 0 ||
+    selectedColors.length > 0 ||
+    selectedSizes.length > 0;
 
   return (
-    <ControlsContainer>
-      <RowAlignBox>
-        <ChipList>
-          {searchQuery.trim() &&
-            searchQuery
-              .split(',')
-              .map((kw) => kw.trim())
-              .filter(Boolean)
-              .map((kw, idx) => (
-                <MemoizedChip
-                  key={kw + idx}
-                  label={kw}
-                  onRemove={() => handleSearchChipDelete(idx)}
-                />
-              ))}
-          {selectedColors.map((color, idx) => (
-            <MemoizedChip
-              key={color + idx}
-              label={color}
-              onRemove={() => handleColorChipDelete(idx)}
-            />
-          ))}
-          {selectedSizes.map((size, idx) => (
-            <MemoizedChip
-              key={size + idx}
-              label={size}
-              onRemove={() => handleSizeChipDelete(idx)}
-            />
-          ))}
-        </ChipList>
-        <IconBox>
-          {hasFilters && onClearAll && (
-            <ClearAllButton onClick={onClearAll}>모두 지우기</ClearAllButton>
+    <>
+      {/* 필터 칩 컨테이너 */}
+      {hasFilters && (
+        <RowAlignBox>
+          <ChipList>
+            {/* 검색어 칩들 */}
+            {searchWords.map((word, idx) => (
+              <MemoizedChip
+                key={`search-${idx}`}
+                label={word}
+                onRemove={() => handleSearchChipDelete(idx)}
+              />
+            ))}
+
+            {/* 색상 칩들 */}
+            {selectedColors.map((color, idx) => (
+              <MemoizedChip
+                key={`color-${idx}`}
+                label={color}
+                onRemove={() => handleColorChipDelete(idx)}
+              />
+            ))}
+
+            {/* 사이즈 칩들 */}
+            {selectedSizes.map((size, idx) => (
+              <MemoizedChip
+                key={`size-${idx}`}
+                label={size}
+                onRemove={() => handleSizeChipDelete(idx)}
+              />
+            ))}
+          </ChipList>
+
+          {/* 전체 삭제 버튼 */}
+          {onClearAll && (
+            <IconBox>
+              <ClearAllButton onClick={onClearAll}>전체 삭제</ClearAllButton>
+            </IconBox>
           )}
-          <FilterContainer
-            onSearchClick={() => onSearchModalToggle(true)}
-            onFilterClick={() => onFilterModalToggle(true)}
-          />
-        </IconBox>
-      </RowAlignBox>
+        </RowAlignBox>
+      )}
+
+      {/* 검색 및 필터 컨테이너 */}
+      <FilterContainer
+        onSearchClick={() => onSearchModalToggle(true)}
+        onFilterClick={() => onFilterModalToggle(true)}
+      />
+
+      {/* 검색 모달 */}
       <SearchModal
         isOpen={isSearchModalOpen}
         onClose={() => onSearchModalToggle(false)}
@@ -207,10 +217,15 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
         initialValue={searchQuery}
         placeholder={searchPlaceholder}
       />
+
+      {/* 필터 모달 */}
       <FilterModal
-        key='filter-modal'
         isOpen={isFilterModalOpen}
         onClose={() => onFilterModalToggle(false)}
+        selectedColors={tempSelectedColors}
+        setSelectedColors={onTempColorsChange}
+        selectedSizes={tempSelectedSizes}
+        setSelectedSizes={onTempSizesChange}
         onColorSelect={(colors) => {
           onColorsChange(colors);
           onFilterModalToggle(false);
@@ -219,12 +234,8 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
           onSizesChange(sizes);
           onFilterModalToggle(false);
         }}
-        selectedColors={tempSelectedColors}
-        setSelectedColors={onTempColorsChange}
-        selectedSizes={tempSelectedSizes}
-        setSelectedSizes={onTempSizesChange}
       />
-    </ControlsContainer>
+    </>
   );
 };
 

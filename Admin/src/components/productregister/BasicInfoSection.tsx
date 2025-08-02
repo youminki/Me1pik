@@ -1,7 +1,19 @@
+/**
+ * 제품 기본정보 섹션(BasicInfoSection)
+ *
+ * - 브랜드, 품번, 시즌 등 제품의 기본 정보 입력 폼
+ * - 스타일드 컴포넌트로 일관된 UI 제공
+ * - 재사용 가능한 공통 컴포넌트
+ */
+
 // src/components/productregister/BasicInfoSection.tsx
 import React from 'react';
 import styled from 'styled-components';
 
+/**
+ * 제품 기본정보 섹션 컴포넌트
+ * - 브랜드, 품번, 시즌 등 기본 정보 입력 필드 제공
+ */
 const BasicInfoSection: React.FC = () => {
   return (
     <SectionBox>
@@ -36,6 +48,10 @@ const BasicInfoSection: React.FC = () => {
 
 export default BasicInfoSection;
 
+/**
+ * 스타일드 컴포넌트들
+ * - 섹션 박스, 헤더, 불릿, 수직선, 입력 행, 라벨 등
+ */
 const SectionBox = styled.div`
   position: relative;
   margin-bottom: 20px;

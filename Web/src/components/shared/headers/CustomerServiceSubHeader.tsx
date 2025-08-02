@@ -1,13 +1,45 @@
+/**
+ * 고객 서비스 서브 헤더 컴포넌트 (CustomerServiceSubHeader.tsx)
+ *
+ * 고객 서비스 페이지에서 사용하는 서브 헤더 컴포넌트를 제공합니다.
+ * 기간 선택, 검색 기능을 포함하며, 사용자가 원하는 기간의
+ * 고객 서비스 정보를 쉽게 찾을 수 있도록 도와줍니다.
+ *
+ * @description
+ * - 기간 선택 기능
+ * - 검색 기능
+ * - 반응형 디자인
+ * - 접근성 지원
+ */
+
 import React from 'react';
 import styled from 'styled-components';
 
 import SearchIcon from '@/assets/customer-services/SearchIcon.svg';
 
+/**
+ * 기간 섹션 속성 인터페이스
+ *
+ * 기간 섹션 컴포넌트의 props를 정의합니다.
+ *
+ * @property selectedPeriod - 현재 선택된 기간 (3: 공지, 6: 안내)
+ * @property setSelectedPeriod - 기간 선택 핸들러 함수
+ */
 interface PeriodSectionProps {
-  selectedPeriod: number;
-  setSelectedPeriod: (period: number) => void;
+  selectedPeriod: number; // 현재 선택된 기간 (3: 공지, 6: 안내)
+  setSelectedPeriod: (period: number) => void; // 기간 선택 핸들러 함수
 }
 
+/**
+ * 기간 섹션 컴포넌트
+ *
+ * 고객센터에서 사용하는 기간 선택 섹션을 렌더링하는 컴포넌트입니다.
+ * 공지/안내 탭 선택과 검색 기능을 제공합니다.
+ *
+ * @param selectedPeriod - 현재 선택된 기간 (3: 공지, 6: 안내)
+ * @param setSelectedPeriod - 기간 선택 핸들러 함수
+ * @returns 기간 섹션 컴포넌트
+ */
 const PeriodSection: React.FC<PeriodSectionProps> = ({
   selectedPeriod,
   setSelectedPeriod,

@@ -64,7 +64,9 @@ const TicketTable: React.FC<TicketTableProps> = ({
   setSelectedRows,
   isLoading,
 }) => {
-  // handleEdit을 row에 추가
+  /**
+   * handleEdit을 각 row에 추가하여, 사용자 클릭 시 상세/수정 진입이 가능하도록 합니다.
+   */
   const dataWithEdit = filteredData.map((item) => ({ ...item, handleEdit }));
 
   const onSelectAll = (checked: boolean) => {

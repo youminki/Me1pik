@@ -1,3 +1,11 @@
+/**
+ * 브랜드 목록(BrandList) 페이지
+ *
+ * - 브랜드 상태별 필터링, 검색, 등록/편집 등 지원
+ * - API 데이터를 테이블 형식으로 변환, Chip 컴포넌트로 필터 표시
+ * - TableWithRegisterButton으로 등록 기능 통합
+ */
+
 // src/pages/Tab4/Brand/BrandList.tsx
 
 import React, { useState, useEffect } from 'react';
@@ -10,6 +18,10 @@ import TableWithRegisterButton from '@components/TableWithRegisterButton';
 import { getAdminBrandList, AdminBrand } from '@api/brand/brandApi';
 import { advancedSearchFilter, normalize } from '@utils/advancedSearch';
 
+/**
+ * AdminBrand를 BrandItem으로 변환하는 매핑 함수
+ * - 날짜 포맷팅, 상태 변환, 기본값 처리 등 포함
+ */
 const mapAdminBrandToBrandItem = (b: AdminBrand): BrandItem => {
   const bWithExtra = b as AdminBrand & {
     productCount?: number;
@@ -47,6 +59,10 @@ const mapAdminBrandToBrandItem = (b: AdminBrand): BrandItem => {
   };
 };
 
+/**
+ * 브랜드 상태 탭 옵션
+ * - 전체/등록완료/등록대기/계약종료 등
+ */
 const tabs: TabItem[] = [
   { label: '전체보기', path: '' },
   { label: '등록완료', path: '등록완료' },
@@ -54,7 +70,10 @@ const tabs: TabItem[] = [
   { label: '계약종료', path: '계약종료' },
 ];
 
-// Chip 컴포넌트 (제품 관리에서 복사)
+/**
+ * Chip 컴포넌트 (제품 관리에서 복사)
+ * - 필터 표시용, 삭제 기능 포함
+ */
 const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
   <span
     style={{

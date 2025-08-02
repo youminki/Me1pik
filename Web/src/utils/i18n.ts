@@ -1,38 +1,91 @@
 /**
- * 국제화(i18n) 유틸리티
+ * i18n 유틸리티 모음
+ *
+ * 국제화(i18n) 유틸리티를 제공합니다.
+ * 다국어 지원, 번역 관리, 날짜/숫자/통화 포맷팅 기능을 포함합니다.
+ *
+ * @description
+ * - 다국어 번역 관리
+ * - 날짜/숫자/통화 포맷팅
+ * - 복수형 처리
+ * - 매개변수 보간
+ * - 사용자 언어 감지
  */
 
+/**
+ * Locale 타입
+ *
+ * 지원하는 언어 코드를 정의합니다.
+ */
 export type Locale = 'ko' | 'en' | 'ja' | 'zh';
 
+/**
+ * TranslationData 인터페이스
+ *
+ * 번역 데이터의 구조를 정의합니다.
+ *
+ * @property key - 번역 키
+ * @property value - 번역 값 또는 중첩된 번역 데이터
+ */
 interface TranslationData {
   [key: string]: string | TranslationData;
 }
 
+/**
+ * I18nConfig 인터페이스
+ *
+ * i18n 설정을 정의합니다.
+ *
+ * @property defaultLocale - 기본 언어
+ * @property fallbackLocale - 폴백 언어
+ * @property supportedLocales - 지원하는 언어 목록
+ */
 interface I18nConfig {
   defaultLocale: Locale;
   fallbackLocale: Locale;
   supportedLocales: Locale[];
 }
 
+/**
+ * I18nManager 클래스
+ *
+ * 국제화 기능을 관리하는 메인 클래스입니다.
+ */
 class I18nManager {
   private translations: Map<Locale, TranslationData> = new Map();
   private currentLocale: Locale;
   private config: I18nConfig;
 
+  /**
+   * constructor 메서드
+   *
+   * I18nManager를 초기화합니다.
+   *
+   * @param config - i18n 설정
+   */
   constructor(config: I18nConfig) {
     this.config = config;
     this.currentLocale = config.defaultLocale;
   }
 
   /**
-   * 번역 데이터 설정
+   * setTranslations 메서드
+   *
+   * 번역 데이터를 설정합니다.
+   *
+   * @param locale - 언어 코드
+   * @param data - 번역 데이터
    */
   setTranslations(locale: Locale, data: TranslationData): void {
     this.translations.set(locale, data);
   }
 
   /**
-   * 현재 로케일 설정
+   * setLocale 메서드
+   *
+   * 현재 로케일을 설정합니다.
+   *
+   * @param locale - 설정할 언어 코드
    */
   setLocale(locale: Locale): void {
     if (this.config.supportedLocales.includes(locale)) {
@@ -42,14 +95,24 @@ class I18nManager {
   }
 
   /**
-   * 현재 로케일 가져오기
+   * getCurrentLocale 메서드
+   *
+   * 현재 로케일을 가져옵니다.
+   *
+   * @returns 현재 언어 코드
    */
   getCurrentLocale(): Locale {
     return this.currentLocale;
   }
 
   /**
-   * 번역 텍스트 가져오기
+   * t 메서드
+   *
+   * 번역 텍스트를 가져옵니다.
+   *
+   * @param key - 번역 키
+   * @param params - 매개변수 (선택사항)
+   * @returns 번역된 텍스트
    */
   t(key: string, params?: Record<string, string | number>): string {
     const translation = this.getTranslation(key);
@@ -67,7 +130,12 @@ class I18nManager {
   }
 
   /**
-   * 번역 키에서 값 가져오기
+   * getTranslation 메서드
+   *
+   * 번역 키에서 값을 가져옵니다.
+   *
+   * @param key - 번역 키
+   * @returns 번역된 텍스트 또는 null
    */
   private getTranslation(key: string): string | null {
     const keys = key.split('.');
@@ -93,7 +161,13 @@ class I18nManager {
   }
 
   /**
-   * 매개변수 보간
+   * interpolate 메서드
+   *
+   * 매개변수를 보간합니다.
+   *
+   * @param text - 보간할 텍스트
+   * @param params - 매개변수 객체
+   * @returns 보간된 텍스트
    */
   private interpolate(
     text: string,
@@ -105,21 +179,40 @@ class I18nManager {
   }
 
   /**
-   * 날짜 포맷팅
+   * formatDate 메서드
+   *
+   * 날짜를 포맷팅합니다.
+   *
+   * @param date - 포맷팅할 날짜
+   * @param options - DateTimeFormat 옵션 (선택사항)
+   * @returns 포맷팅된 날짜 문자열
    */
   formatDate(date: Date, options?: Intl.DateTimeFormatOptions): string {
     return new Intl.DateTimeFormat(this.currentLocale, options).format(date);
   }
 
   /**
-   * 숫자 포맷팅
+   * formatNumber 메서드
+   *
+   * 숫자를 포맷팅합니다.
+   *
+   * @param number - 포맷팅할 숫자
+   * @param options - NumberFormat 옵션 (선택사항)
+   * @returns 포맷팅된 숫자 문자열
    */
   formatNumber(number: number, options?: Intl.NumberFormatOptions): string {
     return new Intl.NumberFormat(this.currentLocale, options).format(number);
   }
 
   /**
-   * 통화 포맷팅
+   * formatCurrency 메서드
+   *
+   * 통화를 포맷팅합니다.
+   *
+   * @param amount - 포맷팅할 금액
+   * @param currency - 통화 코드 (기본값: 'KRW')
+   * @param options - NumberFormat 옵션 (선택사항)
+   * @returns 포맷팅된 통화 문자열
    */
   formatCurrency(
     amount: number,
@@ -134,14 +227,25 @@ class I18nManager {
   }
 
   /**
-   * 복수형 처리
+   * pluralize 메서드
+   *
+   * 복수형을 처리합니다.
+   *
+   * @param count - 개수
+   * @param singular - 단수형
+   * @param plural - 복수형
+   * @returns 적절한 형태의 텍스트
    */
   pluralize(count: number, singular: string, plural: string): string {
     return count === 1 ? singular : plural;
   }
 }
 
-// 기본 번역 데이터
+/**
+ * defaultTranslations 상수
+ *
+ * 기본 번역 데이터를 정의합니다.
+ */
 const defaultTranslations: Record<Locale, TranslationData> = {
   ko: {
     common: {
@@ -289,7 +393,11 @@ const defaultTranslations: Record<Locale, TranslationData> = {
   },
 };
 
-// 전역 i18n 인스턴스
+/**
+ * i18n 상수
+ *
+ * 전역 i18n 인스턴스입니다.
+ */
 export const i18n = new I18nManager({
   defaultLocale: 'ko',
   fallbackLocale: 'ko',
@@ -301,7 +409,13 @@ Object.entries(defaultTranslations).forEach(([locale, data]) => {
   i18n.setTranslations(locale as Locale, data);
 });
 
-// 사용자 언어 감지
+/**
+ * detectUserLanguage 함수
+ *
+ * 사용자의 언어를 감지합니다.
+ *
+ * @returns 감지된 언어 코드
+ */
 const detectUserLanguage = (): Locale => {
   const browserLang = navigator.language.split('-')[0];
   const supportedLocales = ['ko', 'en', 'ja', 'zh'];

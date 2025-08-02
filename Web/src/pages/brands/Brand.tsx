@@ -12,12 +12,37 @@ import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { theme } from '@/styles/Theme';
 
+/**
+ * 브랜드 페이지 컴포넌트 (Brand.tsx)
+ *
+ * 브랜드 목록을 표시하고 관리하는 페이지를 제공합니다.
+ * 브랜드 검색, 그룹별/카테고리별 정렬, 필터링 기능을 포함합니다.
+ *
+ * @description
+ * - 브랜드 목록 표시 및 검색
+ * - 그룹별/카테고리별 정렬 및 필터링
+ * - 실시간 검색 기능
+ * - 브랜드 상세 정보 연동
+ */
+
+/**
+ * 로컬 브랜드 데이터 인터페이스
+ *
+ * API에서 받은 브랜드 데이터를 로컬에서 사용하기 위한 구조로 변환합니다.
+ * 검색, 정렬, 필터링을 위한 최적화된 데이터 구조를 제공합니다.
+ *
+ * @property id - 브랜드 고유 식별자
+ * @property name - 브랜드명
+ * @property category - 브랜드 카테고리 (API의 brand_category)
+ * @property group - 브랜드 그룹 (API의 groupName)
+ * @property company - 브랜드 회사명 (필요 시 매핑)
+ */
 interface LocalBrand {
-  id: number;
-  name: string;
-  category: string; // API의 brand_category
-  group: string; // API의 groupName
-  company: string; // 필요 시 매핑
+  id: number; // 브랜드 고유 식별자
+  name: string; // 브랜드명
+  category: string; // 브랜드 카테고리 (API의 brand_category)
+  group: string; // 브랜드 그룹 (API의 groupName)
+  company: string; // 브랜드 회사명 (필요 시 매핑)
 }
 
 const Brand: React.FC = () => {

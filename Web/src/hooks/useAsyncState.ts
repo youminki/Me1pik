@@ -1,11 +1,38 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
+/**
+ * useAsyncState 훅 모음
+ *
+ * 비동기 함수의 상태를 관리하는 커스텀 훅 집합입니다.
+ * - useAsyncState: 기본 비동기 상태 관리
+ * - useConditionalAsyncState: 조건부 실행
+ * - useAutoAsyncState: 자동 실행
+ * - useCachedAsyncState: 캐시 기능 포함
+ */
+
+/**
+ * AsyncState 인터페이스
+ *
+ * @template T - 데이터 타입
+ * @property data - 비동기 함수 결과 데이터
+ * @property loading - 로딩 상태
+ * @property error - 에러 객체
+ */
 interface AsyncState<T> {
   data: T | null;
   loading: boolean;
   error: Error | null;
 }
 
+/**
+ * UseAsyncStateReturn 인터페이스
+ *
+ * @template T - 데이터 타입
+ * @property execute - 비동기 함수 실행
+ * @property reset - 상태 초기화
+ * @property setData - 데이터 수동 설정
+ * @property setError - 에러 수동 설정
+ */
 interface UseAsyncStateReturn<T> extends AsyncState<T> {
   execute: (...args: unknown[]) => Promise<T>;
   reset: () => void;
@@ -14,9 +41,13 @@ interface UseAsyncStateReturn<T> extends AsyncState<T> {
 }
 
 /**
- * 비동기 상태 관리 훅
- * @param asyncFn 비동기 함수
- * @param initialData 초기 데이터
+ * useAsyncState 훅
+ *
+ * 비동기 함수의 상태를 관리하는 기본 훅입니다. 로딩, 에러, 데이터 상태를 일관되게 관리합니다.
+ *
+ * @template T - 데이터 타입
+ * @param asyncFn - 실행할 비동기 함수
+ * @param initialData - 초기 데이터
  * @returns 비동기 상태와 메서드들
  */
 export const useAsyncState = <T>(
@@ -104,10 +135,14 @@ export const useAsyncState = <T>(
 };
 
 /**
- * 조건부 비동기 상태 훅
- * @param condition 실행 조건
- * @param asyncFn 비동기 함수
- * @param initialData 초기 데이터
+ * useConditionalAsyncState 훅
+ *
+ * 조건이 충족될 때만 비동기 함수를 실행하는 훅입니다.
+ *
+ * @template T - 데이터 타입
+ * @param condition - 실행 조건
+ * @param asyncFn - 실행할 비동기 함수
+ * @param initialData - 초기 데이터
  * @returns 조건부 비동기 상태
  */
 export const useConditionalAsyncState = <T>(
@@ -134,10 +169,14 @@ export const useConditionalAsyncState = <T>(
 };
 
 /**
- * 자동 실행 비동기 상태 훅
- * @param asyncFn 비동기 함수
- * @param deps 의존성 배열
- * @param initialData 초기 데이터
+ * useAutoAsyncState 훅
+ *
+ * 컴포넌트 마운트 시와 의존성 변경 시 자동으로 비동기 함수를 실행하는 훅입니다.
+ *
+ * @template T - 데이터 타입
+ * @param asyncFn - 실행할 비동기 함수
+ * @param deps - 의존성 배열
+ * @param initialData - 초기 데이터
  * @returns 자동 실행 비동기 상태
  */
 export const useAutoAsyncState = <T>(
@@ -192,11 +231,15 @@ export const useAutoAsyncState = <T>(
 };
 
 /**
- * 캐시된 비동기 상태 훅
- * @param key 캐시 키
- * @param asyncFn 비동기 함수
- * @param ttl 캐시 TTL (밀리초)
- * @param initialData 초기 데이터
+ * useCachedAsyncState 훅
+ *
+ * 비동기 함수의 결과를 캐시하여 중복 요청을 방지하는 훅입니다.
+ *
+ * @template T - 데이터 타입
+ * @param key - 캐시 키
+ * @param asyncFn - 실행할 비동기 함수
+ * @param ttl - 캐시 TTL (밀리초, 기본값: 5분)
+ * @param initialData - 초기 데이터
  * @returns 캐시된 비동기 상태
  */
 export const useCachedAsyncState = <T>(

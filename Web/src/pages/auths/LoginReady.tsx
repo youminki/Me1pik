@@ -10,16 +10,43 @@ import InputField from '@/components/shared/forms/InputField';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { schemaLogin } from '@/hooks/useValidationYup';
 
+/**
+ * 로그인 준비 페이지 컴포넌트 (LoginReady.tsx)
+ *
+ * 현재 점검 중인 로그인 페이지를 제공합니다.
+ * 실제 로그인 기능은 비활성화되어 있고, 점검 중 메시지를 표시합니다.
+ * 폼 유효성 검사와 접근성 기능은 그대로 유지되어 개발 및 테스트 목적으로 사용됩니다.
+ *
+ * @description
+ * - 점검 중 메시지 표시
+ * - 폼 유효성 검사 유지
+ * - 접근성 기능 유지
+ * - 개발/테스트 목적
+ */
+
+/**
+ * 로그인 폼 데이터 인터페이스
+ *
+ * 로그인 폼에서 사용되는 데이터 구조를 정의합니다.
+ * React Hook Form과 연동하여 타입 안전성을 보장합니다.
+ */
 interface LoginFormValues {
-  email: string;
-  password: string;
+  email: string; // 사용자 이메일
+  password: string; // 비밀번호
 }
 
+/**
+ * 로그인 준비 페이지 컴포넌트
+ *
+ * 점검 중인 로그인 페이지를 렌더링하는 메인 컴포넌트입니다.
+ * 폼 유효성 검사와 접근성 기능을 포함하며, 점검 중 메시지를 표시합니다.
+ */
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
+  // React Hook Form 설정
   const {
     control,
     handleSubmit,
@@ -30,9 +57,19 @@ const Login: React.FC = () => {
     defaultValues: { email: '', password: '' },
   });
 
+  /**
+   * 모달 닫기 핸들러
+   *
+   * 점검 중 메시지를 표시하는 모달을 닫는 함수입니다.
+   */
   const handleModalClose = () => setIsModalOpen(false);
 
-  // 로그인 대신 점검중 메시지 표시
+  /**
+   * 로그인 클릭 핸들러
+   *
+   * 현재는 점검 중이므로 실제 로그인 대신 점검 중 메시지를 표시합니다.
+   * 개발 및 테스트 목적으로 사용되며, 실제 인증 로직은 비활성화되어 있습니다.
+   */
   const handleLoginClick = () => {
     setModalMessage('지금은 점검중입니다.');
     setIsModalOpen(true);

@@ -1,3 +1,13 @@
+/**
+ * 앱 루트 컴포넌트 (App.tsx)
+ *
+ * 전체 애플리케이션의 핵심 진입점으로 다음 기능들을 통합 관리합니다:
+ * - 전역 상태 관리 (React Query)
+ * - 테마 및 스타일링 (styled-components)
+ * - 라우팅 및 인증 가드
+ * - 성능 모니터링 및 분석
+ * - 네이티브 앱 연동
+ */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import {
@@ -24,7 +34,15 @@ import {
 } from '@/utils/auth';
 import { monitoringService, setUserId } from '@/utils/monitoring';
 
-// Performance API 타입 정의
+/**
+ * Core Web Vitals 및 성능 모니터링 타입 정의
+ *
+ * 웹 성능 측정을 위한 주요 인터페이스들을 정의합니다:
+ * - LayoutShift: 레이아웃 변화 측정
+ * - PerformanceEventTiming: 이벤트 타이밍 측정
+ * - NetworkInformation: 네트워크 상태 정보
+ * - PerformanceWithMemory: 메모리 사용량 측정
+ */
 interface LayoutShift extends PerformanceEntry {
   value: number;
   hadRecentInput: boolean;
@@ -35,58 +53,71 @@ interface PerformanceEventTiming extends PerformanceEntry {
   startTime: number;
 }
 
+/**
+ * 네트워크 연결 정보를 위한 타입 정의
+ */
 interface NetworkInformation extends EventTarget {
-  effectiveType: string;
-  downlink: number;
-  rtt: number;
+  effectiveType: string; // 연결 타입 (4g, 3g 등)
+  downlink: number; // 다운로드 속도 (Mbps)
+  rtt: number; // 왕복 시간 (ms)
 }
 
 interface NavigatorWithConnection extends Navigator {
   connection?: NetworkInformation;
 }
 
+/**
+ * 메모리 사용량 모니터링을 위한 타입 정의
+ */
 interface PerformanceWithMemory extends Performance {
   memory?: {
-    usedJSHeapSize: number;
-    totalJSHeapSize: number;
-    jsHeapSizeLimit: number;
+    usedJSHeapSize: number; // 사용 중인 힙 메모리
+    totalJSHeapSize: number; // 총 힙 메모리
+    jsHeapSizeLimit: number; // 힙 메모리 제한
   };
 }
 
-// React Query 클라이언트 설정 - 성능 최적화
+/**
+ * React Query 클라이언트 설정
+ *
+ * API 요청의 효율성과 사용자 경험 최적화를 위한 설정:
+ * - 캐시 관리 (신선도 유지, 가비지 컬렉션)
+ * - 재시도 로직 (네트워크 오류, 인증 오류 구분)
+ * - 백오프 전략 (지수 백오프)
+ * - 포커스/네트워크 재연결 시 동작
+ */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // 캐시 시간 최적화
-      staleTime: 1000 * 60 * 10, // 10분 (기존 5분에서 증가)
-      gcTime: 1000 * 60 * 30, // 30분 (기존 5분에서 증가)
+      staleTime: 1000 * 60 * 10, // 10분 - 데이터 신선도 유지 시간
+      gcTime: 1000 * 60 * 30, // 30분 - 가비지 컬렉션 시간
 
-      // 재시도 로직 최적화
       retry: (failureCount, error: unknown) => {
-        // 401 오류는 재시도하지 않음
+        // 401 인증 오류는 재시도하지 않음 (토큰 갱신으로 처리)
         if (error && typeof error === 'object' && 'response' in error) {
           const axiosError = error as { response?: { status?: number } };
           if (axiosError.response?.status === 401) {
             return false;
           }
         }
-        // 네트워크 오류는 2번만 재시도 (기존 3번에서 감소)
+        // 네트워크 오류는 최대 2번만 재시도
         return failureCount < 2;
       },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // 최대 10초
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // 지수 백오프, 최대 10초
 
-      // 백그라운드 업데이트 비활성화로 성능 향상
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
+      refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 비활성화
+      refetchOnReconnect: true, // 네트워크 재연결 시 재요청 활성화
     },
     mutations: {
-      // 뮤테이션 재시도 비활성화
-      retry: false,
+      retry: false, // 뮤테이션은 재시도하지 않음
     },
   },
 });
 
-// 지연 로딩을 위한 컴포넌트들
+/**
+ * 코드 스플리팅을 위한 지연 로딩 컴포넌트들
+ * 초기 번들 크기를 줄이고 필요할 때만 로드
+ */
 const Alarm = React.lazy(() => import('@/pages/alarms/Alarm'));
 const Analysis = React.lazy(() => import('@/pages/analyses/Analysis'));
 const FindId = React.lazy(() => import('@/pages/auths/FindId'));
@@ -225,11 +256,13 @@ const AuthGuard: React.FC = () => {
     checkInitialAuth();
   }, [location.pathname, navigate, redirectToLogin]);
 
-  // 라우트 변경 시 인증 체크
+  /**
+   * 라우트 변경 시 인증 상태 확인
+   * 보호된 라우트에 접근할 때마다 토큰 유효성을 검사
+   */
   useEffect(() => {
     if (!isInitialized) return;
 
-    // 보호된 라우트에서 토큰 체크 및 리다이렉트
     const needsRedirect = checkTokenAndRedirect(location.pathname);
     if (needsRedirect) {
       redirectToLogin();
@@ -240,21 +273,41 @@ const AuthGuard: React.FC = () => {
   return null;
 };
 
+/**
+ * 메인 애플리케이션 컴포넌트
+ *
+ * 주요 기능:
+ * - 자동 로그인 처리
+ * - 성능 모니터링 초기화
+ * - Service Worker 등록
+ * - 네트워크 상태 모니터링
+ */
 const App: React.FC = () => {
+  /**
+   * 자동 로그인 처리
+   * 저장된 토큰이 있지만 만료된 경우 자동으로 갱신 시도
+   */
   useEffect(() => {
     const tryAutoLogin = async () => {
       const token = getCurrentToken();
       if (token && !hasValidToken()) {
-        // accessToken이 만료된 경우 refresh 시도
+        // 토큰이 만료된 경우 자동 갱신 시도
         await refreshToken();
-        // refresh 실패 시에는 기존 인증 체크 로직에 따라 로그인 페이지로 이동
       }
-      // 토큰이 없으면 기존 인증 체크 로직이 동작함
     };
     tryAutoLogin();
   }, []);
 
-  // 모니터링 시스템 초기화
+  /**
+   * 애플리케이션 초기화 및 모니터링 설정
+   *
+   * 수행하는 작업:
+   * - 앱 시작 이벤트 추적
+   * - 사용자 ID 설정
+   * - Service Worker 등록
+   * - 성능 모니터링 시작
+   * - 네트워크 상태 모니터링
+   */
   useEffect(() => {
     // 앱 시작 이벤트 추적
     monitoringService.trackCustomEvent('app_start', {
@@ -265,7 +318,12 @@ const App: React.FC = () => {
       viewport: `${window.innerWidth}x${window.innerHeight}`,
     });
 
-    // 사용자 ID 설정 (로그인 시)
+    /**
+     * JWT 토큰에서 사용자 ID 추출 및 설정
+     *
+     * 토큰의 payload를 디코딩하여 사용자 ID를 추출합니다.
+     * 토큰이 유효하지 않은 경우 경고 로그를 출력합니다.
+     */
     const token = getCurrentToken();
     if (token) {
       try {
@@ -278,14 +336,22 @@ const App: React.FC = () => {
       }
     }
 
-    // Service Worker 등록
+    /**
+     * Service Worker 등록
+     *
+     * Service Worker는 다음 기능을 제공합니다:
+     * - 오프라인 캐싱
+     * - 백그라운드 동기화
+     * - 푸시 알림
+     * - 자동 업데이트 감지
+     */
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
           console.log('✅ Service Worker 등록 성공:', registration);
 
-          // Service Worker 업데이트 확인
+          // 새 버전 업데이트 감지
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (newWorker) {
@@ -294,7 +360,7 @@ const App: React.FC = () => {
                   newWorker.state === 'installed' &&
                   navigator.serviceWorker.controller
                 ) {
-                  // 새 버전이 설치되었을 때 사용자에게 알림
+                  // 새 버전이 설치되면 업데이트 이벤트 추적
                   monitoringService.trackCustomEvent('sw_update_available');
                 }
               });
@@ -309,11 +375,24 @@ const App: React.FC = () => {
         });
     }
 
-    // 성능 모니터링 시작
+    /**
+     * Core Web Vitals 성능 모니터링 시작
+     *
+     * Google에서 정의한 웹 성능의 핵심 지표들을 실시간으로 모니터링합니다.
+     *
+     * 모니터링 지표:
+     * - LCP (Largest Contentful Paint): 페이지 로딩 성능 측정
+     * - FID (First Input Delay): 사용자 상호작용 응답성 측정
+     * - CLS (Cumulative Layout Shift): 시각적 안정성 측정
+     */
     const startPerformanceMonitoring = () => {
-      // Core Web Vitals 모니터링
       if ('PerformanceObserver' in window) {
-        // LCP (Largest Contentful Paint)
+        /**
+         * LCP (Largest Contentful Paint) 모니터링
+         *
+         * 페이지에서 가장 큰 콘텐츠가 렌더링되는 시간을 측정합니다.
+         * 사용자가 페이지가 로드되었다고 인식하는 시점을 나타냅니다.
+         */
         new PerformanceObserver((list) => {
           const entries = list.getEntries();
           const lastEntry = entries[entries.length - 1];
@@ -325,7 +404,12 @@ const App: React.FC = () => {
           }
         }).observe({ entryTypes: ['largest-contentful-paint'] });
 
-        // FID (First Input Delay) 모니터링
+        /**
+         * FID (First Input Delay) 모니터링
+         *
+         * 사용자의 첫 번째 상호작용부터 브라우저가 응답하기까지의 시간을 측정합니다.
+         * 사용자 경험의 반응성을 평가하는 중요한 지표입니다.
+         */
         new PerformanceObserver((list) => {
           const entries = list.getEntries();
           entries.forEach((entry) => {
@@ -340,7 +424,12 @@ const App: React.FC = () => {
           });
         }).observe({ entryTypes: ['first-input'] });
 
-        // CLS (Cumulative Layout Shift) 모니터링
+        /**
+         * CLS (Cumulative Layout Shift) 모니터링
+         *
+         * 페이지 로딩 중 레이아웃 변화량을 누적하여 측정합니다.
+         * 시각적 안정성을 평가하는 지표로, 낮을수록 좋습니다.
+         */
         let clsValue = 0;
         new PerformanceObserver((list) => {
           const entries = list.getEntries();
@@ -353,7 +442,7 @@ const App: React.FC = () => {
             }
           });
 
-          // 페이지 언로드 시 CLS 값 전송
+          // 페이지 언로드 시 누적 CLS 값 전송
           window.addEventListener('beforeunload', () => {
             monitoringService.trackCustomEvent('performance_cls', {
               value: clsValue,
@@ -366,18 +455,27 @@ const App: React.FC = () => {
 
     startPerformanceMonitoring();
 
-    // 네트워크 상태 모니터링
+    /**
+     * 네트워크 연결 상태 모니터링
+     *
+     * 모니터링하는 정보:
+     * - effectiveType: 연결 타입 (4g, 3g, 2g 등)
+     * - downlink: 다운로드 속도 (Mbps)
+     * - rtt: 왕복 시간 (Round Trip Time, ms)
+     */
     const monitorNetworkStatus = () => {
       if ('connection' in navigator) {
         const connection = (navigator as NavigatorWithConnection).connection;
 
         if (connection) {
+          // 초기 네트워크 정보 추적
           monitoringService.trackCustomEvent('network_info', {
             effectiveType: connection.effectiveType,
             downlink: connection.downlink,
             rtt: connection.rtt,
           });
 
+          // 네트워크 상태 변화 감지
           connection.addEventListener('change', () => {
             monitoringService.trackCustomEvent('network_change', {
               effectiveType: connection.effectiveType,
@@ -391,7 +489,12 @@ const App: React.FC = () => {
 
     monitorNetworkStatus();
 
-    // 메모리 사용량 모니터링 (개발 환경에서만)
+    /**
+     * 메모리 사용량 모니터링 (개발 환경 전용)
+     *
+     * 30초마다 메모리 사용량을 추적하여 성능 문제 조기 발견
+     * 프로덕션에서는 비활성화되어 성능에 영향을 주지 않음
+     */
     if (import.meta.env.DEV && 'memory' in performance) {
       const memory = (performance as PerformanceWithMemory).memory;
       if (memory) {
@@ -406,16 +509,12 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // 네이티브 앱 환경에서 상태바 높이 설정
-  // 앱 초기화 코드 제거됨
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <GlobalStyles />
         <Router>
           <AuthGuard />
-          {/* 전체 페이지 라우트 로딩에는 원형 스피너, 명확한 안내 문구 */}
           <Suspense
             fallback={
               <LoadingSpinner

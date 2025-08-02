@@ -1,28 +1,77 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-} from 'react';
+/**
+ * 가상 리스트 컴포넌트 (VirtualList.tsx)
+ *
+ * 대용량 데이터를 효율적으로 렌더링하기 위한 가상 리스트 컴포넌트를 제공합니다.
+ * 화면에 보이는 아이템만 렌더링하여 성능을 최적화하며,
+ * 스크롤 위치에 따라 동적으로 아이템을 생성/제거합니다.
+ *
+ * @description
+ * - 가시 영역 계산 및 최적화
+ * - 스크롤 기반 동적 렌더링
+ * - ResizeObserver를 통한 크기 변경 감지
+ * - 오버스캔을 통한 부드러운 스크롤
+ * - 메모리 효율적인 아이템 관리
+ * - 커스터마이징 가능한 렌더링 함수
+ */
+
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 
+/**
+ * 가상 리스트 속성 인터페이스
+ *
+ * 가상 리스트 컴포넌트의 props를 정의합니다.
+ *
+ * @property items - 렌더링할 아이템 배열
+ * @property itemHeight - 각 아이템의 높이 (픽셀)
+ * @property containerHeight - 컨테이너 높이 (픽셀)
+ * @property overscan - 가시 영역 외 추가 렌더링 아이템 수 (기본값: 5)
+ * @property renderItem - 아이템 렌더링 함수
+ * @property keyExtractor - 아이템 고유 키 추출 함수
+ * @property onScroll - 스크롤 이벤트 핸들러 (선택적)
+ * @property className - CSS 클래스명 (선택적)
+ */
 interface VirtualListProps<T> {
-  items: T[];
-  itemHeight: number;
-  containerHeight: number;
-  overscan?: number;
-  renderItem: (item: T, index: number) => React.ReactNode;
-  keyExtractor: (item: T, index: number) => string | number;
-  onScroll?: (scrollTop: number) => void;
-  className?: string;
+  items: T[]; // 렌더링할 아이템 배열
+  itemHeight: number; // 각 아이템의 높이 (픽셀)
+  containerHeight: number; // 컨테이너 높이 (픽셀)
+  overscan?: number; // 가시 영역 외 추가 렌더링 아이템 수 (기본값: 5)
+  renderItem: (item: T, index: number) => React.ReactNode; // 아이템 렌더링 함수
+  keyExtractor: (item: T, index: number) => string | number; // 아이템 고유 키 추출 함수
+  onScroll?: (scrollTop: number) => void; // 스크롤 이벤트 핸들러 (선택적)
+  className?: string; // CSS 클래스명 (선택적)
 }
 
+/**
+ * 가상 리스트 상태 인터페이스
+ *
+ * 가상 리스트 컴포넌트의 내부 상태를 정의합니다.
+ *
+ * @property scrollTop - 현재 스크롤 위치
+ * @property containerHeight - 컨테이너 높이
+ */
 interface VirtualListState {
-  scrollTop: number;
-  containerHeight: number;
+  scrollTop: number; // 현재 스크롤 위치
+  containerHeight: number; // 컨테이너 높이
 }
 
+/**
+ * 가상 리스트 컴포넌트
+ *
+ * 대용량 데이터를 효율적으로 렌더링하는 가상 리스트를 구현합니다.
+ * 화면에 보이는 아이템만 렌더링하여 성능을 최적화하며,
+ * 스크롤 위치에 따라 동적으로 아이템을 관리합니다.
+ *
+ * @param items - 렌더링할 아이템 배열
+ * @param itemHeight - 각 아이템의 높이 (픽셀)
+ * @param containerHeight - 컨테이너 높이 (픽셀)
+ * @param overscan - 가시 영역 외 추가 렌더링 아이템 수 (기본값: 5)
+ * @param renderItem - 아이템 렌더링 함수
+ * @param keyExtractor - 아이템 고유 키 추출 함수
+ * @param onScroll - 스크롤 이벤트 핸들러 (선택적)
+ * @param className - CSS 클래스명 (선택적)
+ * @returns 가상 리스트 컴포넌트
+ */
 const VirtualList = <T,>({
   items,
   itemHeight,

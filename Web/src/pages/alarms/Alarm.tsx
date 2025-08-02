@@ -6,6 +6,21 @@ import PeriodSection from '@/components/period-section';
 import EmptyState from '@/components/shared/EmptyState';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
+/**
+ * 알림 페이지 컴포넌트 (Alarm.tsx)
+ *
+ * 사용자의 알림 목록을 표시하는 페이지를 제공합니다.
+ * 신청내역, 일정취소, 제품반납 등의 알림을 기간별로 필터링하여
+ * 표시할 수 있습니다.
+ *
+ * @description
+ * - 알림 목록 표시
+ * - 기간별 필터링
+ * - 알림 타입별 구분
+ * - 빈 알림 상태 처리
+ * - 시각적 타임라인 표시
+ * - 반응형 디자인
+ */
 const Alarm: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(6);
 
@@ -40,7 +55,11 @@ const Alarm: React.FC = () => {
     },
   ];
 
-  // 알림이 없을 때 EmptyState 처리
+  /**
+   * 빈 알림 상태 처리
+   *
+   * 알림이 없을 때 빈 상태 컴포넌트를 표시합니다.
+   */
   if (alarmList.length === 0) {
     return <EmptyState message='알림이 없습니다.' />;
   }

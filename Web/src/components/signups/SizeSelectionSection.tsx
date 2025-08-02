@@ -1,10 +1,42 @@
+/**
+ * 사이즈 선택 섹션 컴포넌트 (SizeSelectionSection.tsx)
+ *
+ * 회원가입 시 사용자가 평소 입는 의류 사이즈를 선택할 수 있는 섹션 컴포넌트입니다.
+ * 원피스, 정장, 아우터의 사이즈를 각각 선택할 수 있으며, 드롭다운 형태로 제공됩니다.
+ *
+ * @description
+ * - 원피스 사이즈 선택
+ * - 정장 사이즈 선택
+ * - 아우터 사이즈 선택
+ * - 드롭다운 형태 UI
+ * - S/M/L 사이즈 옵션
+ * - 접근성 지원
+ * - 반응형 디자인
+ */
+
 import React from 'react';
 import styled from 'styled-components';
 
+/**
+ * 사이즈 선택 섹션 속성 인터페이스
+ *
+ * 사이즈 선택 섹션 컴포넌트의 props를 정의합니다.
+ *
+ * @property onChange - 사이즈 선택 변경 핸들러 (선택적)
+ */
 interface SizeSelectionSectionProps {
-  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void; // 사이즈 선택 변경 핸들러 (선택적)
 }
 
+/**
+ * 사이즈 선택 섹션 컴포넌트
+ *
+ * 회원가입 시 사용자가 평소 입는 의류 사이즈를 선택할 수 있는 섹션을 렌더링합니다.
+ * 원피스, 정장, 아우터의 사이즈를 각각 선택할 수 있으며, 드롭다운 형태로 제공됩니다.
+ *
+ * @param onChange - 사이즈 선택 변경 핸들러 (선택적)
+ * @returns 사이즈 선택 섹션 컴포넌트
+ */
 const SizeSelectionSection: React.FC<SizeSelectionSectionProps> = ({
   onChange,
 }) => (

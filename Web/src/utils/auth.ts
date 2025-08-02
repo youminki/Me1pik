@@ -1,12 +1,38 @@
+/**
+ * 인증 토큰 관리 유틸리티 (auth.ts)
+ *
+ * JWT 기반 인증 시스템의 토큰을 종합적으로 관리하는 유틸리티를 제공합니다.
+ * 다중 저장소 동기화, 자동 갱신, 네이티브 앱 연동, 라우트 보호 등
+ * 보안성과 사용자 경험을 모두 고려한 인증 시스템을 구현합니다.
+ *
+ * @description
+ * - JWT 토큰 유효성 검사 및 자동 갱신
+ * - 다중 저장소 동기화 (localStorage, sessionStorage, Cookies)
+ * - 네이티브 앱 연동 (iOS/Android WebView)
+ * - 라우트 보호 및 인증 상태에 따른 리다이렉트
+ * - 인스타그램 방식 토큰 갱신 타이머 (만료 전 자동 갱신)
+ */
+
 import Cookies from 'js-cookie';
 
 import { Axios } from '@/api-utils/Axios';
 
-// 인스타그램 방식 토큰 갱신 타이머
+/**
+ * 토큰 갱신 타이머 변수
+ *
+ * 인스타그램 방식의 토큰 갱신을 위한 타이머입니다.
+ * 토큰 만료 전에 자동으로 갱신을 시도하여 사용자 경험을 개선합니다.
+ * 전역 변수로 관리하여 앱 전체에서 일관된 갱신 로직을 제공합니다.
+ */
 let tokenRefreshTimer: NodeJS.Timeout | null = null;
 
 /**
- * 토큰의 유효성을 검사합니다 (존재 여부와 만료 여부 확인)
+ * 토큰 유효성 검사 함수
+ *
+ * 다중 저장소에서 토큰을 확인하고 JWT 구조를 검증하여 유효성을 판단합니다.
+ * 만료된 토큰은 자동으로 정리하고 false를 반환합니다.
+ *
+ * @returns 토큰이 유효하면 true, 없거나 만료되었으면 false
  */
 export const hasValidToken = (): boolean => {
   const localToken = localStorage.getItem('accessToken');
@@ -36,7 +62,14 @@ export const hasValidToken = (): boolean => {
 };
 
 /**
- * access/refresh 토큰을 여러 저장소(localStorage, sessionStorage, Cookies)에 저장
+ * 토큰 저장 함수
+ *
+ * 액세스 토큰과 리프레시 토큰을 다중 저장소에 동기화하여 저장합니다.
+ * localStorage, sessionStorage, Cookies에 모두 저장하여 브라우저 환경에 관계없이
+ * 일관된 토큰 접근을 보장합니다.
+ *
+ * @param accessToken - 액세스 토큰 (필수)
+ * @param refreshToken - 리프레시 토큰 (선택적)
  */
 export function setToken(accessToken: string, refreshToken?: string) {
   localStorage.setItem('accessToken', accessToken);
@@ -50,7 +83,10 @@ export function setToken(accessToken: string, refreshToken?: string) {
 }
 
 /**
- * access/refresh 토큰을 여러 저장소에서 삭제
+ * 토큰 삭제 함수
+ *
+ * 모든 저장소(localStorage, sessionStorage, Cookies)에서 토큰을 완전히 삭제합니다.
+ * 로그아웃 시 보안을 위해 모든 토큰 관련 데이터를 정리합니다.
  */
 export function removeToken() {
   localStorage.removeItem('accessToken');
@@ -62,7 +98,18 @@ export function removeToken() {
 }
 
 /**
- * 앱-웹뷰에 토큰 동기화(로그인/로그아웃 이벤트 전달)
+ * 네이티브 앱 토큰 동기화 함수
+ *
+ * 웹뷰 환경에서 네이티브 앱과 토큰을 동기화합니다.
+ * 로그인/로그아웃 이벤트를 네이티브 앱에 전달하여 일관된 인증 상태를 유지합니다.
+ *
+ * 플랫폼별 구현:
+ * - iOS: WKWebView messageHandlers 사용
+ * - Android: WebView JavaScriptInterface 사용
+ * - 웹: CustomEvent 사용
+ *
+ * @param accessToken - 액세스 토큰 (로그인 시)
+ * @param refreshToken - 리프레시 토큰 (로그인 시)
  */
 export function syncTokenWithApp(accessToken?: string, refreshToken?: string) {
   if (accessToken) {
@@ -99,7 +146,12 @@ export function syncTokenWithApp(accessToken?: string, refreshToken?: string) {
 }
 
 /**
- * 토큰을 저장합니다 (인스타그램 방식)
+ * saveTokens 함수
+ *
+ * 토큰을 저장합니다 (인스타그램 방식).
+ *
+ * @param accessToken - 액세스 토큰
+ * @param refreshToken - 리프레시 토큰 (선택)
  */
 export const saveTokens = (
   accessToken: string,
@@ -111,7 +163,11 @@ export const saveTokens = (
 };
 
 /**
- * 현재 토큰을 가져옵니다
+ * getCurrentToken 함수
+ *
+ * 현재 토큰을 가져옵니다.
+ *
+ * @returns 현재 토큰 또는 null
  */
 export const getCurrentToken = (): string | null => {
   const localToken = localStorage.getItem('accessToken');
@@ -123,7 +179,11 @@ export const getCurrentToken = (): string | null => {
 };
 
 /**
- * Refresh 토큰을 가져옵니다
+ * getRefreshToken 함수
+ *
+ * Refresh 토큰을 가져옵니다.
+ *
+ * @returns 리프레시 토큰 또는 null
  */
 export const getRefreshToken = (): string | null => {
   const localToken = localStorage.getItem('refreshToken');
@@ -135,7 +195,11 @@ export const getRefreshToken = (): string | null => {
 };
 
 /**
- * 토큰 갱신 타이머 설정 (인스타그램 방식)
+ * setupTokenRefreshTimer 함수
+ *
+ * 토큰 갱신 타이머를 설정합니다 (인스타그램 방식).
+ *
+ * @param token - 설정할 토큰
  */
 const setupTokenRefreshTimer = (token: string): void => {
   try {
@@ -176,7 +240,11 @@ const setupTokenRefreshTimer = (token: string): void => {
 };
 
 /**
- * 토큰 갱신 (인스타그램 방식)
+ * refreshToken 함수
+ *
+ * 토큰을 갱신합니다 (인스타그램 방식).
+ *
+ * @returns 갱신 성공 여부
  */
 export const refreshToken = async (): Promise<boolean> => {
   try {
@@ -219,7 +287,9 @@ export const refreshToken = async (): Promise<boolean> => {
 };
 
 /**
- * 모든 토큰을 제거합니다
+ * clearTokens 함수
+ *
+ * 모든 토큰을 제거합니다.
  */
 export const clearTokens = (): void => {
   removeToken();
@@ -232,7 +302,12 @@ export const clearTokens = (): void => {
 };
 
 /**
- * 공개 경로인지 확인합니다 (토큰이 없어도 접근 가능한 경로)
+ * isPublicRoute 함수
+ *
+ * 공개 경로인지 확인합니다 (토큰이 없어도 접근 가능한 경로).
+ *
+ * @param pathname - 확인할 경로
+ * @returns 공개 경로 여부
  */
 export const isPublicRoute = (pathname: string): boolean => {
   const publicRoutes = [
@@ -248,14 +323,21 @@ export const isPublicRoute = (pathname: string): boolean => {
 };
 
 /**
- * 보호된 경로인지 확인합니다 (토큰이 필요한 경로)
+ * isProtectedRoute 함수
+ *
+ * 보호된 경로인지 확인합니다 (토큰이 필요한 경로).
+ *
+ * @param pathname - 확인할 경로
+ * @returns 보호된 경로 여부
  */
 export const isProtectedRoute = (pathname: string): boolean => {
   return !isPublicRoute(pathname);
 };
 
 /**
- * 로그아웃 처리를 합니다 (인스타그램 방식)
+ * logout 함수
+ *
+ * 로그아웃 처리를 합니다 (인스타그램 방식).
  */
 export const logout = async (): Promise<void> => {
   try {
@@ -281,7 +363,11 @@ export const logout = async (): Promise<void> => {
 };
 
 /**
- * 토큰에서 이메일을 추출합니다
+ * getEmailFromToken 함수
+ *
+ * 토큰에서 이메일을 추출합니다.
+ *
+ * @returns 이메일 또는 null
  */
 const getEmailFromToken = (): string | null => {
   const token = getCurrentToken();
@@ -296,7 +382,12 @@ const getEmailFromToken = (): string | null => {
 };
 
 /**
- * 앱에서 토큰을 강제로 저장 (네이티브 앱용)
+ * forceSaveAppToken 함수
+ *
+ * 앱에서 토큰을 강제로 저장합니다 (네이티브 앱용).
+ *
+ * @param accessToken - 액세스 토큰
+ * @param refreshToken - 리프레시 토큰 (선택)
  */
 export const forceSaveAppToken = (
   accessToken: string,
@@ -309,7 +400,11 @@ export const forceSaveAppToken = (
 };
 
 /**
- * 토큰이 없을 때 로그인 페이지로 이동하는 함수
+ * redirectToLoginIfNoToken 함수
+ *
+ * 토큰이 없을 때 로그인 페이지로 이동하는 함수입니다.
+ *
+ * @returns 이동 여부
  */
 export const redirectToLoginIfNoToken = (): boolean => {
   const token = getCurrentToken();
@@ -321,7 +416,12 @@ export const redirectToLoginIfNoToken = (): boolean => {
 };
 
 /**
- * 보호된 라우트에서 토크 체크 및 리다이렉트
+ * checkTokenAndRedirect 함수
+ *
+ * 보호된 라우트에서 토크 체크 및 리다이렉트를 수행합니다.
+ *
+ * @param pathname - 확인할 경로
+ * @returns 리다이렉트 필요 여부
  */
 export const checkTokenAndRedirect = (pathname: string): boolean => {
   const isProtected = isProtectedRoute(pathname);
@@ -336,7 +436,14 @@ export const checkTokenAndRedirect = (pathname: string): boolean => {
 };
 
 /**
- * 앱에서 받은 로그인 정보 처리 (인스타그램 방식)
+ * handleAppLogin 함수
+ *
+ * 앱에서 받은 로그인 정보를 처리합니다 (인스타그램 방식).
+ *
+ * @param loginInfo - 로그인 정보
+ * @param loginInfo.token - 액세스 토큰
+ * @param loginInfo.refreshToken - 리프레시 토큰 (선택)
+ * @param loginInfo.email - 사용자 이메일 (선택)
  */
 export const handleAppLogin = (loginInfo: {
   token: string;
@@ -353,14 +460,21 @@ export const handleAppLogin = (loginInfo: {
 };
 
 /**
- * 앱에서 받은 로그아웃 처리 (인스타그램 방식)
+ * handleAppLogout 함수
+ *
+ * 앱에서 받은 로그아웃을 처리합니다 (인스타그램 방식).
  */
 export const handleAppLogout = (): void => {
   logout();
 };
 
 /**
- * 에러 객체에서 사용자 친화적인 메시지를 추출하는 유틸 함수
+ * getErrorMessage 함수
+ *
+ * 에러 객체에서 사용자 친화적인 메시지를 추출하는 유틸 함수입니다.
+ *
+ * @param error - 에러 객체
+ * @returns 사용자 친화적 에러 메시지
  */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {

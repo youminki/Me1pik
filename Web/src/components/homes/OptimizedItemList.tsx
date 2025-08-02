@@ -1,3 +1,16 @@
+/**
+ * 최적화된 상품 리스트 컴포넌트 (OptimizedItemList.tsx)
+ *
+ * 대용량 상품 리스트를 효율적으로 렌더링하는 최적화된 컴포넌트입니다.
+ * 가상화(Virtualization) 지원, 반응형 레이아웃, 스켈레톤 로딩을 포함합니다.
+ *
+ * @description
+ * - 가상화를 통한 성능 최적화
+ * - 반응형 그리드 레이아웃
+ * - 스켈레톤 로딩 지원
+ * - 무한 스크롤 옵저버 지원
+ * - 컨테이너 크기 자동 계산
+ */
 import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -5,6 +18,18 @@ import ItemCard from '@/components/homes/ItemCard';
 import { UIItem } from '@/components/homes/ItemList';
 import VirtualList from '@/components/shared/VirtualList';
 
+/**
+ * 최적화된 아이템 리스트 Props
+ *
+ * @property items - 상품 데이터 배열
+ * @property columns - 컬럼 수 (기본값: 4)
+ * @property onItemClick - 아이템 클릭 핸들러 (선택)
+ * @property onDelete - 아이템 삭제 핸들러 (선택)
+ * @property isLoading - 로딩 상태 (기본값: false)
+ * @property observerRef - 무한 스크롤 옵저버 ref (선택)
+ * @property visibleCount - 스켈레톤 표시 개수 (기본값: 40)
+ * @property useVirtualization - 가상화 사용 여부 (기본값: true)
+ */
 interface OptimizedItemListProps {
   items: UIItem[];
   columns?: number;
@@ -16,12 +41,36 @@ interface OptimizedItemListProps {
   useVirtualization?: boolean;
 }
 
+/**
+ * 가상화 아이템 데이터 인터페이스
+ *
+ * @property item - 상품 데이터
+ * @property index - 아이템 인덱스
+ * @property isFirstItem - 첫 번째 아이템 여부
+ */
 interface VirtualItemData {
   item: UIItem;
   index: number;
   isFirstItem: boolean;
 }
 
+/**
+ * 최적화된 상품 리스트 컴포넌트
+ *
+
+ * 대용량 상품 리스트를 효율적으로 렌더링합니다.
+ * 가상화를 통해 성능을 최적화하고, 반응형 레이아웃을 지원합니다.
+ *
+ * @param items - 상품 데이터 배열
+ * @param columns - 컬럼 수 (기본값: 4)
+ * @param onItemClick - 아이템 클릭 핸들러 (선택)
+ * @param onDelete - 아이템 삭제 핸들러 (선택)
+ * @param isLoading - 로딩 상태 (기본값: false)
+ * @param observerRef - 무한 스크롤 옵저버 ref (선택)
+ * @param visibleCount - 스켈레톤 표시 개수 (기본값: 40)
+ * @param useVirtualization - 가상화 사용 여부 (기본값: true)
+ * @returns 최적화된 상품 리스트 JSX 요소
+ */
 const OptimizedItemList: React.FC<OptimizedItemListProps> = ({
   items,
   columns = 4,
@@ -173,6 +222,12 @@ const OptimizedItemList: React.FC<OptimizedItemListProps> = ({
   );
 };
 
+/**
+ * 리스트 컨테이너
+ *
+
+ * 일반 렌더링 시 사용하는 컨테이너입니다.
+ */
 const ListContainer = styled.div`
   width: 100%;
   max-width: 1000px;
@@ -180,6 +235,14 @@ const ListContainer = styled.div`
   padding: 0 16px;
 `;
 
+/**
+ * 아이템 래퍼
+ *
+
+ * 상품 카드들을 그리드로 배치하는 래퍼입니다.
+ *
+ * @param $columns - 컬럼 수
+ */
 const ItemsWrapper = styled.div<{ $columns: number }>`
   display: grid;
   grid-template-columns: repeat(${({ $columns }) => $columns}, 1fr);
@@ -187,6 +250,13 @@ const ItemsWrapper = styled.div<{ $columns: number }>`
   width: 100%;
 `;
 
+/**
+ * 가상 리스트 컨테이너
+ *
+
+ * 가상화 렌더링 시 사용하는 컨테이너입니다.
+ * 가상 리스트 내부의 그리드 스타일링을 포함합니다.
+ */
 const VirtualListContainer = styled.div`
   width: 100%;
   max-width: 1000px;

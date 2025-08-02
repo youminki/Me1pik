@@ -1,5 +1,3 @@
-// src/components/Table/GeneralOrderTable.tsx
-
 import React from 'react';
 import CommonTable from '@components/CommonTable';
 import { getOrderColumns } from '@components/Table/orderColumns';
@@ -21,10 +19,16 @@ interface GeneralOrderListTableProps {
   handleEdit: (no: number) => void;
 }
 
+/**
+ * 일반 주문 목록 테이블
+ *
+ * 주문 데이터와 편집 핸들러를 받아 테이블을 렌더링합니다.
+ */
 const GeneralOrderListTable: React.FC<GeneralOrderListTableProps> = ({
   filteredData,
   handleEdit,
 }) => {
+  // 각 row에 handleEdit 추가
   const dataWithEdit = filteredData.map((item) => ({ ...item, handleEdit }));
 
   const columns = getOrderColumns();

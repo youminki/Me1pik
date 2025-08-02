@@ -1,13 +1,16 @@
+// 서비스 선택 컴포넌트 - 대여/구매 서비스 방식 선택 기능 제공
 import React from 'react';
 import styled from 'styled-components';
 
 import { CustomSelect } from '@/components/shared/forms/CustomSelect';
 
+// 서비스 선택 Props 인터페이스
 export interface ServiceSelectionProps {
   selectedService: string;
   setSelectedService: (service: string) => void;
 }
 
+// 메인 서비스 선택 컴포넌트
 const ServiceSelection: React.FC<ServiceSelectionProps> = ({
   selectedService,
   setSelectedService,
@@ -15,6 +18,7 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({
   return (
     <ServiceContainer>
       <label>서비스 방식 (선택)</label>
+      {/* 서비스 선택 드롭다운 */}
       <CustomSelect
         value={selectedService}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -33,6 +37,7 @@ const ServiceSelection: React.FC<ServiceSelectionProps> = ({
 
 export default ServiceSelection;
 
+// 스타일 컴포넌트
 const ServiceContainer = styled.div`
   display: flex;
   flex-direction: column;

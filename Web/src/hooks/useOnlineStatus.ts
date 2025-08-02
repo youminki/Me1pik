@@ -18,7 +18,10 @@ interface UseOnlineStatusResult {
 }
 
 /**
- * 온라인 상태를 추적하는 훅
+ * useOnlineStatus 훅
+ *
+ * 브라우저의 온라인/오프라인 상태를 실시간으로 감지합니다.
+ *
  * @returns { isOnline, isOffline }
  */
 export const useOnlineStatus = (): UseOnlineStatusResult => {
@@ -50,7 +53,10 @@ interface NetworkStatus {
 }
 
 /**
- * 네트워크 상태를 추적하는 훅
+ * useNetworkStatus 훅
+ *
+ * 네트워크 연결의 품질(속도, RTT 등)을 감지합니다.
+ *
  * @returns { effectiveType, downlink, rtt }
  */
 export const useNetworkStatus = (): NetworkStatus => {

@@ -1,40 +1,54 @@
+// 회원정보 변경 모달 컴포넌트 - 사용자 기본 정보 변경 기능 제공
 // src/components/ChangeInfoModal.tsx
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import styled from 'styled-components';
 
+// 회원정보 변경 모달 Props 인터페이스
 interface ChangeInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+// 메인 회원정보 변경 모달 컴포넌트
 const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  // 폼 상태 관리
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [gender, setGender] = useState<'male' | 'female' | 'other'>('male');
   const [phone, setPhone] = useState('');
   const [serviceArea, setServiceArea] = useState('');
 
+  // 이름 변경 핸들러
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
+
+  // 생년월일 변경 핸들러
   const handleBirthDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setBirthDate(e.target.value);
   };
+
+  // 성별 변경 핸들러
   const handleGenderChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value as 'male' | 'female' | 'other';
     setGender(val);
   };
+
+  // 전화번호 변경 핸들러
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPhone(e.target.value);
   };
+
+  // 서비스 지역 변경 핸들러
   const handleServiceAreaChange = (e: ChangeEvent<HTMLInputElement>) => {
     setServiceArea(e.target.value);
   };
 
+  // 폼 제출 핸들러
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onClose();
@@ -45,6 +59,7 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
     setServiceArea('');
   };
 
+  // 키보드 이벤트 핸들러 (Escape 키로 모달 닫기)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -70,6 +85,7 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
         </Header>
         <Body>
           <FormContainer onSubmit={handleSubmit}>
+            {/* 이름 입력 필드 */}
             <Label htmlFor='info-name'>이름</Label>
             <Input
               id='info-name'
@@ -80,6 +96,7 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
               required
             />
 
+            {/* 생년월일 입력 필드 */}
             <Label htmlFor='info-birth'>생년월일</Label>
             <Input
               id='info-birth'
@@ -89,6 +106,7 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
               required
             />
 
+            {/* 성별 선택 필드 */}
             <Label htmlFor='info-gender'>성별</Label>
             <Select
               id='info-gender'
@@ -100,6 +118,7 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
               <option value='other'>기타</option>
             </Select>
 
+            {/* 전화번호 입력 필드 */}
             <Label htmlFor='info-phone'>휴대전화</Label>
             <Input
               id='info-phone'
@@ -110,6 +129,7 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
               required
             />
 
+            {/* 서비스 지역 입력 필드 */}
             <Label htmlFor='info-area'>서비스 지역</Label>
             <Input
               id='info-area'
@@ -122,6 +142,7 @@ const ChangeInfoModal: React.FC<ChangeInfoModalProps> = ({
 
             <Divider />
 
+            {/* 정보 저장 버튼 */}
             <SubmitBtn type='submit'>정보 저장</SubmitBtn>
           </FormContainer>
         </Body>

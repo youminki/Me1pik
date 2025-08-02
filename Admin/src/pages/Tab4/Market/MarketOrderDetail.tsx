@@ -1,3 +1,12 @@
+/**
+ * 마켓 주문 상세 페이지(MarketOrderDetail)
+ *
+ * - 마켓 주문의 상세 정보를 조회, 편집, 삭제하는 페이지
+ * - 멜픽구매 상세, 배송정보, 결제정보 등 다양한 섹션 지원
+ * - 모달, 날짜 선택, 상태 관리 등 다양한 기능 제공
+ * - 재사용 가능한 공통 컴포넌트
+ */
+
 // src/pages/List/Order/MarketOrderDetail.tsx
 
 import React, { useState } from 'react';
@@ -14,16 +23,27 @@ import ReusableModal2 from '@components/OneButtonModal';
 import StatusBadge from '@components/Common/StatusBadge';
 import { getStatusBadge } from '@utils/statusUtils';
 
+/**
+ * 마켓 주문 상세 props
+ * - 생성 모드 여부 등
+ */
 interface MarketOrderDetailProps {
   isCreate?: boolean;
 }
 
+/**
+ * 마켓 주문 상세 페이지 컴포넌트
+ * - 마켓 주문 상세 정보를 표시하고 관리하는 메인 컴포넌트
+ */
 const MarketOrderDetail: React.FC<MarketOrderDetailProps> = ({ isCreate = false }) => {
   const navigate = useNavigate();
   const { no } = useParams<{ no: string }>();
   const numericNo = isCreate ? undefined : Number(no);
 
-  // ─── 멜픽구매상세 state ───
+  /**
+   * 멜픽구매 상세 상태 관리
+   * - 제품명, 브랜드, 색상, 사이즈, 배송 방법, 운송장, 금액, 예상일, 결제상태 등
+   */
   const [productName] = useState('울 더블 버튼 페플럼 원피스');
   const [brand] = useState('MICHAA');
   const [color] = useState('Green');
@@ -34,34 +54,63 @@ const MarketOrderDetail: React.FC<MarketOrderDetailProps> = ({ isCreate = false 
   const [expectedDate, setExpectedDate] = useState<Date>(new Date('2025-04-10'));
   const [paymentStatus, setPaymentStatus] = useState('결제완료');
 
-  // ─── 배송정보 state ───
+  /**
+   * 배송정보 상태 관리
+   * - 수령인, 전화번호, 메시지, 주소, 배송상태 등
+   */
   const [receiver] = useState('홍길동');
   const [phone] = useState('010-1234-5678');
   const [message, setMessage] = useState('문 앞에 전달해주세요.');
   const [address] = useState('(18139) 경기 오산시 대원로 47, 101동 903호');
   const [deliveryStatus, setDeliveryStatus] = useState('배송 준비중');
 
-  // ─── 공통 state ───
+  /**
+   * 공통 상태 관리
+   * - 모달, 모달 제목, 모달 메시지 등
+   */
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [modalMessage, setModalMessage] = useState('');
 
+  /**
+   * 뒤로가기 핸들러
+   * - 목록 페이지로 이동하는 핸들러
+   */
   const handleBack = () => navigate('/marketorderlist');
+
+  /**
+   * 저장 핸들러
+   * - 등록/변경 완료 모달을 표시하는 핸들러
+   */
   const handleSave = () => {
     setModalTitle(isCreate ? '등록 완료' : '변경 완료');
     setModalMessage(isCreate ? '새 멜픽구매를 등록하시겠습니까?' : '변경 내용을 저장하시겠습니까?');
     setIsModalOpen(true);
   };
+
+  /**
+   * 삭제 핸들러
+   * - 삭제 완료 모달을 표시하는 핸들러
+   */
   const handleDelete = () => {
     setModalTitle('삭제 완료');
     setModalMessage('멜픽구매를 삭제하시겠습니까?');
     setIsModalOpen(true);
   };
+
+  /**
+   * 확인 핸들러
+   * - 모달 확인 시 이전 페이지로 이동하는 핸들러
+   */
   const handleConfirm = () => {
     setIsModalOpen(false);
     navigate(-1);
   };
 
+  /**
+   * 날짜 변경 핸들러
+   * - 예상 배송일을 변경하는 핸들러
+   */
   // onChange 오류 해결: ReactDatePickerProps['onChange'] 사용
   const handleDateChange: ReactDatePickerProps['onChange'] = (date) => {
     if (date instanceof Date) {
@@ -69,6 +118,10 @@ const MarketOrderDetail: React.FC<MarketOrderDetailProps> = ({ isCreate = false 
     }
   };
 
+  /**
+   * 헤더 props 설정
+   * - 뒤로가기, 편집, 삭제 등 헤더 버튼 설정
+   */
   const detailProps: DetailSubHeaderProps = {
     backLabel: '목록이동',
     onBackClick: handleBack,
