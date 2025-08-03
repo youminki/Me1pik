@@ -1,1 +1,12 @@
+# SPA 라우팅 - 모든 경로를 index.html로 리다이렉트
 /*    /index.html   200
+
+# 정적 파일 서빙 - assets 폴더의 파일들은 직접 서빙
+/assets/*    /assets/:splat   200
+
+# JavaScript 파일들에 대한 올바른 MIME 타입 설정
+/*.js    /:splat   200
+/*.css   /:splat   200
+/*.woff2 /:splat   200
+/*.woff  /:splat   200
+/*.ttf   /:splat   200

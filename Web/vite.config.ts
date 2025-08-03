@@ -7,6 +7,7 @@ import { defineConfig } from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react()],
+    base: '/', // 명시적으로 base URL 설정
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
