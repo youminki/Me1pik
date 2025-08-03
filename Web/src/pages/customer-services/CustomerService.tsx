@@ -7,6 +7,7 @@ import NoticeBox from '@/assets/customer-services/Notice.svg';
 import PersonalInformationProcessingPolicyBox from '@/assets/customer-services/PersonalInformationProcessingPolicy.svg';
 import TermsAndConditionsOfUseBox from '@/assets/customer-services/TermsAndConditionsOfUse.svg';
 import CustomerServiceIcon from '@/assets/CustomerServiceIcons.svg';
+import GridArrowIcon from '@/assets/melpiks/GridArrowIcon.svg';
 import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import StatsRow from '@/components/shared/StatsRow';
@@ -60,11 +61,11 @@ const CustomerService: React.FC = () => {
             <GridItem key={idx} onClick={() => navigate(item.path)}>
               <IconLabelRow>
                 <IconImage src={item.icon} alt={item.label} />
-                <Label>{item.label}</Label>
+                <LabelArrowRow>
+                  <Label>{item.label}</Label>
+                  <ArrowIcon src={GridArrowIcon} alt='화살표' />
+                </LabelArrowRow>
               </IconLabelRow>
-              <PickButton>
-                PICK <Arrow>→</Arrow>
-              </PickButton>
             </GridItem>
           ))}
         </GridMenu>
@@ -95,6 +96,9 @@ const GridMenu = styled.div`
   width: 100%;
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+    margin: 0 auto;
+    gap: 40px;
   }
 `;
 
@@ -102,52 +106,62 @@ const GridItem = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
 
   box-sizing: border-box;
-  border: 1px solid #ddd;
+  border: 1px solid #000000;
+  border-radius: 4px;
   background: #fff;
   cursor: pointer;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1.5;
+  padding: 1rem;
+  @media (min-width: 1024px) {
+    aspect-ratio: 1.8;
+    padding: 1.5rem;
+  }
 `;
 
 const IconLabelRow = styled.div`
   display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  flex: 1;
 `;
 
 const IconImage = styled.img`
   object-fit: contain;
+  width: 48px;
+  height: 48px;
+  @media (min-width: 1024px) {
+    width: 64px;
+    height: 64px;
+  }
+`;
+
+const LabelArrowRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const Label = styled.div`
-  font-weight: 700;
+  font-weight: 400;
   font-size: 14px;
   color: #000;
   @media (min-width: 1024px) {
     font-size: 18px;
-    margin-left: 1rem;
   }
 `;
 
-const PickButton = styled.div`
-  align-self: flex-end;
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-top: 1px solid #ddd;
-  border-left: 1px solid #ddd;
-  background: #fafafa;
-  font-size: 12px;
-  font-weight: 600;
+const ArrowIcon = styled.img`
+  width: 16px;
+  height: 15px;
   @media (min-width: 1024px) {
-    padding: 10px 16px;
-    font-size: 14px;
+    width: 20px;
+    height: 19px;
   }
-`;
-
-const Arrow = styled.span`
-  margin-left: 4px;
 `;

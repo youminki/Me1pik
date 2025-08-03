@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 
+import GridArrowIcon from '@/assets/melpiks/GridArrowIcon.svg';
 import MelpikCalculateIcon from '@/assets/melpiks/MelpikCalculateIcon.svg';
 import MelpikCreateIcon from '@/assets/melpiks/MelpikCreateIcon.svg';
 import MelpikIcon from '@/assets/melpiks/MelpikIcon.svg';
@@ -14,10 +15,14 @@ import StatsSection from '@/components/stats-section';
 import { theme } from '@/styles/Theme';
 
 const menuItems = [
-  { icon: MelpikCreateIcon, label: '멜픽 생성', path: '/create-melpik' },
+  { icon: MelpikCreateIcon, label: '다이어리 생성', path: '/create-melpik' },
+  { icon: MelpikOptionIcon, label: '다이어리설정', path: '/melpik-settings' },
   { icon: MelpikScheduelerIcon, label: '판매 스케줄', path: '/sales-schedule' },
-  { icon: MelpikCalculateIcon, label: '판매 정산', path: '/sales-settlement' },
-  { icon: MelpikOptionIcon, label: '멜픽설정', path: '/melpik-settings' },
+  {
+    icon: MelpikCalculateIcon,
+    label: '정산 내역',
+    path: '/sales-settlement',
+  },
 ];
 
 const disabledMenuIndexes = [0, 2]; // 0: 내 옷장, 2: 포인트
@@ -65,13 +70,13 @@ const MelpikPage: React.FC = () => {
             >
               <IconLabelRow>
                 <IconImage src={item.icon} alt={item.label} />
-                <Label $disabled={disabledMenuIndexes.includes(idx)}>
-                  {item.label}
-                </Label>
-              </IconLabelRow>
-              <PickButton $disabled={disabledMenuIndexes.includes(idx)}>
-                PICK <Arrow>→</Arrow>
-              </PickButton>
+                <LabelArrowRow>
+                  <Label $disabled={disabledMenuIndexes.includes(idx)}>
+                    {item.label}
+                  </Label>
+                  <ArrowIcon src={GridArrowIcon} alt='화살표' />
+                </LabelArrowRow>
+              </IconLabelRow>{' '}
             </GridItem>
           ))}
         </GridMenu>
@@ -103,6 +108,9 @@ const GridMenu = styled.div`
   width: 100%;
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+    margin: 0 auto;
+    gap: 40px;
   }
 `;
 
@@ -110,55 +118,64 @@ const GridItem = styled.div<{ $disabled?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
 
   box-sizing: border-box;
-  border: 1px solid #ddd;
+  border: 1px solid #000000;
+  border-radius: 4px;
   background: #fff;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1.5;
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
+  padding: 1rem;
+  @media (min-width: 1024px) {
+    aspect-ratio: 1.8;
+    padding: 1.5rem;
+  }
 `;
 
 const IconLabelRow = styled.div`
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  flex: 1;
+`;
+
+const LabelArrowRow = styled.div`
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 5px;
-  padding: 1rem;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const IconImage = styled.img`
   object-fit: contain;
+  width: 48px;
+  height: 48px;
+  @media (min-width: 1024px) {
+    width: 64px;
+    height: 64px;
+  }
 `;
 
 const Label = styled.div<{ $disabled?: boolean }>`
-  font-weight: 700;
+  font-weight: 400;
   font-size: 14px;
   color: ${({ $disabled }) => ($disabled ? '#aaa' : '#000')};
   @media (min-width: 1024px) {
     font-size: 18px;
-    margin-left: 1rem;
   }
 `;
 
-const PickButton = styled.div<{ $disabled?: boolean }>`
-  align-self: flex-end;
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-top: 1px solid #ddd;
-  border-left: 1px solid #ddd;
-  background: #fafafa;
-  font-size: 12px;
-  font-weight: 600;
-  color: ${({ $disabled }) => ($disabled ? '#aaa' : '#222')};
+const ArrowIcon = styled.img`
+  width: 16px;
+  height: 15px;
   @media (min-width: 1024px) {
-    padding: 10px 16px;
-    font-size: 14px;
+    width: 20px;
+    height: 19px;
   }
-`;
-
-const Arrow = styled.span`
-  margin-left: 4px;
 `;

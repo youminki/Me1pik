@@ -14,6 +14,7 @@ import PointsIcon from '@/assets/locker-rooms/PointsIcon.svg';
 import ReviewIcon from '@/assets/locker-rooms/ReviewIcon.svg';
 import TicketIcon from '@/assets/locker-rooms/TicketIcon.svg';
 import LockerRoomIcons from '@/assets/LockerRoomIcons.svg';
+import GridArrowIcon from '@/assets/melpiks/GridArrowIcon.svg';
 import StatsSection from '@/components/locker-rooms/StatsSection';
 import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
@@ -101,11 +102,11 @@ const LockerRoom: React.FC = () => {
             >
               <IconLabelRow>
                 <IconImage src={item.icon} alt={item.label} />
-                <Label disabled={item.disabled}>{item.label}</Label>
+                <LabelArrowRow>
+                  <Label disabled={item.disabled}>{item.label}</Label>
+                  <ArrowIcon src={GridArrowIcon} alt='화살표' />
+                </LabelArrowRow>
               </IconLabelRow>
-              <PickButton disabled={item.disabled}>
-                PICK <Arrow>→</Arrow>
-              </PickButton>
             </GridItem>
           ))}
         </GridMenu>
@@ -141,6 +142,9 @@ const GridMenu = styled.div`
 
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+    margin: 0 auto;
+    gap: 40px;
   }
 `;
 
@@ -148,53 +152,64 @@ const GridItem = styled.div<{ disabled?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
 
   box-sizing: border-box;
-  border: 1px solid #ddd;
+  border: 1px solid #000000;
+  border-radius: 4px;
   background: #fff;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1.5;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
+  padding: 1rem;
+  @media (min-width: 1024px) {
+    aspect-ratio: 1.8;
+    padding: 1.5rem;
+  }
 `;
 
 const IconLabelRow = styled.div`
   display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  flex: 1;
 `;
 
 const IconImage = styled.img`
   object-fit: contain;
+  width: 48px;
+  height: 48px;
+  @media (min-width: 1024px) {
+    width: 64px;
+    height: 64px;
+  }
+`;
+
+const LabelArrowRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const Label = styled.div<{ disabled?: boolean }>`
-  font-weight: 700;
+  font-weight: 400;
   font-size: 14px;
   color: ${({ disabled }) => (disabled ? '#999' : '#000')};
   @media (min-width: 1024px) {
     font-size: 18px;
-    margin-left: 1rem;
   }
 `;
 
-const PickButton = styled.div<{ disabled?: boolean }>`
-  align-self: flex-end;
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-top: 1px solid #ddd;
-  border-left: 1px solid #ddd;
-  font-size: 12px;
-  font-weight: 600;
-  color: ${({ disabled }) => (disabled ? '#aaa' : '#000')};
+const ArrowIcon = styled.img`
+  width: 16px;
+  height: 15px;
   @media (min-width: 1024px) {
-    padding: 10px 16px;
-    font-size: 14px;
+    width: 20px;
+    height: 19px;
   }
-`;
-
-const Arrow = styled.span`
-  margin-left: 4px;
 `;
