@@ -31,8 +31,8 @@ import ErrorMessage from '@/components/shared/ErrorMessage';
 import { schemaLogin } from '@/hooks/useValidationYup';
 import { theme } from '@/styles/Theme';
 import { forceSaveAppToken } from '@/utils/auth';
-import { saveTokens } from '@/utils/auth';
 import { isNativeApp } from '@/utils/nativeApp';
+import { saveTokens } from '@/utils/auth';
 
 interface LoginFormValues {
   email: string;

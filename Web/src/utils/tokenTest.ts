@@ -1,5 +1,3 @@
-import Cookies from 'js-cookie';
-
 import {
   getCurrentToken,
   getRefreshToken,
@@ -7,6 +5,7 @@ import {
   saveTokens,
   clearTokens,
 } from './auth';
+import Cookies from 'js-cookie';
 
 /**
  * 토큰 시스템 종합 테스트
@@ -313,43 +312,40 @@ export const testRefreshTokenStorage = (): void => {
  */
 const setupGlobalFunctions = () => {
   if (typeof window !== 'undefined') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const globalWindow = window as any;
-
     // 기존 함수들
-    globalWindow.runTokenSystemTest = runTokenSystemTest;
-    globalWindow.runTokenRefreshTest = runTokenRefreshTest;
-    globalWindow.runMultiStorageTest = runMultiStorageTest;
+    (window as any).runTokenSystemTest = runTokenSystemTest;
+    (window as any).runTokenRefreshTest = runTokenRefreshTest;
+    (window as any).runMultiStorageTest = runMultiStorageTest;
 
     // 새로운 리프레시 토큰 테스트 함수들
-    globalWindow.checkRefreshTokenStatus = checkRefreshTokenStatus;
-    globalWindow.testRefreshTokenRenewal = testRefreshTokenRenewal;
-    globalWindow.testRefreshTokenStorage = testRefreshTokenStorage;
+    (window as any).checkRefreshTokenStatus = checkRefreshTokenStatus;
+    (window as any).testRefreshTokenRenewal = testRefreshTokenRenewal;
+    (window as any).testRefreshTokenStorage = testRefreshTokenStorage;
 
     // auth.ts의 함수들도 노출
-    globalWindow.debugTokenStatus =
-      globalWindow.debugTokenStatus ||
+    (window as any).debugTokenStatus =
+      (window as any).debugTokenStatus ||
       (() => {
         console.log(
           'debugTokenStatus 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
         );
       });
-    globalWindow.refreshToken =
-      globalWindow.refreshToken ||
+    (window as any).refreshToken =
+      (window as any).refreshToken ||
       (() => {
         console.log(
           'refreshToken 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
         );
       });
-    globalWindow.simulateTokenExpiry =
-      globalWindow.simulateTokenExpiry ||
+    (window as any).simulateTokenExpiry =
+      (window as any).simulateTokenExpiry ||
       (() => {
         console.log(
           'simulateTokenExpiry 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
         );
       });
-    globalWindow.testAutoRefresh =
-      globalWindow.testAutoRefresh ||
+    (window as any).testAutoRefresh =
+      (window as any).testAutoRefresh ||
       (() => {
         console.log(
           'testAutoRefresh 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'

@@ -267,22 +267,21 @@ const App: React.FC = () => {
   // 개발 모드에서 전역 테스트 함수들 노출
   useEffect(() => {
     if (import.meta.env.DEV && typeof window !== 'undefined') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const globalWindow = window as any;
-
       // 토큰 테스트 함수들
-      globalWindow.runTokenSystemTest = runTokenSystemTest;
-      globalWindow.runTokenRefreshTest = runTokenRefreshTest;
-      globalWindow.runMultiStorageTest = runMultiStorageTest;
+      (window as any).runTokenSystemTest = runTokenSystemTest;
+      (window as any).runTokenRefreshTest = runTokenRefreshTest;
+      (window as any).runMultiStorageTest = runMultiStorageTest;
 
       // 새로운 리프레시 토큰 테스트 함수들
-      globalWindow.checkRefreshTokenStatus = checkRefreshTokenStatus;
-      globalWindow.testRefreshTokenRenewal = testRefreshTokenRenewal;
-      globalWindow.testRefreshTokenStorage = testRefreshTokenStorage;
+      (window as any).checkRefreshTokenStatus = checkRefreshTokenStatus;
+      (window as any).testRefreshTokenRenewal = testRefreshTokenRenewal;
+      (window as any).testRefreshTokenStorage = testRefreshTokenStorage;
 
       // auth.ts의 함수들
-      globalWindow.debugTokenStatus = debugTokenStatus;
-      globalWindow.refreshToken = refreshToken;
+      (window as any).debugTokenStatus = debugTokenStatus;
+      (window as any).refreshToken = refreshToken;
+      (window as any).simulateTokenExpiry = (window as any).simulateTokenExpiry;
+      (window as any).testAutoRefresh = (window as any).testAutoRefresh;
 
       console.log('🔧 토큰 테스트 함수들이 전역으로 노출되었습니다:');
       console.log('- runTokenSystemTest(): 토큰 시스템 종합 테스트');
