@@ -264,67 +264,39 @@ const App: React.FC = () => {
     tryAutoLogin();
   }, []);
 
-  // 개발 모드에서 전역 테스트 함수들 노출 (특정 이메일만)
+  // 개발 모드에서 전역 테스트 함수들 노출
   useEffect(() => {
     if (import.meta.env.DEV && typeof window !== 'undefined') {
-      const ALLOWED_EMAIL = 'dbalsrl7648@naver.com';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const globalWindow = window as any;
 
-      // 사용자 이메일 확인 후 함수 노출
-      const checkAndExposeFunctions = async () => {
-        try {
-          const { getHeaderInfo } = await import(
-            '@/api-utils/user-managements/users/userApi'
-          );
-          const headerInfo = await getHeaderInfo();
-          const userEmail = headerInfo.email;
+      // 토큰 테스트 함수들
+      globalWindow.runTokenSystemTest = runTokenSystemTest;
+      globalWindow.runTokenRefreshTest = runTokenRefreshTest;
+      globalWindow.runMultiStorageTest = runMultiStorageTest;
 
-          if (userEmail === ALLOWED_EMAIL) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const globalWindow = window as any;
+      // 새로운 리프레시 토큰 테스트 함수들
+      globalWindow.checkRefreshTokenStatus = checkRefreshTokenStatus;
+      globalWindow.testRefreshTokenRenewal = testRefreshTokenRenewal;
+      globalWindow.testRefreshTokenStorage = testRefreshTokenStorage;
 
-            // 토큰 테스트 함수들
-            globalWindow.runTokenSystemTest = runTokenSystemTest;
-            globalWindow.runTokenRefreshTest = runTokenRefreshTest;
-            globalWindow.runMultiStorageTest = runMultiStorageTest;
+      // auth.ts의 함수들
+      globalWindow.debugTokenStatus = debugTokenStatus;
+      globalWindow.refreshToken = refreshToken;
 
-            // 새로운 리프레시 토큰 테스트 함수들
-            globalWindow.checkRefreshTokenStatus = checkRefreshTokenStatus;
-            globalWindow.testRefreshTokenRenewal = testRefreshTokenRenewal;
-            globalWindow.testRefreshTokenStorage = testRefreshTokenStorage;
-
-            // auth.ts의 함수들
-            globalWindow.debugTokenStatus = debugTokenStatus;
-            globalWindow.refreshToken = refreshToken;
-
-            console.log(
-              '🔧 토큰 테스트 함수들이 전역으로 노출되었습니다 (전용 계정):',
-              userEmail
-            );
-            console.log('- runTokenSystemTest(): 토큰 시스템 종합 테스트');
-            console.log('- runTokenRefreshTest(): 토큰 갱신 테스트');
-            console.log('- runMultiStorageTest(): 다중 저장소 테스트');
-            console.log(
-              '- checkRefreshTokenStatus(): 리프레시 토큰 활성화 상태 확인'
-            );
-            console.log(
-              '- testRefreshTokenRenewal(): 리프레시 토큰 갱신 테스트'
-            );
-            console.log(
-              '- testRefreshTokenStorage(): 리프레시 토큰 저장 테스트'
-            );
-            console.log('- debugTokenStatus(): 토큰 상태 확인');
-            console.log('- refreshToken(): 수동 토큰 갱신');
-            console.log('- simulateTokenExpiry(): 토큰 만료 시뮬레이션');
-            console.log('- testAutoRefresh(): 자동 갱신 테스트');
-          } else {
-            console.log('🚫 토큰 테스트 함수 노출 거부됨:', userEmail);
-          }
-        } catch (error) {
-          console.error('사용자 정보 조회 실패:', error);
-        }
-      };
-
-      checkAndExposeFunctions();
+      console.log('🔧 토큰 테스트 함수들이 전역으로 노출되었습니다:');
+      console.log('- runTokenSystemTest(): 토큰 시스템 종합 테스트');
+      console.log('- runTokenRefreshTest(): 토큰 갱신 테스트');
+      console.log('- runMultiStorageTest(): 다중 저장소 테스트');
+      console.log(
+        '- checkRefreshTokenStatus(): 리프레시 토큰 활성화 상태 확인'
+      );
+      console.log('- testRefreshTokenRenewal(): 리프레시 토큰 갱신 테스트');
+      console.log('- testRefreshTokenStorage(): 리프레시 토큰 저장 테스트');
+      console.log('- debugTokenStatus(): 토큰 상태 확인');
+      console.log('- refreshToken(): 수동 토큰 갱신');
+      console.log('- simulateTokenExpiry(): 토큰 만료 시뮬레이션');
+      console.log('- testAutoRefresh(): 자동 갱신 테스트');
     }
   }, []);
 
