@@ -12,12 +12,11 @@ import {
   getProductsByBrand,
   Product as ApiProduct,
 } from '@/api-utils/product-managements/products/product';
-import StatsSection from '@/components/brands/StatsSection';
+import MyInfoListBackgroundimage from '@/assets/my-info/MyInfoListBackgroundimage.png';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
-import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import NoResultMessageComponent from '@/components/shared/NoResultMessage';
 import ProductDetailModal from '@/components/shared/ProductDetailModal';
@@ -313,101 +312,120 @@ const BrandDetail: React.FC = () => {
       <UnifiedHeader variant='oneDepth' />
       <PageWrapper>
         <Container>
-          <PageHeader
-            title={brand?.name || '브랜드'}
-            subtitle='새로운 시즌 제품들을 내 손안에!'
-          />
+          {/* Profile Section with Background */}
+          <ProfileSection>
+            <BrandHeader>
+              <BrandTitle>{brand?.name || 'CC Collect'}</BrandTitle>
+            </BrandHeader>
+          </ProfileSection>
 
-          <StatsSection
-            brandCount={1}
-            productCount={brand?.productCount || 0}
-          />
-          <Divider />
+          {/* Content Section */}
+          <ContentSection>
+            {/* Title and Stats Section */}
+            <TitleStatsContainer>
+              <CompanyTitle>(주)대현</CompanyTitle>
 
-          <SubHeader
-            selectedCategory={selectedCategory}
-            setSelectedCategory={(cat) => {
-              setSelectedCategory(cat);
-              // 카테고리 변경 시 스크롤을 맨 위로 이동
-              setTimeout(() => {
-                scrollToTop();
-              }, 100);
-            }}
-            onCategoryClick={() => {
-              // 카테고리 클릭 시 스크롤을 맨 위로 이동
-              setTimeout(() => {
-                scrollToTop();
-              }, 100);
-            }}
-            isLoading={loadingProducts}
-          />
+              <StatsSection>
+                <StatsCard>
+                  <StatsText>
+                    카테고리 <BoldText>21종</BoldText>
+                  </StatsText>
+                </StatsCard>
+                <StatsCard>
+                  <StatsText>
+                    등록 제품수 <BoldText>{brand?.productCount || ''}</BoldText>
+                  </StatsText>
+                </StatsCard>
+              </StatsSection>
+            </TitleStatsContainer>
 
-          {/* 필터 및 열 선택 */}
-          <FilterChipContainer
-            searchQuery={searchQuery}
-            onSearchQueryChange={(query) => {
-              setSearchQuery(query);
-              // URL 동기화
-              setSearchParams(
-                (prev) => {
-                  const params = Object.fromEntries(prev.entries());
-                  if (query.trim()) {
-                    params.search = query;
-                  } else {
-                    delete params.search;
-                  }
-                  return params;
-                },
-                { replace: true }
-              );
-            }}
-            onSearchSubmit={(searchTerm) => {
-              setSearchQuery(searchTerm);
-              setSelectedCategory('All');
-              setSearchParams(
-                { category: 'All', search: searchTerm },
-                { replace: true }
-              );
-            }}
-            selectedColors={selectedColors}
-            selectedSizes={selectedSizes}
-            onColorsChange={setSelectedColors}
-            onSizesChange={setSelectedSizes}
-            isSearchModalOpen={isSearchModalOpen}
-            isFilterModalOpen={isFilterModalOpen}
-            onSearchModalToggle={setSearchModalOpen}
-            onFilterModalToggle={setFilterModalOpen}
-            tempSelectedColors={tempSelectedColors}
-            tempSelectedSizes={tempSelectedSizes}
-            onTempColorsChange={setTempSelectedColors}
-            onTempSizesChange={setTempSelectedSizes}
-            searchPlaceholder='브랜드 또는 설명으로 검색...'
-            onClearAll={handleClearFilters}
-          />
+            <Divider />
 
-          {/* 제품 리스트 or 로딩 스피너 */}
-          <MainContent>
-            {loadingProducts ? (
-              <ItemList items={[]} columns={viewCols} isLoading={true} />
-            ) : showNoResult ? (
-              <ContentWrapper>
-                <NoResultMessageComponent countdown={countdown} />
-              </ContentWrapper>
-            ) : (
-              <>
-                <ItemList
-                  items={visibleItems}
-                  columns={viewCols}
-                  onItemClick={handleItemClick}
-                  observerRef={observerRef as React.RefObject<HTMLDivElement>}
-                />
-                <div ref={observerRef} style={{ height: 1 }} />
-              </>
-            )}
-          </MainContent>
+            <SubHeader
+              selectedCategory={selectedCategory}
+              setSelectedCategory={(cat) => {
+                setSelectedCategory(cat);
+                // 카테고리 변경 시 스크롤을 맨 위로 이동
+                setTimeout(() => {
+                  scrollToTop();
+                }, 100);
+              }}
+              onCategoryClick={() => {
+                // 카테고리 클릭 시 스크롤을 맨 위로 이동
+                setTimeout(() => {
+                  scrollToTop();
+                }, 100);
+              }}
+              isLoading={loadingProducts}
+            />
 
-          {/* 하단 스크롤 탑 버튼(유지) */}
-          <ScrollToTopButtonComponent onClick={scrollToTop} />
+            {/* 필터 및 열 선택 */}
+            <FilterChipContainer
+              searchQuery={searchQuery}
+              onSearchQueryChange={(query) => {
+                setSearchQuery(query);
+                // URL 동기화
+                setSearchParams(
+                  (prev) => {
+                    const params = Object.fromEntries(prev.entries());
+                    if (query.trim()) {
+                      params.search = query;
+                    } else {
+                      delete params.search;
+                    }
+                    return params;
+                  },
+                  { replace: true }
+                );
+              }}
+              onSearchSubmit={(searchTerm) => {
+                setSearchQuery(searchTerm);
+                setSelectedCategory('All');
+                setSearchParams(
+                  { category: 'All', search: searchTerm },
+                  { replace: true }
+                );
+              }}
+              selectedColors={selectedColors}
+              selectedSizes={selectedSizes}
+              onColorsChange={setSelectedColors}
+              onSizesChange={setSelectedSizes}
+              isSearchModalOpen={isSearchModalOpen}
+              isFilterModalOpen={isFilterModalOpen}
+              onSearchModalToggle={setSearchModalOpen}
+              onFilterModalToggle={setFilterModalOpen}
+              tempSelectedColors={tempSelectedColors}
+              tempSelectedSizes={tempSelectedSizes}
+              onTempColorsChange={setTempSelectedColors}
+              onTempSizesChange={setTempSelectedSizes}
+              searchPlaceholder='브랜드 또는 설명으로 검색...'
+              onClearAll={handleClearFilters}
+            />
+
+            {/* 제품 리스트 or 로딩 스피너 */}
+            <MainContent>
+              {loadingProducts ? (
+                <ItemList items={[]} columns={viewCols} isLoading={true} />
+              ) : showNoResult ? (
+                <ContentWrapper>
+                  <NoResultMessageComponent countdown={countdown} />
+                </ContentWrapper>
+              ) : (
+                <>
+                  <ItemList
+                    items={visibleItems}
+                    columns={viewCols}
+                    onItemClick={handleItemClick}
+                    observerRef={observerRef as React.RefObject<HTMLDivElement>}
+                  />
+                  <div ref={observerRef} style={{ height: 1 }} />
+                </>
+              )}
+            </MainContent>
+
+            {/* 하단 스크롤 탑 버튼(유지) */}
+            <ScrollToTopButtonComponent onClick={scrollToTop} />
+          </ContentSection>
         </Container>
 
         {/* 상세 모달 */}
@@ -429,10 +447,99 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background: #fff;
-  margin: auto;
-  width: 100%;
+
   position: relative;
+  margin: -1rem;
   min-height: 100vh; /* CLS 개선을 위한 최소 높이 설정 */
+`;
+
+const ProfileSection = styled.div`
+  position: relative;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: url(${MyInfoListBackgroundimage}) no-repeat center center;
+  background-size: cover;
+`;
+
+const BrandHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+  position: relative;
+`;
+
+const BrandTitle = styled.h1`
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  color: white;
+  text-align: center;
+`;
+
+const ContentSection = styled.div`
+  flex: 1;
+  padding: 60px 20px 20px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  margin-top: -20px;
+  position: relative;
+  z-index: 1;
+`;
+
+const TitleStatsContainer = styled.div`
+  width: 400px;
+  margin: 0 auto;
+  margin-top: -100px;
+  position: relative;
+`;
+
+const CompanyTitle = styled.div`
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 11px;
+  color: #000000;
+  margin-bottom: 10px;
+`;
+
+const StatsSection = styled.div`
+  width: 400px;
+  height: 56px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  gap: 16px;
+`;
+
+const StatsCard = styled.div`
+  box-sizing: border-box;
+  width: 192px;
+  height: 56px;
+  background: #ffffff;
+  border: 1px solid #000000;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
+const StatsText = styled.div`
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 14px;
+  color: #000000;
+  text-align: left;
+  padding-left: 16px;
+`;
+
+const BoldText = styled.span`
+  font-weight: 700;
 `;
 
 const Divider = styled.div`
