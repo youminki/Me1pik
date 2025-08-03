@@ -12,7 +12,7 @@ const StatsSection: React.FC<Props> = ({
   brandCount,
   productCount,
   brandLabel = '브랜드',
-  productLabel = '상품',
+  productLabel = '전체 상품 수',
 }) => (
   <StatsContainer>
     <StatBox $white>

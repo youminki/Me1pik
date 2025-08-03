@@ -6,8 +6,8 @@ import {
   getBrandList,
 } from '@/api-utils/product-managements/brands/brandApi';
 import { BrandList } from '@/components/brands/BrandList';
-import { ControlSection } from '@/components/brands/ControlSection';
 import BrandSearchModal from '@/components/brands/BrandSearchModal';
+import { ControlSection } from '@/components/brands/ControlSection';
 import StatsSection from '@/components/brands/StatsSection';
 import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';

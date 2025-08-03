@@ -381,7 +381,7 @@ const BrandDetail: React.FC = () => {
             tempSelectedSizes={tempSelectedSizes}
             onTempColorsChange={setTempSelectedColors}
             onTempSizesChange={setTempSelectedSizes}
-            historyKey='brandSearchHistory'
+            searchPlaceholder='브랜드 또는 설명으로 검색...'
             onClearAll={handleClearFilters}
           />
 
