@@ -479,69 +479,6 @@ export const debugTokenStatus = (): void => {
   }
 };
 
-// 토큰 만료 시뮬레이션 함수
-export const simulateTokenExpiry = (): void => {
-  console.log('🧪 토큰 만료 시뮬레이션 시작');
-  const accessToken = getCurrentToken();
-  if (!accessToken) {
-    console.log('❌ 액세스 토큰이 없습니다');
-    return;
-  }
-
-  try {
-    const payload = JSON.parse(atob(accessToken.split('.')[1]));
-    const currentTime = Date.now() / 1000;
-    const timeUntilExpiry = payload.exp - currentTime;
-
-    console.log('📊 현재 토큰 상태:', {
-      expiresAt: new Date(payload.exp * 1000).toLocaleString(),
-      timeUntilExpiry: Math.floor(timeUntilExpiry / 60) + '분',
-      isExpired: timeUntilExpiry < 0,
-    });
-
-    if (timeUntilExpiry > 0) {
-      console.log(
-        '⚠️ 토큰이 아직 유효합니다. 만료 시뮬레이션을 위해 1분 후로 설정'
-      );
-      // 테스트용으로 1분 후 만료로 설정
-      const testExpiry = currentTime + 60;
-      const testPayload = { ...payload, exp: testExpiry };
-      const testToken =
-        accessToken.split('.')[0] +
-        '.' +
-        btoa(JSON.stringify(testPayload)) +
-        '.' +
-        accessToken.split('.')[2];
-
-      // 테스트 토큰으로 임시 저장
-      localStorage.setItem('testAccessToken', testToken);
-      console.log('✅ 테스트 토큰이 설정되었습니다. 1분 후 만료됩니다.');
-    } else {
-      console.log('✅ 토큰이 이미 만료되었습니다.');
-    }
-  } catch (e) {
-    console.error('토큰 디코딩 실패:', e);
-  }
-};
-
-// 자동 갱신 테스트 함수
-export const testAutoRefresh = async (): Promise<boolean> => {
-  console.log('🧪 자동 갱신 테스트 시작');
-
-  // 1. 현재 토큰 상태 확인
-  debugTokenStatus();
-
-  // 2. 수동 갱신 시도
-  console.log('🔄 수동 갱신 테스트...');
-  const success = await refreshToken();
-  console.log('수동 갱신 결과:', success ? '성공' : '실패');
-
-  // 3. 갱신 후 상태 확인
-  debugTokenStatus();
-
-  return success;
-};
-
 // 브라우저 콘솔에서 접근할 수 있도록 전역 함수로 노출
 if (typeof window !== 'undefined') {
   (
@@ -589,7 +526,88 @@ if (typeof window !== 'undefined') {
       }
   ).getRefreshToken = getRefreshToken;
 
+  // 토큰 만료 시뮬레이션 함수
+  (
+    window as Window &
+      typeof globalThis & {
+        debugTokenStatus: typeof debugTokenStatus;
+        refreshToken: typeof refreshToken;
+        getCurrentToken: typeof getCurrentToken;
+        getRefreshToken: typeof getRefreshToken;
+        simulateTokenExpiry: () => void;
+        testAutoRefresh: () => Promise<boolean>;
+      }
+  ).simulateTokenExpiry = () => {
+    console.log('🧪 토큰 만료 시뮬레이션 시작');
+    const accessToken = getCurrentToken();
+    if (!accessToken) {
+      console.log('❌ 액세스 토큰이 없습니다');
+      return;
+    }
 
+    try {
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      const timeUntilExpiry = payload.exp - currentTime;
+
+      console.log('📊 현재 토큰 상태:', {
+        expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+        timeUntilExpiry: Math.floor(timeUntilExpiry / 60) + '분',
+        isExpired: timeUntilExpiry < 0,
+      });
+
+      if (timeUntilExpiry > 0) {
+        console.log(
+          '⚠️ 토큰이 아직 유효합니다. 만료 시뮬레이션을 위해 1분 후로 설정'
+        );
+        // 테스트용으로 1분 후 만료로 설정
+        const testExpiry = currentTime + 60;
+        const testPayload = { ...payload, exp: testExpiry };
+        const testToken =
+          accessToken.split('.')[0] +
+          '.' +
+          btoa(JSON.stringify(testPayload)) +
+          '.' +
+          accessToken.split('.')[2];
+
+        // 테스트 토큰으로 임시 저장
+        localStorage.setItem('testAccessToken', testToken);
+        console.log('✅ 테스트 토큰이 설정되었습니다. 1분 후 만료됩니다.');
+      } else {
+        console.log('✅ 토큰이 이미 만료되었습니다.');
+      }
+    } catch (e) {
+      console.error('토큰 디코딩 실패:', e);
+    }
+  };
+
+  // 자동 갱신 테스트 함수
+  (
+    window as Window &
+      typeof globalThis & {
+        debugTokenStatus: typeof debugTokenStatus;
+        refreshToken: typeof refreshToken;
+        getCurrentToken: typeof getCurrentToken;
+        getRefreshToken: typeof getRefreshToken;
+        simulateTokenExpiry: () => void;
+        testAutoRefresh: () => Promise<boolean>;
+      }
+  ).testAutoRefresh = async () => {
+    console.log('🧪 자동 갱신 테스트 시작');
+
+    // 1. 현재 토큰 상태 확인
+    debugTokenStatus();
+
+    // 2. 수동 갱신 시도
+    console.log('🔄 수동 갱신 테스트...');
+    const success = await refreshToken();
+    console.log('수동 갱신 결과:', success ? '성공' : '실패');
+
+    // 3. 갱신 후 상태 확인
+    debugTokenStatus();
+
+    return success;
+  };
 
   // 토큰 갱신 실패 이벤트 리스너
   window.addEventListener('tokenRefreshFailed', () => {

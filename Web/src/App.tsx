@@ -13,6 +13,7 @@ import { ThemeProvider } from 'styled-components';
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
 import PaypleTest from '@/__tests__/development/PaypleTest';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import TokenTestPanel from '@/components/shared/TokenTestPanel';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { theme } from '@/styles/Theme';
 import {
@@ -21,8 +22,17 @@ import {
   hasValidToken,
   refreshToken,
   getCurrentToken,
+  debugTokenStatus,
 } from '@/utils/auth';
 import { monitoringService, setUserId } from '@/utils/monitoring';
+import {
+  runTokenSystemTest,
+  runTokenRefreshTest,
+  runMultiStorageTest,
+  checkRefreshTokenStatus,
+  testRefreshTokenRenewal,
+  testRefreshTokenStorage,
+} from '@/utils/tokenTest';
 
 // Performance API 타입 정의
 interface LayoutShift extends PerformanceEntry {
@@ -96,9 +106,6 @@ const ReadyLogin = React.lazy(() => import('@/pages/auths/LoginReady'));
 const TestLogin = React.lazy(() => import('@/pages/auths/LoginTest'));
 const PasswordChange = React.lazy(() => import('@/pages/auths/PasswordChange'));
 const Signup = React.lazy(() => import('@/pages/auths/Signup'));
-const TokenTestPage = React.lazy(
-  () => import('@/pages/token-test/TokenTestPage')
-);
 const Basket = React.lazy(() => import('@/pages/baskets/Basket'));
 const Brand = React.lazy(() => import('@/pages/brands/Brand'));
 const BrandDetail = React.lazy(() => import('@/pages/brands/BrandDetail'));
@@ -255,6 +262,70 @@ const App: React.FC = () => {
       // 토큰이 없으면 기존 인증 체크 로직이 동작함
     };
     tryAutoLogin();
+  }, []);
+
+  // 개발 모드에서 전역 테스트 함수들 노출 (특정 이메일만)
+  useEffect(() => {
+    if (import.meta.env.DEV && typeof window !== 'undefined') {
+      const ALLOWED_EMAIL = 'dbalsrl7648@naver.com';
+
+      // 사용자 이메일 확인 후 함수 노출
+      const checkAndExposeFunctions = async () => {
+        try {
+          const { getHeaderInfo } = await import(
+            '@/api-utils/user-managements/users/userApi'
+          );
+          const headerInfo = await getHeaderInfo();
+          const userEmail = headerInfo.email;
+
+          if (userEmail === ALLOWED_EMAIL) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const globalWindow = window as any;
+
+            // 토큰 테스트 함수들
+            globalWindow.runTokenSystemTest = runTokenSystemTest;
+            globalWindow.runTokenRefreshTest = runTokenRefreshTest;
+            globalWindow.runMultiStorageTest = runMultiStorageTest;
+
+            // 새로운 리프레시 토큰 테스트 함수들
+            globalWindow.checkRefreshTokenStatus = checkRefreshTokenStatus;
+            globalWindow.testRefreshTokenRenewal = testRefreshTokenRenewal;
+            globalWindow.testRefreshTokenStorage = testRefreshTokenStorage;
+
+            // auth.ts의 함수들
+            globalWindow.debugTokenStatus = debugTokenStatus;
+            globalWindow.refreshToken = refreshToken;
+
+            console.log(
+              '🔧 토큰 테스트 함수들이 전역으로 노출되었습니다 (전용 계정):',
+              userEmail
+            );
+            console.log('- runTokenSystemTest(): 토큰 시스템 종합 테스트');
+            console.log('- runTokenRefreshTest(): 토큰 갱신 테스트');
+            console.log('- runMultiStorageTest(): 다중 저장소 테스트');
+            console.log(
+              '- checkRefreshTokenStatus(): 리프레시 토큰 활성화 상태 확인'
+            );
+            console.log(
+              '- testRefreshTokenRenewal(): 리프레시 토큰 갱신 테스트'
+            );
+            console.log(
+              '- testRefreshTokenStorage(): 리프레시 토큰 저장 테스트'
+            );
+            console.log('- debugTokenStatus(): 토큰 상태 확인');
+            console.log('- refreshToken(): 수동 토큰 갱신');
+            console.log('- simulateTokenExpiry(): 토큰 만료 시뮬레이션');
+            console.log('- testAutoRefresh(): 자동 갱신 테스트');
+          } else {
+            console.log('🚫 토큰 테스트 함수 노출 거부됨:', userEmail);
+          }
+        } catch (error) {
+          console.error('사용자 정보 조회 실패:', error);
+        }
+      };
+
+      checkAndExposeFunctions();
+    }
   }, []);
 
   // 모니터링 시스템 초기화
@@ -438,7 +509,6 @@ const App: React.FC = () => {
               <Route path='/PersonalLink' element={<PersonalLink />} />
               <Route path='/test/payple' element={<PaypleTest />} />
               <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
-              <Route path='/token-test' element={<TokenTestPage />} />
               <Route path='/Link' element={<Link />} />
               <Route path='/signup' element={<Signup />} />
               {/* <Route path='/findid' element={<FindId />} />
@@ -570,6 +640,7 @@ const App: React.FC = () => {
           </Suspense>
 
           {/* 개발 모드에서만 토큰 테스트 패널 표시 */}
+          {import.meta.env.DEV && <TokenTestPanel />}
         </Router>
       </ThemeProvider>
     </QueryClientProvider>
