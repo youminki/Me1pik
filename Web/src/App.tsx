@@ -1,11 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense, useEffect } from 'react';
-import {
-  BrowserRouter as Router,
-  Navigate,
-  Route,
-  Routes,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
@@ -544,9 +539,11 @@ const App: React.FC = () => {
               }
             >
               <Routes>
+                {/* 루트 경로 - 홈으로 직접 렌더링 */}
+                <Route path='/' element={<Home />} />
+
                 {/* Landing & Auth */}
                 <Route path='/landing' element={<Landing />} />
-                <Route path='/' element={<Navigate to='/home' replace />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/ladyLogin' element={<ReadyLogin />} />
                 <Route path='/TestLogin' element={<TestLogin />} />

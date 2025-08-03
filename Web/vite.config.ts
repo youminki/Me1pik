@@ -200,6 +200,9 @@ export default defineConfig(() => {
     preview: {
       port: 4173,
       host: true,
+      headers: {
+        'Content-Type': 'application/javascript',
+      },
     },
     // CSS 최적화는 postcss.config.js에서 처리
   };
