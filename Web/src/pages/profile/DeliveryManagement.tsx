@@ -171,7 +171,9 @@ const DeliveryManagement: React.FC = () => {
                           readOnly
                           onClick={handleSearch}
                         />
-                        <SearchButton onClick={handleSearch}>검색</SearchButton>
+                        <SearchButton onClick={handleSearch}>
+                          주소 검색
+                        </SearchButton>
                       </SearchWrapper>
                       <DetailInput
                         value={editDetail}
@@ -276,27 +278,23 @@ export default DeliveryManagement;
 
 /* Styled Components */
 const Block = styled.div`
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 16px;
-  width: 90%;
+  margin-bottom: 30px;
+  width: 100%;
 `;
 
 const Title = styled.div`
   font-weight: 700;
-  font-size: 16px;
+  font-size: 12px;
   line-height: 18px;
   color: #000;
-  margin-bottom: 16px;
+  margin-bottom: 5px;
 `;
 
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 `;
 
 const SearchWrapper = styled.div`
@@ -305,8 +303,7 @@ const SearchWrapper = styled.div`
   width: 100%;
   height: 57px;
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #000000;
 `;
 
 const SearchInput = styled.input`
@@ -316,14 +313,13 @@ const SearchInput = styled.input`
   box-sizing: border-box;
   background: transparent;
   border: none;
-  font-family: 'NanumSquare Neo OTF', sans-serif;
   font-weight: 400;
   font-size: 13px;
   line-height: 14px;
   color: #000;
 
   &::placeholder {
-    color: #ddd;
+    color: #ccc;
   }
 
   &:focus {
@@ -334,7 +330,7 @@ const SearchInput = styled.input`
 const SearchButton = styled.button`
   width: 69px;
   height: 34px;
-  margin-right: 20px;
+  margin-right: 10px;
   background: #f6ae24;
   border: none;
   border-radius: 4px;
@@ -355,15 +351,15 @@ const DetailInput = styled.input`
   padding-left: 16px;
   box-sizing: border-box;
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #000000;
+
   font-weight: 400;
   font-size: 13px;
   line-height: 14px;
   color: #000;
 
   &::placeholder {
-    color: #ddd;
+    color: #ccc;
   }
 
   &:focus {
@@ -385,15 +381,15 @@ const MessageInput = styled.input`
   padding-left: 16px;
   box-sizing: border-box;
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #000000;
+
   font-weight: 400;
   font-size: 13px;
   line-height: 14px;
   color: #000;
 
   &::placeholder {
-    color: #ddd;
+    color: #ccc;
   }
 
   &:focus {
@@ -408,7 +404,7 @@ const ReadOnlyInput = styled.input`
   box-sizing: border-box;
   background: #f8f9fa;
   border: 1px solid #ddd;
-  border-radius: 4px;
+
   font-weight: 400;
   font-size: 13px;
   line-height: 14px;

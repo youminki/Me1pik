@@ -141,8 +141,7 @@ const SearchWrapper = styled.div`
   width: 100%;
   height: 57px;
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #000000;
   margin-bottom: 16px;
 `;
 
@@ -153,14 +152,13 @@ const SearchInput = styled.input`
   box-sizing: border-box;
   background: transparent;
   border: none;
-  font-family: 'NanumSquare Neo OTF', sans-serif;
   font-weight: 400;
   font-size: 13px;
   line-height: 14px;
   color: #000;
 
   &::placeholder {
-    color: #ddd;
+    color: #ccc;
   }
 
   &:focus {
@@ -171,7 +169,7 @@ const SearchInput = styled.input`
 const SearchButton = styled.button`
   width: 69px;
   height: 34px;
-  margin-right: 20px;
+  margin-right: 10px;
   background: #f6ae24;
   border: none;
   border-radius: 4px;
@@ -192,8 +190,8 @@ const DetailInput = styled.input`
   padding-left: 16px;
   box-sizing: border-box;
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #000000;
+
   font-weight: 400;
   font-size: 13px;
   line-height: 14px;
@@ -201,7 +199,7 @@ const DetailInput = styled.input`
   margin-bottom: 24px;
 
   &::placeholder {
-    color: #ddd;
+    color: #ccc;
   }
 
   &:focus {
@@ -224,8 +222,8 @@ const MessageInput = styled.input`
   padding-left: 16px;
   box-sizing: border-box;
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #000000;
+
   font-weight: 400;
   font-size: 13px;
   line-height: 14px;
@@ -233,7 +231,7 @@ const MessageInput = styled.input`
   margin-bottom: 24px;
 
   &::placeholder {
-    color: #ddd;
+    color: #ccc;
   }
 
   &:focus {
