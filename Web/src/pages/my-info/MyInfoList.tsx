@@ -1,7 +1,8 @@
 // src/pages/MyinfoList.tsx
 
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaUserCircle, FaLongArrowAltRight } from 'react-icons/fa';
+import { FaPlus, FaUserCircle } from 'react-icons/fa';
+import { HiArrowLongRight } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -9,7 +10,9 @@ import {
   getHeaderInfo,
   HeaderInfoResponse,
 } from '@/api-utils/user-managements/users/userApi';
-import deliveryIcon from '@/assets/my-info/DeliveryAdminIcon.svg';
+import alarmIcon from '@/assets/my-info/alarmIcon.svg';
+import deliveryIcon from '@/assets/my-info/deliveryIcon.svg';
+import MyInfoListBackgroundimage from '@/assets/my-info/MyInfoListBackgroundimage.png';
 import passwordIcon from '@/assets/my-info/PasswordChangeIcon.svg';
 import userInfoIcon from '@/assets/my-info/UserInfoChangeIcon.svg';
 import ErrorMessage from '@/components/shared/ErrorMessage';
@@ -21,44 +24,33 @@ import { getCurrentToken } from '@/utils/auth';
 const MENU_ITEMS = [
   {
     key: 'info',
-    title: '회원정보 변경',
-    desc: '이름, 생년월일, 성별, 휴대전화, 서비스 지역',
+    title: '회원정보',
+    desc: '계정, 닉네임, 성별, 서비스 지역',
     iconSrc: userInfoIcon,
   },
   {
     key: 'password',
-    title: '비밀번호 변경',
-    desc: '8자리 이상 (문자, 숫자, 특수문자 조합)',
+    title: '비밀번호 설정',
+    desc: '8자리 이상 (문자, 숫자 조합)',
     iconSrc: passwordIcon,
   },
   {
     key: 'address',
-    title: '배송지 관리',
-    desc: '배송지명, 우편번호, 상세주소',
+    title: '배송지 설정',
+    desc: '주소지, 배송 메시지',
     iconSrc: deliveryIcon,
   },
 ];
 
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #fff;
-
-  max-width: 600px;
-
-  margin: 0 auto;
-`;
-
 const MyinfoList: React.FC = () => {
   const navigate = useNavigate();
-  const [notifyOn, setNotifyOn] = useState(false);
+  const [notifyOn, setNotifyOn] = useState(true);
 
   // 프로필 관련: API 호출 결과 저장
   const [headerInfo, setHeaderInfo] = useState<HeaderInfoResponse | null>(null);
   const [loadingHeader, setLoadingHeader] = useState<boolean>(true);
 
-  // 프로필 이미지 클릭 시 “미구현” 모달
+  // 프로필 이미지 클릭 시 "미구현" 모달
   const [isProfilePlaceholderOpen, setProfilePlaceholderOpen] = useState(false);
 
   // 마운트 시 헤더 정보 조회
@@ -118,59 +110,85 @@ const MyinfoList: React.FC = () => {
   return (
     <>
       <UnifiedHeader variant='threeDepth' title='내 정보' />
-      <PageContainer>
-        {/* PROFILE */}
+      <Container>
+        {/* Profile Section */}
         <ProfileSection>
-          <AvatarWrapper onClick={() => setProfilePlaceholderOpen(true)}>
-            <FaUserCircle size={70} color='#999' />
-            <PlusBadge>
-              <FaPlus size={12} />
-            </PlusBadge>
-          </AvatarWrapper>
-          <ProfileBox>
-            <ProfileText>
-              <Email>{headerInfo.email}</Email>
-              <Nickname>닉네임: {headerInfo.nickname}</Nickname>
-            </ProfileText>
-          </ProfileBox>
+          <ProfileImageWrapper onClick={() => setProfilePlaceholderOpen(true)}>
+            <ProfileImage>
+              <ProfileIcon>
+                <FaUserCircle size={80} />
+              </ProfileIcon>
+              <PlusButton>
+                <FaPlus size={12} />
+              </PlusButton>
+            </ProfileImage>
+          </ProfileImageWrapper>
         </ProfileSection>
 
-        <ContentDivider />
+        {/* Content Section */}
+        <ContentSection>
+          {/* User Info Box */}
+          <UserInfoBox>
+            <UserInfoLeft>
+              <UserInfoText>
+                닉네임{' '}
+                <span style={{ marginLeft: '8px' }}>
+                  <strong>{headerInfo.nickname}</strong>
+                </span>
+              </UserInfoText>
+            </UserInfoLeft>
+            <UserInfoDivider />
+            <UserInfoRight>
+              <UserInfoText>
+                가입{' '}
+                <span style={{ marginLeft: '8px' }}>
+                  <strong>2025-07-01</strong>
+                </span>
+              </UserInfoText>
+            </UserInfoRight>
+          </UserInfoBox>
 
-        {/* MENU LIST */}
-        <MenuList>
-          {MENU_ITEMS.map(({ key, title, desc, iconSrc }) => (
-            <MenuItem key={key} onClick={() => handleMenuClick(key)}>
-              <IconBox>
-                <IconImg src={iconSrc} alt={title} />
-              </IconBox>
-              <TextBox>
-                <MenuTitle>{title}</MenuTitle>
-                <MenuDesc>{desc}</MenuDesc>
-              </TextBox>
-              <Panel>
-                <PickText>PICK</PickText>
-                <FaLongArrowAltRight size={24} />
-              </Panel>
-            </MenuItem>
-          ))}
-        </MenuList>
+          {/* Menu Items */}
+          <MenuContainer>
+            {MENU_ITEMS.map(({ key, title, desc, iconSrc }) => (
+              <MenuItem key={key} onClick={() => handleMenuClick(key)}>
+                <MenuIcon>
+                  <IconImg src={iconSrc} alt={title} />
+                </MenuIcon>
+                <MenuContent>
+                  <MenuTitle>{title}</MenuTitle>
+                  <MenuDesc>{desc}</MenuDesc>
+                </MenuContent>
+                <MenuArrow>
+                  <ArrowIcon>
+                    <HiArrowLongRight size={30} />
+                  </ArrowIcon>
+                </MenuArrow>
+              </MenuItem>
+            ))}
+          </MenuContainer>
 
-        {/* 알림 설정 */}
-        <Section>
-          <SectionHeader>알림 설정</SectionHeader>
-          <SectionBody>
-            <StatusText>
-              상태 | <StrongText>알림 받기</StrongText>
-            </StatusText>
-            <ToggleWrapper onClick={() => setNotifyOn((v) => !v)}>
-              <ToggleBg $on={notifyOn} />
-              <ToggleCircle $on={notifyOn}>
-                <ToggleText>{notifyOn ? 'ON' : 'OFF'}</ToggleText>
-              </ToggleCircle>
-            </ToggleWrapper>
-          </SectionBody>
-        </Section>
+          {/* Notification Settings */}
+          <NotificationSection>
+            <NotificationItem>
+              <NotificationIcon>
+                <IconImg src={alarmIcon} alt='알림 설정' />
+              </NotificationIcon>
+              <NotificationContent>
+                <NotificationTitle>알림 설정</NotificationTitle>
+                <NotificationDesc>
+                  주문내역, 제품발송, 회수안내
+                </NotificationDesc>
+              </NotificationContent>
+              <ToggleSwitch onClick={() => setNotifyOn(!notifyOn)}>
+                <ToggleBackground $on={notifyOn} />
+                <ToggleHandle $on={notifyOn}>
+                  <ToggleText>{notifyOn ? '켜짐' : '꺼짐'}</ToggleText>
+                </ToggleHandle>
+              </ToggleSwitch>
+            </NotificationItem>
+          </NotificationSection>
+        </ContentSection>
 
         {/* 프로필 이미지 클릭 시 미구현 모달 */}
         {isProfilePlaceholderOpen && (
@@ -182,32 +200,65 @@ const MyinfoList: React.FC = () => {
             아직 구현 전인 기능이에요.
           </ReusableModal>
         )}
-      </PageContainer>
+      </Container>
     </>
   );
 };
 
 export default MyinfoList;
 
-/* ─────────────────── Styled Components for MyinfoList ─────────────────── */
+/* ─────────────────── Styled Components ─────────────────── */
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  margin: -1rem;
+  padding: 0;
+`;
+
 const ProfileSection = styled.div`
   position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-`;
-const AvatarWrapper = styled.div`
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: #ddd;
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  cursor: pointer;
+  padding: 20px;
+  background: url(${MyInfoListBackgroundimage}) no-repeat center center;
+  background-size: cover;
 `;
-const PlusBadge = styled.div`
+
+const ProfileImageWrapper = styled.div`
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  z-index: 10;
+`;
+
+const ProfileImage = styled.div`
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+`;
+
+const ProfileIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #ccc;
+`;
+
+const PlusButton = styled.div`
   position: absolute;
   top: -4px;
   right: -4px;
@@ -219,165 +270,218 @@ const PlusBadge = styled.div`
   align-items: center;
   justify-content: center;
   color: #fff;
+  border: 2px solid #fff;
 `;
 
-const ProfileBox = styled.div`
+const ContentSection = styled.div`
   flex: 1;
-  margin-left: 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px 0 10px 0;
-  padding: 20px 12px;
+  padding: 60px 20px 20px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  margin-top: -20px;
   position: relative;
+  z-index: 1;
 `;
-const ProfileText = styled.div`
+
+const UserInfoBox = styled.div`
   display: flex;
-  flex-direction: column;
-`;
-const Email = styled.div`
-  font-size: 12px;
-  font-weight: 800;
-  color: #999;
-`;
-const Nickname = styled.div`
-  font-size: 12px;
-  line-height: 22px;
-  font-weight: 700;
-  color: #000;
-  margin-top: 4px;
-`;
-
-const ContentDivider = styled.div`
-  width: 100%;
-  height: 1px;
-  background: #ddd;
-  margin: 30px 0;
-`;
-
-const MenuList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: 600px;
-`;
-
-const MenuItem = styled.div<{ disabled?: boolean }>`
-  display: grid;
-  grid-template-columns: 70px 1fr 124px;
-  width: 100%;
-  max-width: 600px;
   align-items: center;
-  border: 1px solid ${({ disabled }) => (disabled ? '#eee' : '#ccc')};
-  border-radius: 0 0 30px 0;
+  background: #fff;
+  border: 1px solid #000;
+
+  margin-bottom: 30px;
   overflow: hidden;
-  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
 `;
 
-const IconBox = styled.div`
-  width: 70px;
-  height: 100px;
+const UserInfoLeft = styled.div`
+  flex: 1;
+  padding: 15px;
+  text-align: center;
+`;
+
+const UserInfoRight = styled.div`
+  flex: 1;
+  padding: 15px;
+  text-align: center;
+`;
+
+const UserInfoDivider = styled.div`
+  width: 1px;
+  height: 40px;
+  background: #000;
+`;
+
+const UserInfoText = styled.div`
+  font-size: 14px;
+  font-weight: 400;
+  color: #000;
+`;
+
+const MenuContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 30px;
+`;
+
+const MenuItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 0 0 8px 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+
+  &:hover {
+    background: #f9f9f9;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const MenuIcon = styled.div`
+  width: 60px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 15px;
+  margin-left: 20px;
+  flex-shrink: 0;
 `;
+
 const IconImg = styled.img`
   width: 50px;
-  height: 60px;
-`;
-const TextBox = styled.div`
-  padding: 16px;
+  height: 50px;
+  object-fit: contain;
 `;
 
-const MenuTitle = styled.div<{ disabled?: boolean }>`
-  font-size: 14px;
-  font-weight: 700;
-  color: ${({ disabled }) => (disabled ? '#aaa' : '#000')};
-`;
-const MenuDesc = styled.div<{ disabled?: boolean }>`
-  font-size: 9px;
-  color: ${({ disabled }) => (disabled ? '#ccc' : '#ccc')};
-  margin-top: 4px;
+const MenuContent = styled.div`
+  flex: 1;
 `;
 
-const Panel = styled.div<{ disabled?: boolean }>`
-  width: 124px;
-  height: 100px;
-  background: ${({ disabled }) => (disabled ? '#f0f0f0' : '#f6ae24')};
-  border-radius: 0 0 30px 0;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 12px;
-  color: ${({ disabled }) => (disabled ? '#999' : '#fff')};
-  letter-spacing: 1px;
-`;
-const PickText = styled.div<{ disabled?: boolean }>`
-  font-weight: 900;
-  font-size: 10px;
-  line-height: 11px;
-  margin-left: 40px;
-  margin-bottom: 6px;
-  color: ${({ disabled }) => (disabled ? '#999' : '#fff')};
-`;
-
-const Section = styled.section`
-  margin-top: 50px;
-  width: 100%;
-`;
-const SectionHeader = styled.div`
-  font-size: 10px;
-  font-weight: 700;
+const MenuTitle = styled.div`
+  font-size: 16px;
+  font-weight: 600;
   color: #000;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 `;
-const SectionBody = styled.div`
-  position: relative;
+
+const MenuDesc = styled.div`
+  font-size: 12px;
+  color: #666;
+`;
+
+const MenuArrow = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  background: #000;
   display: flex;
   align-items: center;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  padding: 20px 12px;
+  justify-content: center;
+  border-radius: 8px 0 8px 0;
 `;
 
-const StatusText = styled.div`
+const ArrowIcon = styled.div`
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+`;
+
+const NotificationSection = styled.div`
+  margin-top: 96px;
+  background: #f5f5f5;
+
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 110px;
+    height: 100%;
+
+    background: linear-gradient(135deg, #fff 0%, #fff 60%, transparent 100%);
+    clip-path: polygon(0 0, 100% 0, 60% 100%, 0% 100%);
+  }
+`;
+
+const NotificationItem = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+`;
+
+const NotificationIcon = styled.div`
+  width: 60px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 35px;
+  flex-shrink: 0;
+`;
+
+const NotificationContent = styled.div`
   flex: 1;
-  font-size: 13px;
-  color: #000;
-`;
-const StrongText = styled.span`
-  font-weight: 800;
 `;
 
-const ToggleWrapper = styled.div`
+const NotificationTitle = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 4px;
+`;
+
+const NotificationDesc = styled.div`
+  font-size: 12px;
+  color: #666;
+`;
+
+const ToggleSwitch = styled.div`
   position: relative;
   width: 60px;
   height: 30px;
   cursor: pointer;
 `;
-const ToggleBg = styled.div<{ $on: boolean }>`
+
+const ToggleBackground = styled.div<{ $on: boolean }>`
   position: absolute;
-  width: 60px;
-  height: 30px;
-  background: ${({ $on }) => ($on ? '#222' : '#ccc')};
+  width: 100%;
+  height: 100%;
+  background: ${({ $on }) => ($on ? '#333' : '#ccc')};
   border-radius: 15px;
+  transition: background 0.3s ease;
 `;
-const ToggleCircle = styled.div<{ $on: boolean }>`
+
+const ToggleHandle = styled.div<{ $on: boolean }>`
   position: absolute;
-  top: 1px;
-  left: ${({ $on }) => ($on ? '30px' : '2px')};
-  width: 28px;
-  height: 28px;
+  top: 2px;
+  left: ${({ $on }) => ($on ? '32px' : '2px')};
+  width: 26px;
+  height: 26px;
   background: #fff;
   border-radius: 50%;
+  transition: left 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
+
 const ToggleText = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 8px;
+  font-weight: 600;
   color: #000;
 `;
