@@ -1,23 +1,28 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Navigate,
   Route,
   Routes,
+  useLocation,
+  useNavigate,
 } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
 import PaypleTest from '@/__tests__/development/PaypleTest';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import LoginModal from '@/components/shared/LoginModal';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { useLoadingState } from '@/hooks/useLoadingState';
 import Melpik from '@/pages/melpiks/Melpik';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { theme } from '@/styles/Theme';
-import { refreshToken, getCurrentToken } from '@/utils/auth';
+import {
+  checkTokenAndRedirect,
+  isProtectedRoute,
+  hasValidToken,
+  refreshToken,
+  getCurrentToken,
+} from '@/utils/auth';
 import { monitoringService, setUserId } from '@/utils/monitoring';
 
 // Performance API 타입 정의
@@ -82,256 +87,199 @@ const queryClient = new QueryClient({
   },
 });
 
-// 최적화된 lazy 로딩 함수
-const createLazyComponent = (
-  importFn: () => Promise<{ default: React.ComponentType }>
-) => {
-  let Component: React.ComponentType | null = null;
-  let loadingPromise: Promise<{ default: React.ComponentType }> | null = null;
-
-  const LazyComponent = React.lazy(() => {
-    if (Component) {
-      return Promise.resolve({ default: Component });
-    }
-
-    if (loadingPromise) {
-      return loadingPromise;
-    }
-
-    loadingPromise = importFn().then((module) => {
-      Component = module.default;
-      return { default: Component };
-    });
-
-    return loadingPromise;
-  });
-
-  // 프리로딩 함수 추가
-  (
-    LazyComponent as React.LazyExoticComponent<React.ComponentType> & {
-      preload?: () => Promise<{ default: React.ComponentType }>;
-    }
-  ).preload = () => {
-    if (!Component && !loadingPromise) {
-      loadingPromise = importFn().then((module) => {
-        Component = module.default;
-        return { default: Component };
-      });
-    }
-    return loadingPromise || Promise.resolve({ default: Component! });
-  };
-
-  return LazyComponent;
-};
-
-// 지연 로딩을 위한 컴포넌트들 (캐싱 적용)
-const Alarm = createLazyComponent(() => import('@/pages/alarms/Alarm'));
-const Analysis = createLazyComponent(() => import('@/pages/analyses/Analysis'));
-const FindId = createLazyComponent(() => import('@/pages/auths/FindId'));
-const FindPassword = createLazyComponent(
-  () => import('@/pages/auths/FindPassword')
-);
-const Login = createLazyComponent(() => import('@/pages/auths/Login'));
-const ReadyLogin = createLazyComponent(
-  () => import('@/pages/auths/LoginReady')
-);
-const TestLogin = createLazyComponent(() => import('@/pages/auths/LoginTest'));
-const PasswordChange = createLazyComponent(
-  () => import('@/pages/auths/PasswordChange')
-);
-const Signup = createLazyComponent(() => import('@/pages/auths/Signup'));
+// 지연 로딩을 위한 컴포넌트들
+const Alarm = React.lazy(() => import('@/pages/alarms/Alarm'));
+const Analysis = React.lazy(() => import('@/pages/analyses/Analysis'));
+const FindId = React.lazy(() => import('@/pages/auths/FindId'));
+const FindPassword = React.lazy(() => import('@/pages/auths/FindPassword'));
+const Login = React.lazy(() => import('@/pages/auths/Login'));
+const ReadyLogin = React.lazy(() => import('@/pages/auths/LoginReady'));
+const TestLogin = React.lazy(() => import('@/pages/auths/LoginTest'));
+const PasswordChange = React.lazy(() => import('@/pages/auths/PasswordChange'));
+const Signup = React.lazy(() => import('@/pages/auths/Signup'));
 
 // Brand 관련 컴포넌트들
-const Brand = createLazyComponent(() => import('@/pages/brands/Brand'));
-const BrandDetail = createLazyComponent(
-  () => import('@/pages/brands/BrandDetail')
-);
+const Brand = React.lazy(() => import('@/pages/brands/Brand'));
+const BrandDetail = React.lazy(() => import('@/pages/brands/BrandDetail'));
 
 // 테스트 페이지 컴포넌트들
-const TestLoginPage = createLazyComponent(
-  () => import('@/pages/tests/TestLogin')
-);
-const TestDashboard = createLazyComponent(
-  () => import('@/pages/tests/TestDashboard')
-);
-const Basket = createLazyComponent(() => import('@/pages/baskets/Basket'));
-const CustomerService = createLazyComponent(
+const TestLoginPage = React.lazy(() => import('@/pages/tests/TestLogin'));
+const TestDashboard = React.lazy(() => import('@/pages/tests/TestDashboard'));
+const Basket = React.lazy(() => import('@/pages/baskets/Basket'));
+const CustomerService = React.lazy(
   () => import('@/pages/customer-services/CustomerService')
 );
-const DocumentDetail = createLazyComponent(
+const DocumentDetail = React.lazy(
   () => import('@/pages/customer-services/documents/DocumentDetail')
 );
-const DocumentList = createLazyComponent(
+const DocumentList = React.lazy(
   () => import('@/pages/customer-services/documents/DocumentList')
 );
-const NotFound = createLazyComponent(() => import('@/pages/errors/NotFound'));
-const Home = createLazyComponent(() => import('@/pages/homes/Home'));
-const HomeDetail = createLazyComponent(
-  () => import('@/pages/homes/HomeDetail')
-);
-const Landing = createLazyComponent(() => import('@/pages/landings/Landing'));
-const AppLayout = createLazyComponent(
-  () => import('@/pages/layouts/AppLayout')
-);
-const Link = createLazyComponent(() => import('@/pages/links/Link'));
-const PersonalLink = createLazyComponent(
-  () => import('@/pages/links/PersonalLink')
-);
-const LockerRoom = createLazyComponent(
-  () => import('@/pages/locker-rooms/LockerRoom')
-);
-const MyCloset = createLazyComponent(
+const NotFound = React.lazy(() => import('@/pages/errors/NotFound'));
+const Home = React.lazy(() => import('@/pages/homes/Home'));
+const HomeDetail = React.lazy(() => import('@/pages/homes/HomeDetail'));
+const Landing = React.lazy(() => import('@/pages/landings/Landing'));
+const AppLayout = React.lazy(() => import('@/pages/layouts/AppLayout'));
+const Link = React.lazy(() => import('@/pages/links/Link'));
+const PersonalLink = React.lazy(() => import('@/pages/links/PersonalLink'));
+const LockerRoom = React.lazy(() => import('@/pages/locker-rooms/LockerRoom'));
+const MyCloset = React.lazy(
   () => import('@/pages/locker-rooms/my-closets/MyCloset')
 );
-const MyTicket = createLazyComponent(
+const MyTicket = React.lazy(
   () => import('@/pages/locker-rooms/my-tickets/MyTicket')
 );
-const PurchaseOfPasses = createLazyComponent(
+const PurchaseOfPasses = React.lazy(
   () => import('@/pages/locker-rooms/my-tickets/PurchaseOfPasses')
 );
-const TicketDetail = createLazyComponent(
+const TicketDetail = React.lazy(
   () => import('@/pages/locker-rooms/my-tickets/TicketDetail')
 );
-const TicketPayment = createLazyComponent(
+const TicketPayment = React.lazy(
   () => import('@/pages/locker-rooms/my-tickets/TicketPayment.tsx')
 );
-const AddCard = createLazyComponent(
+const AddCard = React.lazy(
   () => import('@/pages/locker-rooms/payment-methods/AddCard')
 );
-const PaymentMethod = createLazyComponent(
+const PaymentMethod = React.lazy(
   () => import('@/pages/locker-rooms/payment-methods/PaymentMethod')
 );
-const Point = createLazyComponent(
-  () => import('@/pages/locker-rooms/points/Point')
-);
-const ProductReview = createLazyComponent(
+const Point = React.lazy(() => import('@/pages/locker-rooms/points/Point'));
+const ProductReview = React.lazy(
   () => import('@/pages/locker-rooms/product-reviews/ProductReview')
 );
-const ProductReviewWrite = createLazyComponent(
+const ProductReviewWrite = React.lazy(
   () => import('@/pages/locker-rooms/product-reviews/ProductReviewWrite')
 );
-const UsageHistory = createLazyComponent(
+const UsageHistory = React.lazy(
   () => import('@/pages/locker-rooms/usage-histories/UsageHistory')
 );
-const SalesSettlement = createLazyComponent(
+const SalesSettlement = React.lazy(
   () => import('@/pages/melpiks/calculates/SalesSettlement')
 );
-const SalesSettlementDetail = createLazyComponent(
+const SalesSettlementDetail = React.lazy(
   () => import('@/pages/melpiks/calculates/SalesSettlementDetail')
 );
-const SettlementRequest = createLazyComponent(
+const SettlementRequest = React.lazy(
   () => import('@/pages/melpiks/calculates/SettlementRequest')
 );
-const ContemporarySettings = createLazyComponent(
+const ContemporarySettings = React.lazy(
   () => import('@/pages/melpiks/creates/ContemporarySettings')
 );
-const CreateMelpik = createLazyComponent(
+const CreateMelpik = React.lazy(
   () => import('@/pages/melpiks/creates/CreateMelpik')
 );
-const Schedule = createLazyComponent(
-  () => import('@/pages/melpiks/schedules/Schedule')
-);
-const ScheduleConfirmation = createLazyComponent(
+const Schedule = React.lazy(() => import('@/pages/melpiks/schedules/Schedule'));
+const ScheduleConfirmation = React.lazy(
   () => import('@/pages/melpiks/schedules/ScheduleConfirmation')
 );
-const ScheduleReservation1 = createLazyComponent(
+const ScheduleReservation1 = React.lazy(
   () => import('@/pages/melpiks/schedules/ScheduleReservationStep1')
 );
-const ScheduleReservation2 = createLazyComponent(
+const ScheduleReservation2 = React.lazy(
   () => import('@/pages/melpiks/schedules/ScheduleReservationStep2')
 );
-const ScheduleReservation3 = createLazyComponent(
+const ScheduleReservation3 = React.lazy(
   () => import('@/pages/melpiks/schedules/ScheduleReservationStep3')
 );
-const Setting = createLazyComponent(
+const Setting = React.lazy(
   () => import('@/pages/melpiks/settings/SettingMelpik')
 );
-const MyInfoList = createLazyComponent(
-  () => import('@/pages/my-info/MyInfoList')
-);
-const MyStyle = createLazyComponent(() => import('@/pages/my-styles/MyStyle'));
-const Payment = createLazyComponent(() => import('@/pages/payments/Payment'));
-const PaymentComplete = createLazyComponent(
+const MyInfoList = React.lazy(() => import('@/pages/my-info/MyInfoList'));
+const MyStyle = React.lazy(() => import('@/pages/my-styles/MyStyle'));
+const Payment = React.lazy(() => import('@/pages/payments/Payment'));
+const PaymentComplete = React.lazy(
   () => import('@/pages/payments/PaymentComplete')
 );
-const PaymentFail = createLazyComponent(
-  () => import('@/pages/payments/Paymentfail')
-);
-const ChangePassword = createLazyComponent(
+const PaymentFail = React.lazy(() => import('@/pages/payments/Paymentfail'));
+const ChangePassword = React.lazy(
   () => import('@/pages/profile/ChangePassword')
 );
-const DeliveryManagement = createLazyComponent(
+const DeliveryManagement = React.lazy(
   () => import('@/pages/profile/DeliveryManagement')
 );
-const EditAddress = createLazyComponent(
-  () => import('@/pages/profile/EditAddress')
-);
-const UpdateProfile = createLazyComponent(
-  () => import('@/pages/profile/UpdateProfile')
-);
+const EditAddress = React.lazy(() => import('@/pages/profile/EditAddress'));
+const UpdateProfile = React.lazy(() => import('@/pages/profile/UpdateProfile'));
 
-// AuthGuard 제거 - 로그인 모달로 대체
+const AuthGuard: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [isInitialized, setIsInitialized] = useState(false);
 
-// 전역 로그인 모달 처리 컴포넌트
-const GlobalLoginModalHandler: React.FC = () => {
-  const {
-    showLoginModal,
-    isLoginModalOpen,
-    hideLoginModal,
-    loginModalMessage,
-  } = useAuth();
+  // 로그인 페이지로 이동하는 함수
+  const redirectToLogin = useCallback(() => {
+    if (location.pathname !== '/login') {
+      console.log('🔐 AuthGuard: 로그인 페이지로 리다이렉트', {
+        from: location.pathname,
+        to: '/login',
+      });
+      navigate('/login', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
-    const handleShowLoginModal = (event: CustomEvent) => {
-      showLoginModal(event.detail?.message);
+    // 초기 인증 체크
+    const checkInitialAuth = async () => {
+      try {
+        console.log('🔐 AuthGuard: 초기 인증 체크 시작', {
+          pathname: location.pathname,
+          isProtected: isProtectedRoute(location.pathname),
+          hasToken: !!getCurrentToken(),
+          isValidToken: hasValidToken(),
+        });
+
+        const needsRedirect = checkTokenAndRedirect(location.pathname);
+        console.log('🔐 AuthGuard: 리다이렉트 필요 여부', {
+          needsRedirect,
+          isProtected: isProtectedRoute(location.pathname),
+        });
+
+        if (needsRedirect && isProtectedRoute(location.pathname)) {
+          redirectToLogin();
+        }
+      } catch (error) {
+        console.error('🔐 AuthGuard: 인증 체크 중 오류', error);
+        redirectToLogin();
+      } finally {
+        setIsInitialized(true);
+      }
     };
 
-    window.addEventListener(
-      'showLoginModal',
-      handleShowLoginModal as EventListener
-    );
+    checkInitialAuth();
+  }, [location.pathname, navigate, redirectToLogin]);
 
-    return () => {
-      window.removeEventListener(
-        'showLoginModal',
-        handleShowLoginModal as EventListener
-      );
-    };
-  }, [showLoginModal]);
+  // 라우트 변경 시 인증 체크
+  useEffect(() => {
+    if (!isInitialized) return;
 
-  return (
-    <LoginModal
-      isOpen={isLoginModalOpen}
-      onClose={hideLoginModal}
-      message={loginModalMessage}
-    />
-  );
+    console.log('🔐 AuthGuard: 라우트 변경 인증 체크', {
+      pathname: location.pathname,
+      isProtected: isProtectedRoute(location.pathname),
+      hasToken: !!getCurrentToken(),
+      isValidToken: hasValidToken(),
+    });
+
+    // 보호된 라우트에서 토큰 체크 및 리다이렉트
+    const needsRedirect = checkTokenAndRedirect(location.pathname);
+    if (needsRedirect) {
+      redirectToLogin();
+      return;
+    }
+  }, [location.pathname, isInitialized, redirectToLogin]);
+
+  return null;
 };
 
 const App: React.FC = () => {
-  const { isLoading } = useLoadingState(5000); // 5초 타임아웃
-
   useEffect(() => {
     const tryAutoLogin = async () => {
       const token = getCurrentToken();
-      if (token) {
-        try {
-          // 토큰 유효성 확인
-          const tokenParts = token.split('.');
-          if (tokenParts.length === 3) {
-            const payload = JSON.parse(atob(tokenParts[1]));
-            const currentTime = Date.now() / 1000;
-
-            // 토큰이 만료되었거나 곧 만료될 예정이면 갱신 시도
-            if (payload.exp && payload.exp < currentTime + 300) {
-              // 5분 전
-              await refreshToken();
-            }
-          }
-        } catch (error) {
-          console.error('토큰 갱신 실패:', error);
-        }
+      if (token && !hasValidToken()) {
+        // accessToken이 만료된 경우 refresh 시도
+        await refreshToken();
+        // refresh 실패 시에는 기존 인증 체크 로직에 따라 로그인 페이지로 이동
       }
+      // 토큰이 없으면 기존 인증 체크 로직이 동작함
     };
     tryAutoLogin();
 
@@ -510,196 +458,162 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <GlobalStyles />
-        <AuthProvider>
-          <Router>
-            <GlobalLoginModalHandler />
-            {/* 전체 페이지 라우트 로딩에는 원형 스피너, 명확한 안내 문구 */}
-            <Suspense
-              fallback={
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
-                    flexDirection: 'column',
-                    gap: '16px',
-                  }}
-                >
-                  <LoadingSpinner
-                    label='페이지를 불러오는 중입니다...'
-                    size={48}
-                    color='#f7c600'
-                  />
-                  <div
-                    style={{
-                      fontSize: '14px',
-                      color: '#666',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {isLoading ? '잠시만 기다려주세요...' : '페이지 로딩 중...'}
-                  </div>
-                </div>
-              }
-            >
-              <Routes>
-                {/* Landing & Auth */}
-                <Route path='/landing' element={<Landing />} />
-                <Route path='/' element={<Navigate to='/home' replace />} />
-                <Route path='/login' element={<Login />} />
-                <Route path='/ladyLogin' element={<ReadyLogin />} />
-                <Route path='/TestLogin' element={<TestLogin />} />
-                <Route path='/PersonalLink' element={<PersonalLink />} />
-                <Route path='/test/payple' element={<PaypleTest />} />
-                <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
-                <Route path='/Link' element={<Link />} />
-                <Route path='/signup' element={<Signup />} />
+        <Router>
+          <AuthGuard />
+          {/* 전체 페이지 라우트 로딩에는 원형 스피너, 명확한 안내 문구 */}
+          <Suspense
+            fallback={
+              <LoadingSpinner
+                label='페이지를 불러오는 중입니다...'
+                size={48}
+                color='#f7c600'
+              />
+            }
+          >
+            <Routes>
+              {/* Landing & Auth */}
+              <Route path='/landing' element={<Landing />} />
+              <Route path='/' element={<Navigate to='/home' replace />} />
+              <Route path='/login' element={<Login />} />
+              <Route path='/ladyLogin' element={<ReadyLogin />} />
+              <Route path='/TestLogin' element={<TestLogin />} />
+              <Route path='/PersonalLink' element={<PersonalLink />} />
+              <Route path='/test/payple' element={<PaypleTest />} />
+              <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
+              <Route path='/Link' element={<Link />} />
+              <Route path='/signup' element={<Signup />} />
 
-                {/* 테스트 페이지 라우트 */}
-                <Route path='/test-login' element={<TestLoginPage />} />
-                <Route path='/test-dashboard' element={<TestDashboard />} />
-                {/* <Route path='/findid' element={<FindId />} />
+              {/* 테스트 페이지 라우트 */}
+              <Route path='/test-login' element={<TestLoginPage />} />
+              <Route path='/test-dashboard' element={<TestDashboard />} />
+              {/* <Route path='/findid' element={<FindId />} />
             <Route path='/findPassword' element={<FindPassword />} /> */}
 
-                <Route element={<AppLayout />}>
-                  <Route path='/UpdateProfile' element={<UpdateProfile />} />
-                  <Route path='/ChangePassword' element={<ChangePassword />} />
-                  <Route
-                    path='/DeliveryManagement'
-                    element={<DeliveryManagement />}
-                  />
-                  <Route path='/EditAddress' element={<EditAddress />} />
-                  {/* User Pages */}
-                  <Route path='/MyinfoList' element={<MyInfoList />} />
-                  <Route path='/MyStyle' element={<MyStyle />} />
+              <Route element={<AppLayout />}>
+                <Route path='/UpdateProfile' element={<UpdateProfile />} />
+                <Route path='/ChangePassword' element={<ChangePassword />} />
+                <Route
+                  path='/DeliveryManagement'
+                  element={<DeliveryManagement />}
+                />
+                <Route path='/EditAddress' element={<EditAddress />} />
+                {/* User Pages */}
+                <Route path='/MyinfoList' element={<MyInfoList />} />
+                <Route path='/MyStyle' element={<MyStyle />} />
 
-                  {/* Main */}
-                  <Route path='/home' element={<Home />} />
-                  <Route path='/item/:id' element={<HomeDetail />} />
-                  <Route path='/analysis' element={<Analysis />} />
-                  <Route path='/basket' element={<Basket />} />
-                  <Route path='/alarm' element={<Alarm />} />
-                  {/* <Route path='/payment/:id' element={<Payment />} /> */}
-                  <Route path='/payment/:id' element={<Payment />} />
-                  <Route
-                    path='/payment/complete'
-                    element={<PaymentComplete />}
-                  />
-                  <Route path='/payment/fail' element={<PaymentFail />} />
+                {/* Main */}
+                <Route path='/home' element={<Home />} />
+                <Route path='/item/:id' element={<HomeDetail />} />
+                <Route path='/analysis' element={<Analysis />} />
+                <Route path='/basket' element={<Basket />} />
+                <Route path='/alarm' element={<Alarm />} />
+                {/* <Route path='/payment/:id' element={<Payment />} /> */}
+                <Route path='/payment/:id' element={<Payment />} />
+                <Route path='/payment/complete' element={<PaymentComplete />} />
+                <Route path='/payment/fail' element={<PaymentFail />} />
 
-                  {/* Brand */}
-                  <Route path='/brand' element={<Brand />} />
-                  <Route path='/brand/:brandId' element={<BrandDetail />} />
+                {/* Brand */}
+                <Route path='/brand' element={<Brand />} />
+                <Route path='/brand/:brandId' element={<BrandDetail />} />
 
-                  {/* Melpik */}
-                  <Route path='/melpik' element={<Melpik />} />
-                  <Route path='/create-melpik' element={<CreateMelpik />} />
-                  <Route
-                    path='/createMelpik/settings'
-                    element={<ContemporarySettings />}
-                  />
-                  <Route path='/melpik-settings' element={<Setting />} />
+                {/* Melpik */}
+                <Route path='/melpik' element={<Melpik />} />
+                <Route path='/create-melpik' element={<CreateMelpik />} />
+                <Route
+                  path='/createMelpik/settings'
+                  element={<ContemporarySettings />}
+                />
+                <Route path='/melpik-settings' element={<Setting />} />
 
-                  {/* Settlement */}
-                  <Route
-                    path='/sales-settlement'
-                    element={<SalesSettlement />}
-                  />
-                  <Route
-                    path='/sales-settlement-detail/:id'
-                    element={<SalesSettlementDetail />}
-                  />
-                  <Route
-                    path='/settlement-request'
-                    element={<SettlementRequest />}
-                  />
+                {/* Settlement */}
+                <Route path='/sales-settlement' element={<SalesSettlement />} />
+                <Route
+                  path='/sales-settlement-detail/:id'
+                  element={<SalesSettlementDetail />}
+                />
+                <Route
+                  path='/settlement-request'
+                  element={<SettlementRequest />}
+                />
 
-                  {/* Schedule */}
-                  <Route path='/sales-schedule' element={<Schedule />} />
-                  <Route
-                    path='/schedule/confirmation/:scheduleId'
-                    element={<ScheduleConfirmation />}
-                  />
-                  <Route
-                    path='/schedule/reservation1'
-                    element={<ScheduleReservation1 />}
-                  />
-                  <Route
-                    path='/schedule/reservation2'
-                    element={<ScheduleReservation2 />}
-                  />
-                  <Route
-                    path='/schedule/reservation3'
-                    element={<ScheduleReservation3 />}
-                  />
+                {/* Schedule */}
+                <Route path='/sales-schedule' element={<Schedule />} />
+                <Route
+                  path='/schedule/confirmation/:scheduleId'
+                  element={<ScheduleConfirmation />}
+                />
+                <Route
+                  path='/schedule/reservation1'
+                  element={<ScheduleReservation1 />}
+                />
+                <Route
+                  path='/schedule/reservation2'
+                  element={<ScheduleReservation2 />}
+                />
+                <Route
+                  path='/schedule/reservation3'
+                  element={<ScheduleReservation3 />}
+                />
 
-                  {/* FindId, FindPassword를 AppLayout 내부로 이동 */}
-                  <Route path='/findid' element={<FindId />} />
-                  <Route path='/findPassword' element={<FindPassword />} />
+                {/* FindId, FindPassword를 AppLayout 내부로 이동 */}
+                <Route path='/findid' element={<FindId />} />
+                <Route path='/findPassword' element={<FindPassword />} />
 
-                  {/* LockerRoom */}
-                  <Route path='/lockerRoom' element={<LockerRoom />} />
-                  <Route path='/usage-history' element={<UsageHistory />} />
-                  <Route path='/point' element={<Point />} />
-                  <Route path='/my-closet' element={<MyCloset />} />
-                  <Route path='/my-ticket' element={<MyTicket />} />
-                  <Route
-                    path='/my-ticket/PurchaseOfPasses'
-                    element={<PurchaseOfPasses />}
-                  />
+                {/* LockerRoom */}
+                <Route path='/lockerRoom' element={<LockerRoom />} />
+                <Route path='/usage-history' element={<UsageHistory />} />
+                <Route path='/point' element={<Point />} />
+                <Route path='/my-closet' element={<MyCloset />} />
+                <Route path='/my-ticket' element={<MyTicket />} />
+                <Route
+                  path='/my-ticket/PurchaseOfPasses'
+                  element={<PurchaseOfPasses />}
+                />
 
-                  <Route
-                    path='/my-ticket/PurchaseOfPasses/TicketPayment'
-                    element={<TicketPayment />}
-                  />
+                <Route
+                  path='/my-ticket/PurchaseOfPasses/TicketPayment'
+                  element={<TicketPayment />}
+                />
 
-                  {/* <Route
+                {/* <Route
           path='/my-ticket/SubscriptionPass'
           element={<SubscriptionPass />}
         />
         <Route path='/my-ticket/OnetimePass' element={<OnetimePass />} /> */}
 
-                  {/* PaymentMethod & Reviews */}
-                  <Route path='/payment-method' element={<PaymentMethod />} />
-                  <Route path='/payment-method/addcard' element={<AddCard />} />
+                {/* PaymentMethod & Reviews */}
+                <Route path='/payment-method' element={<PaymentMethod />} />
+                <Route path='/payment-method/addcard' element={<AddCard />} />
 
-                  <Route path='/product-review' element={<ProductReview />} />
-                  <Route
-                    path='/payment-review/Write'
-                    element={<ProductReviewWrite />}
-                  />
+                <Route path='/product-review' element={<ProductReview />} />
+                <Route
+                  path='/payment-review/Write'
+                  element={<ProductReviewWrite />}
+                />
 
-                  {/* CustomerService */}
-                  <Route
-                    path='/customerService'
-                    element={<CustomerService />}
-                  />
-                  <Route
-                    path='/customerService/:type'
-                    element={<DocumentList />}
-                  />
-                  <Route
-                    path='/customerService/:type/:id'
-                    element={<DocumentDetail />}
-                  />
-                  <Route path='/password-change' element={<PasswordChange />} />
-                  <Route
-                    path='/payment-complete'
-                    element={<PaymentComplete />}
-                  />
-                  <Route path='/payment-fail' element={<PaymentFail />} />
+                {/* CustomerService */}
+                <Route path='/customerService' element={<CustomerService />} />
+                <Route
+                  path='/customerService/:type'
+                  element={<DocumentList />}
+                />
+                <Route
+                  path='/customerService/:type/:id'
+                  element={<DocumentDetail />}
+                />
+                <Route path='/password-change' element={<PasswordChange />} />
+                <Route path='/payment-complete' element={<PaymentComplete />} />
+                <Route path='/payment-fail' element={<PaymentFail />} />
 
-                  <Route
-                    path='/ticketDetail/:ticketId'
-                    element={<TicketDetail />}
-                  />
-                </Route>
-                <Route path='*' element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </Router>
-        </AuthProvider>
+                <Route
+                  path='/ticketDetail/:ticketId'
+                  element={<TicketDetail />}
+                />
+              </Route>
+              <Route path='*' element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </Router>
       </ThemeProvider>
     </QueryClientProvider>
   );

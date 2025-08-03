@@ -1,7 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
-import { useBrandList } from '@/api-utils/product-managements/brands/brandApi';
+import {
+  Brand as ApiBrand,
+  getBrandList,
+} from '@/api-utils/product-managements/brands/brandApi';
 import { BrandList } from '@/components/brands/BrandList';
 import { ControlSection } from '@/components/brands/ControlSection';
 import StatsSection from '@/components/brands/StatsSection';
@@ -19,21 +22,34 @@ interface LocalBrand {
 }
 
 const Brand: React.FC = () => {
+  const [apiBrands, setApiBrands] = useState<ApiBrand[]>([]);
+  const [brands, setBrands] = useState<LocalBrand[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<'group' | 'category'>('group');
 
-  // React Query를 사용한 브랜드 데이터 가져오기
-  const { data: apiBrands = [], isLoading, error } = useBrandList();
+  // API 호출
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const data = await getBrandList();
+        setApiBrands(data);
+      } catch (err) {
+        console.error('브랜드 리스트 조회 실패:', err);
+      }
+    };
+    fetchBrands();
+  }, []);
 
-  // 매핑: ApiBrand → LocalBrand (useMemo로 최적화)
-  const brands = useMemo(() => {
-    return apiBrands.map((b) => ({
+  // 매핑: ApiBrand → LocalBrand
+  useEffect(() => {
+    const mapped: LocalBrand[] = apiBrands.map((b) => ({
       id: b.id,
       name: b.brandName,
       category: b.brand_category || '',
       group: b.groupName || '',
       company: '', // 필요 시 실제 필드 사용
     }));
+    setBrands(mapped);
   }, [apiBrands]);
 
   // 검색: name, group, category 포함 여부로 필터링
@@ -78,41 +94,8 @@ const Brand: React.FC = () => {
   };
 
   // 로딩 상태 처리
-  if (isLoading) {
+  if (!apiBrands.length && !brands.length) {
     return <LoadingSpinner label='브랜드 목록을 불러오는 중입니다...' />;
-  }
-
-  // 에러 상태 처리
-  if (error) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          flexDirection: 'column',
-          gap: '16px',
-        }}
-      >
-        <div style={{ fontSize: '16px', color: '#666' }}>
-          브랜드 목록을 불러오는데 실패했습니다.
-        </div>
-        <button
-          onClick={() => window.location.reload()}
-          style={{
-            padding: '10px 20px',
-            border: '2px solid #f7c600',
-            background: 'white',
-            color: '#333',
-            borderRadius: '8px',
-            cursor: 'pointer',
-          }}
-        >
-          다시 시도
-        </button>
-      </div>
-    );
   }
 
   return (

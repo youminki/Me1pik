@@ -352,7 +352,7 @@ const TestDashboard: React.FC = () => {
     try {
       // 1. 토큰 유효성 테스트 (실제 존재하는 엔드포인트 사용)
       try {
-        await Axios.get('/user/me/membership');
+        const response = await Axios.get('/user/me/membership');
         results.push({
           name: '토큰 유효성 테스트',
           status: 'success',
@@ -521,7 +521,7 @@ const TestDashboard: React.FC = () => {
       } else {
         alert('토큰이 이미 만료되었습니다.');
       }
-    } catch {
+    } catch (error) {
       alert('토큰 파싱에 실패했습니다.');
     }
   };

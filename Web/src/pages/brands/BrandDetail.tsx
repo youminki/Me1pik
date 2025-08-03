@@ -1,12 +1,6 @@
 // src/pages/brands/BrandDetail.tsx
 
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useCallback,
-  useRef,
-} from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -31,7 +25,6 @@ import ScrollToTopButtonComponent from '@/components/shared/ScrollToTopButton';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useNoResultHandler } from '@/hooks/useNoResultHandler';
 import { useProductFilter } from '@/hooks/useProductFilter';
-import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 /**
@@ -55,7 +48,6 @@ const BrandDetail: React.FC = () => {
   const { brandId } = useParams<{ brandId: string }>();
   const idNum = brandId ? parseInt(brandId, 10) : NaN;
   const [searchParams, setSearchParams] = useSearchParams();
-  const { requireAuth } = useRequireAuth();
 
   // UnifiedHeader 검색창에서 ?search=... 이 설정되면 여기서 읽어옴
   const searchTerm = searchParams.get('search')?.trim().toLowerCase() || '';
@@ -72,9 +64,6 @@ const BrandDetail: React.FC = () => {
   const [allProducts, setAllProducts] = useState<ApiProduct[]>([]);
   const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
   const [errorProducts, setErrorProducts] = useState<string>('');
-
-  // 브랜드 정보 로드 중복 방지를 위한 ref
-  const brandLoadedRef = useRef<boolean>(false);
 
   // 카테고리 필터: 초기값은 URL의 category 파라미터 or 'All'
   const initialCat = searchParams.get('category') || 'All';
@@ -110,41 +99,22 @@ const BrandDetail: React.FC = () => {
   // selectedCategory 변경 시 URL 동기화 (search 파라미터는 유지)
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
-    const currentCategory = params.get('category');
-
-    // 현재 URL의 카테고리와 상태가 다를 때만 업데이트
     if (selectedCategory && selectedCategory !== 'All') {
-      if (currentCategory !== selectedCategory) {
-        params.set('category', selectedCategory);
-        setSearchParams(params, { replace: true });
-      }
+      params.set('category', selectedCategory);
     } else {
-      if (currentCategory) {
-        params.delete('category');
-        setSearchParams(params, { replace: true });
-      }
+      params.delete('category');
     }
-  }, [selectedCategory, searchParams, setSearchParams]);
+    setSearchParams(params, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory]);
 
   // 브랜드 정보 로드
   useEffect(() => {
     if (isNaN(idNum)) {
       return;
     }
-
-    // 브랜드 ID가 변경되면 ref 리셋
-    if (brand && brand.id !== idNum) {
-      brandLoadedRef.current = false;
-    }
-
-    if (brandLoadedRef.current) {
-      return;
-    }
-
     setLoadingProducts(true);
     setErrorProducts('');
-    brandLoadedRef.current = true;
-
     (async () => {
       try {
         const list: ApiBrand[] = await getBrandList();
@@ -168,12 +138,11 @@ const BrandDetail: React.FC = () => {
         setLoadingProducts(false);
       }
     })();
-  }, [idNum, brand]);
+  }, [idNum]);
 
   // 모든 카테고리의 제품을 한 번에 로드
   useEffect(() => {
     if (!brand) return;
-
     setLoadingProducts(true);
     setErrorProducts('');
     (async () => {
@@ -232,19 +201,17 @@ const BrandDetail: React.FC = () => {
   // 제품 클릭: 모달 열기 (URL에 id 설정). 기존 category/search 유지
   const handleItemClick = useCallback(
     (prodId: string) => {
-      requireAuth(() => {
-        const params = new URLSearchParams(searchParams);
-        if (selectedCategory && selectedCategory !== 'All') {
-          params.set('category', selectedCategory);
-        }
-        if (searchQuery) {
-          params.set('search', searchQuery);
-        }
-        params.set('id', prodId);
-        setSearchParams(params, { replace: true });
-      }, '상품 상세를 보려면 로그인이 필요합니다.');
+      const params = new URLSearchParams(searchParams);
+      if (selectedCategory && selectedCategory !== 'All') {
+        params.set('category', selectedCategory);
+      }
+      if (searchQuery) {
+        params.set('search', searchQuery);
+      }
+      params.set('id', prodId);
+      setSearchParams(params, { replace: true });
     },
-    [searchParams, selectedCategory, searchQuery, setSearchParams, requireAuth]
+    [searchParams, selectedCategory, searchQuery, setSearchParams]
   );
 
   // 모달 닫기: query에서 id 제거, category/search 유지
@@ -380,22 +347,19 @@ const BrandDetail: React.FC = () => {
             searchQuery={searchQuery}
             onSearchQueryChange={(query) => {
               setSearchQuery(query);
-              // URL 동기화 - 현재 검색어와 다를 때만 업데이트
-              const currentSearch = searchParams.get('search');
-              if (query.trim() !== (currentSearch || '')) {
-                setSearchParams(
-                  (prev) => {
-                    const params = Object.fromEntries(prev.entries());
-                    if (query.trim()) {
-                      params.search = query;
-                    } else {
-                      delete params.search;
-                    }
-                    return params;
-                  },
-                  { replace: true }
-                );
-              }
+              // URL 동기화
+              setSearchParams(
+                (prev) => {
+                  const params = Object.fromEntries(prev.entries());
+                  if (query.trim()) {
+                    params.search = query;
+                  } else {
+                    delete params.search;
+                  }
+                  return params;
+                },
+                { replace: true }
+              );
             }}
             onSearchSubmit={(searchTerm) => {
               setSearchQuery(searchTerm);

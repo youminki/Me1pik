@@ -37,14 +37,8 @@ export interface BrandStats {
  * GET /brand/list
  */
 export const getBrandList = async (): Promise<Brand[]> => {
-  try {
-    const response = await Axios.get<Brand[]>('/brand/list');
-    return response.data;
-  } catch (error) {
-    console.error('브랜드 리스트 조회 실패:', error);
-    // 401 에러는 Axios 인터셉터에서 처리됨
-    throw error;
-  }
+  const response = await Axios.get<Brand[]>('/brand/list');
+  return response.data;
 };
 
 /**
@@ -68,18 +62,6 @@ export function useBrandList() {
     queryKey: ['brandList'],
     queryFn: getBrandList,
     staleTime: 1000 * 60 * 10, // 10분 캐싱
-    refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 방지
-    refetchOnMount: false, // 컴포넌트 마운트 시 재요청 방지
-    retry: (failureCount, error: unknown) => {
-      // 401 에러 시 재시도하지 않음 (로그인 모달이 표시됨)
-      const axiosError = error as { response?: { status?: number } };
-      if (axiosError?.response?.status === 401) {
-        return false;
-      }
-      // 다른 에러는 최대 3번 재시도
-      return failureCount < 3;
-    },
-    retryDelay: 1000, // 1초 후 재시도
   });
 }
 
