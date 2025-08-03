@@ -111,7 +111,7 @@ const BaseSelect = styled.select<{ $hasError?: boolean }>`
     background:
       url('/SelectIcon.svg') no-repeat right 16px center/15px 16px,
       ${({ theme }) => theme.colors.inputBg};
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
+
     outline-offset: 1px;
   }
   &::placeholder {
