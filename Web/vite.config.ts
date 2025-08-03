@@ -18,17 +18,17 @@ export default defineConfig(() => {
       target: 'es2015', // 더 넓은 브라우저 지원
       minify: 'esbuild' as const,
       sourcemap: false,
-      // 청크 크기 경고 임계값 조정 (더 엄격하게)
-      chunkSizeWarningLimit: 500,
+      // 청크 크기 경고 임계값 조정
+      chunkSizeWarningLimit: 1000,
       // 빌드 안정성 향상
       emptyOutDir: true,
       reportCompressedSize: false,
       rollupOptions: {
         output: {
           // 청크 파일명을 더 안정적으로 설정 (캐시 문제 방지)
-          chunkFileNames: 'assets/[name]-[hash:12].js',
-          entryFileNames: 'assets/[name]-[hash:12].js',
-          assetFileNames: 'assets/[name]-[hash:12].[ext]',
+          chunkFileNames: 'assets/[name]-[hash:8].js',
+          entryFileNames: 'assets/[name]-[hash:8].js',
+          assetFileNames: 'assets/[name]-[hash:8].[ext]',
           manualChunks: {
             // 핵심 라이브러리들
             'react-vendor': ['react', 'react-dom'],
@@ -64,12 +64,12 @@ export default defineConfig(() => {
 
             'melpik-create': ['./src/pages/melpiks/creates/CreateMelpik.tsx'],
 
-            // Brand와 Melpik 컴포넌트를 메인 번들에 포함 (배포 환경 안정성)
-            'main-components': [
+            // Brand와 Melpik 컴포넌트를 별도 청크로 분리 (안정성 향상)
+            'brand-components': [
               './src/pages/brands/Brand.tsx',
               './src/pages/brands/BrandDetail.tsx',
-              './src/pages/melpiks/Melpik.tsx',
             ],
+            'melpik-components': ['./src/pages/melpiks/Melpik.tsx'],
 
             // 알람 및 분석 페이지
             'alarm-analysis': [
@@ -170,8 +170,6 @@ export default defineConfig(() => {
       cssCodeSplit: true,
       // 에셋 최적화
       assetsInlineLimit: 4096, // 4KB 이하 파일은 인라인
-      // 폰트 최적화
-      assetsInclude: ['**/*.woff2', '**/*.woff', '**/*.ttf'],
     },
     optimizeDeps: {
       include: [
