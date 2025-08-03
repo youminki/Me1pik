@@ -21,8 +21,9 @@ export default PageHeader;
 
 const StyledHeader = styled(Header)`
   gap: 8px;
-  margin-bottom: 20px;
- 
+  margin-bottom: 10px;
+  margin-top: 10px;
+
   @media (min-width: 1024px) {
     gap: 12px;
     margin-bottom: 24px;
