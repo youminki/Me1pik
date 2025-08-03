@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import SearchIconSvg from '@/assets/homes/SearchIcon.svg';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 interface SearchModalProps {
@@ -9,7 +8,6 @@ interface SearchModalProps {
   onClose: () => void;
   onSearch: (searchTerm: string) => void;
   placeholder?: string;
-  historyKey?: string;
   initialValue?: string;
 }
 
@@ -17,13 +15,12 @@ const SearchModal: React.FC<SearchModalProps> = ({
   isOpen,
   onClose,
   onSearch,
-  placeholder = '브랜드 또는 설명으로 검색...',
-  historyKey = 'searchHistory',
+  placeholder = '검색하실 내용을 입력하세요',
   initialValue = '',
 }) => {
   const [searchInput, setSearchInput] = useState(initialValue);
   const [searchHistory, setSearchHistory] = useState<string[]>(() => {
-    const saved = localStorage.getItem(historyKey);
+    const saved = localStorage.getItem('searchHistory');
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -35,7 +32,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
   }, [isOpen, initialValue]);
 
   // 최근 검색어 최대 개수
-  const MAX_HISTORY = 8;
+  const MAX_HISTORY = 5;
 
   // 검색 히스토리 저장 함수
   const addToHistory = (keyword: string) => {
@@ -43,7 +40,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
     setSearchHistory((prev) => {
       const filtered = prev.filter((item) => item !== keyword);
       const newHistory = [keyword, ...filtered].slice(0, MAX_HISTORY);
-      localStorage.setItem(historyKey, JSON.stringify(newHistory));
+      localStorage.setItem('searchHistory', JSON.stringify(newHistory));
       return newHistory;
     });
   };
@@ -76,8 +73,8 @@ const SearchModal: React.FC<SearchModalProps> = ({
         </SearchButton>
       }
     >
-      <ModalSearchBar>
-        <ModalSearchInput
+      <SearchInputContainer>
+        <SearchInput
           type='text'
           placeholder={placeholder}
           value={searchInput}
@@ -89,27 +86,30 @@ const SearchModal: React.FC<SearchModalProps> = ({
             }
           }}
         />
-        <ModalSearchIconButton onClick={handleSearch} aria-label='검색'>
-          <img src={SearchIconSvg} alt='검색' />
-        </ModalSearchIconButton>
-      </ModalSearchBar>
+      </SearchInputContainer>
 
-      {/* 최근 검색어 히스토리 */}
-      {searchHistory.length > 0 && (
-        <HistoryContainer>
-          <HistoryTitle>최근 검색어</HistoryTitle>
-          <HistoryList>
-            {searchHistory.map((item, idx) => (
-              <HistoryItem
-                key={item + idx}
+      <GuidanceText>
+        검색을 원하는 <strong>제품명</strong> 또는 <strong>스타일 품번</strong>
+        을 입력하세요.
+      </GuidanceText>
+
+      <RecentSearchContainer>
+        <RecentSearchTitle>최근 검색어</RecentSearchTitle>
+        {searchHistory.length > 0 ? (
+          <RecentSearchList>
+            {searchHistory.map((item, index) => (
+              <RecentSearchItem
+                key={index}
                 onClick={() => handleHistoryClick(item)}
               >
                 {item}
-              </HistoryItem>
+              </RecentSearchItem>
             ))}
-          </HistoryList>
-        </HistoryContainer>
-      )}
+          </RecentSearchList>
+        ) : (
+          <NoRecentSearch>최근 검색어가 없습니다</NoRecentSearch>
+        )}
+      </RecentSearchContainer>
     </ReusableModal>
   );
 };
@@ -117,123 +117,91 @@ const SearchModal: React.FC<SearchModalProps> = ({
 export default SearchModal;
 
 // Styled Components
-const ModalSearchBar = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin-top: 18px;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1.5px solid #ccc;
-  transition: border-color 0.2s;
-
-  &:focus-within {
-    border-color: #ffbe4b;
-    box-shadow: 0 0 0 2px rgba(255, 190, 75, 0.2);
-  }
+const SearchInputContainer = styled.div`
+  margin-top: 20px;
+  width: 100%;
 `;
 
-const ModalSearchInput = styled.input`
-  border: none;
-  border-radius: 0;
-  font-size: 17px;
-  padding: 12px 16px;
+const SearchInput = styled.input`
   width: 100%;
+  padding: 16px;
+  min-width: 200px;
+  border: 1px solid #000000;
+  font-size: 16px;
   outline: none;
   box-sizing: border-box;
-  background: #fafafa;
-  position: relative;
+  background: #fff;
 
   &:focus {
-    background: #ffffff;
+    border-color: #000;
+  }
+
+  &::placeholder {
+    color: #999;
   }
 `;
 
-const ModalSearchIconButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px;
-  width: 48px;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  transition: background 0.2s;
-  padding: 0;
-  outline: none;
-  background: #fafafa;
-
-  &:hover {
-    background: #ffbe4b;
-  }
-
-  &:focus {
-    background: #ffbe4b;
-  }
-
-  img {
-    width: 20px;
-    height: 20px;
-    filter: brightness(0.7);
-  }
+const GuidanceText = styled.div`
+  margin-top: 12px;
+  font-weight: 400;
+  font-size: 12px;
+  color: #000000;
+  line-height: 1.4;
 `;
 
-const HistoryContainer = styled.div`
-  margin-top: 24px;
+const RecentSearchContainer = styled.div`
+  margin-top: 20px;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
 `;
 
-const HistoryTitle = styled.div`
+const RecentSearchTitle = styled.div`
   font-size: 14px;
-  color: #888;
-  margin-bottom: 8px;
   font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
 `;
 
-const HistoryList = styled.ul`
+const RecentSearchList = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 0;
-  margin: 0;
 `;
 
-const HistoryItem = styled.li`
-  list-style: none;
+const RecentSearchItem = styled.div`
   background: #f5f5f5;
   color: #333;
   border-radius: 16px;
-  padding: 6px 16px;
-  font-size: 15px;
+  padding: 8px 16px;
+  font-size: 13px;
   cursor: pointer;
   border: 1px solid #e0e0e0;
-  transition:
-    background 0.2s,
-    color 0.2s;
+  transition: background 0.2s;
+
   &:hover {
-    background: #ffe6b8;
-    color: #f6ae24;
+    background: #e8e8e8;
   }
 `;
 
+const NoRecentSearch = styled.div`
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  padding: 20px 0;
+`;
+
 const SearchButton = styled.button`
-  flex: 1;
+  width: 100%;
   height: 50px;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  transition: background 0.2s;
-  background-color: #ffbe4b;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #000;
   color: white;
+  margin-top: 20px;
 
   &:hover {
-    background-color: #f6ae24;
+    background-color: #333;
   }
 `;

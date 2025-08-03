@@ -156,14 +156,14 @@ const ModalContent = styled.div<{ width: string }>`
   background-color: ${({ theme }) => theme.colors.white};
   padding: 1.5rem;
   width: ${({ width }) => width};
-  min-width: 320px;
+
   min-height: 500px;
-  max-width: 90vw;
+  width: 90vw;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   ${({ theme }) => theme.shadow.modal};
-  border-radius: ${({ theme }) => theme.radius.md};
+
   transition: ${({ theme }) => theme.transition.base};
   box-sizing: border-box;
 

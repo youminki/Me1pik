@@ -112,7 +112,6 @@ interface FilterChipContainerProps {
   tempSelectedSizes: string[];
   onTempColorsChange: React.Dispatch<React.SetStateAction<string[]>>;
   onTempSizesChange: React.Dispatch<React.SetStateAction<string[]>>;
-  historyKey?: string;
   searchPlaceholder?: string;
   onClearAll?: () => void;
 }
@@ -133,7 +132,6 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
   tempSelectedSizes,
   onTempColorsChange,
   onTempSizesChange,
-  historyKey = 'searchHistory',
   searchPlaceholder = '브랜드 또는 설명으로 검색...',
   onClearAll,
 }) => {
@@ -203,7 +201,6 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
         isOpen={isSearchModalOpen}
         onClose={() => onSearchModalToggle(false)}
         onSearch={onSearchSubmit}
-        historyKey={historyKey}
         initialValue={searchQuery}
         placeholder={searchPlaceholder}
       />
