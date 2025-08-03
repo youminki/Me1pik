@@ -3,15 +3,8 @@
   command = "yarn install && yarn build"
   environment = { NODE_VERSION = "20" }
 
-# SPA 라우팅 - 모든 경로를 index.html로 리다이렉트
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
-
-# 루트 경로 최적화
-[[redirects]]
-  from = "/"
   to = "/index.html"
   status = 200
 
