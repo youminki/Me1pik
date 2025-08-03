@@ -12,8 +12,10 @@ import { ThemeProvider } from 'styled-components';
 
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
 import PaypleTest from '@/__tests__/development/PaypleTest';
-import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import Brand from '@/pages/brands/Brand';
+import BrandDetail from '@/pages/brands/BrandDetail';
+import Melpik from '@/pages/melpiks/Melpik';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { theme } from '@/styles/Theme';
 import {
@@ -98,10 +100,7 @@ const TestLogin = React.lazy(() => import('@/pages/auths/LoginTest'));
 const PasswordChange = React.lazy(() => import('@/pages/auths/PasswordChange'));
 const Signup = React.lazy(() => import('@/pages/auths/Signup'));
 
-// Brand 관련 컴포넌트들
-const Brand = React.lazy(() => import('@/pages/brands/Brand'));
-const BrandDetail = React.lazy(() => import('@/pages/brands/BrandDetail'));
-const Melpik = React.lazy(() => import('@/pages/melpiks/Melpik'));
+// Brand 관련 컴포넌트들 (배포 환경 안정성을 위해 일반 import로 변경)
 
 // 테스트 페이지 컴포넌트들
 const TestLoginPage = React.lazy(() => import('@/pages/tests/TestLogin'));
@@ -490,32 +489,11 @@ const App: React.FC = () => {
                 <Route path='/payment/fail' element={<PaymentFail />} />
 
                 {/* Brand */}
-                <Route
-                  path='/brand'
-                  element={
-                    <ErrorBoundary>
-                      <Brand />
-                    </ErrorBoundary>
-                  }
-                />
-                <Route
-                  path='/brand/:brandId'
-                  element={
-                    <ErrorBoundary>
-                      <BrandDetail />
-                    </ErrorBoundary>
-                  }
-                />
+                <Route path='/brand' element={<Brand />} />
+                <Route path='/brand/:brandId' element={<BrandDetail />} />
 
                 {/* Melpik */}
-                <Route
-                  path='/melpik'
-                  element={
-                    <ErrorBoundary>
-                      <Melpik />
-                    </ErrorBoundary>
-                  }
-                />
+                <Route path='/melpik' element={<Melpik />} />
                 <Route path='/create-melpik' element={<CreateMelpik />} />
                 <Route
                   path='/createMelpik/settings'
