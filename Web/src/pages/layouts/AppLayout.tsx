@@ -83,7 +83,7 @@ const ContentContainer = styled.div`
   background: #fff;
   padding: 1rem;
   margin: auto;
-  padding-top: 70px;
+  padding-top: 80px;
 
   ${hideScrollbar}
 `;

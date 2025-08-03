@@ -19,7 +19,6 @@ import MypageModal from '@/components/shared/modals/MypageModal';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
 
-
 interface HeaderContainerProps {
   $variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
 }
@@ -38,6 +37,7 @@ const HeaderWrapper = styled.div`
   right: 0;
   background: #fff;
   z-index: 1000;
+  border-bottom: 1px solid #eee;
 `;
 const HeaderContainer = styled.header<HeaderContainerProps>`
   max-width: 1000px;
