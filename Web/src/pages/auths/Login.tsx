@@ -32,6 +32,7 @@ import { schemaLogin } from '@/hooks/useValidationYup';
 import { theme } from '@/styles/Theme';
 import { forceSaveAppToken } from '@/utils/auth';
 import { isNativeApp } from '@/utils/nativeApp';
+import { saveTokens } from '@/utils/auth';
 
 interface LoginFormValues {
   email: string;
@@ -310,9 +311,8 @@ const Login: React.FC = () => {
       if (isNativeApp()) {
         forceSaveAppToken(accessToken, refreshToken);
       } else {
-        // 토큰을 localStorage에 저장
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
+        // auth.ts의 saveTokens 함수 사용 (타이머 설정 포함)
+        saveTokens(accessToken, refreshToken);
 
         // 자동로그인 여부 저장 (명시적으로 설정)
         if (keepLogin) {
