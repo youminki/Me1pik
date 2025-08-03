@@ -209,6 +209,10 @@ const AuthGuard: React.FC = () => {
   // 로그인 페이지로 이동하는 함수
   const redirectToLogin = useCallback(() => {
     if (location.pathname !== '/login') {
+      console.log('🔐 AuthGuard: 로그인 페이지로 리다이렉트', {
+        from: location.pathname,
+        to: '/login',
+      });
       navigate('/login', { replace: true });
     }
   }, [location.pathname, navigate]);
@@ -217,11 +221,24 @@ const AuthGuard: React.FC = () => {
     // 초기 인증 체크
     const checkInitialAuth = async () => {
       try {
+        console.log('🔐 AuthGuard: 초기 인증 체크 시작', {
+          pathname: location.pathname,
+          isProtected: isProtectedRoute(location.pathname),
+          hasToken: !!getCurrentToken(),
+          isValidToken: hasValidToken(),
+        });
+
         const needsRedirect = checkTokenAndRedirect(location.pathname);
+        console.log('🔐 AuthGuard: 리다이렉트 필요 여부', {
+          needsRedirect,
+          isProtected: isProtectedRoute(location.pathname),
+        });
+
         if (needsRedirect && isProtectedRoute(location.pathname)) {
           redirectToLogin();
         }
-      } catch {
+      } catch (error) {
+        console.error('🔐 AuthGuard: 인증 체크 중 오류', error);
         redirectToLogin();
       } finally {
         setIsInitialized(true);
@@ -234,6 +251,13 @@ const AuthGuard: React.FC = () => {
   // 라우트 변경 시 인증 체크
   useEffect(() => {
     if (!isInitialized) return;
+
+    console.log('🔐 AuthGuard: 라우트 변경 인증 체크', {
+      pathname: location.pathname,
+      isProtected: isProtectedRoute(location.pathname),
+      hasToken: !!getCurrentToken(),
+      isValidToken: hasValidToken(),
+    });
 
     // 보호된 라우트에서 토큰 체크 및 리다이렉트
     const needsRedirect = checkTokenAndRedirect(location.pathname);
