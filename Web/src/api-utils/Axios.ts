@@ -136,9 +136,8 @@ Axios.interceptors.response.use(
     if (error.response?.status === 401) {
       // 이미 재시도 중인 경우 무한 루프 방지
       if ((originalRequest as ExtendedAxiosRequestConfig)._retry) {
-        console.log('🔄 이미 토큰 갱신을 시도했으므로 로그아웃 처리');
-        clearAllTokens();
-        redirectToLogin();
+        console.log('🔄 이미 토큰 갱신을 시도했으므로 로그인 모달 표시');
+        showGlobalLoginModal('세션이 만료되었습니다. 다시 로그인해주세요.');
         return Promise.reject(error);
       }
 
@@ -154,9 +153,8 @@ Axios.interceptors.response.use(
           localToken?.trim() || sessionToken?.trim() || cookieToken?.trim();
 
         if (!REFRESH_TOKEN) {
-          console.log('❌ 리프레시 토큰이 없어서 로그아웃 처리');
-          clearAllTokens();
-          redirectToLogin();
+          console.log('❌ 리프레시 토큰이 없어서 로그인 모달 표시');
+          showGlobalLoginModal('로그인이 필요한 서비스입니다.');
           return Promise.reject(error);
         }
 
@@ -196,10 +194,9 @@ Axios.interceptors.response.use(
       } catch (refreshError) {
         console.error('❌ Axios 인터셉터: 토큰 갱신 실패:', refreshError);
 
-        // 토큰 갱신 실패 시 즉시 로그아웃 처리
-        console.log('❌ 토큰 갱신 실패로 인한 로그아웃 처리');
-        clearAllTokens();
-        redirectToLogin();
+        // 토큰 갱신 실패 시 로그인 모달 표시
+        console.log('❌ 토큰 갱신 실패로 인한 로그인 모달 표시');
+        showGlobalLoginModal('세션이 만료되었습니다. 다시 로그인해주세요.');
         return Promise.reject(refreshError);
       }
     }
@@ -244,13 +241,6 @@ async function retryRequest(config: unknown): Promise<unknown> {
 }
 
 // 토큰 관리 함수들
-function clearAllTokens(): void {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  Cookies.remove('accessToken');
-  Cookies.remove('refreshToken');
-}
-
 function saveTokens(accessToken: string, refreshToken?: string): void {
   localStorage.setItem('accessToken', accessToken);
   Cookies.set('accessToken', accessToken, { secure: true });
@@ -261,8 +251,11 @@ function saveTokens(accessToken: string, refreshToken?: string): void {
   }
 }
 
-function redirectToLogin(): void {
-  const event = new CustomEvent('forceLoginRedirect');
+// 전역 로그인 모달 표시 함수
+function showGlobalLoginModal(message?: string): void {
+  const event = new CustomEvent('showLoginModal', {
+    detail: { message: message || '로그인이 필요한 서비스입니다.' },
+  });
   window.dispatchEvent(event);
 }
 

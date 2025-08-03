@@ -19,6 +19,7 @@ import ScrollToTopButtonComponent from '@/components/shared/ScrollToTopButton';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useNoResultHandler } from '@/hooks/useNoResultHandler';
 import { useProductFilter } from '@/hooks/useProductFilter';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 /**
@@ -33,6 +34,7 @@ import { useScrollToTop } from '@/hooks/useScrollToTop';
 const Home: React.FC = () => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { requireAuth } = useRequireAuth();
 
   // 로그인 후 안내 모달
   const [isLoginNoticeOpen, setLoginNoticeOpen] = useState(false);
@@ -40,6 +42,21 @@ const Home: React.FC = () => {
 
   // 공유 모달 상태
   const [isShareModalOpen, setShareModalOpen] = useState(false);
+
+  // 로그인이 필요한 기능들
+  const handleLikeProduct = () => {
+    requireAuth(() => {
+      console.log('상품 좋아요 기능 실행');
+      // 실제 좋아요 로직
+    }, '상품 좋아요 기능을 사용하려면 로그인이 필요합니다.');
+  };
+
+  const handleAddToCart = () => {
+    requireAuth(() => {
+      console.log('장바구니 추가 기능 실행');
+      // 실제 장바구니 추가 로직
+    }, '장바구니에 상품을 추가하려면 로그인이 필요합니다.');
+  };
 
   // 모바일 뷰 여부
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
@@ -501,6 +518,16 @@ const Home: React.FC = () => {
         </>
       </ContentWrapper>
 
+      {/* 로그인이 필요한 기능 버튼들 */}
+      <AuthButtonsContainer>
+        <AuthButton onClick={handleLikeProduct}>
+          ❤️ 좋아요 (로그인 필요)
+        </AuthButton>
+        <AuthButton onClick={handleAddToCart}>
+          🛒 장바구니 추가 (로그인 필요)
+        </AuthButton>
+      </AuthButtonsContainer>
+
       {/* 푸터 */}
       <Footer />
 
@@ -554,5 +581,29 @@ const InfoList = styled.ol`
   font-size: 14px;
   & li {
     margin-bottom: 8px;
+  }
+`;
+
+const AuthButtonsContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px;
+  margin-top: 20px;
+`;
+
+const AuthButton = styled.button`
+  padding: 10px 20px;
+  border: 2px solid #f7c600;
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f7c600;
+    color: white;
   }
 `;

@@ -196,6 +196,11 @@ export default defineConfig(() => {
         overlay: false, // HMR 오버레이 비활성화로 성능 향상
       },
     },
+    // Preview 서버 설정 (SPA 라우팅 지원)
+    preview: {
+      port: 4173,
+      host: true,
+    },
     // CSS 최적화는 postcss.config.js에서 처리
   };
 });

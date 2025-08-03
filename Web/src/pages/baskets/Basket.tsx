@@ -19,6 +19,7 @@ import EmptyState from '@/components/shared/EmptyState';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import HomeDetail from '@/pages/homes/HomeDetail';
 
 interface BasketItemForPayment {
@@ -60,6 +61,7 @@ const getServiceLabel = (type: string) => {
 const Basket: React.FC = () => {
   const [items, setItems] = useState<BasketItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { requireAuth } = useRequireAuth();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
@@ -254,6 +256,21 @@ const Basket: React.FC = () => {
     } finally {
       setIsDeletingAll(false);
     }
+  };
+
+  // 로그인이 필요한 기능들
+  const handleSaveForLater = () => {
+    requireAuth(() => {
+      console.log('나중에 구매 기능 실행');
+      // 실제 나중에 구매 로직
+    }, '나중에 구매 기능을 사용하려면 로그인이 필요합니다.');
+  };
+
+  const handleShareBasket = () => {
+    requireAuth(() => {
+      console.log('장바구니 공유 기능 실행');
+      // 실제 공유 로직
+    }, '장바구니 공유 기능을 사용하려면 로그인이 필요합니다.');
   };
 
   return (
@@ -597,6 +614,16 @@ const Basket: React.FC = () => {
             >
               해당 제품을 바로 구매하시겠습니까?
             </ReusableModal>
+
+            {/* 로그인이 필요한 기능 버튼들 */}
+            <AuthButtonsContainer>
+              <AuthButton onClick={handleSaveForLater}>
+                💾 나중에 구매 (로그인 필요)
+              </AuthButton>
+              <AuthButton onClick={handleShareBasket}>
+                📤 장바구니 공유 (로그인 필요)
+              </AuthButton>
+            </AuthButtonsContainer>
           </>
         )}
       </Container>
@@ -1038,4 +1065,28 @@ const CancleIcon = styled.img`
 
 const ModalIcon = styled.img`
   cursor: pointer;
+`;
+
+const AuthButtonsContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px;
+  margin-top: 20px;
+`;
+
+const AuthButton = styled.button`
+  padding: 10px 20px;
+  border: 2px solid #f7c600;
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f7c600;
+    color: white;
+  }
 `;
