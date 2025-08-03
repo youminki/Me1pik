@@ -1,340 +1,383 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { LoginPost } from '@/api-utils/user-managements/auth/LoginPost';
-import { getMembershipInfo } from '@/api-utils/user-managements/users/userApi';
-import MelpikLogo from '@/assets/LoginLogo.svg';
-import LoginButton from '@/components/shared/buttons/PrimaryButton';
-import InputField from '@/components/shared/forms/InputField';
-import ReusableModal from '@/components/shared/modals/ReusableModal';
-import { saveTokens } from '@/utils/auth';
-
-interface LoginFormValues {
-  email: string;
-  password: string;
+interface TestResult {
+  name: string;
+  status: 'success' | 'warning' | 'error';
+  message: string;
+  details?: Record<string, unknown>;
 }
 
 const TestLogin: React.FC = () => {
-  const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [enableLongTermPersistence, setEnableLongTermPersistence] =
-    useState(true);
 
-  const [formData, setFormData] = useState<LoginFormValues>({
-    email: '',
-    password: '',
-  });
-
-  const handleModalClose = () => setIsModalOpen(false);
-
-  const handleInputChange = (field: keyof LoginFormValues, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  // 30일 지속성 보장을 위한 토큰 저장 함수
-  const saveTokensForLongTermPersistence = (
-    accessToken: string,
-    refreshToken: string,
-    email: string
-  ) => {
-    // 1. 모든 저장소에 토큰 저장 (지속성 보장)
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('userEmail', email);
-
-    sessionStorage.setItem('accessToken', accessToken);
-    sessionStorage.setItem('refreshToken', refreshToken);
-
-    // 2. 쿠키에 토큰 저장 (브라우저 재시작 시에도 유지)
-    document.cookie = `accessToken=${accessToken}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30일
-    document.cookie = `refreshToken=${refreshToken}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30일
-
-    // 3. 자동 로그인 설정 (30일 지속성 보장)
-    if (enableLongTermPersistence) {
-      localStorage.setItem('autoLogin', 'true');
-    }
-
-    // 4. 사용자 정보 저장
-    localStorage.setItem('userEmail', email);
-    localStorage.setItem('loginTimestamp', Date.now().toString());
-
-    console.log('🔐 30일 지속성 토큰 저장 완료:', {
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-      autoLogin: enableLongTermPersistence,
-      timestamp: new Date().toLocaleString(),
-    });
-  };
-
-  const handleLoginClick = async () => {
-    // 이메일 검증 (테스트용으로 완화)
-    if (!formData.email) {
-      setModalMessage('이메일을 입력해주세요.');
-      setIsModalOpen(true);
-      return;
-    }
-
-    if (!formData.password) {
-      setModalMessage('비밀번호를 입력해주세요.');
-      setIsModalOpen(true);
-      return;
-    }
-
+  const runAutoLoginTest = () => {
     setIsLoading(true);
+    const results: TestResult[] = [];
 
     try {
-      // 1) 로그인 요청
-      const response = await LoginPost(formData.email, formData.password);
-      const { accessToken, refreshToken } = response;
+      // 1. 자동 로그인 설정 확인
+      const autoLogin = localStorage.getItem('autoLogin') === 'true';
+      const loginTimestamp = localStorage.getItem('loginTimestamp');
+      const autoRefreshInterval = localStorage.getItem('autoRefreshInterval');
 
-      // 2) 30일 지속성을 위한 토큰 저장
-      saveTokensForLongTermPersistence(
-        accessToken,
-        refreshToken,
-        formData.email
-      );
+      results.push({
+        name: '자동 로그인 설정',
+        status: autoLogin ? 'success' : 'warning',
+        message: autoLogin
+          ? '✅ 30일 자동 로그인이 활성화되어 있습니다'
+          : '⚠️ 30일 자동 로그인이 비활성화되어 있습니다',
+        details: {
+          autoLogin,
+          loginTimestamp: loginTimestamp
+            ? new Date(parseInt(loginTimestamp)).toLocaleString()
+            : null,
+          autoRefreshInterval: !!autoRefreshInterval,
+        },
+      });
 
-      // 3) 표준 토큰 저장 함수도 호출 (기존 로직과 호환성)
-      saveTokens(accessToken, refreshToken);
-
-      // 4) 멤버십 정보 조회
-      const membership = await getMembershipInfo();
-
-      // 5) 30일 지속성 설정 확인
-      const persistenceStatus = {
+      // 2. 토큰 저장소 확인
+      const storageStatus = {
         localStorage: !!localStorage.getItem('accessToken'),
         sessionStorage: !!sessionStorage.getItem('accessToken'),
         cookies: !!document.cookie.includes('accessToken'),
-        autoLogin: localStorage.getItem('autoLogin') === 'true',
       };
 
-      console.log('✅ 30일 지속성 설정 완료:', persistenceStatus);
+      const persistentCount =
+        Object.values(storageStatus).filter(Boolean).length;
+      results.push({
+        name: '다중 저장소 상태',
+        status: persistentCount >= 3 ? 'success' : 'warning',
+        message:
+          persistentCount >= 3
+            ? '✅ 모든 저장소에 토큰이 저장되어 있습니다'
+            : `⚠️ ${persistentCount}개 저장소에만 토큰이 저장되어 있습니다`,
+        details: storageStatus,
+      });
 
-      // 6) 테스트 대시보드로 이동
-      navigate('/test-dashboard', {
-        replace: true,
-        state: {
-          showNotice: true,
-          membership,
-          longTermPersistence: enableLongTermPersistence,
-          persistenceStatus,
+      // 3. 쿠키 확인
+      const cookies = document.cookie.split(';');
+      const accessTokenCookie = cookies.find((cookie) =>
+        cookie.trim().startsWith('accessToken=')
+      );
+
+      results.push({
+        name: '쿠키 지속성',
+        status: accessTokenCookie ? 'success' : 'warning',
+        message: accessTokenCookie
+          ? '✅ 쿠키가 설정되어 있습니다'
+          : '⚠️ 쿠키가 설정되지 않았습니다',
+        details: {
+          hasCookie: !!accessTokenCookie,
+          cookieValue: accessTokenCookie
+            ? accessTokenCookie.substring(0, 50) + '...'
+            : null,
         },
       });
-    } catch (error: unknown) {
-      const errorMessage =
-        error && typeof error === 'object' && 'message' in error
-          ? (error as { message: string }).message
-          : '로그인 실패. 다시 시도해주세요.';
-      setModalMessage(errorMessage);
-      setIsModalOpen(true);
-    } finally {
-      setIsLoading(false);
+
+      // 4. 토큰 유효성 확인
+      const accessToken =
+        localStorage.getItem('accessToken') ||
+        sessionStorage.getItem('accessToken') ||
+        (document.cookie.match(/accessToken=([^;]+)/) || [])[1];
+
+      if (accessToken) {
+        try {
+          const payload = JSON.parse(atob(accessToken.split('.')[1]));
+          const currentTime = Date.now() / 1000;
+          const timeUntilExpiry = payload.exp - currentTime;
+          const minutesLeft = Math.floor(timeUntilExpiry / 60);
+
+          results.push({
+            name: '토큰 유효성',
+            status: timeUntilExpiry > 0 ? 'success' : 'error',
+            message:
+              timeUntilExpiry > 0
+                ? `✅ 토큰이 ${minutesLeft}분 후 만료됩니다`
+                : '❌ 토큰이 만료되었습니다',
+            details: {
+              expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+              minutesLeft,
+              isExpired: timeUntilExpiry <= 0,
+            },
+          });
+        } catch (error) {
+          results.push({
+            name: '토큰 유효성',
+            status: 'error',
+            message: '토큰 파싱에 실패했습니다',
+            details: {
+              error: error instanceof Error ? error.message : String(error),
+            },
+          });
+        }
+      } else {
+        results.push({
+          name: '토큰 유효성',
+          status: 'error',
+          message: '토큰이 없습니다',
+          details: { hasToken: false },
+        });
+      }
+
+      // 5. 자동 갱신 인터벌 확인
+      const hasAutoRefresh = !!autoRefreshInterval;
+      results.push({
+        name: '자동 갱신 인터벌',
+        status: hasAutoRefresh ? 'success' : 'warning',
+        message: hasAutoRefresh
+          ? '✅ 자동 갱신 인터벌이 설정되어 있습니다'
+          : '⚠️ 자동 갱신 인터벌이 설정되지 않았습니다',
+        details: {
+          hasInterval: hasAutoRefresh,
+          intervalId: autoRefreshInterval,
+        },
+      });
+    } catch (error) {
+      results.push({
+        name: '테스트 오류',
+        status: 'error',
+        message: '테스트 실행 중 오류가 발생했습니다',
+        details: {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
     }
+
+    setTestResults(results);
+    setIsLoading(false);
   };
+
+  const setup30DayAutoLogin = () => {
+    // 테스트용 토큰 생성 (실제로는 로그인 후 받아야 함)
+    const testAccessToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjk5OTk5OTk5OTl9.test';
+    const testRefreshToken = 'refresh_token_test_123';
+
+    // 1. 모든 저장소에 토큰 저장
+    localStorage.setItem('accessToken', testAccessToken);
+    localStorage.setItem('refreshToken', testRefreshToken);
+    sessionStorage.setItem('accessToken', testAccessToken);
+    sessionStorage.setItem('refreshToken', testRefreshToken);
+
+    // 2. 쿠키에 토큰 저장 (30일 만료)
+    const maxAge = 30 * 24 * 60 * 60;
+    document.cookie = `accessToken=${testAccessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+    document.cookie = `refreshToken=${testRefreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+
+    // 3. 자동 로그인 설정
+    localStorage.setItem('autoLogin', 'true');
+    localStorage.setItem('loginTimestamp', Date.now().toString());
+
+    // 4. 자동 갱신 인터벌 설정
+    const autoRefreshInterval = setInterval(() => {
+      console.log('🔄 자동 토큰 갱신 체크:', new Date().toLocaleString());
+    }, 60000); // 1분마다
+
+    localStorage.setItem('autoRefreshInterval', autoRefreshInterval.toString());
+
+    console.log('🔐 30일 자동 로그인 설정 완료');
+    runAutoLoginTest();
+  };
+
+  const disable30DayAutoLogin = () => {
+    // 자동 로그인 해제
+    localStorage.removeItem('autoLogin');
+    localStorage.removeItem('loginTimestamp');
+
+    // 자동 갱신 중지
+    const intervalId = localStorage.getItem('autoRefreshInterval');
+    if (intervalId) {
+      clearInterval(parseInt(intervalId));
+      localStorage.removeItem('autoRefreshInterval');
+    }
+
+    // 쿠키 삭제
+    document.cookie =
+      'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie =
+      'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+    console.log('🔓 30일 자동 로그인 해제 완료');
+    runAutoLoginTest();
+  };
+
+  useEffect(() => {
+    runAutoLoginTest();
+  }, []);
 
   return (
     <Container>
-      <LoginCard>
-        <LogoSection>
-          <Logo src={MelpikLogo} alt='멜픽 로고' />
-          <Title>🧪 테스트 로그인</Title>
-          <Subtitle>개발자 전용 테스트 페이지</Subtitle>
-        </LogoSection>
+      <Header>
+        <Title>🔐 30일 자동 로그인 테스트</Title>
+        <Subtitle>로그인 상태가 30일간 유지되는지 확인</Subtitle>
+      </Header>
 
-        <FormSection>
-          <FormTitle>테스트 계정 정보</FormTitle>
-          <FormDescription>테스트용 계정으로 로그인하세요</FormDescription>
+      <ButtonGroup>
+        <Button onClick={setup30DayAutoLogin} variant='success'>
+          🔐 30일 자동 로그인 설정
+        </Button>
+        <Button onClick={disable30DayAutoLogin} variant='warning'>
+          🔓 30일 자동 로그인 해제
+        </Button>
+        <Button onClick={runAutoLoginTest} disabled={isLoading}>
+          {isLoading ? '테스트 중...' : '🔄 상태 확인'}
+        </Button>
+      </ButtonGroup>
 
-          <LoginForm>
-            <InputFieldRow>
-              <InputField
-                label='이메일'
-                type='email'
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder='이메일을 입력하세요'
-                autoComplete='email'
-              />
-            </InputFieldRow>
-
-            <InputFieldRow>
-              <InputField
-                label='비밀번호'
-                type='password'
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                placeholder='비밀번호를 입력하세요'
-                autoComplete='current-password'
-              />
-            </InputFieldRow>
-
-            <PersistenceSection>
-              <PersistenceCheckbox
-                type='checkbox'
-                id='longTermPersistence'
-                checked={enableLongTermPersistence}
-                onChange={(e) => setEnableLongTermPersistence(e.target.checked)}
-              />
-              <PersistenceLabel htmlFor='longTermPersistence'>
-                🔐 30일 지속성 보장 (자동 로그인 + 다중 저장소)
-              </PersistenceLabel>
-              <PersistenceDescription>
-                체크하면 30일간 로그인 상태가 유지됩니다
-              </PersistenceDescription>
-            </PersistenceSection>
-
-            <LoginButton
-              onClick={handleLoginClick}
-              disabled={!formData.email || !formData.password || isLoading}
-            >
-              {isLoading ? '로그인 중...' : '테스트 페이지 접속'}
-            </LoginButton>
-          </LoginForm>
-        </FormSection>
-
-        <BackSection>
-          <BackLink onClick={() => navigate('/login')}>
-            ← 일반 로그인으로 돌아가기
-          </BackLink>
-        </BackSection>
-      </LoginCard>
-
-      <ReusableModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        title='로그인 실패'
-      >
-        {modalMessage}
-      </ReusableModal>
+      <TestResults>
+        {testResults.map((result, index) => (
+          <TestResult key={index} status={result.status}>
+            <TestHeader>
+              <TestName>{result.name}</TestName>
+              <TestStatus status={result.status}>
+                {result.status === 'success'
+                  ? '✅'
+                  : result.status === 'warning'
+                    ? '⚠️'
+                    : '❌'}
+              </TestStatus>
+            </TestHeader>
+            <TestMessage>{result.message}</TestMessage>
+            {result.details && (
+              <TestDetails>
+                <pre>{String(JSON.stringify(result.details, null, 2))}</pre>
+              </TestDetails>
+            )}
+          </TestResult>
+        ))}
+      </TestResults>
     </Container>
   );
 };
 
-export default TestLogin;
-
 // Styled Components
 const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
+  font-family: 'NanumSquareNeo', sans-serif;
 `;
 
-const LoginCard = styled.div`
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  width: 100%;
-  max-width: 480px;
-  overflow: hidden;
-`;
-
-const LogoSection = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 40px 30px;
+const Header = styled.div`
   text-align: center;
-`;
-
-const Logo = styled.img`
-  width: 100px;
-  margin-bottom: 20px;
-  filter: brightness(0) invert(1);
+  margin-bottom: 30px;
 `;
 
 const Title = styled.h1`
   font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: white;
+  color: #333;
+  margin-bottom: 10px;
 `;
 
 const Subtitle = styled.p`
+  color: #666;
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
 `;
 
-const FormSection = styled.div`
-  padding: 40px 30px;
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
 `;
 
-const FormTitle = styled.h2`
-  font-size: 1.5rem;
+const Button = styled.button<{ variant?: 'success' | 'warning' | 'danger' }>`
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
-  color: #333;
+  cursor: pointer;
+  background: ${(props) => {
+    switch (props.variant) {
+      case 'success':
+        return '#28a745';
+      case 'warning':
+        return '#ffc107';
+      case 'danger':
+        return '#dc3545';
+      default:
+        return '#007bff';
+    }
+  }};
+  color: white;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const TestResults = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const TestResult = styled.div<{ status: 'success' | 'warning' | 'error' }>`
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid
+    ${(props) => {
+      switch (props.status) {
+        case 'success':
+          return '#28a745';
+        case 'warning':
+          return '#ffc107';
+        case 'error':
+          return '#dc3545';
+        default:
+          return '#6c757d';
+      }
+    }};
+  background: ${(props) => {
+    switch (props.status) {
+      case 'success':
+        return '#d4edda';
+      case 'warning':
+        return '#fff3cd';
+      case 'error':
+        return '#f8d7da';
+      default:
+        return '#f8f9fa';
+    }
+  }};
+`;
+
+const TestHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 8px;
 `;
 
-const FormDescription = styled.p`
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 30px;
+const TestName = styled.span`
+  font-weight: 600;
+  color: #333;
 `;
 
-const LoginForm = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+const TestStatus = styled.span<{ status: 'success' | 'warning' | 'error' }>`
+  font-size: 1.2rem;
 `;
 
-const InputFieldRow = styled.div`
-  width: 100%;
-`;
-
-const PersistenceSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 15px;
-  margin-bottom: 20px;
+const TestMessage = styled.div`
   color: #555;
-  font-size: 0.85rem;
+  margin-bottom: 8px;
 `;
 
-const PersistenceCheckbox = styled.input`
-  width: 16px;
-  height: 16px;
-  accent-color: #667eea;
-`;
+const TestDetails = styled.div`
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 8px;
 
-const PersistenceLabel = styled.label`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: 500;
-`;
-
-const PersistenceDescription = styled.span`
-  font-size: 0.75rem;
-  color: #888;
-`;
-
-const BackSection = styled.div`
-  padding: 20px 30px;
-  border-top: 1px solid #f0f0f0;
-  text-align: center;
-`;
-
-const BackLink = styled.a`
-  color: #667eea;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 0.2s;
-
-  &:hover {
-    color: #5a6fd8;
-    text-decoration: underline;
+  pre {
+    margin: 0;
+    font-size: 12px;
+    color: #333;
   }
 `;
+
+export default TestLogin;

@@ -324,8 +324,8 @@ const Login: React.FC = () => {
             const currentTime = Date.now() / 1000;
             const timeUntilExpiry = payload.exp - currentTime;
 
-            // 1시간 이내 만료되면 자동 갱신
-            if (timeUntilExpiry <= 3600) {
+            // 10분 이내 만료되면 자동 갱신
+            if (timeUntilExpiry <= 600) {
               const response = await fetch(
                 'https://api.stylewh.com/auth/refresh',
                 {
@@ -362,7 +362,7 @@ const Login: React.FC = () => {
         } catch (error) {
           console.error('자동 토큰 갱신 오류:', error);
         }
-      }, 300000); // 5분마다 체크
+      }, 60000); // 1분마다 체크
 
       localStorage.setItem(
         'autoRefreshInterval',

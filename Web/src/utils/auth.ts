@@ -15,7 +15,10 @@ export const hasValidToken = (): boolean => {
   const token =
     localToken?.trim() || sessionToken?.trim() || cookieToken?.trim();
 
-  if (!token) return false;
+  if (!token) {
+    console.log('❌ 토큰이 없습니다');
+    return false;
+  }
 
   try {
     // JWT 토큰의 페이로드 부분을 디코드
@@ -24,12 +27,21 @@ export const hasValidToken = (): boolean => {
 
     // 토큰이 만료되었는지 확인
     if (payload.exp && payload.exp < currentTime) {
+      console.log('❌ 토큰이 만료되었습니다:', {
+        expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+        currentTime: new Date(currentTime * 1000).toLocaleString(),
+      });
       clearTokens();
       return false;
     }
 
+    console.log('✅ 토큰이 유효합니다:', {
+      expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+      timeLeft: Math.floor((payload.exp - currentTime) / 60) + '분',
+    });
     return true;
-  } catch {
+  } catch (error) {
+    console.error('❌ 토큰 파싱 오류:', error);
     clearTokens();
     return false;
   }
@@ -130,8 +142,8 @@ export const saveTokens = (
             const currentTime = Date.now() / 1000;
             const timeUntilExpiry = payload.exp - currentTime;
 
-            // 1시간 이내 만료되면 자동 갱신
-            if (timeUntilExpiry <= 3600) {
+            // 10분 이내 만료되면 자동 갱신
+            if (timeUntilExpiry <= 600) {
               const response = await fetch(
                 'https://api.stylewh.com/auth/refresh',
                 {
@@ -168,7 +180,7 @@ export const saveTokens = (
         } catch (error) {
           console.error('자동 토큰 갱신 오류:', error);
         }
-      }, 300000); // 5분마다 체크
+      }, 60000); // 1분마다 체크
 
       localStorage.setItem(
         'autoRefreshInterval',
@@ -246,9 +258,9 @@ const setupTokenRefreshTimer = (token: string): void => {
 
     // 자동로그인 여부에 따라 갱신 시점 조정
     const autoLogin = localStorage.getItem('autoLogin') === 'true';
-    // 자동로그인: 만료 1시간 전에 갱신 (더 안전하게)
-    // 일반로그인: 만료 30분 전에 갱신 (안전성 향상)
-    const refreshOffset = autoLogin ? 60 * 60 : 30 * 60; // 1시간 또는 30분
+    // 자동로그인: 만료 10분 전에 갱신 (더 안전하게)
+    // 일반로그인: 만료 5분 전에 갱신 (안전성 향상)
+    const refreshOffset = autoLogin ? 10 * 60 : 5 * 60; // 10분 또는 5분
     const refreshTime = (expiresAt - currentTime - refreshOffset) * 1000;
 
     const refreshAt = new Date(Date.now() + refreshTime);
@@ -274,13 +286,14 @@ const setupTokenRefreshTimer = (token: string): void => {
         const success = await refreshToken();
         if (!success) {
           console.log('토큰 갱신 타이머 실패, 재설정 시도');
-          // 실패 시 5분 후 재시도
-          setTimeout(
-            async () => {
-              await refreshToken();
-            },
-            5 * 60 * 1000
-          );
+          // 실패 시 1분 후 재시도
+          setTimeout(async () => {
+            const retrySuccess = await refreshToken();
+            if (!retrySuccess) {
+              console.log('토큰 갱신 재시도도 실패, 로그아웃 처리');
+              await logout();
+            }
+          }, 60 * 1000);
         }
       }, refreshTime);
     } else {
