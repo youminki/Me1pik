@@ -1,5 +1,3 @@
-import Cookies from 'js-cookie';
-
 import { Axios } from '@/api-utils/Axios';
 import { saveTokens } from '@/utils/auth';
 

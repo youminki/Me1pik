@@ -42,12 +42,14 @@ const TokenTestPanel: React.FC = () => {
 
   const testSimulateExpiry = () => {
     runTest('토큰 만료 시뮬레이션', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).simulateTokenExpiry();
     });
   };
 
   const testAutoRefresh = async () => {
     runTest('자동 갱신 테스트', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const success = await (window as any).testAutoRefresh();
       if (!success) {
         throw new Error('자동 갱신 테스트 실패');
