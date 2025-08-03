@@ -1,30 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { Axios } from '@/api-utils/Axios';
-import { getMembershipInfo } from '@/api-utils/user-managements/users/userApi';
 import {
   getCurrentToken,
   getRefreshToken,
   hasValidToken,
-  refreshToken,
   clearTokens,
+  debugTokenStatus,
+  saveTokens,
 } from '@/utils/auth';
-import {
-  startPerformanceMonitoring,
-  getPerformanceReport,
-  getOptimizationSuggestions,
-  startRealTimeMonitoring,
-} from '@/utils/performanceMonitor';
-
-interface PerformanceMetrics {
-  lcp: number;
-  cls: number;
-  inp: number;
-  fid: number;
-  ttfb: number;
-}
 
 interface TokenInfo {
   accessToken: string | null;
@@ -32,42 +18,52 @@ interface TokenInfo {
   isValid: boolean;
   expiresAt: string | null;
   payload: Record<string, unknown> | null;
+  timeUntilExpiry: string | null;
+  storageStatus: {
+    localStorage: boolean;
+    sessionStorage: boolean;
+    cookies: boolean;
+  };
+}
+
+interface TestResult {
+  name: string;
+  status: 'success' | 'error' | 'warning';
+  message: string;
+  details?: unknown;
+  timestamp: string;
+}
+
+interface RefreshResult {
+  success: boolean;
+  beforeToken?: string | null;
+  afterToken?: string | null;
+  beforeRefresh?: string | null;
+  afterRefresh?: string | null;
+  message: string;
 }
 
 const TestDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
-  const [performanceMetrics, setPerformanceMetrics] =
-    useState<PerformanceMetrics | null>(null);
-  const [apiTestResults, setApiTestResults] = useState<
-    Array<{
-      name: string;
-      status: 'success' | 'error';
-      response?: unknown;
-      error?: string;
-    }>
-  >([]);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [optimizationSuggestions, setOptimizationSuggestions] = useState<
-    string[]
-  >([]);
-  const [performanceReport, setPerformanceReport] = useState<string>('');
+  const [refreshResult, setRefreshResult] = useState<RefreshResult | null>(
+    null
+  );
+  const [autoRefreshInterval, setAutoRefreshInterval] =
+    useState<NodeJS.Timeout | null>(null);
+  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false);
 
-  // 권한 확인
+  // 권한 확인 - 완화된 버전
   useEffect(() => {
     const checkAuthorization = async () => {
-      const currentUser = localStorage.getItem('userEmail');
-      if (currentUser !== 'dbalsrl7648@naver.com') {
-        alert('테스트 페이지는 특정 계정으로만 접근 가능합니다.');
-        navigate('/login');
-        return;
-      }
       setIsAuthorized(true);
     };
 
     checkAuthorization();
-  }, [navigate]);
+  }, []);
 
   // 토큰 정보 업데이트
   const updateTokenInfo = useCallback(() => {
@@ -77,6 +73,7 @@ const TestDashboard: React.FC = () => {
 
     let expiresAt = null;
     let payload = null;
+    let timeUntilExpiry = null;
 
     if (accessToken) {
       try {
@@ -84,11 +81,27 @@ const TestDashboard: React.FC = () => {
         if (tokenParts.length === 3) {
           payload = JSON.parse(atob(tokenParts[1]));
           expiresAt = new Date(payload.exp * 1000).toLocaleString();
+
+          const currentTime = Date.now() / 1000;
+          const timeLeft = payload.exp - currentTime;
+          if (timeLeft > 0) {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = Math.floor(timeLeft % 60);
+            timeUntilExpiry = `${minutes}분 ${seconds}초`;
+          } else {
+            timeUntilExpiry = '만료됨';
+          }
         }
       } catch (error) {
         console.error('토큰 파싱 오류:', error);
       }
     }
+
+    const storageStatus = {
+      localStorage: !!localStorage.getItem('accessToken'),
+      sessionStorage: !!sessionStorage.getItem('accessToken'),
+      cookies: !!document.cookie.includes('accessToken'),
+    };
 
     setTokenInfo({
       accessToken,
@@ -96,102 +109,296 @@ const TestDashboard: React.FC = () => {
       isValid,
       expiresAt,
       payload,
+      timeUntilExpiry,
+      storageStatus,
     });
   }, []);
 
-  // 성능 메트릭 수집
-  const collectPerformanceMetrics = useCallback(() => {
-    startPerformanceMonitoring();
-
-    // 실시간 모니터링 시작
-    startRealTimeMonitoring((metrics) => {
-      setPerformanceMetrics({
-        lcp: metrics.lcp || 0,
-        cls: metrics.cls || 0,
-        inp: metrics.inp || 0,
-        fid: metrics.fid || 0,
-        ttfb: metrics.ttfb || 0,
-      });
-    });
-  }, []);
-
-  // API 테스트
-  const runApiTests = useCallback(async () => {
+  // 로그인 지속성 테스트
+  const runLoginPersistenceTest = useCallback(async () => {
     setIsLoading(true);
-    const results: Array<{
-      name: string;
-      status: 'success' | 'error';
-      response?: unknown;
-      error?: string;
-    }> = [];
+    const results: TestResult[] = [];
 
     try {
-      // 1. 토큰 유효성 테스트
-      const tokenTest = await Axios.get('/api/test/token');
+      const accessToken = getCurrentToken();
+      const refreshToken = getRefreshToken();
+      const autoLogin = localStorage.getItem('autoLogin');
+
+      // 1. 현재 로그인 상태 확인
       results.push({
-        name: '토큰 유효성 테스트',
-        status: 'success',
-        response: tokenTest.data,
+        name: '로그인 상태',
+        status: accessToken ? 'success' : 'error',
+        message: accessToken
+          ? '로그인되어 있습니다'
+          : '로그인되어 있지 않습니다',
+        details: {
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          autoLogin,
+        },
+        timestamp: new Date().toLocaleString(),
       });
+
+      // 2. 토큰 유효성 검증
+      if (accessToken) {
+        try {
+          const payload = JSON.parse(atob(accessToken.split('.')[1]));
+          const currentTime = Date.now() / 1000;
+          const timeUntilExpiry = payload.exp - currentTime;
+
+          results.push({
+            name: '토큰 유효성',
+            status: timeUntilExpiry > 0 ? 'success' : 'error',
+            message:
+              timeUntilExpiry > 0
+                ? `토큰이 유효합니다 (${Math.floor(timeUntilExpiry / 60)}분 남음)`
+                : '토큰이 만료되었습니다',
+            details: {
+              expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+              timeUntilExpiry: Math.floor(timeUntilExpiry / 60),
+            },
+            timestamp: new Date().toLocaleString(),
+          });
+        } catch (error) {
+          results.push({
+            name: '토큰 유효성',
+            status: 'error',
+            message: '토큰 파싱에 실패했습니다',
+            details: {
+              error: error instanceof Error ? error.message : '알 수 없는 오류',
+            },
+            timestamp: new Date().toLocaleString(),
+          });
+        }
+      }
+
+      // 3. 저장소 동기화 확인
+      const storageStatus = {
+        localStorage: !!localStorage.getItem('accessToken'),
+        sessionStorage: !!sessionStorage.getItem('accessToken'),
+        cookies: !!document.cookie.includes('accessToken'),
+      };
+
+      const allStoragesHaveToken = Object.values(storageStatus).every(Boolean);
+      results.push({
+        name: '저장소 동기화',
+        status: allStoragesHaveToken ? 'success' : 'warning',
+        message: allStoragesHaveToken
+          ? '모든 저장소에 토큰이 동기화되어 있습니다'
+          : '일부 저장소에 토큰이 없습니다',
+        details: storageStatus,
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 4. 자동 로그인 설정 확인
+      results.push({
+        name: '자동 로그인 설정',
+        status: autoLogin === 'true' ? 'success' : 'warning',
+        message:
+          autoLogin === 'true'
+            ? '자동 로그인이 활성화되어 있습니다'
+            : '자동 로그인이 비활성화되어 있습니다',
+        details: { autoLogin },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 5. 실제 API 호출 테스트
+      if (accessToken) {
+        try {
+          const startTime = Date.now();
+          const response = await fetch('https://api.stylewh.com/user/my-info', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          const duration = Date.now() - startTime;
+
+          if (response.ok) {
+            results.push({
+              name: 'API 호출 테스트',
+              status: 'success',
+              message: `API 호출 성공 (${duration}ms)`,
+              details: {
+                endpoint: '/user/my-info',
+                status: response.status,
+                duration,
+              },
+              timestamp: new Date().toLocaleString(),
+            });
+          } else if (response.status === 401) {
+            results.push({
+              name: 'API 호출 테스트',
+              status: 'error',
+              message: '토큰이 유효하지 않습니다 (401 Unauthorized)',
+              details: {
+                endpoint: '/user/my-info',
+                status: response.status,
+                duration,
+              },
+              timestamp: new Date().toLocaleString(),
+            });
+          } else {
+            results.push({
+              name: 'API 호출 테스트',
+              status: 'error',
+              message: `API 호출 실패 (${response.status})`,
+              details: {
+                endpoint: '/user/my-info',
+                status: response.status,
+                duration,
+              },
+              timestamp: new Date().toLocaleString(),
+            });
+          }
+        } catch (error) {
+          results.push({
+            name: 'API 호출 테스트',
+            status: 'error',
+            message: 'API 호출 중 네트워크 오류가 발생했습니다',
+            details: {
+              error: error instanceof Error ? error.message : '알 수 없는 오류',
+            },
+            timestamp: new Date().toLocaleString(),
+          });
+        }
+      } else {
+        results.push({
+          name: 'API 호출 테스트',
+          status: 'warning',
+          message: '토큰이 없어서 API 호출을 건너뜁니다',
+          details: {
+            endpoint: '/user/my-info',
+            hasToken: false,
+          },
+          timestamp: new Date().toLocaleString(),
+        });
+      }
     } catch (error) {
       results.push({
-        name: '토큰 유효성 테스트',
+        name: '로그인 지속성 테스트',
         status: 'error',
-        error: error instanceof Error ? error.message : '알 수 없는 오류',
+        message: '테스트 중 오류가 발생했습니다',
+        details: {
+          error: error instanceof Error ? error.message : '알 수 없는 오류',
+        },
+        timestamp: new Date().toLocaleString(),
       });
     }
 
-    try {
-      // 2. 사용자 정보 조회 테스트
-      const userInfo = await getMembershipInfo();
-      results.push({
-        name: '사용자 정보 조회',
-        status: 'success',
-        response: userInfo,
-      });
-    } catch (error) {
-      results.push({
-        name: '사용자 정보 조회',
-        status: 'error',
-        error: error instanceof Error ? error.message : '알 수 없는 오류',
-      });
-    }
-
-    try {
-      // 3. 토큰 갱신 테스트
-      const refreshResult = await refreshToken();
-      results.push({
-        name: '토큰 갱신 테스트',
-        status: refreshResult ? 'success' : 'error',
-        response: refreshResult ? '토큰 갱신 성공' : '토큰 갱신 실패',
-      });
-    } catch (error) {
-      results.push({
-        name: '토큰 갱신 테스트',
-        status: 'error',
-        error: error instanceof Error ? error.message : '알 수 없는 오류',
-      });
-    }
-
-    setApiTestResults(results);
+    setTestResults(results);
     setIsLoading(false);
   }, []);
 
-  // 토큰 갱신
-  const handleRefreshToken = async () => {
-    try {
-      const success = await refreshToken();
-      if (success) {
-        alert('토큰 갱신 성공!');
-        updateTokenInfo();
-      } else {
-        alert('토큰 갱신 실패');
+  // 자동 새로고침 토글
+  const toggleAutoRefresh = useCallback(() => {
+    if (isAutoRefreshEnabled) {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        setAutoRefreshInterval(null);
       }
-    } catch (error) {
-      alert(
-        `토큰 갱신 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
-      );
+      setIsAutoRefreshEnabled(false);
+    } else {
+      const interval = setInterval(() => {
+        updateTokenInfo();
+        runLoginPersistenceTest();
+        console.log('🔄 자동 테스트 업데이트:', new Date().toLocaleString());
+      }, 10000); // 10초마다 업데이트
+      setAutoRefreshInterval(interval);
+      setIsAutoRefreshEnabled(true);
     }
+  }, [
+    isAutoRefreshEnabled,
+    autoRefreshInterval,
+    updateTokenInfo,
+    runLoginPersistenceTest,
+  ]);
+
+  // 실제 토큰 갱신 테스트
+  const testTokenRefresh = async () => {
+    setIsLoading(true);
+    setRefreshResult(null);
+
+    try {
+      const beforeToken = getCurrentToken();
+      const beforeRefresh = getRefreshToken();
+
+      if (!beforeRefresh) {
+        setRefreshResult({
+          success: false,
+          beforeToken,
+          afterToken: beforeToken,
+          beforeRefresh,
+          afterRefresh: beforeRefresh,
+          message: '리프레시 토큰이 없어서 갱신할 수 없습니다',
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch('https://api.stylewh.com/auth/refresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refreshToken: beforeRefresh,
+          autoLogin: localStorage.getItem('autoLogin') === 'true',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+        data;
+
+      saveTokens(newAccessToken, newRefreshToken);
+
+      const afterToken = getCurrentToken();
+      const afterRefresh = getRefreshToken();
+
+      setRefreshResult({
+        success: true,
+        beforeToken,
+        afterToken,
+        beforeRefresh,
+        afterRefresh,
+        message: '토큰 갱신이 성공했습니다',
+      });
+
+      updateTokenInfo();
+    } catch (error) {
+      setRefreshResult({
+        success: false,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+    setIsLoading(false);
+  };
+
+  // 브라우저 새로고침 시뮬레이션
+  const simulateBrowserRefresh = () => {
+    const beforeToken = getCurrentToken();
+    const beforeRefresh = getRefreshToken();
+    const autoLogin = localStorage.getItem('autoLogin');
+
+    if (beforeToken) {
+      sessionStorage.setItem('accessToken', beforeToken);
+      sessionStorage.setItem('refreshToken', beforeRefresh || '');
+    }
+
+    alert(
+      `브라우저 새로고침 시뮬레이션:\n` +
+        `- 현재 토큰: ${beforeToken ? '있음' : '없음'}\n` +
+        `- 자동 로그인: ${autoLogin === 'true' ? '활성화' : '비활성화'}\n` +
+        `- sessionStorage 백업 완료\n\n` +
+        `실제 새로고침을 테스트하려면 F5를 누르세요.`
+    );
   };
 
   // 토큰 삭제
@@ -208,21 +415,27 @@ const TestDashboard: React.FC = () => {
     navigate('/login');
   };
 
+  // 디버그 정보 출력
+  const showDebugInfo = () => {
+    debugTokenStatus();
+    console.log('🔍 상세 토큰 정보:', tokenInfo);
+  };
+
   useEffect(() => {
     if (isAuthorized) {
       updateTokenInfo();
-      collectPerformanceMetrics();
-      runApiTests();
-
-      // 성능 최적화 제안 업데이트
-      const suggestions = getOptimizationSuggestions();
-      setOptimizationSuggestions(suggestions);
-
-      // 성능 리포트 생성
-      const report = getPerformanceReport();
-      setPerformanceReport(report);
+      runLoginPersistenceTest();
     }
-  }, [isAuthorized, updateTokenInfo, collectPerformanceMetrics, runApiTests]);
+  }, [isAuthorized, updateTokenInfo, runLoginPersistenceTest]);
+
+  // 컴포넌트 언마운트 시 인터벌 정리
+  useEffect(() => {
+    return () => {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+      }
+    };
+  }, [autoRefreshInterval]);
 
   if (!isAuthorized) {
     return <LoadingContainer>권한 확인 중...</LoadingContainer>;
@@ -231,14 +444,38 @@ const TestDashboard: React.FC = () => {
   return (
     <Container>
       <Header>
-        <Title>🧪 테스트 대시보드</Title>
-        <Subtitle>dbalsrl7648@naver.com 전용 테스트 페이지</Subtitle>
+        <HeaderContent>
+          <Title>🔐 로그인 지속성 테스트 대시보드</Title>
+          <Subtitle>로그인 상태가 계속 유지되는지 테스트</Subtitle>
+        </HeaderContent>
+        <HeaderActions>
+          <ActionButton
+            onClick={toggleAutoRefresh}
+            variant={isAutoRefreshEnabled ? 'success' : 'default'}
+          >
+            {isAutoRefreshEnabled ? '🔄 자동 테스트 ON' : '⏸️ 자동 테스트 OFF'}
+          </ActionButton>
+          <ActionButton onClick={handleLogout} variant='danger'>
+            🚪 로그아웃
+          </ActionButton>
+        </HeaderActions>
       </Header>
 
-      <Grid>
-        {/* 토큰 관리 섹션 */}
-        <Section>
-          <SectionTitle>🔐 토큰 관리</SectionTitle>
+      <DashboardGrid>
+        {/* 토큰 정보 섹션 */}
+        <DashboardCard>
+          <CardHeader>
+            <CardTitle>🔑 토큰 정보</CardTitle>
+            <CardActions>
+              <ActionButton onClick={updateTokenInfo} size='small'>
+                🔄 새로고침
+              </ActionButton>
+              <ActionButton onClick={showDebugInfo} size='small'>
+                🐛 디버그
+              </ActionButton>
+            </CardActions>
+          </CardHeader>
+
           <TokenInfo>
             <InfoRow>
               <Label>Access Token:</Label>
@@ -266,137 +503,129 @@ const TestDashboard: React.FC = () => {
               <Label>만료 시간:</Label>
               <Value>{tokenInfo?.expiresAt || '알 수 없음'}</Value>
             </InfoRow>
+            <InfoRow>
+              <Label>남은 시간:</Label>
+              <Value
+                status={
+                  tokenInfo?.timeUntilExpiry === '만료됨' ? 'invalid' : 'valid'
+                }
+              >
+                {tokenInfo?.timeUntilExpiry || '알 수 없음'}
+              </Value>
+            </InfoRow>
+            <InfoRow>
+              <Label>저장소 상태:</Label>
+              <Value>
+                {tokenInfo?.storageStatus ? (
+                  <StorageStatus>
+                    <StorageItem
+                      status={
+                        tokenInfo.storageStatus.localStorage
+                          ? 'success'
+                          : 'error'
+                      }
+                    >
+                      LS: {tokenInfo.storageStatus.localStorage ? '✅' : '❌'}
+                    </StorageItem>
+                    <StorageItem
+                      status={
+                        tokenInfo.storageStatus.sessionStorage
+                          ? 'success'
+                          : 'error'
+                      }
+                    >
+                      SS: {tokenInfo.storageStatus.sessionStorage ? '✅' : '❌'}
+                    </StorageItem>
+                    <StorageItem
+                      status={
+                        tokenInfo.storageStatus.cookies ? 'success' : 'error'
+                      }
+                    >
+                      Cookie: {tokenInfo.storageStatus.cookies ? '✅' : '❌'}
+                    </StorageItem>
+                  </StorageStatus>
+                ) : (
+                  '알 수 없음'
+                )}
+              </Value>
+            </InfoRow>
           </TokenInfo>
+
           <ButtonGroup>
-            <Button onClick={updateTokenInfo}>🔄 토큰 정보 새로고침</Button>
-            <Button onClick={handleRefreshToken}>🔄 토큰 갱신</Button>
-            <Button onClick={handleClearTokens} variant='danger'>
+            <ActionButton onClick={testTokenRefresh} disabled={isLoading}>
+              🔄 토큰 갱신 테스트
+            </ActionButton>
+            <ActionButton onClick={simulateBrowserRefresh} variant='warning'>
+              🔄 새로고침 시뮬레이션
+            </ActionButton>
+            <ActionButton onClick={handleClearTokens} variant='danger'>
               🗑️ 토큰 삭제
-            </Button>
-            <Button onClick={handleLogout} variant='danger'>
-              🚪 로그아웃
-            </Button>
+            </ActionButton>
           </ButtonGroup>
-        </Section>
 
-        {/* 성능 메트릭 섹션 */}
-        <Section>
-          <SectionTitle>📊 성능 메트릭</SectionTitle>
-          <MetricsGrid>
-            <MetricCard>
-              <MetricLabel>LCP</MetricLabel>
-              <MetricValue>
-                {performanceMetrics?.lcp
-                  ? `${performanceMetrics.lcp.toFixed(2)}ms`
-                  : '측정 중...'}
-              </MetricValue>
-              <MetricDescription>Largest Contentful Paint</MetricDescription>
-            </MetricCard>
-            <MetricCard>
-              <MetricLabel>CLS</MetricLabel>
-              <MetricValue>
-                {performanceMetrics?.cls
-                  ? performanceMetrics.cls.toFixed(3)
-                  : '측정 중...'}
-              </MetricValue>
-              <MetricDescription>Cumulative Layout Shift</MetricDescription>
-            </MetricCard>
-            <MetricCard>
-              <MetricLabel>INP</MetricLabel>
-              <MetricValue>
-                {performanceMetrics?.inp
-                  ? `${performanceMetrics.inp.toFixed(2)}ms`
-                  : '측정 중...'}
-              </MetricValue>
-              <MetricDescription>Interaction to Next Paint</MetricDescription>
-            </MetricCard>
-            <MetricCard>
-              <MetricLabel>FID</MetricLabel>
-              <MetricValue>
-                {performanceMetrics?.fid
-                  ? `${performanceMetrics.fid.toFixed(2)}ms`
-                  : '측정 중...'}
-              </MetricValue>
-              <MetricDescription>First Input Delay</MetricDescription>
-            </MetricCard>
-            <MetricCard>
-              <MetricLabel>TTFB</MetricLabel>
-              <MetricValue>
-                {performanceMetrics?.ttfb
-                  ? `${performanceMetrics.ttfb.toFixed(2)}ms`
-                  : '측정 중...'}
-              </MetricValue>
-              <MetricDescription>Time to First Byte</MetricDescription>
-            </MetricCard>
-          </MetricsGrid>
-        </Section>
+          {/* 갱신 결과 표시 */}
+          {refreshResult && (
+            <RefreshResultBox success={refreshResult.success}>
+              <div>
+                <b>{refreshResult.message}</b>
+              </div>
+              <div>
+                갱신 전 AccessToken:{' '}
+                <code>{refreshResult.beforeToken?.slice(0, 30)}...</code>
+              </div>
+              <div>
+                갱신 후 AccessToken:{' '}
+                <code>{refreshResult.afterToken?.slice(0, 30)}...</code>
+              </div>
+            </RefreshResultBox>
+          )}
+        </DashboardCard>
 
-        {/* API 테스트 섹션 */}
-        <Section>
-          <SectionTitle>🔌 API 테스트</SectionTitle>
-          <Button onClick={runApiTests} disabled={isLoading}>
-            {isLoading ? '테스트 중...' : '🔄 API 테스트 실행'}
-          </Button>
+        {/* 테스트 결과 섹션 */}
+        <DashboardCard>
+          <CardHeader>
+            <CardTitle>🧪 로그인 지속성 테스트</CardTitle>
+            <CardActions>
+              <ActionButton
+                onClick={runLoginPersistenceTest}
+                disabled={isLoading}
+                size='small'
+              >
+                {isLoading ? '테스트 중...' : '🔄 실행'}
+              </ActionButton>
+            </CardActions>
+          </CardHeader>
+
           <TestResults>
-            {apiTestResults.map((result, index) => (
-              <TestResult key={index} status={result.status}>
-                <TestName>{result.name}</TestName>
-                <TestStatus status={result.status}>
-                  {result.status === 'success' ? '✅' : '❌'}
-                </TestStatus>
-                {result.error && <TestError>{result.error}</TestError>}
+            {testResults.map((result, index) => (
+              <TestResult
+                key={index}
+                status={result.status as 'success' | 'error' | 'warning'}
+              >
+                <TestHeader>
+                  <TestName>{result.name}</TestName>
+                  <TestStatus
+                    status={result.status as 'success' | 'error' | 'warning'}
+                  >
+                    {result.status === 'success'
+                      ? '✅'
+                      : result.status === 'warning'
+                        ? '⚠️'
+                        : '❌'}
+                  </TestStatus>
+                </TestHeader>
+                <TestMessage>{result.message}</TestMessage>
+                <TestTimestamp>{result.timestamp}</TestTimestamp>
+                {result.details && typeof result.details === 'object' && (
+                  <TestDetails>
+                    <pre>{JSON.stringify(result.details, null, 2)}</pre>
+                  </TestDetails>
+                )}
               </TestResult>
             ))}
           </TestResults>
-        </Section>
-
-        {/* 토큰 페이로드 섹션 */}
-        <Section>
-          <SectionTitle>🔍 토큰 페이로드</SectionTitle>
-          <PayloadContainer>
-            <pre>{JSON.stringify(tokenInfo?.payload, null, 2)}</pre>
-          </PayloadContainer>
-        </Section>
-
-        {/* 성능 최적화 제안 섹션 */}
-        <Section>
-          <SectionTitle>💡 성능 최적화 제안</SectionTitle>
-          <OptimizationList>
-            {optimizationSuggestions.length > 0 ? (
-              optimizationSuggestions.map((suggestion, index) => (
-                <OptimizationItem key={index}>
-                  <OptimizationIcon>💡</OptimizationIcon>
-                  <OptimizationText>{suggestion}</OptimizationText>
-                </OptimizationItem>
-              ))
-            ) : (
-              <OptimizationItem>
-                <OptimizationIcon>✅</OptimizationIcon>
-                <OptimizationText>현재 성능이 양호합니다!</OptimizationText>
-              </OptimizationItem>
-            )}
-          </OptimizationList>
-        </Section>
-
-        {/* 성능 리포트 섹션 */}
-        <Section>
-          <SectionTitle>📋 성능 리포트</SectionTitle>
-          <ReportContainer>
-            <Button
-              onClick={() => {
-                const report = getPerformanceReport();
-                setPerformanceReport(report);
-                alert('성능 리포트가 업데이트되었습니다!');
-              }}
-            >
-              🔄 리포트 새로고침
-            </Button>
-            <ReportContent>
-              <pre>{performanceReport}</pre>
-            </ReportContent>
-          </ReportContainer>
-        </Section>
-      </Grid>
+        </DashboardCard>
+      </DashboardGrid>
     </Container>
   );
 };
@@ -409,46 +638,126 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 20px;
   font-family: 'NanumSquareNeo', sans-serif;
+  background: #f8f9fa;
+  min-height: 100vh;
 `;
 
 const Header = styled.div`
-  text-align: center;
-  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 16px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+`;
+
+const HeaderContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 2rem;
+  font-weight: 700;
   color: #333;
-  margin-bottom: 10px;
+  margin: 0;
 `;
 
 const Subtitle = styled.p`
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #666;
   margin: 0;
 `;
 
-const Grid = styled.div`
+const HeaderActions = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+
+const DashboardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 24px;
 `;
 
-const Section = styled.div`
+const DashboardCard = styled.div`
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
 `;
 
-const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 10px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f8f9fa;
+`;
+
+const CardTitle = styled.h2`
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const ActionButton = styled.button<{
+  variant?: 'danger' | 'warning' | 'success' | 'default';
+  size?: 'small';
+}>`
+  padding: ${(props) => (props.size === 'small' ? '8px 16px' : '12px 20px')};
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: ${(props) => (props.size === 'small' ? '0.85rem' : '0.9rem')};
+  cursor: pointer;
+  transition: all 0.2s;
+  background: ${(props) => {
+    switch (props.variant) {
+      case 'danger':
+        return '#e74c3c';
+      case 'warning':
+        return '#f39c12';
+      case 'success':
+        return '#27ae60';
+      default:
+        return '#667eea';
+    }
+  }};
+  color: white;
+
+  &:hover {
+    background: ${(props) => {
+      switch (props.variant) {
+        case 'danger':
+          return '#c0392b';
+        case 'warning':
+          return '#e67e22';
+        case 'success':
+          return '#229954';
+        default:
+          return '#5a6fd8';
+      }
+    }};
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+  }
 `;
 
 const TokenInfo = styled.div`
@@ -459,17 +768,19 @@ const InfoRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8f9fa;
 `;
 
 const Label = styled.span`
-  font-weight: bold;
+  font-weight: 600;
   color: #555;
+  font-size: 0.9rem;
 `;
 
 const Value = styled.span<{ status?: 'valid' | 'invalid' }>`
-  font-family: monospace;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.85rem;
   color: ${(props) =>
     props.status === 'invalid'
       ? '#e74c3c'
@@ -478,109 +789,98 @@ const Value = styled.span<{ status?: 'valid' | 'invalid' }>`
         : '#333'};
 `;
 
+const StorageStatus = styled.div`
+  display: flex;
+  gap: 8px;
+  font-size: 0.8rem;
+`;
+
+const StorageItem = styled.span<{ status: 'success' | 'error' }>`
+  color: ${(props) => (props.status === 'success' ? '#27ae60' : '#e74c3c')};
+  font-weight: 600;
+`;
+
 const ButtonGroup = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 `;
 
-const Button = styled.button<{ variant?: 'danger' }>`
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: ${(props) =>
-    props.variant === 'danger' ? '#e74c3c' : '#3498db'};
-  color: white;
-
-  &:hover {
-    background: ${(props) =>
-      props.variant === 'danger' ? '#c0392b' : '#2980b9'};
-  }
-
-  &:disabled {
-    background: #bdc3c7;
-    cursor: not-allowed;
-  }
-`;
-
-const MetricsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-`;
-
-const MetricCard = styled.div`
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 15px;
-  text-align: center;
-`;
-
-const MetricLabel = styled.div`
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: #333;
-  margin-bottom: 5px;
-`;
-
-const MetricValue = styled.div`
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #3498db;
-  margin-bottom: 5px;
-`;
-
-const MetricDescription = styled.div`
-  font-size: 0.8rem;
-  color: #666;
-`;
-
 const TestResults = styled.div`
-  margin-top: 20px;
+  margin-top: 16px;
 `;
 
-const TestResult = styled.div<{ status: string }>`
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  margin-bottom: 10px;
-  background: ${(props) =>
-    props.status === 'success' ? '#d4edda' : '#f8d7da'};
-  border-radius: 6px;
+const TestResult = styled.div<any>`
+  padding: 16px;
+  margin-bottom: 12px;
+  background: ${(props) => {
+    switch (props.status) {
+      case 'success':
+        return '#d4edda';
+      case 'warning':
+        return '#fff3cd';
+      case 'error':
+        return '#f8d7da';
+      default:
+        return '#f8f9fa';
+    }
+  }};
+  border-radius: 8px;
   border-left: 4px solid
-    ${(props) => (props.status === 'success' ? '#28a745' : '#dc3545')};
+    ${(props) => {
+      switch (props.status) {
+        case 'success':
+          return '#28a745';
+        case 'warning':
+          return '#ffc107';
+        case 'error':
+          return '#dc3545';
+        default:
+          return '#6c757d';
+      }
+    }};
+`;
+
+const TestHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 `;
 
 const TestName = styled.span`
-  flex: 1;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
 `;
 
-const TestStatus = styled.span<{ status: string }>`
-  margin-left: 10px;
-  font-size: 1.2rem;
+const TestStatus = styled.span<any>`
+  font-size: 1.1rem;
 `;
 
-const TestError = styled.div`
-  margin-top: 5px;
+const TestMessage = styled.div`
   font-size: 0.9rem;
-  color: #721c24;
+  color: #555;
+  margin-bottom: 6px;
 `;
 
-const PayloadContainer = styled.div`
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 15px;
-  max-height: 300px;
-  overflow-y: auto;
+const TestTimestamp = styled.div`
+  font-size: 0.75rem;
+  color: #999;
+  margin-bottom: 8px;
+`;
+
+const TestDetails = styled.div`
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 8px;
 
   pre {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     color: #333;
+    line-height: 1.3;
   }
 `;
 
@@ -593,52 +893,16 @@ const LoadingContainer = styled.div`
   color: #666;
 `;
 
-const OptimizationList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const OptimizationItem = styled.div`
-  display: flex;
-  align-items: flex-start;
-  padding: 15px;
-  background: #f8f9fa;
+const RefreshResultBox = styled.div<any>`
+  background: ${({ success }) => (success ? '#e8f5e9' : '#ffebee')};
+  color: ${({ success }) => (success ? '#2e7d32' : '#c62828')};
+  border: 1px solid ${({ success }) => (success ? '#81c784' : '#ef9a9a')};
   border-radius: 8px;
-  border-left: 4px solid #3498db;
-`;
-
-const OptimizationIcon = styled.span`
-  font-size: 1.2rem;
-  margin-right: 10px;
-  margin-top: 2px;
-`;
-
-const OptimizationText = styled.span`
-  flex: 1;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  color: #333;
-`;
-
-const ReportContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-`;
-
-const ReportContent = styled.div`
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 15px;
-  max-height: 400px;
-  overflow-y: auto;
-
-  pre {
-    margin: 0;
-    font-size: 0.8rem;
+  padding: 12px;
+  margin: 12px 0 0 0;
+  font-size: 0.95rem;
+  code {
+    font-size: 0.85em;
     color: #333;
-    white-space: pre-wrap;
-    word-break: break-word;
   }
 `;

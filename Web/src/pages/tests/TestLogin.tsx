@@ -21,23 +21,23 @@ const TestLogin: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState<LoginFormValues>({
-    email: 'dbalsrl7648@naver.com',
+    email: '',
     password: '',
   });
 
   const handleModalClose = () => setIsModalOpen(false);
 
   const handleInputChange = (field: keyof LoginFormValues, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
   const handleLoginClick = async () => {
-    // 이메일 검증
-    if (formData.email !== 'dbalsrl7648@naver.com') {
-      setModalMessage('테스트 페이지는 특정 계정으로만 접근 가능합니다.');
+    // 이메일 검증 (테스트용으로 완화)
+    if (!formData.email) {
+      setModalMessage('이메일을 입력해주세요.');
       setIsModalOpen(true);
       return;
     }
@@ -85,47 +85,55 @@ const TestLogin: React.FC = () => {
 
   return (
     <Container>
-      <LoginContainer>
-        <Logo src={MelpikLogo} alt='멜픽 로고' />
-        
-        <Title>🧪 테스트 로그인</Title>
-        <Subtitle>dbalsrl7648@naver.com 계정으로만 접근 가능합니다</Subtitle>
+      <LoginCard>
+        <LogoSection>
+          <Logo src={MelpikLogo} alt='멜픽 로고' />
+          <Title>🧪 테스트 로그인</Title>
+          <Subtitle>개발자 전용 테스트 페이지</Subtitle>
+        </LogoSection>
 
-        <LoginForm>
-          <InputFieldRow>
-            <InputField
-              label='이메일'
-              type='email'
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder='dbalsrl7648@naver.com'
-              disabled={true}
-            />
-          </InputFieldRow>
-          
-          <InputFieldRow>
-            <InputField
-              label='비밀번호'
-              type='password'
-              value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              placeholder='비밀번호를 입력하세요'
-              autoComplete='current-password'
-            />
-          </InputFieldRow>
+        <FormSection>
+          <FormTitle>테스트 계정 정보</FormTitle>
+          <FormDescription>테스트용 계정으로 로그인하세요</FormDescription>
 
-          <LoginButton 
-            onClick={handleLoginClick} 
-            disabled={!formData.password || isLoading}
-          >
-            {isLoading ? '로그인 중...' : '테스트 페이지 접속'}
-          </LoginButton>
-        </LoginForm>
+          <LoginForm>
+            <InputFieldRow>
+              <InputField
+                label='이메일'
+                type='email'
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                placeholder='이메일을 입력하세요'
+                autoComplete='email'
+              />
+            </InputFieldRow>
 
-        <BackLink onClick={() => navigate('/login')}>
-          ← 일반 로그인으로 돌아가기
-        </BackLink>
-      </LoginContainer>
+            <InputFieldRow>
+              <InputField
+                label='비밀번호'
+                type='password'
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                placeholder='비밀번호를 입력하세요'
+                autoComplete='current-password'
+              />
+            </InputFieldRow>
+
+            <LoginButton
+              onClick={handleLoginClick}
+              disabled={!formData.email || !formData.password || isLoading}
+            >
+              {isLoading ? '로그인 중...' : '테스트 페이지 접속'}
+            </LoginButton>
+          </LoginForm>
+        </FormSection>
+
+        <BackSection>
+          <BackLink onClick={() => navigate('/login')}>
+            ← 일반 로그인으로 돌아가기
+          </BackLink>
+        </BackSection>
+      </LoginCard>
 
       <ReusableModal
         isOpen={isModalOpen}
@@ -143,7 +151,6 @@ export default TestLogin;
 // Styled Components
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
@@ -151,29 +158,53 @@ const Container = styled.div`
   padding: 20px;
 `;
 
-const LoginContainer = styled.div`
+const LoginCard = styled.div`
   background: white;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 400px;
+  max-width: 480px;
+  overflow: hidden;
+`;
+
+const LogoSection = styled.div`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px 30px;
   text-align: center;
 `;
 
 const Logo = styled.img`
-  width: 120px;
+  width: 100px;
   margin-bottom: 20px;
+  filter: brightness(0) invert(1);
 `;
 
 const Title = styled.h1`
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: white;
 `;
 
 const Subtitle = styled.p`
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+`;
+
+const FormSection = styled.div`
+  padding: 40px 30px;
+`;
+
+const FormTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+`;
+
+const FormDescription = styled.p`
   font-size: 0.9rem;
   color: #666;
   margin-bottom: 30px;
@@ -182,21 +213,29 @@ const Subtitle = styled.p`
 const LoginForm = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 24px;
 `;
 
 const InputFieldRow = styled.div`
   width: 100%;
 `;
 
+const BackSection = styled.div`
+  padding: 20px 30px;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+`;
+
 const BackLink = styled.a`
-  color: #3498db;
+  color: #667eea;
   text-decoration: none;
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  
+  transition: color 0.2s;
+
   &:hover {
+    color: #5a6fd8;
     text-decoration: underline;
   }
-`; 
+`;

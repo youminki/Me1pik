@@ -107,7 +107,7 @@ const FindId = React.lazy(() => import('@/pages/auths/FindId'));
 const FindPassword = React.lazy(() => import('@/pages/auths/FindPassword'));
 const Login = React.lazy(() => import('@/pages/auths/Login'));
 const ReadyLogin = React.lazy(() => import('@/pages/auths/LoginReady'));
-const TestLogin = React.lazy(() => import('@/pages/auths/LoginTest'));
+
 const PasswordChange = React.lazy(() => import('@/pages/auths/PasswordChange'));
 const Signup = React.lazy(() => import('@/pages/auths/Signup'));
 
@@ -226,6 +226,12 @@ const AuthGuard: React.FC = () => {
     // 초기 인증 체크
     const checkInitialAuth = async () => {
       try {
+        // 테스트 관련 경로는 인증 체크 제외
+        if (location.pathname.startsWith('/test-')) {
+          setIsInitialized(true);
+          return;
+        }
+
         const needsRedirect = checkTokenAndRedirect(location.pathname);
         if (needsRedirect && isProtectedRoute(location.pathname)) {
           redirectToLogin();
@@ -243,6 +249,11 @@ const AuthGuard: React.FC = () => {
   // 라우트 변경 시 인증 체크
   useEffect(() => {
     if (!isInitialized) return;
+
+    // 테스트 관련 경로는 인증 체크 제외
+    if (location.pathname.startsWith('/test-')) {
+      return;
+    }
 
     // 보호된 라우트에서 토큰 체크 및 리다이렉트
     const needsRedirect = checkTokenAndRedirect(location.pathname);
@@ -487,14 +498,14 @@ const App: React.FC = () => {
                 <Route path='/' element={<RootRedirect />} />
                 <Route path='/login' element={<Login />} />
                 <Route path='/ladyLogin' element={<ReadyLogin />} />
-                <Route path='/TestLogin' element={<TestLogin />} />
+
                 <Route path='/PersonalLink' element={<PersonalLink />} />
                 <Route path='/test/payple' element={<PaypleTest />} />
                 <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
                 <Route path='/Link' element={<Link />} />
                 <Route path='/signup' element={<Signup />} />
 
-                {/* 테스트 페이지 라우트 */}
+                {/* 테스트 페이지 라우트 - 일반 경로로 이동 */}
                 <Route path='/test-login' element={<TestLoginPage />} />
                 <Route path='/test-dashboard' element={<TestDashboard />} />
                 {/* <Route path='/findid' element={<FindId />} />

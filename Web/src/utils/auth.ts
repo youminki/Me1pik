@@ -147,11 +147,30 @@ export const getRefreshToken = (): string | null => {
  */
 const setupTokenRefreshTimer = (token: string): void => {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    // 토큰 형식 검증
+    const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) {
+      console.log('⚠️ 토큰 형식이 올바르지 않습니다:', tokenParts.length);
+      return;
+    }
+
+    // Base64 디코딩을 안전하게 처리
+    let payload;
+    try {
+      const decodedPayload = atob(tokenParts[1]);
+      payload = JSON.parse(decodedPayload);
+    } catch (decodeError) {
+      console.log('⚠️ 토큰 페이로드 디코딩 실패:', decodeError);
+      return;
+    }
+
     const currentTime = Date.now() / 1000;
     const expiresAt = payload.exp;
 
-    if (!expiresAt) return;
+    if (!expiresAt) {
+      console.log('⚠️ 토큰에 만료 시간이 없습니다');
+      return;
+    }
 
     // 자동로그인 여부에 따라 갱신 시점 조정
     const autoLogin = localStorage.getItem('autoLogin') === 'true';
@@ -310,6 +329,8 @@ export const isPublicRoute = (pathname: string): boolean => {
     '/link',
     '/',
     '/home', // 홈 페이지를 공개 라우트로 추가
+    '/test-login', // 테스트 로그인 페이지
+    '/test-dashboard', // 테스트 대시보드 페이지
   ];
   return publicRoutes.includes(pathname);
 };
