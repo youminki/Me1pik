@@ -53,9 +53,7 @@
       gtag('js', new Date());
       gtag('config', 'G-DTSTGJZER1');
     </script>
-    <!-- 기존 주석 처리된 스크립트 및 스타일시트는 그대로 둡니다. -->
-    <!-- <script type="module" crossorigin src="/assets/index-DIWwA4HJ.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DFd29GYh.css" /> -->
+    <!-- 빌드된 스크립트 및 스타일시트는 빌드 시 자동으로 주입됩니다 -->
   </head>
   <body>
     <div id="root"></div>
@@ -83,6 +81,7 @@
       }
     </script>
 
+    <!-- 개발 모드에서만 main.tsx 로드 -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

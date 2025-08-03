@@ -16,6 +16,10 @@ export default defineConfig(() => {
     build: {
       rollupOptions: {
         output: {
+          // 파일명을 해시 없이 고정
+          entryFileNames: 'assets/[name].js',
+          chunkFileNames: 'assets/[name].js',
+          assetFileNames: 'assets/[name].[ext]',
           manualChunks: {
             // 핵심 라이브러리들
             'react-vendor': ['react', 'react-dom'],
