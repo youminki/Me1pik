@@ -13,7 +13,6 @@ import { ThemeProvider } from 'styled-components';
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
 import PaypleTest from '@/__tests__/development/PaypleTest';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import TokenTestPanel from '@/components/shared/TokenTestPanel';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { theme } from '@/styles/Theme';
 import {
@@ -22,17 +21,8 @@ import {
   hasValidToken,
   refreshToken,
   getCurrentToken,
-  debugTokenStatus,
 } from '@/utils/auth';
 import { monitoringService, setUserId } from '@/utils/monitoring';
-import {
-  runTokenSystemTest,
-  runTokenRefreshTest,
-  runMultiStorageTest,
-  checkRefreshTokenStatus,
-  testRefreshTokenRenewal,
-  testRefreshTokenStorage,
-} from '@/utils/tokenTest';
 
 // Performance API 타입 정의
 interface LayoutShift extends PerformanceEntry {
@@ -262,41 +252,6 @@ const App: React.FC = () => {
       // 토큰이 없으면 기존 인증 체크 로직이 동작함
     };
     tryAutoLogin();
-  }, []);
-
-  // 개발 모드에서 전역 테스트 함수들 노출
-  useEffect(() => {
-    if (import.meta.env.DEV && typeof window !== 'undefined') {
-      // 토큰 테스트 함수들
-      (window as any).runTokenSystemTest = runTokenSystemTest;
-      (window as any).runTokenRefreshTest = runTokenRefreshTest;
-      (window as any).runMultiStorageTest = runMultiStorageTest;
-
-      // 새로운 리프레시 토큰 테스트 함수들
-      (window as any).checkRefreshTokenStatus = checkRefreshTokenStatus;
-      (window as any).testRefreshTokenRenewal = testRefreshTokenRenewal;
-      (window as any).testRefreshTokenStorage = testRefreshTokenStorage;
-
-      // auth.ts의 함수들
-      (window as any).debugTokenStatus = debugTokenStatus;
-      (window as any).refreshToken = refreshToken;
-      (window as any).simulateTokenExpiry = (window as any).simulateTokenExpiry;
-      (window as any).testAutoRefresh = (window as any).testAutoRefresh;
-
-      console.log('🔧 토큰 테스트 함수들이 전역으로 노출되었습니다:');
-      console.log('- runTokenSystemTest(): 토큰 시스템 종합 테스트');
-      console.log('- runTokenRefreshTest(): 토큰 갱신 테스트');
-      console.log('- runMultiStorageTest(): 다중 저장소 테스트');
-      console.log(
-        '- checkRefreshTokenStatus(): 리프레시 토큰 활성화 상태 확인'
-      );
-      console.log('- testRefreshTokenRenewal(): 리프레시 토큰 갱신 테스트');
-      console.log('- testRefreshTokenStorage(): 리프레시 토큰 저장 테스트');
-      console.log('- debugTokenStatus(): 토큰 상태 확인');
-      console.log('- refreshToken(): 수동 토큰 갱신');
-      console.log('- simulateTokenExpiry(): 토큰 만료 시뮬레이션');
-      console.log('- testAutoRefresh(): 자동 갱신 테스트');
-    }
   }, []);
 
   // 모니터링 시스템 초기화
@@ -609,9 +564,6 @@ const App: React.FC = () => {
               <Route path='*' element={<NotFound />} />
             </Routes>
           </Suspense>
-
-          {/* 개발 모드에서만 토큰 테스트 패널 표시 */}
-          {import.meta.env.DEV && <TokenTestPanel />}
         </Router>
       </ThemeProvider>
     </QueryClientProvider>

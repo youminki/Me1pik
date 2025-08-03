@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import Cookies from 'js-cookie';
 
-import { getCurrentToken, refreshToken, clearTokens } from '@/utils/auth';
+import { getCurrentToken, getRefreshToken } from '@/utils/auth';
 import { trackApiCall } from '@/utils/monitoring';
 
 interface RequestMetadata {
@@ -139,29 +140,60 @@ Axios.interceptors.response.use(
       (originalRequest as ExtendedAxiosRequestConfig)._retry = true;
 
       try {
+        // auth.ts의 getRefreshToken 함수와 동일한 로직 사용
+        const localToken = localStorage.getItem('refreshToken');
+        const sessionToken = sessionStorage.getItem('refreshToken');
+        const cookieToken = Cookies.get('refreshToken');
+        const REFRESH_TOKEN =
+          localToken?.trim() || sessionToken?.trim() || cookieToken?.trim();
+
+        if (!REFRESH_TOKEN) {
+          clearAllTokens();
+          redirectToLogin();
+          return Promise.reject(error);
+        }
+
         console.log('🔄 Axios 인터셉터: 토큰 갱신 시도');
 
-        // auth.ts의 refreshToken 함수 사용
-        const success = await refreshToken();
+        // 토큰 갱신 시도
+        const { data } = await axios.post(
+          'https://api.stylewh.com/auth/refresh',
+          { refreshToken: REFRESH_TOKEN },
+          { withCredentials: true }
+        );
 
-        if (success) {
-          console.log('✅ Axios 인터셉터: 토큰 갱신 성공');
+        console.log('✅ Axios 인터셉터: 토큰 갱신 성공');
 
-          // 새 토큰으로 원래 요청 재시도
-          const newToken = getCurrentToken();
-          if (newToken) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return Axios(originalRequest);
-          }
-        } else {
-          console.log('❌ Axios 인터셉터: 토큰 갱신 실패');
-          clearTokens();
-          redirectToLogin();
-        }
+        // 새 토큰 저장
+        saveTokens(data.accessToken, data.refreshToken);
+
+        // 성공 이벤트 발생
+        window.dispatchEvent(
+          new CustomEvent('tokenRefreshSuccess', {
+            detail: {
+              accessToken: data.accessToken,
+              refreshToken: data.refreshToken,
+            },
+          })
+        );
+
+        // 원래 요청 재시도
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        return Axios(originalRequest);
       } catch (refreshError) {
-        console.error('❌ Axios 인터셉터: 토큰 갱신 중 오류:', refreshError);
-        clearTokens();
-        redirectToLogin();
+        console.error('❌ Axios 인터셉터: 토큰 갱신 실패:', refreshError);
+
+        // 토큰 갱신 실패 시 토큰 상태 확인
+        const remainingToken = getRefreshToken();
+        if (!remainingToken) {
+          console.log('리프레시 토큰이 없어서 로그아웃 처리');
+          clearAllTokens();
+          redirectToLogin();
+        } else {
+          console.log('리프레시 토큰은 있지만 갱신 실패, 원래 요청 실패 처리');
+          // 토큰은 유지하되 원래 요청은 실패 처리
+        }
+        return Promise.reject(refreshError);
       }
     }
 
@@ -204,7 +236,24 @@ async function retryRequest(config: unknown): Promise<unknown> {
   return Axios(config as ExtendedAxiosRequestConfig);
 }
 
-// 토큰 관리 함수들 (간소화)
+// 토큰 관리 함수들
+function clearAllTokens(): void {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  Cookies.remove('accessToken');
+  Cookies.remove('refreshToken');
+}
+
+function saveTokens(accessToken: string, refreshToken?: string): void {
+  localStorage.setItem('accessToken', accessToken);
+  Cookies.set('accessToken', accessToken, { secure: true });
+
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+    Cookies.set('refreshToken', refreshToken, { secure: true });
+  }
+}
+
 function redirectToLogin(): void {
   const event = new CustomEvent('forceLoginRedirect');
   window.dispatchEvent(event);

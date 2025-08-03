@@ -1,7 +1,6 @@
 import Cookies from 'js-cookie';
 
 import { Axios } from '@/api-utils/Axios';
-import { saveTokens } from '@/utils/auth';
 
 interface LoginResponse {
   accessToken: string;
@@ -63,8 +62,19 @@ export const LoginPost = async (
       autoLogin, // 자동로그인 여부를 서버에 전달
     });
 
-    // auth.ts의 saveTokens 함수 사용 (타이머 설정 포함)
-    saveTokens(response.data.accessToken, response.data.refreshToken);
+    const isHttps = window.location.protocol === 'https:';
+    Cookies.set('accessToken', response.data.accessToken, {
+      secure: isHttps,
+      httpOnly: false,
+      sameSite: 'strict',
+      path: '/',
+    });
+    Cookies.set('refreshToken', response.data.refreshToken, {
+      secure: isHttps,
+      httpOnly: false,
+      sameSite: 'strict',
+      path: '/',
+    });
 
     // iOS 앱에 로그인 정보 전달 (refreshToken 포함)
     if (
