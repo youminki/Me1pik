@@ -66,12 +66,16 @@ const GlobalStyles = createGlobalStyle`
   }
 
   /* 네이티브 앱 환경에서 전체 높이 조정 */
-  ${isNativeApp() ? `
+  ${
+    isNativeApp()
+      ? `
     html, body {
       height: calc(100% - var(--status-bar-height));
       padding-top: var(--status-bar-height);
     }
-  ` : ''}
+  `
+      : ''
+  }
 
   /* 스크롤바 스타일링 */
   ::-webkit-scrollbar {
@@ -92,11 +96,7 @@ const GlobalStyles = createGlobalStyle`
     background: #a8a8a8;
   }
 
-  /* 포커스 스타일 */
-  *:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
+
 
   /* 버튼 기본 스타일 리셋 */
   button {
@@ -131,7 +131,9 @@ const GlobalStyles = createGlobalStyle`
   }
 
   /* 네이티브 앱 환경에서 터치 하이라이트 제거 */
-  ${isNativeApp() ? `
+  ${
+    isNativeApp()
+      ? `
     * {
       -webkit-tap-highlight-color: transparent;
       -webkit-touch-callout: none;
@@ -149,7 +151,9 @@ const GlobalStyles = createGlobalStyle`
       -ms-user-select: text;
       user-select: text;
     }
-  ` : ''}
+  `
+      : ''
+  }
 `;
 
-export default GlobalStyles; 
+export default GlobalStyles;
