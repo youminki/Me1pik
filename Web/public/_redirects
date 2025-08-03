@@ -10,3 +10,28 @@
 /*.woff2 /:splat   200
 /*.woff  /:splat   200
 /*.ttf   /:splat   200
+
+# 캐시 헤더 설정 - JavaScript 파일들에 대한 캐시 최적화
+/assets/*.js
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+  Content-Type: application/javascript
+
+# CSS 파일들에 대한 캐시 최적화
+/assets/*.css
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+  Content-Type: text/css
+
+# 폰트 파일들에 대한 MIME 타입 설정
+/assets/*.woff2
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.woff
+  Content-Type: font/woff
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.ttf
+  Content-Type: font/ttf
+  Cache-Control: public, max-age=31536000, immutable
