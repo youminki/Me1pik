@@ -7,6 +7,7 @@ import {
 } from '@/api-utils/product-managements/brands/brandApi';
 import { BrandList } from '@/components/brands/BrandList';
 import { ControlSection } from '@/components/brands/ControlSection';
+import BrandSearchModal from '@/components/brands/BrandSearchModal';
 import StatsSection from '@/components/brands/StatsSection';
 import PageHeader from '@/components/shared/headers/PageHeader';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
@@ -26,6 +27,7 @@ const Brand: React.FC = () => {
   const [brands, setBrands] = useState<LocalBrand[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<'group' | 'category'>('group');
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState<boolean>(false);
 
   // API 호출
   useEffect(() => {
@@ -93,6 +95,27 @@ const Brand: React.FC = () => {
     setSortBy((prev) => (prev === 'group' ? 'category' : 'group'));
   };
 
+  // 검색 모달 토글 함수
+  const handleSearchModalToggle = (isOpen: boolean) => {
+    setIsSearchModalOpen(isOpen);
+  };
+
+  // 검색 실행 함수
+  const handleSearch = (searchTerm: string) => {
+    setSearchTerm(searchTerm);
+  };
+
+  // 검색어가 없을 때 3초 후 전체로 돌아가기
+  useEffect(() => {
+    if (!searchTerm) return;
+
+    const timer = setTimeout(() => {
+      setSearchTerm('');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // 로딩 상태 처리
   if (!apiBrands.length && !brands.length) {
     return <LoadingSpinner label='브랜드 목록을 불러오는 중입니다...' />;
@@ -121,10 +144,20 @@ const Brand: React.FC = () => {
           sortBy={sortBy}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+          onSearchClick={() => handleSearchModalToggle(true)}
         />
 
         {/* BrandList: 그룹핑된 결과 */}
         <BrandList groupedBrands={sortedGroupedBrands} />
+
+        {/* SearchModal: 브랜드 검색 모달 */}
+        <BrandSearchModal
+          isOpen={isSearchModalOpen}
+          onClose={() => handleSearchModalToggle(false)}
+          onSearch={handleSearch}
+          placeholder='브랜드명을 입력하세요'
+          initialValue={searchTerm}
+        />
       </Container>
     </ThemeProvider>
   );

@@ -2,13 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 import GroupButtonIcon from '@/assets/bottom-navigations/GroupButtonIcon.svg';
-import SearchIconImage from '@/assets/homes/SearchIcon.svg';
+import SearchIcon from '@/assets/homes/SearchIcon.svg';
 
 interface ControlSectionProps {
   toggleSort: () => void;
   sortBy: 'group' | 'category';
   searchTerm: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  onSearchClick: () => void;
 }
 
 export const ControlSection: React.FC<ControlSectionProps> = ({
@@ -16,7 +17,12 @@ export const ControlSection: React.FC<ControlSectionProps> = ({
   sortBy,
   searchTerm,
   setSearchTerm,
+  onSearchClick,
 }) => {
+  const handleChipDelete = () => {
+    setSearchTerm('');
+  };
+
   return (
     <Container>
       <LeftRow>
@@ -25,19 +31,16 @@ export const ControlSection: React.FC<ControlSectionProps> = ({
           {sortBy === 'group' ? '그룹별' : '카테고리별'}
         </ControlButton>
         <ControlText>정렬</ControlText>
+        {searchTerm && (
+          <SearchChip>
+            <SearchChipText>{searchTerm}</SearchChipText>
+            <SearchChipDelete onClick={handleChipDelete}>×</SearchChipDelete>
+          </SearchChip>
+        )}
       </LeftRow>
-      <SearchBar>
-        <SearchInput
-          placeholder='검색'
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <img
-          src={SearchIconImage}
-          alt='검색'
-          style={{ width: 18, height: 18, padding: 8 }}
-        />
-      </SearchBar>
+      <SearchButton onClick={onSearchClick}>
+        <SearchIconImage src={SearchIcon} alt='검색' />
+      </SearchButton>
     </Container>
   );
 };
@@ -55,7 +58,7 @@ const ControlButton = styled.button`
   gap: 5px;
   padding: 10px;
   background: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid #000000;
   border-radius: 5px;
   cursor: pointer;
   &:hover {
@@ -66,7 +69,7 @@ const ControlButton = styled.button`
 
 const ControlText = styled.p`
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
   color: #000;
 `;
 
@@ -75,17 +78,59 @@ const Icon = styled.img`
   height: 16px;
 `;
 
-const SearchBar = styled.div`
+const SearchChip = styled.div`
   display: flex;
   align-items: center;
-  border: 1px solid #ccc;
-  background: #fff;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 6px 12px;
+  margin-left: 8px;
+  gap: 6px;
 `;
 
-const SearchInput = styled.input`
-  flex: 1;
+const SearchChipText = styled.span`
+  font-size: 13px;
+  color: #333;
+`;
+
+const SearchChipDelete = styled.button`
+  background: none;
   border: none;
-  padding: 10px;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #666;
+  }
+`;
+
+const SearchButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+`;
+
+const SearchIconImage = styled.img`
+  width: 18px;
+  height: 18px;
 `;
 
 const LeftRow = styled.div`
