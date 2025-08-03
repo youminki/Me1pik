@@ -3,6 +3,9 @@
   Content-Type: application/javascript
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
+  Access-Control-Allow-Headers: Content-Type
 
 # CSS 파일들에 대한 MIME 타입 설정
 /assets/*.css
@@ -52,6 +55,4 @@
 # HTML 파일에 대한 설정
 /*.html
   Content-Type: text/html
-  Cache-Control: public, max-age=0, must-revalidate
-  X-Frame-Options: DENY
-  X-Content-Type-Options: nosniff 
+  Cache-Control: public, max-age=0, must-revalidate 

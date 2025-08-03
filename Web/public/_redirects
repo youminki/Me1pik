@@ -11,14 +11,6 @@
 /*.woff  /:splat   200
 /*.ttf   /:splat   200
 
-# JavaScript 파일들에 대한 MIME 타입 설정 (캐시 최적화)
-/assets/*.js
-  Content-Type: application/javascript
-  X-Content-Type-Options: nosniff
-  Access-Control-Allow-Origin: *
-  Access-Control-Allow-Methods: GET, OPTIONS
-  Access-Control-Allow-Headers: Content-Type
-
 # 캐시 헤더 설정 - JavaScript 파일들에 대한 캐시 최적화
 /assets/*.js
   Cache-Control: public, max-age=31536000, immutable

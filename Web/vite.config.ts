@@ -25,10 +25,10 @@ export default defineConfig(() => {
       reportCompressedSize: false,
       rollupOptions: {
         output: {
-          // 해시 없이 간단한 파일명 사용
-          chunkFileNames: 'assets/[name].js',
-          entryFileNames: 'assets/[name].js',
-          assetFileNames: 'assets/[name].[ext]',
+          // 청크 파일명을 더 안정적으로 설정 (캐시 문제 방지)
+          chunkFileNames: 'assets/[name]-[hash:12].js',
+          entryFileNames: 'assets/[name]-[hash:12].js',
+          assetFileNames: 'assets/[name]-[hash:12].[ext]',
           manualChunks: {
             // 핵심 라이브러리들
             'react-vendor': ['react', 'react-dom'],
@@ -64,15 +64,12 @@ export default defineConfig(() => {
 
             'melpik-create': ['./src/pages/melpiks/creates/CreateMelpik.tsx'],
 
-            // Brand 관련 컴포넌트들
-            'brand-components': [
+            // Brand와 Melpik 컴포넌트를 메인 번들에 포함 (배포 환경 안정성)
+            'main-components': [
               './src/pages/brands/Brand.tsx',
               './src/pages/brands/BrandDetail.tsx',
-              './src/components/brands/StatsSection.tsx',
+              './src/pages/melpiks/Melpik.tsx',
             ],
-
-            // Melpik 컴포넌트를 메인 번들에 포함 (배포 환경 안정성)
-            'main-components': ['./src/pages/melpiks/Melpik.tsx'],
 
             // 알람 및 분석 페이지
             'alarm-analysis': [
