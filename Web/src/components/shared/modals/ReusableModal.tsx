@@ -147,7 +147,7 @@ const StyledModal = styled.div<{ $isClosing: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100000; /* 항상 최상단에 표시되도록 높은 값 설정 */
+  z-index: 99999; /* 헤더와 프로필보다 높은 값으로 설정 */
   opacity: ${({ $isClosing }) => ($isClosing ? 0 : 1)};
   transition: opacity 0.2s ease-out;
 `;
@@ -181,7 +181,7 @@ const ModalHeader = styled.div`
 `;
 
 const ModalTitle = styled.h2`
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: bold;
   margin: 0;
 `;

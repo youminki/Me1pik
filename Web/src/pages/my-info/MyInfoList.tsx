@@ -214,6 +214,11 @@ const Container = styled.div`
   background: #fff;
   margin: -1rem;
   padding: 0;
+  max-width: 600px;
+
+  @media (min-width: 768px) {
+    margin: 0 auto;
+  }
 `;
 
 const ProfileSection = styled.div`

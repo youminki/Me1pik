@@ -52,8 +52,6 @@ const Modal: React.FC<ModalProps> = ({
   }, [initialSelectedBrands, isOpen]);
 
   const [warningModalVisible, setWarningModalVisible] = useState(false);
-  const [cancelConfirmationVisible, setCancelConfirmationVisible] =
-    useState(false);
 
   const handleBrandSelect = (brand: string) => {
     if (selectedBrands.includes(brand)) {
@@ -73,45 +71,50 @@ const Modal: React.FC<ModalProps> = ({
   };
 
   const handleCancelClick = () => {
-    setCancelConfirmationVisible(true);
+    onClose();
+  };
+
+  const handleConfirmClick = () => {
+    if (selectedBrands.length < 3) {
+      setWarningModalVisible(true);
+    } else {
+      onSelect(selectedBrands);
+      onClose();
+    }
   };
 
   return (
     <>
-      {isOpen && (
-        <ModalOverlay>
-          <ModalContent>
-            <ModalHeader>
-              <ModalTitle>
-                브랜드 선택 <GrayText>(3가지 선택)</GrayText>
-              </ModalTitle>
-              <GrayLine />
-            </ModalHeader>
-
-            <ModalBody>
-              <BrandSelectionGrid>
-                {brands.map((brand) => (
-                  <BrandOption
-                    key={brand}
-                    selected={selectedBrands.includes(brand)}
-                    onClick={() => handleBrandSelect(brand)}
-                  >
-                    {brand}
-                  </BrandOption>
-                ))}
-              </BrandSelectionGrid>
-            </ModalBody>
-
-            <GrayLine />
-            <ButtonRow>
-              <CancelButton onClick={handleCancelClick}>취소</CancelButton>
-              <CompleteButton onClick={handleCompleteSelection}>
-                선택완료
-              </CompleteButton>
-            </ButtonRow>
-          </ModalContent>
-        </ModalOverlay>
-      )}
+      <ReusableModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onConfirm={handleConfirmClick}
+        title='브랜드 선택 (3가지 선택)'
+        width='500px'
+        showConfirmButton={false}
+        actions={
+          <ButtonRow>
+            <CancelButton onClick={handleCancelClick}>취소</CancelButton>
+            <CompleteButton onClick={handleCompleteSelection}>
+              선택완료
+            </CompleteButton>
+          </ButtonRow>
+        }
+      >
+        <BrandSelectionContainer>
+          <BrandSelectionGrid>
+            {brands.map((brand) => (
+              <BrandOption
+                key={brand}
+                selected={selectedBrands.includes(brand)}
+                onClick={() => handleBrandSelect(brand)}
+              >
+                {brand}
+              </BrandOption>
+            ))}
+          </BrandSelectionGrid>
+        </BrandSelectionContainer>
+      </ReusableModal>
 
       {/* 경고 모달 */}
       <ReusableModal
@@ -121,79 +124,49 @@ const Modal: React.FC<ModalProps> = ({
       >
         <p>3가지 브랜드를 선택해야 합니다.</p>
       </ReusableModal>
-
-      {/* 취소 확인 모달 */}
-      <ReusableModal
-        isOpen={cancelConfirmationVisible}
-        onClose={() => setCancelConfirmationVisible(false)}
-        onConfirm={onClose}
-        title='선택 취소'
-        showConfirmButton={true}
-      >
-        <p>설정하신 내용을 취소 하시겠습니까?</p>
-      </ReusableModal>
     </>
   );
 };
 
 export default Modal;
 
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 27px;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background-color: ${theme.colors.white};
+const BrandSelectionContainer = styled.div`
   padding: 20px;
-  width: 100%;
-  max-width: 500px;
-
-  /* 최대 높이 제한 및 내부 스크롤 */
-  max-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-`;
-
-const ModalHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const ModalTitle = styled.p`
-  font-weight: 800;
-  font-size: 16px;
-`;
-
-const GrayText = styled.span`
-  color: ${theme.colors.gray1};
-`;
-
-const GrayLine = styled.hr`
-  border: none;
-  width: 100%;
-  border: 1px solid ${theme.colors.gray0};
-`;
-
-const ModalBody = styled.div`
-  flex: 1;
+  max-height: 400px;
   overflow-y: auto;
+
+  /* 스크롤바 스타일링 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
 `;
 
 const BrandSelectionGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 20px;
 `;
 
 const BrandOption = styled.div<{ selected: boolean }>`
@@ -213,13 +186,6 @@ const BrandOption = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const ButtonRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  margin-top: 10px;
 `;
 
 const CancelButton = styled.button`
