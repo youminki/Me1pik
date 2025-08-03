@@ -1,10 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
+import { getHeaderInfo } from '@/api-utils/user-managements/users/userApi';
 import { debugTokenStatus, refreshToken, clearTokens } from '@/utils/auth';
+
+const ALLOWED_EMAIL = 'dbalsrl7648@naver.com';
 
 const TokenTestPanel: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [status, setStatus] = useState<string>('');
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // 사용자 이메일 확인
+  useEffect(() => {
+    const checkUserAuthorization = async () => {
+      try {
+        setIsLoading(true);
+        const headerInfo = await getHeaderInfo();
+        const userEmail = headerInfo.email;
+
+        if (userEmail === ALLOWED_EMAIL) {
+          setIsAuthorized(true);
+          console.log('🔐 토큰 테스트 패널 접근 권한 확인됨:', userEmail);
+        } else {
+          setIsAuthorized(false);
+          console.log('🚫 토큰 테스트 패널 접근 거부됨:', userEmail);
+        }
+      } catch (error) {
+        console.error('사용자 정보 조회 실패:', error);
+        setIsAuthorized(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkUserAuthorization();
+  }, []);
 
   const runTest = async (
     testName: string,
@@ -56,6 +87,11 @@ const TokenTestPanel: React.FC = () => {
       }
     });
   };
+
+  // 로딩 중이거나 권한이 없는 경우 렌더링하지 않음
+  if (isLoading || !isAuthorized) {
+    return null;
+  }
 
   if (!isVisible) {
     return (
@@ -120,6 +156,19 @@ const TokenTestPanel: React.FC = () => {
         >
           ✕
         </button>
+      </div>
+
+      <div
+        style={{
+          fontSize: '10px',
+          color: '#666',
+          marginBottom: '8px',
+          padding: '4px',
+          background: '#e8f4fd',
+          borderRadius: '4px',
+        }}
+      >
+        👤 {ALLOWED_EMAIL} 전용
       </div>
 
       <button

@@ -309,74 +309,96 @@ export const testRefreshTokenStorage = (): void => {
 };
 
 /**
- * 브라우저 콘솔에서 실행할 수 있는 전역 함수들
+ * 브라우저 콘솔에서 실행할 수 있는 전역 함수들 (특정 이메일만)
  */
-const setupGlobalFunctions = () => {
+const setupGlobalFunctions = async () => {
   if (typeof window !== 'undefined') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const globalWindow = window as any;
+    const ALLOWED_EMAIL = 'dbalsrl7648@naver.com';
 
-    // 기존 함수들
-    globalWindow.runTokenSystemTest = runTokenSystemTest;
-    globalWindow.runTokenRefreshTest = runTokenRefreshTest;
-    globalWindow.runMultiStorageTest = runMultiStorageTest;
+    try {
+      // 사용자 이메일 확인
+      const { getHeaderInfo } = await import(
+        '@/api-utils/user-managements/users/userApi'
+      );
+      const headerInfo = await getHeaderInfo();
+      const userEmail = headerInfo.email;
 
-    // 새로운 리프레시 토큰 테스트 함수들
-    globalWindow.checkRefreshTokenStatus = checkRefreshTokenStatus;
-    globalWindow.testRefreshTokenRenewal = testRefreshTokenRenewal;
-    globalWindow.testRefreshTokenStorage = testRefreshTokenStorage;
+      if (userEmail === ALLOWED_EMAIL) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const globalWindow = window as any;
 
-    // auth.ts의 함수들도 노출
-    globalWindow.debugTokenStatus =
-      globalWindow.debugTokenStatus ||
-      (() => {
-        console.log(
-          'debugTokenStatus 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
-        );
-      });
-    globalWindow.refreshToken =
-      globalWindow.refreshToken ||
-      (() => {
-        console.log(
-          'refreshToken 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
-        );
-      });
-    globalWindow.simulateTokenExpiry =
-      globalWindow.simulateTokenExpiry ||
-      (() => {
-        console.log(
-          'simulateTokenExpiry 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
-        );
-      });
-    globalWindow.testAutoRefresh =
-      globalWindow.testAutoRefresh ||
-      (() => {
-        console.log(
-          'testAutoRefresh 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
-        );
-      });
+        // 기존 함수들
+        globalWindow.runTokenSystemTest = runTokenSystemTest;
+        globalWindow.runTokenRefreshTest = runTokenRefreshTest;
+        globalWindow.runMultiStorageTest = runMultiStorageTest;
 
-    console.log('🔧 토큰 테스트 함수들이 전역으로 노출되었습니다:');
-    console.log('- runTokenSystemTest(): 토큰 시스템 종합 테스트');
-    console.log('- runTokenRefreshTest(): 토큰 갱신 테스트');
-    console.log('- runMultiStorageTest(): 다중 저장소 테스트');
-    console.log('- checkRefreshTokenStatus(): 리프레시 토큰 활성화 상태 확인');
-    console.log('- testRefreshTokenRenewal(): 리프레시 토큰 갱신 테스트');
-    console.log('- testRefreshTokenStorage(): 리프레시 토큰 저장 테스트');
-    console.log('- debugTokenStatus(): 토큰 상태 확인');
-    console.log('- refreshToken(): 수동 토큰 갱신');
-    console.log('- simulateTokenExpiry(): 토큰 만료 시뮬레이션');
-    console.log('- testAutoRefresh(): 자동 갱신 테스트');
+        // 새로운 리프레시 토큰 테스트 함수들
+        globalWindow.checkRefreshTokenStatus = checkRefreshTokenStatus;
+        globalWindow.testRefreshTokenRenewal = testRefreshTokenRenewal;
+        globalWindow.testRefreshTokenStorage = testRefreshTokenStorage;
+
+        // auth.ts의 함수들도 노출
+        globalWindow.debugTokenStatus =
+          globalWindow.debugTokenStatus ||
+          (() => {
+            console.log(
+              'debugTokenStatus 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
+            );
+          });
+        globalWindow.refreshToken =
+          globalWindow.refreshToken ||
+          (() => {
+            console.log(
+              'refreshToken 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
+            );
+          });
+        globalWindow.simulateTokenExpiry =
+          globalWindow.simulateTokenExpiry ||
+          (() => {
+            console.log(
+              'simulateTokenExpiry 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
+            );
+          });
+        globalWindow.testAutoRefresh =
+          globalWindow.testAutoRefresh ||
+          (() => {
+            console.log(
+              'testAutoRefresh 함수를 찾을 수 없습니다. auth.ts가 로드되었는지 확인하세요.'
+            );
+          });
+
+        console.log(
+          '🔧 토큰 테스트 함수들이 전역으로 노출되었습니다 (전용 계정):',
+          userEmail
+        );
+        console.log('- runTokenSystemTest(): 토큰 시스템 종합 테스트');
+        console.log('- runTokenRefreshTest(): 토큰 갱신 테스트');
+        console.log('- runMultiStorageTest(): 다중 저장소 테스트');
+        console.log(
+          '- checkRefreshTokenStatus(): 리프레시 토큰 활성화 상태 확인'
+        );
+        console.log('- testRefreshTokenRenewal(): 리프레시 토큰 갱신 테스트');
+        console.log('- testRefreshTokenStorage(): 리프레시 토큰 저장 테스트');
+        console.log('- debugTokenStatus(): 토큰 상태 확인');
+        console.log('- refreshToken(): 수동 토큰 갱신');
+        console.log('- simulateTokenExpiry(): 토큰 만료 시뮬레이션');
+        console.log('- testAutoRefresh(): 자동 갱신 테스트');
+      } else {
+        console.log('🚫 토큰 테스트 함수 노출 거부됨:', userEmail);
+      }
+    } catch (error) {
+      console.error('사용자 정보 조회 실패:', error);
+    }
   }
 };
 
-// 즉시 실행
+// 즉시 실행 (비동기)
 setupGlobalFunctions();
 
 // DOMContentLoaded 이벤트에서도 실행 (안전장치)
 if (typeof window !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupGlobalFunctions);
+    document.addEventListener('DOMContentLoaded', () => setupGlobalFunctions());
   } else {
     setupGlobalFunctions();
   }
