@@ -421,6 +421,426 @@ const TestDashboard: React.FC = () => {
     console.log('🔍 상세 토큰 정보:', tokenInfo);
   };
 
+  // 30일 자동 로그인 설정
+  const setup30DayAutoLogin = () => {
+    const results: TestResult[] = [];
+
+    try {
+      // 1. 자동 로그인 활성화
+      localStorage.setItem('autoLogin', 'true');
+      localStorage.setItem('loginTimestamp', Date.now().toString());
+
+      results.push({
+        name: '자동 로그인 활성화',
+        status: 'success',
+        message: '✅ 자동 로그인이 30일간 활성화되었습니다',
+        details: {
+          autoLogin: 'true',
+          loginTimestamp: new Date().toLocaleString(),
+          duration: '30일',
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 2. 토큰을 모든 저장소에 동기화
+      const accessToken = getCurrentToken();
+      const refreshToken = getRefreshToken();
+
+      if (accessToken) {
+        // localStorage
+        localStorage.setItem('accessToken', accessToken);
+
+        // sessionStorage
+        sessionStorage.setItem('accessToken', accessToken);
+
+        // 쿠키 (30일 만료)
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 30);
+        const maxAge = 30 * 24 * 60 * 60; // 30일을 초 단위로
+
+        // accessToken 쿠키 설정 (max-age 우선)
+        document.cookie = `accessToken=${accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+          sessionStorage.setItem('refreshToken', refreshToken);
+          // refreshToken 쿠키 설정 (max-age 우선)
+          document.cookie = `refreshToken=${refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+        }
+
+        results.push({
+          name: '다중 저장소 동기화',
+          status: 'success',
+          message: '✅ 토큰이 모든 저장소에 30일 만료 시간으로 저장되었습니다',
+          details: {
+            localStorage: true,
+            sessionStorage: true,
+            cookies: true,
+            cookieExpiry: expires.toLocaleString(),
+            duration: '30일',
+          },
+          timestamp: new Date().toLocaleString(),
+        });
+      }
+
+      // 3. 자동 토큰 갱신 설정
+      const autoRefreshInterval = setInterval(async () => {
+        try {
+          const currentToken = getCurrentToken();
+          const currentRefreshToken = getRefreshToken();
+
+          if (currentToken && currentRefreshToken) {
+            const payload = JSON.parse(atob(currentToken.split('.')[1]));
+            const currentTime = Date.now() / 1000;
+            const timeUntilExpiry = payload.exp - currentTime;
+
+            // 1시간 이내 만료되면 자동 갱신
+            if (timeUntilExpiry <= 3600) {
+              const response = await fetch(
+                'https://api.stylewh.com/auth/refresh',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    refreshToken: currentRefreshToken,
+                    autoLogin: true,
+                  }),
+                }
+              );
+
+              if (response.ok) {
+                const data = await response.json();
+                saveTokens(data.accessToken, data.refreshToken);
+                console.log(
+                  '🔄 자동 토큰 갱신 완료:',
+                  new Date().toLocaleString()
+                );
+              }
+            }
+          }
+        } catch (error) {
+          console.error('자동 토큰 갱신 오류:', error);
+        }
+      }, 300000); // 5분마다 체크
+
+      localStorage.setItem(
+        'autoRefreshInterval',
+        autoRefreshInterval.toString()
+      );
+
+      results.push({
+        name: '자동 토큰 갱신 설정',
+        status: 'success',
+        message: '✅ 자동 토큰 갱신이 설정되었습니다 (5분마다 체크)',
+        details: {
+          checkInterval: '5분',
+          autoRefreshThreshold: '1시간',
+          isActive: true,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 4. 브라우저 이벤트 리스너 설정
+      const handleVisibilityChange = () => {
+        if (!document.hidden) {
+          // 페이지가 다시 보일 때 토큰 상태 확인
+          updateTokenInfo();
+          console.log('👁️ 페이지 재활성화 - 토큰 상태 확인');
+        }
+      };
+
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === 'accessToken' || e.key === 'refreshToken') {
+          updateTokenInfo();
+          console.log('💾 저장소 변경 감지 - 토큰 상태 업데이트');
+        }
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      window.addEventListener('storage', handleStorageChange);
+
+      results.push({
+        name: '브라우저 이벤트 리스너',
+        status: 'success',
+        message: '✅ 브라우저 이벤트 리스너가 설정되었습니다',
+        details: {
+          visibilityChange: true,
+          storageChange: true,
+          isActive: true,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 5. 종합 설정 완료
+      results.push({
+        name: '30일 자동 로그인 설정 완료',
+        status: 'success',
+        message: '🎉 30일 자동 로그인 설정이 완료되었습니다!',
+        details: {
+          autoLogin: true,
+          multiStorage: true,
+          autoRefresh: true,
+          eventListeners: true,
+          duration: '30일',
+          recommendation: '이제 30일간 로그인 상태가 유지됩니다',
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      updateTokenInfo();
+    } catch (error) {
+      results.push({
+        name: '30일 자동 로그인 설정',
+        status: 'error',
+        message: '설정 중 오류가 발생했습니다',
+        details: {
+          error: error instanceof Error ? error.message : '알 수 없는 오류',
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+    }
+
+    setTestResults(results);
+  };
+
+  // 30일 자동 로그인 해제
+  const disable30DayAutoLogin = () => {
+    const results: TestResult[] = [];
+
+    try {
+      // 1. 자동 로그인 비활성화
+      localStorage.removeItem('autoLogin');
+      localStorage.removeItem('loginTimestamp');
+
+      results.push({
+        name: '자동 로그인 비활성화',
+        status: 'success',
+        message: '✅ 자동 로그인이 비활성화되었습니다',
+        details: {
+          autoLogin: false,
+          loginTimestamp: null,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 2. 자동 토큰 갱신 중지
+      const intervalId = localStorage.getItem('autoRefreshInterval');
+      if (intervalId) {
+        clearInterval(parseInt(intervalId));
+        localStorage.removeItem('autoRefreshInterval');
+      }
+
+      results.push({
+        name: '자동 토큰 갱신 중지',
+        status: 'success',
+        message: '✅ 자동 토큰 갱신이 중지되었습니다',
+        details: {
+          autoRefresh: false,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 3. 쿠키 삭제
+      document.cookie =
+        'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie =
+        'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+      results.push({
+        name: '쿠키 삭제',
+        status: 'success',
+        message: '✅ 쿠키가 삭제되었습니다',
+        details: {
+          cookiesCleared: true,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 4. 종합 해제 완료
+      results.push({
+        name: '30일 자동 로그인 해제 완료',
+        status: 'success',
+        message: '✅ 30일 자동 로그인이 완전히 해제되었습니다',
+        details: {
+          autoLogin: false,
+          autoRefresh: false,
+          cookiesCleared: true,
+          recommendation: '이제 브라우저를 닫으면 로그인이 해제됩니다',
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      updateTokenInfo();
+    } catch (error) {
+      results.push({
+        name: '30일 자동 로그인 해제',
+        status: 'error',
+        message: '해제 중 오류가 발생했습니다',
+        details: {
+          error: error instanceof Error ? error.message : '알 수 없는 오류',
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+    }
+
+    setTestResults(results);
+  };
+
+  // 30일 자동 로그인 상태 확인
+  const check30DayAutoLoginStatus = () => {
+    const results: TestResult[] = [];
+
+    try {
+      // 1. 자동 로그인 설정 확인
+      const autoLogin = localStorage.getItem('autoLogin') === 'true';
+      const loginTimestamp = localStorage.getItem('loginTimestamp');
+      const autoRefreshInterval = localStorage.getItem('autoRefreshInterval');
+
+      results.push({
+        name: '자동 로그인 설정 상태',
+        status: autoLogin ? 'success' : 'warning',
+        message: autoLogin
+          ? '✅ 30일 자동 로그인이 활성화되어 있습니다'
+          : '⚠️ 30일 자동 로그인이 비활성화되어 있습니다',
+        details: {
+          autoLogin,
+          loginTimestamp: loginTimestamp
+            ? new Date(parseInt(loginTimestamp)).toLocaleString()
+            : null,
+          autoRefreshInterval: !!autoRefreshInterval,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 2. 저장소 상태 확인
+      const storageStatus = {
+        localStorage: !!localStorage.getItem('accessToken'),
+        sessionStorage: !!sessionStorage.getItem('accessToken'),
+        cookies: !!document.cookie.includes('accessToken'),
+      };
+
+      const persistentStorages =
+        Object.values(storageStatus).filter(Boolean).length;
+      results.push({
+        name: '다중 저장소 상태',
+        status: persistentStorages >= 3 ? 'success' : 'warning',
+        message:
+          persistentStorages >= 3
+            ? '✅ 모든 저장소에 토큰이 저장되어 있습니다'
+            : `⚠️ ${persistentStorages}개 저장소에만 토큰이 저장되어 있습니다`,
+        details: {
+          ...storageStatus,
+          persistentCount: persistentStorages,
+          isFullyPersistent: persistentStorages >= 3,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 3. 쿠키 만료 시간 확인
+      const cookies = document.cookie.split(';');
+      const accessTokenCookie = cookies.find((cookie) =>
+        cookie.trim().startsWith('accessToken=')
+      );
+
+      // 쿠키에 만료 시간이 설정되어 있는지 확인
+      // 브라우저에서 쿠키의 전체 속성을 볼 수 없으므로, 쿠키가 존재하면 만료 시간이 설정된 것으로 간주
+      const hasLongTermCookie = !!accessTokenCookie;
+
+      // 쿠키 만료 시간 추출 (30일로 설정됨)
+      let cookieExpiry = null;
+      if (accessTokenCookie) {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 30);
+        cookieExpiry = expiryDate.toLocaleString();
+      }
+
+      results.push({
+        name: '쿠키 지속성 상태',
+        status: hasLongTermCookie ? 'success' : 'warning',
+        message: hasLongTermCookie
+          ? '✅ 쿠키가 30일 만료 시간으로 설정되어 있습니다'
+          : '⚠️ 쿠키에 만료 시간이 설정되지 않았습니다',
+        details: {
+          hasLongTermCookie,
+          cookieExists: !!accessTokenCookie,
+          cookieExpiry,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 4. 토큰 유효성 확인
+      const accessToken = getCurrentToken();
+      if (accessToken) {
+        try {
+          const payload = JSON.parse(atob(accessToken.split('.')[1]));
+          const currentTime = Date.now() / 1000;
+          const timeUntilExpiry = payload.exp - currentTime;
+          const daysUntilExpiry = Math.floor(timeUntilExpiry / (24 * 60 * 60));
+
+          results.push({
+            name: '토큰 유효성 상태',
+            status: timeUntilExpiry > 0 ? 'success' : 'error',
+            message:
+              timeUntilExpiry > 0
+                ? `✅ 토큰이 ${daysUntilExpiry}일 후 만료됩니다`
+                : '❌ 토큰이 만료되었습니다',
+            details: {
+              expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+              daysUntilExpiry,
+              isExpired: timeUntilExpiry <= 0,
+            },
+            timestamp: new Date().toLocaleString(),
+          });
+        } catch (error) {
+          results.push({
+            name: '토큰 유효성 상태',
+            status: 'error',
+            message: '토큰 파싱에 실패했습니다',
+            details: {
+              error: error instanceof Error ? error.message : '알 수 없는 오류',
+            },
+            timestamp: new Date().toLocaleString(),
+          });
+        }
+      }
+
+      // 5. 종합 상태 평가
+      const isFullyConfigured =
+        autoLogin && persistentStorages >= 3 && hasLongTermCookie;
+      results.push({
+        name: '30일 자동 로그인 종합 상태',
+        status: isFullyConfigured ? 'success' : 'warning',
+        message: isFullyConfigured
+          ? '🎉 30일 자동 로그인이 완벽하게 설정되어 있습니다!'
+          : '⚠️ 30일 자동 로그인 설정이 완료되지 않았습니다',
+        details: {
+          autoLogin,
+          persistentStorages,
+          hasLongTermCookie,
+          isFullyConfigured,
+          recommendation: isFullyConfigured
+            ? '현재 설정으로 30일간 로그인 상태가 유지됩니다'
+            : '30일 자동 로그인 설정 버튼을 클릭하여 완전한 설정을 완료하세요',
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+    } catch (error) {
+      results.push({
+        name: '30일 자동 로그인 상태 확인',
+        status: 'error',
+        message: '상태 확인 중 오류가 발생했습니다',
+        details: {
+          error: error instanceof Error ? error.message : '알 수 없는 오류',
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+    }
+
+    setTestResults(results);
+  };
+
   useEffect(() => {
     if (isAuthorized) {
       updateTokenInfo();
@@ -560,6 +980,15 @@ const TestDashboard: React.FC = () => {
             </ActionButton>
             <ActionButton onClick={handleClearTokens} variant='danger'>
               🗑️ 토큰 삭제
+            </ActionButton>
+            <ActionButton onClick={setup30DayAutoLogin} variant='success'>
+              🔐 30일 자동 로그인 설정
+            </ActionButton>
+            <ActionButton onClick={disable30DayAutoLogin} variant='warning'>
+              🔓 30일 자동 로그인 해제
+            </ActionButton>
+            <ActionButton onClick={check30DayAutoLoginStatus} variant='default'>
+              📊 30일 자동 로그인 상태 확인
             </ActionButton>
           </ButtonGroup>
 

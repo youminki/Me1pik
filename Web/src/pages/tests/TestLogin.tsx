@@ -8,6 +8,7 @@ import MelpikLogo from '@/assets/LoginLogo.svg';
 import LoginButton from '@/components/shared/buttons/PrimaryButton';
 import InputField from '@/components/shared/forms/InputField';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
+import { saveTokens } from '@/utils/auth';
 
 interface LoginFormValues {
   email: string;
@@ -19,6 +20,8 @@ const TestLogin: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [enableLongTermPersistence, setEnableLongTermPersistence] =
+    useState(true);
 
   const [formData, setFormData] = useState<LoginFormValues>({
     email: '',
@@ -32,6 +35,41 @@ const TestLogin: React.FC = () => {
       ...prev,
       [field]: value,
     }));
+  };
+
+  // 30일 지속성 보장을 위한 토큰 저장 함수
+  const saveTokensForLongTermPersistence = (
+    accessToken: string,
+    refreshToken: string,
+    email: string
+  ) => {
+    // 1. 모든 저장소에 토큰 저장 (지속성 보장)
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('userEmail', email);
+
+    sessionStorage.setItem('accessToken', accessToken);
+    sessionStorage.setItem('refreshToken', refreshToken);
+
+    // 2. 쿠키에 토큰 저장 (브라우저 재시작 시에도 유지)
+    document.cookie = `accessToken=${accessToken}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30일
+    document.cookie = `refreshToken=${refreshToken}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30일
+
+    // 3. 자동 로그인 설정 (30일 지속성 보장)
+    if (enableLongTermPersistence) {
+      localStorage.setItem('autoLogin', 'true');
+    }
+
+    // 4. 사용자 정보 저장
+    localStorage.setItem('userEmail', email);
+    localStorage.setItem('loginTimestamp', Date.now().toString());
+
+    console.log('🔐 30일 지속성 토큰 저장 완료:', {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+      autoLogin: enableLongTermPersistence,
+      timestamp: new Date().toLocaleString(),
+    });
   };
 
   const handleLoginClick = async () => {
@@ -55,20 +93,37 @@ const TestLogin: React.FC = () => {
       const response = await LoginPost(formData.email, formData.password);
       const { accessToken, refreshToken } = response;
 
-      // 2) 토큰 로컬 저장
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('userEmail', formData.email);
+      // 2) 30일 지속성을 위한 토큰 저장
+      saveTokensForLongTermPersistence(
+        accessToken,
+        refreshToken,
+        formData.email
+      );
 
-      // 3) 멤버십 정보 조회
+      // 3) 표준 토큰 저장 함수도 호출 (기존 로직과 호환성)
+      saveTokens(accessToken, refreshToken);
+
+      // 4) 멤버십 정보 조회
       const membership = await getMembershipInfo();
 
-      // 4) 테스트 대시보드로 이동
+      // 5) 30일 지속성 설정 확인
+      const persistenceStatus = {
+        localStorage: !!localStorage.getItem('accessToken'),
+        sessionStorage: !!sessionStorage.getItem('accessToken'),
+        cookies: !!document.cookie.includes('accessToken'),
+        autoLogin: localStorage.getItem('autoLogin') === 'true',
+      };
+
+      console.log('✅ 30일 지속성 설정 완료:', persistenceStatus);
+
+      // 6) 테스트 대시보드로 이동
       navigate('/test-dashboard', {
         replace: true,
         state: {
           showNotice: true,
           membership,
+          longTermPersistence: enableLongTermPersistence,
+          persistenceStatus,
         },
       });
     } catch (error: unknown) {
@@ -118,6 +173,21 @@ const TestLogin: React.FC = () => {
                 autoComplete='current-password'
               />
             </InputFieldRow>
+
+            <PersistenceSection>
+              <PersistenceCheckbox
+                type='checkbox'
+                id='longTermPersistence'
+                checked={enableLongTermPersistence}
+                onChange={(e) => setEnableLongTermPersistence(e.target.checked)}
+              />
+              <PersistenceLabel htmlFor='longTermPersistence'>
+                🔐 30일 지속성 보장 (자동 로그인 + 다중 저장소)
+              </PersistenceLabel>
+              <PersistenceDescription>
+                체크하면 30일간 로그인 상태가 유지됩니다
+              </PersistenceDescription>
+            </PersistenceSection>
 
             <LoginButton
               onClick={handleLoginClick}
@@ -218,6 +288,35 @@ const LoginForm = styled.div`
 
 const InputFieldRow = styled.div`
   width: 100%;
+`;
+
+const PersistenceSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  margin-bottom: 20px;
+  color: #555;
+  font-size: 0.85rem;
+`;
+
+const PersistenceCheckbox = styled.input`
+  width: 16px;
+  height: 16px;
+  accent-color: #667eea;
+`;
+
+const PersistenceLabel = styled.label`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+`;
+
+const PersistenceDescription = styled.span`
+  font-size: 0.75rem;
+  color: #888;
 `;
 
 const BackSection = styled.div`

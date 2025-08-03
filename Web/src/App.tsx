@@ -270,11 +270,70 @@ const App: React.FC = () => {
   useEffect(() => {
     const tryAutoLogin = async () => {
       const token = getCurrentToken();
+      const autoLogin = localStorage.getItem('autoLogin') === 'true';
+      
       if (token && !hasValidToken()) {
         // accessToken이 만료된 경우 refresh 시도
         await refreshToken();
         // refresh 실패 시에는 기존 인증 체크 로직에 따라 로그인 페이지로 이동
       }
+      
+      // 30일 자동 로그인 설정이 활성화된 경우 추가 처리
+      if (autoLogin) {
+        console.log('🔐 30일 자동 로그인 설정이 활성화되어 있습니다');
+        
+        // 자동 토큰 갱신 인터벌이 없으면 설정
+        const intervalId = localStorage.getItem('autoRefreshInterval');
+        if (!intervalId) {
+          const autoRefreshInterval = setInterval(async () => {
+            try {
+              const currentToken = getCurrentToken();
+              const currentRefreshToken = localStorage.getItem('refreshToken');
+
+              if (currentToken && currentRefreshToken) {
+                const payload = JSON.parse(atob(currentToken.split('.')[1]));
+                const currentTime = Date.now() / 1000;
+                const timeUntilExpiry = payload.exp - currentTime;
+
+                // 1시간 이내 만료되면 자동 갱신
+                if (timeUntilExpiry <= 3600) {
+                  const response = await fetch('https://api.stylewh.com/auth/refresh', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      refreshToken: currentRefreshToken,
+                      autoLogin: true,
+                    }),
+                  });
+
+                  if (response.ok) {
+                    const data = await response.json();
+                    // 갱신된 토큰을 모든 저장소에 저장
+                    localStorage.setItem('accessToken', data.accessToken);
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                    sessionStorage.setItem('accessToken', data.accessToken);
+                    sessionStorage.setItem('refreshToken', data.refreshToken);
+                    
+                    // 쿠키도 갱신
+                    const maxAge = 30 * 24 * 60 * 60;
+                    document.cookie = `accessToken=${data.accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+                    document.cookie = `refreshToken=${data.refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+                    
+                    console.log('🔄 자동 토큰 갱신 완료:', new Date().toLocaleString());
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('자동 토큰 갱신 오류:', error);
+            }
+          }, 300000); // 5분마다 체크
+
+          localStorage.setItem('autoRefreshInterval', autoRefreshInterval.toString());
+        }
+      }
+      
       // 토큰이 없으면 기존 인증 체크 로직이 동작함
     };
     tryAutoLogin();

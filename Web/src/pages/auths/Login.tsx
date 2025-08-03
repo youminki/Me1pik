@@ -30,7 +30,7 @@ import {
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import { schemaLogin } from '@/hooks/useValidationYup';
 import { theme } from '@/styles/Theme';
-import { forceSaveAppToken } from '@/utils/auth';
+import { forceSaveAppToken, saveTokens } from '@/utils/auth';
 import { isNativeApp } from '@/utils/nativeApp';
 
 interface LoginFormValues {
@@ -289,6 +289,129 @@ const Login: React.FC = () => {
   };
   const handlePwBlur = () => setIsCapsLock(false);
 
+  // 30일 지속성 보장을 위한 토큰 저장 함수
+  const saveTokensForLongTermPersistence = (
+    accessToken: string,
+    refreshToken: string,
+    email: string
+  ) => {
+    // 1. 모든 저장소에 토큰 저장 (지속성 보장)
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('userEmail', email);
+
+    sessionStorage.setItem('accessToken', accessToken);
+    sessionStorage.setItem('refreshToken', refreshToken);
+
+    // 2. 쿠키에 토큰 저장 (브라우저 재시작 시에도 유지)
+    const maxAge = 30 * 24 * 60 * 60; // 30일을 초 단위로
+    document.cookie = `accessToken=${accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+    document.cookie = `refreshToken=${refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+
+    // 3. 자동 로그인 설정 (30일 지속성 보장)
+    if (keepLogin) {
+      localStorage.setItem('autoLogin', 'true');
+      localStorage.setItem('loginTimestamp', Date.now().toString());
+
+      // 4. 자동 토큰 갱신 설정
+      const autoRefreshInterval = setInterval(async () => {
+        try {
+          const currentToken = localStorage.getItem('accessToken');
+          const currentRefreshToken = localStorage.getItem('refreshToken');
+
+          if (currentToken && currentRefreshToken) {
+            const payload = JSON.parse(atob(currentToken.split('.')[1]));
+            const currentTime = Date.now() / 1000;
+            const timeUntilExpiry = payload.exp - currentTime;
+
+            // 1시간 이내 만료되면 자동 갱신
+            if (timeUntilExpiry <= 3600) {
+              const response = await fetch(
+                'https://api.stylewh.com/auth/refresh',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    refreshToken: currentRefreshToken,
+                    autoLogin: true,
+                  }),
+                }
+              );
+
+              if (response.ok) {
+                const data = await response.json();
+                // 갱신된 토큰을 모든 저장소에 저장
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                sessionStorage.setItem('accessToken', data.accessToken);
+                sessionStorage.setItem('refreshToken', data.refreshToken);
+
+                // 쿠키도 갱신
+                document.cookie = `accessToken=${data.accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+                document.cookie = `refreshToken=${data.refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+
+                console.log(
+                  '🔄 자동 토큰 갱신 완료:',
+                  new Date().toLocaleString()
+                );
+              }
+            }
+          }
+        } catch (error) {
+          console.error('자동 토큰 갱신 오류:', error);
+        }
+      }, 300000); // 5분마다 체크
+
+      localStorage.setItem(
+        'autoRefreshInterval',
+        autoRefreshInterval.toString()
+      );
+    } else {
+      localStorage.removeItem('autoLogin');
+      localStorage.removeItem('loginTimestamp');
+
+      // 자동 갱신 중지
+      const intervalId = localStorage.getItem('autoRefreshInterval');
+      if (intervalId) {
+        clearInterval(parseInt(intervalId));
+        localStorage.removeItem('autoRefreshInterval');
+      }
+
+      // 쿠키 삭제 (자동 로그인 해제 시)
+      document.cookie =
+        'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      document.cookie =
+        'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    }
+
+    // 5. 브라우저 이벤트 리스너 설정
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // 페이지가 다시 보일 때 토큰 상태 확인
+        console.log('👁️ 페이지 재활성화 - 토큰 상태 확인');
+      }
+    };
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'accessToken' || e.key === 'refreshToken') {
+        console.log('💾 저장소 변경 감지 - 토큰 상태 업데이트');
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('storage', handleStorageChange);
+
+    console.log('🔐 30일 지속성 토큰 저장 완료:', {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+      autoLogin: keepLogin,
+      timestamp: new Date().toLocaleString(),
+      duration: '30일',
+    });
+  };
+
   const handleLoginClick = async (data: LoginFormValues) => {
     try {
       const response = (await LoginPost(
@@ -310,11 +433,13 @@ const Login: React.FC = () => {
       if (isNativeApp()) {
         forceSaveAppToken(accessToken, refreshToken);
       } else {
-        // 토큰을 localStorage에 저장
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
+        // 30일 지속성을 위한 토큰 저장
+        saveTokensForLongTermPersistence(accessToken, refreshToken, data.email);
 
-        // 자동로그인 여부 저장 (명시적으로 설정)
+        // 표준 토큰 저장 함수도 호출 (기존 로직과 호환성)
+        saveTokens(accessToken, refreshToken);
+
+        // 기존 로직 유지 (자동 로그인 설정)
         if (keepLogin) {
           localStorage.setItem('autoLogin', 'true');
           console.log('자동로그인 설정됨');
