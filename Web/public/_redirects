@@ -1,28 +1,5 @@
 # SPA 라우팅 - 모든 경로를 index.html로 리다이렉트
 /*    /index.html   200
 
-# JavaScript 파일들에 대한 올바른 MIME 타입 설정
-*.js
-  Content-Type: application/javascript
-  X-Content-Type-Options: nosniff
-
-# CSS 파일들에 대한 올바른 MIME 타입 설정
-*.css
-  Content-Type: text/css
-  X-Content-Type-Options: nosniff
-
-# 폰트 파일들에 대한 올바른 MIME 타입 설정
-*.woff2
-  Content-Type: font/woff2
-  X-Content-Type-Options: nosniff
-
-*.woff
-  Content-Type: font/woff
-  X-Content-Type-Options: nosniff
-
-*.ttf
-  Content-Type: font/ttf
-  X-Content-Type-Options: nosniff
-
 # 정적 파일 서빙 - assets 폴더의 파일들은 직접 서빙
 /assets/*    /assets/:splat   200
