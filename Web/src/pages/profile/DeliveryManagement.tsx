@@ -280,6 +280,11 @@ export default DeliveryManagement;
 const Block = styled.div`
   margin-bottom: 30px;
   width: 100%;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 30px;
+  }
 `;
 
 const Title = styled.div`
