@@ -105,7 +105,78 @@ export const saveTokens = (
   accessToken: string,
   refreshToken?: string
 ): void => {
+  const autoLogin = localStorage.getItem('autoLogin') === 'true';
+
+  // 기본 토큰 저장
   setToken(accessToken, refreshToken);
+
+  // 30일 자동 로그인 설정이 활성화된 경우 추가 처리
+  if (autoLogin && refreshToken) {
+    // 쿠키에 30일 만료 시간 설정
+    const maxAge = 30 * 24 * 60 * 60; // 30일을 초 단위로
+    document.cookie = `accessToken=${accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+    document.cookie = `refreshToken=${refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+
+    // 자동 토큰 갱신 인터벌이 없으면 설정
+    const intervalId = localStorage.getItem('autoRefreshInterval');
+    if (!intervalId) {
+      const autoRefreshInterval = setInterval(async () => {
+        try {
+          const currentToken = getCurrentToken();
+          const currentRefreshToken = getRefreshToken();
+
+          if (currentToken && currentRefreshToken) {
+            const payload = JSON.parse(atob(currentToken.split('.')[1]));
+            const currentTime = Date.now() / 1000;
+            const timeUntilExpiry = payload.exp - currentTime;
+
+            // 1시간 이내 만료되면 자동 갱신
+            if (timeUntilExpiry <= 3600) {
+              const response = await fetch(
+                'https://api.stylewh.com/auth/refresh',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    refreshToken: currentRefreshToken,
+                    autoLogin: true,
+                  }),
+                }
+              );
+
+              if (response.ok) {
+                const data = await response.json();
+                // 갱신된 토큰을 모든 저장소에 저장
+                localStorage.setItem('accessToken', data.accessToken);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                sessionStorage.setItem('accessToken', data.accessToken);
+                sessionStorage.setItem('refreshToken', data.refreshToken);
+
+                // 쿠키도 갱신
+                document.cookie = `accessToken=${data.accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+                document.cookie = `refreshToken=${data.refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+
+                console.log(
+                  '🔄 자동 토큰 갱신 완료:',
+                  new Date().toLocaleString()
+                );
+              }
+            }
+          }
+        } catch (error) {
+          console.error('자동 토큰 갱신 오류:', error);
+        }
+      }, 300000); // 5분마다 체크
+
+      localStorage.setItem(
+        'autoRefreshInterval',
+        autoRefreshInterval.toString()
+      );
+    }
+  }
+
   setupTokenRefreshTimer(accessToken);
   syncTokenWithApp(accessToken, refreshToken);
 
@@ -113,8 +184,9 @@ export const saveTokens = (
   console.log('🔐 토큰 저장됨:', {
     hasAccessToken: !!accessToken,
     hasRefreshToken: !!refreshToken,
-    autoLogin: localStorage.getItem('autoLogin'),
+    autoLogin,
     timestamp: new Date().toLocaleString(),
+    duration: autoLogin ? '30일' : '일반',
   });
 };
 
@@ -174,9 +246,9 @@ const setupTokenRefreshTimer = (token: string): void => {
 
     // 자동로그인 여부에 따라 갱신 시점 조정
     const autoLogin = localStorage.getItem('autoLogin') === 'true';
-    // 자동로그인: 만료 1일 전에 갱신
+    // 자동로그인: 만료 1시간 전에 갱신 (더 안전하게)
     // 일반로그인: 만료 30분 전에 갱신 (안전성 향상)
-    const refreshOffset = autoLogin ? 24 * 60 * 60 : 30 * 60; // 24시간 또는 30분
+    const refreshOffset = autoLogin ? 60 * 60 : 30 * 60; // 1시간 또는 30분
     const refreshTime = (expiresAt - currentTime - refreshOffset) * 1000;
 
     const refreshAt = new Date(Date.now() + refreshTime);
@@ -267,6 +339,16 @@ export const refreshToken = async (retryCount = 0): Promise<boolean> => {
       const currentRefreshToken = getRefreshToken();
       saveTokens(accessToken, currentRefreshToken || undefined);
       console.log('⚠️ 서버에서 새 리프레시 토큰을 반환하지 않음, 기존 것 유지');
+    }
+
+    // 30일 자동 로그인 설정이 활성화된 경우 쿠키도 갱신
+    const isAutoLoginEnabled = localStorage.getItem('autoLogin') === 'true';
+    if (isAutoLoginEnabled) {
+      const maxAge = 30 * 24 * 60 * 60; // 30일을 초 단위로
+      document.cookie = `accessToken=${accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+      if (newRefreshToken) {
+        document.cookie = `refreshToken=${newRefreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
+      }
     }
 
     console.log('✅ 토큰 갱신 완료:', {
