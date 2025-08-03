@@ -309,6 +309,7 @@ export const isPublicRoute = (pathname: string): boolean => {
     '/findPassword',
     '/link',
     '/',
+    '/home', // 홈 페이지를 공개 라우트로 추가
   ];
   return publicRoutes.includes(pathname);
 };

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import LandingBackground from '@/assets/landings/7X5A9526.jpg';
@@ -11,6 +12,7 @@ import LandingPage4 from '@/components/landings/LandingPage4';
 import LandingPage5 from '@/components/landings/LandingPage5';
 import LandingPage6 from '@/components/landings/LandingPage6';
 import LandingPage7 from '@/components/landings/LandingPage7';
+import { getCurrentToken } from '@/utils/auth';
 
 interface ScrollFadeInProps {
   children: React.ReactNode;
@@ -68,11 +70,17 @@ const ScrollFadeIn: React.FC<ScrollFadeInProps> = ({ children }) => {
 };
 
 const Landing: React.FC = () => {
-  // 이미지 프리로드
+  // 이미지 프리로드 (Hook은 항상 최상위에서 호출)
   useEffect(() => {
     const img = new Image();
     img.src = LandingBackground;
   }, []);
+
+  // 토큰이 있으면 홈으로 리다이렉트
+  const token = getCurrentToken();
+  if (token) {
+    return <Navigate to='/home' replace />;
+  }
 
   return (
     <LandingContainer>

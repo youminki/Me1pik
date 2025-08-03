@@ -2,25 +2,25 @@
 /*    /index.html   200
 
 # JavaScript 파일들에 대한 올바른 MIME 타입 설정
-/*.js
+*.js
   Content-Type: application/javascript
   X-Content-Type-Options: nosniff
 
 # CSS 파일들에 대한 올바른 MIME 타입 설정
-/*.css
+*.css
   Content-Type: text/css
   X-Content-Type-Options: nosniff
 
 # 폰트 파일들에 대한 올바른 MIME 타입 설정
-/*.woff2
+*.woff2
   Content-Type: font/woff2
   X-Content-Type-Options: nosniff
 
-/*.woff
+*.woff
   Content-Type: font/woff
   X-Content-Type-Options: nosniff
 
-/*.ttf
+*.ttf
   Content-Type: font/ttf
   X-Content-Type-Options: nosniff
 

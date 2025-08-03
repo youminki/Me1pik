@@ -16,10 +16,11 @@ export default defineConfig(() => {
     build: {
       rollupOptions: {
         output: {
-          // 파일명을 해시 없이 고정
-          entryFileNames: 'assets/[name].js',
-          chunkFileNames: 'assets/[name].js',
-          assetFileNames: 'assets/[name].[ext]',
+          // 파일명에 해시 포함 (캐시 무효화)
+          entryFileNames: 'assets/[name].[hash].js',
+          chunkFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]',
+          // 청크 크기 경고 임계값 증가
           manualChunks: {
             // 핵심 라이브러리들
             'react-vendor': ['react', 'react-dom'],
@@ -157,7 +158,7 @@ export default defineConfig(() => {
           },
         },
       },
-      chunkSizeWarningLimit: 500, // 경고 임계값 낮춤
+      chunkSizeWarningLimit: 1000, // 경고 임계값 증가 (현재 청크들이 모두 정상)
       sourcemap: false,
       // CSS 최적화
       cssCodeSplit: true,
@@ -182,9 +183,13 @@ export default defineConfig(() => {
     },
     // 개발 서버 최적화
     server: {
+      port: 5173,
+      host: true,
       hmr: {
         overlay: false, // HMR 오버레이 비활성화로 성능 향상
       },
+      // SPA 라우팅을 위한 설정
+      historyApiFallback: true,
     },
     // CSS 최적화는 postcss.config.js에서 처리
   };

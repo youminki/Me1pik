@@ -1,9 +1,11 @@
-const CACHE_NAME = 'melpik-v1';
+const CACHE_NAME = 'melpik-v2';
 const urlsToCache = [
   '/',
   '/home',
   '/brand',
   '/lockerRoom',
+  '/landing',
+  '/login',
   '/assets/icon-192.png',
   '/assets/icon-512.png',
   '/assets/icon-192-maskable.png',
@@ -26,7 +28,16 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
       // Return cached version or fetch from network
-      return response || fetch(event.request);
+      return (
+        response ||
+        fetch(event.request).catch(() => {
+          // 네트워크 요청이 실패하면 기본 페이지 반환
+          if (event.request.mode === 'navigate') {
+            return caches.match('/');
+          }
+          return new Response('', { status: 404 });
+        })
+      );
     })
   );
 });

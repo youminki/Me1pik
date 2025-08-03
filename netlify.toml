@@ -20,3 +20,34 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# 헤더 설정
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+    X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Content-Type = "text/css"
+    X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "*.woff2"
+  [headers.values]
+    Content-Type = "font/woff2"
+    X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "*.woff"
+  [headers.values]
+    Content-Type = "font/woff"
+    X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "*.ttf"
+  [headers.values]
+    Content-Type = "font/ttf"
+    X-Content-Type-Options = "nosniff"
