@@ -125,10 +125,7 @@ export default defineConfig(() => {
             ],
 
             // 테스트 페이지들
-            'test-pages': [
-              './src/pages/tests/TestLogin.tsx',
-              './src/pages/tests/TestDashboard.tsx',
-            ],
+            'test-pages': ['./src/pages/tests/TestDashboard.tsx'],
 
             // 기타 페이지들
             'other-pages': [

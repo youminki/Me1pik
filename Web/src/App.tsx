@@ -112,7 +112,6 @@ const PasswordChange = React.lazy(() => import('@/pages/auths/PasswordChange'));
 const Signup = React.lazy(() => import('@/pages/auths/Signup'));
 
 // 테스트 페이지 컴포넌트들
-const TestLoginPage = React.lazy(() => import('@/pages/tests/TestLogin'));
 const TestDashboard = React.lazy(() => import('@/pages/tests/TestDashboard'));
 const Basket = React.lazy(() => import('@/pages/baskets/Basket'));
 const CustomerService = React.lazy(
@@ -495,7 +494,6 @@ const App: React.FC = () => {
                 <Route path='/signup' element={<Signup />} />
 
                 {/* 테스트 페이지 라우트 */}
-                <Route path='/test-login' element={<TestLoginPage />} />
                 <Route path='/test-dashboard' element={<TestDashboard />} />
                 {/* <Route path='/findid' element={<FindId />} />
             <Route path='/findPassword' element={<FindPassword />} /> */}
