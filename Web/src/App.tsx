@@ -13,6 +13,9 @@ import { ThemeProvider } from 'styled-components';
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
 import PaypleTest from '@/__tests__/development/PaypleTest';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import Brand from '@/pages/brands/Brand';
+import BrandDetail from '@/pages/brands/BrandDetail';
+import Melpik from '@/pages/melpiks/Melpik';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { theme } from '@/styles/Theme';
 import {
@@ -96,9 +99,11 @@ const ReadyLogin = React.lazy(() => import('@/pages/auths/LoginReady'));
 const TestLogin = React.lazy(() => import('@/pages/auths/LoginTest'));
 const PasswordChange = React.lazy(() => import('@/pages/auths/PasswordChange'));
 const Signup = React.lazy(() => import('@/pages/auths/Signup'));
+
+// 테스트 페이지 컴포넌트들
+const TestLoginPage = React.lazy(() => import('@/pages/tests/TestLogin'));
+const TestDashboard = React.lazy(() => import('@/pages/tests/TestDashboard'));
 const Basket = React.lazy(() => import('@/pages/baskets/Basket'));
-const Brand = React.lazy(() => import('@/pages/brands/Brand'));
-const BrandDetail = React.lazy(() => import('@/pages/brands/BrandDetail'));
 const CustomerService = React.lazy(
   () => import('@/pages/customer-services/CustomerService')
 );
@@ -162,7 +167,6 @@ const ContemporarySettings = React.lazy(
 const CreateMelpik = React.lazy(
   () => import('@/pages/melpiks/creates/CreateMelpik')
 );
-const Melpik = React.lazy(() => import('@/pages/melpiks/Melpik'));
 const Schedule = React.lazy(() => import('@/pages/melpiks/schedules/Schedule'));
 const ScheduleConfirmation = React.lazy(
   () => import('@/pages/melpiks/schedules/ScheduleConfirmation')
@@ -252,6 +256,21 @@ const App: React.FC = () => {
       // 토큰이 없으면 기존 인증 체크 로직이 동작함
     };
     tryAutoLogin();
+
+    // 강제 로그인 리다이렉트 이벤트 리스너
+    const handleForceLoginRedirect = () => {
+      console.log('🔄 강제 로그인 리다이렉트 이벤트 발생');
+      window.location.href = '/login';
+    };
+
+    window.addEventListener('forceLoginRedirect', handleForceLoginRedirect);
+
+    return () => {
+      window.removeEventListener(
+        'forceLoginRedirect',
+        handleForceLoginRedirect
+      );
+    };
   }, []);
 
   // 모니터링 시스템 초기화
@@ -437,6 +456,10 @@ const App: React.FC = () => {
               <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
               <Route path='/Link' element={<Link />} />
               <Route path='/signup' element={<Signup />} />
+
+              {/* 테스트 페이지 라우트 */}
+              <Route path='/test-login' element={<TestLoginPage />} />
+              <Route path='/test-dashboard' element={<TestDashboard />} />
               {/* <Route path='/findid' element={<FindId />} />
             <Route path='/findPassword' element={<FindPassword />} /> */}
 

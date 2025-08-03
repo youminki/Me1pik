@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
-import { getCurrentToken, getRefreshToken } from '@/utils/auth';
+import { getCurrentToken } from '@/utils/auth';
 import { trackApiCall } from '@/utils/monitoring';
 
 interface RequestMetadata {
@@ -133,10 +133,16 @@ Axios.interceptors.response.use(
     }
 
     // 401 에러 처리 (토큰 갱신)
-    if (
-      error.response?.status === 401 &&
-      !(originalRequest as ExtendedAxiosRequestConfig)._retry
-    ) {
+    if (error.response?.status === 401) {
+      // 이미 재시도 중인 경우 무한 루프 방지
+      if ((originalRequest as ExtendedAxiosRequestConfig)._retry) {
+        console.log('🔄 이미 토큰 갱신을 시도했으므로 로그아웃 처리');
+        clearAllTokens();
+        redirectToLogin();
+        return Promise.reject(error);
+      }
+
+      // 재시도 플래그 설정
       (originalRequest as ExtendedAxiosRequestConfig)._retry = true;
 
       try {
@@ -148,12 +154,18 @@ Axios.interceptors.response.use(
           localToken?.trim() || sessionToken?.trim() || cookieToken?.trim();
 
         if (!REFRESH_TOKEN) {
+          console.log('❌ 리프레시 토큰이 없어서 로그아웃 처리');
           clearAllTokens();
           redirectToLogin();
           return Promise.reject(error);
         }
 
-        console.log('🔄 Axios 인터셉터: 토큰 갱신 시도');
+        console.log('🔄 Axios 인터셉터: 토큰 갱신 시도', {
+          url: originalRequest.url,
+          method: originalRequest.method,
+          hasRefreshToken: !!REFRESH_TOKEN,
+          refreshTokenLength: REFRESH_TOKEN?.length,
+        });
 
         // 토큰 갱신 시도
         const { data } = await axios.post(
@@ -179,20 +191,15 @@ Axios.interceptors.response.use(
 
         // 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        console.log('🔄 원래 요청 재시도:', originalRequest.url);
         return Axios(originalRequest);
       } catch (refreshError) {
         console.error('❌ Axios 인터셉터: 토큰 갱신 실패:', refreshError);
 
-        // 토큰 갱신 실패 시 토큰 상태 확인
-        const remainingToken = getRefreshToken();
-        if (!remainingToken) {
-          console.log('리프레시 토큰이 없어서 로그아웃 처리');
-          clearAllTokens();
-          redirectToLogin();
-        } else {
-          console.log('리프레시 토큰은 있지만 갱신 실패, 원래 요청 실패 처리');
-          // 토큰은 유지하되 원래 요청은 실패 처리
-        }
+        // 토큰 갱신 실패 시 즉시 로그아웃 처리
+        console.log('❌ 토큰 갱신 실패로 인한 로그아웃 처리');
+        clearAllTokens();
+        redirectToLogin();
         return Promise.reject(refreshError);
       }
     }

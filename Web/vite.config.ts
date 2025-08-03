@@ -32,6 +32,11 @@ export default defineConfig(() => {
               './src/pages/auths/FindId.tsx',
               './src/pages/auths/FindPassword.tsx',
             ],
+            'auth-other': [
+              './src/pages/auths/LoginReady.tsx',
+              './src/pages/auths/LoginTest.tsx',
+              './src/pages/auths/PasswordChange.tsx',
+            ],
 
             // 홈 페이지 세분화 (가장 큰 청크)
             'home-main': ['./src/pages/homes/Home.tsx'],
@@ -43,16 +48,94 @@ export default defineConfig(() => {
             ],
 
             'locker-main': ['./src/pages/locker-rooms/LockerRoom.tsx'],
-            'locker-closet': [
-              './src/pages/locker-rooms/my-closets/MyCloset.tsx',
+
+            'melpik-create': ['./src/pages/melpiks/creates/CreateMelpik.tsx'],
+
+            // Brand와 Melpik 컴포넌트를 메인 번들에 포함
+            'brand-components': [
+              './src/pages/brands/Brand.tsx',
+              './src/pages/brands/BrandDetail.tsx',
             ],
-            'locker-ticket': [
-              './src/pages/locker-rooms/my-tickets/MyTicket.tsx',
-              './src/pages/locker-rooms/my-tickets/PurchaseOfPasses.tsx',
+            'melpik-components': ['./src/pages/melpiks/Melpik.tsx'],
+
+            // 알람 및 분석 페이지
+            'alarm-analysis': [
+              './src/pages/alarms/Alarm.tsx',
+              './src/pages/analyses/Analysis.tsx',
             ],
 
-            'melpik-main': ['./src/pages/melpiks/Melpik.tsx'],
-            'melpik-create': ['./src/pages/melpiks/creates/CreateMelpik.tsx'],
+            // 고객 서비스 관련
+            'customer-service': [
+              './src/pages/customer-services/CustomerService.tsx',
+              './src/pages/customer-services/documents/DocumentDetail.tsx',
+              './src/pages/customer-services/documents/DocumentList.tsx',
+            ],
+
+            // 결제 관련
+            payment: [
+              './src/pages/payments/Payment.tsx',
+              './src/pages/payments/PaymentComplete.tsx',
+              './src/pages/payments/Paymentfail.tsx',
+            ],
+
+            // 프로필 관련
+            profile: [
+              './src/pages/profile/ChangePassword.tsx',
+              './src/pages/profile/DeliveryManagement.tsx',
+              './src/pages/profile/EditAddress.tsx',
+              './src/pages/profile/UpdateProfile.tsx',
+            ],
+
+            // 멜픽 스케줄 관련
+            'melpik-schedule': [
+              './src/pages/melpiks/schedules/Schedule.tsx',
+              './src/pages/melpiks/schedules/ScheduleConfirmation.tsx',
+              './src/pages/melpiks/schedules/ScheduleReservationStep1.tsx',
+              './src/pages/melpiks/schedules/ScheduleReservationStep2.tsx',
+              './src/pages/melpiks/schedules/ScheduleReservationStep3.tsx',
+            ],
+
+            // 멜픽 설정 및 정산 관련
+            'melpik-settings': [
+              './src/pages/melpiks/settings/SettingMelpik.tsx',
+              './src/pages/melpiks/calculates/SalesSettlement.tsx',
+              './src/pages/melpiks/calculates/SalesSettlementDetail.tsx',
+              './src/pages/melpiks/calculates/SettlementRequest.tsx',
+              './src/pages/melpiks/creates/ContemporarySettings.tsx',
+            ],
+
+            // 락커룸 관련
+            'locker-components': [
+              './src/pages/locker-rooms/my-closets/MyCloset.tsx',
+              './src/pages/locker-rooms/my-tickets/MyTicket.tsx',
+              './src/pages/locker-rooms/my-tickets/PurchaseOfPasses.tsx',
+              './src/pages/locker-rooms/my-tickets/TicketDetail.tsx',
+              './src/pages/locker-rooms/my-tickets/TicketPayment.tsx',
+              './src/pages/locker-rooms/payment-methods/AddCard.tsx',
+              './src/pages/locker-rooms/payment-methods/PaymentMethod.tsx',
+              './src/pages/locker-rooms/points/Point.tsx',
+              './src/pages/locker-rooms/product-reviews/ProductReview.tsx',
+              './src/pages/locker-rooms/product-reviews/ProductReviewWrite.tsx',
+              './src/pages/locker-rooms/usage-histories/UsageHistory.tsx',
+            ],
+
+            // 테스트 페이지들
+            'test-pages': [
+              './src/pages/tests/TestLogin.tsx',
+              './src/pages/tests/TestDashboard.tsx',
+            ],
+
+            // 기타 페이지들
+            'other-pages': [
+              './src/pages/errors/NotFound.tsx',
+              './src/pages/landings/Landing.tsx',
+              './src/pages/layouts/AppLayout.tsx',
+              './src/pages/links/Link.tsx',
+              './src/pages/links/PersonalLink.tsx',
+              './src/pages/my-info/MyInfoList.tsx',
+              './src/pages/my-styles/MyStyle.tsx',
+              './src/pages/baskets/Basket.tsx',
+            ],
 
             // 공통 컴포넌트 분리
             'shared-components': [
