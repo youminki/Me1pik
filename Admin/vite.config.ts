@@ -61,11 +61,32 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    chunkSizeWarningLimit: 2000, // 청크 크기 경고 제한을 2MB로 늘림
     rollupOptions: {
       output: {
         assetFileNames: 'assets/[name]-[hash][extname]',
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
+        manualChunks: {
+          // React 관련 라이브러리들을 별도 청크로 분리
+          'react-vendor': ['react', 'react-dom'],
+          // 라우팅 관련 라이브러리
+          'router-vendor': ['react-router-dom'],
+          // 차트 라이브러리
+          'chart-vendor': ['recharts'],
+          // 유틸리티 라이브러리
+          'utils-vendor': ['lodash', 'date-fns', 'axios'],
+          // 폼 관련 라이브러리
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'yup'],
+          // 스타일링 라이브러리
+          'style-vendor': ['styled-components', 'styled-reset'],
+          // 아이콘 라이브러리
+          'icon-vendor': ['react-icons'],
+          // 날짜 관련 라이브러리
+          'date-vendor': ['react-datepicker', 'react-day-picker', 'date-holidays'],
+          // 쿠키 라이브러리
+          'cookie-vendor': ['js-cookie'],
+        },
       },
     },
   },

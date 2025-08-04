@@ -158,7 +158,7 @@ export default defineConfig(() => {
           },
         },
       },
-      chunkSizeWarningLimit: 1000, // 경고 임계값 증가 (현재 청크들이 모두 정상)
+      chunkSizeWarningLimit: 2000, // 경고 임계값 증가 (2MB로 설정)
       sourcemap: false,
       // CSS 최적화
       cssCodeSplit: true,
