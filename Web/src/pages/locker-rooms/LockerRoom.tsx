@@ -137,14 +137,13 @@ const GridMenu = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
-  width: 100%;
-  margin: auto;
-
+  box-sizing: border-box;
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
     max-width: 600px;
     margin: 0 auto;
     gap: 40px;
+    padding: 0 24px;
   }
 `;
 
@@ -158,7 +157,6 @@ const GridItem = styled.div<{ disabled?: boolean }>`
   border: 1px solid #000000;
   border-radius: 4px;
   background: #fff;
-  width: 100%;
   aspect-ratio: 1.5;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};

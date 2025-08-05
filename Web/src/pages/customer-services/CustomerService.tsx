@@ -93,12 +93,13 @@ const GridMenu = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
-  width: 100%;
+  box-sizing: border-box;
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
     max-width: 600px;
     margin: 0 auto;
     gap: 40px;
+    padding: 0 24px;
   }
 `;
 
@@ -107,7 +108,6 @@ const GridItem = styled.div`
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-
   box-sizing: border-box;
   border: 1px solid #000000;
   border-radius: 4px;
@@ -116,6 +116,7 @@ const GridItem = styled.div`
   width: 100%;
   aspect-ratio: 1.5;
   padding: 1rem;
+  min-width: 0;
   @media (min-width: 1024px) {
     aspect-ratio: 1.8;
     padding: 1.5rem;

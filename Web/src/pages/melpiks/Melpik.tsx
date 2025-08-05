@@ -17,12 +17,12 @@ import { theme } from '@/styles/Theme';
 const menuItems = [
   { icon: MelpikCreateIcon, label: '다이어리 생성', path: '/create-melpik' },
   { icon: MelpikOptionIcon, label: '다이어리설정', path: '/melpik-settings' },
-  { icon: MelpikScheduelerIcon, label: '판매 스케줄', path: '/sales-schedule' },
   {
     icon: MelpikCalculateIcon,
     label: '정산 내역',
     path: '/sales-settlement',
   },
+  { icon: MelpikScheduelerIcon, label: '판매 스케줄', path: '/sales-schedule' },
 ];
 
 const disabledMenuIndexes = [0, 2]; // 0: 내 옷장, 2: 포인트
@@ -125,7 +125,6 @@ const GridItem = styled.div<{ $disabled?: boolean }>`
   border-radius: 4px;
   background: #fff;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-  width: 100%;
   aspect-ratio: 1.5;
   opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
