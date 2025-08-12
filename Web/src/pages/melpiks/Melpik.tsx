@@ -119,22 +119,21 @@ const GridItem = styled.div<{ $disabled?: boolean }>`
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-
   box-sizing: border-box;
-  border: 1px solid #000000;
+  border: 1px solid ${({ $disabled }) => ($disabled ? '#ccc' : '#000000')};
   border-radius: 4px;
-  background: #fff;
+  background: ${({ $disabled }) => ($disabled ? '#f5f5f5' : '#fff')};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
+  width: 100%;
   aspect-ratio: 1.5;
-  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
-  pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
   padding: 1rem;
+  min-width: 0;
+  opacity: ${({ $disabled }) => ($disabled ? 0.6 : 1)};
   @media (min-width: 1024px) {
     aspect-ratio: 1.8;
     padding: 1.5rem;
   }
 `;
-
 const IconLabelRow = styled.div`
   display: flex;
   flex-direction: column;
