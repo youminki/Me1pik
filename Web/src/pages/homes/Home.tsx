@@ -1,7 +1,7 @@
 // src/pages/homes.tsx
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { useProducts } from '@/api-utils/product-managements/uploads/productApi';
@@ -31,12 +31,35 @@ import { useScrollToTop } from '@/hooks/useScrollToTop';
  */
 
 const Home: React.FC = () => {
-  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 로그인 후 안내 모달
-  const [isLoginNoticeOpen, setLoginNoticeOpen] = useState(false);
-  const showNotice = location.state?.showNotice;
+  // 광복절 휴무 안내 모달
+  const [isHolidayModalOpen, setHolidayModalOpen] = useState(false);
+  const [tempHideToday, setTempHideToday] = useState(false);
+
+  useEffect(() => {
+    // 오늘 날짜 기준으로 체크
+    const today = new Date().toDateString();
+    const lastHiddenDate = sessionStorage.getItem('holidayNoticeHiddenDate');
+
+    // 오늘 하루동안 보지 않기로 체크한 경우가 아니면 모달 표시
+    if (lastHiddenDate !== today) {
+      setHolidayModalOpen(true);
+    }
+  }, []);
+
+  const handleConfirmHideToday = () => {
+    if (tempHideToday) {
+      const today = new Date().toDateString();
+      sessionStorage.setItem('holidayNoticeHiddenDate', today);
+    }
+    setHolidayModalOpen(false);
+  };
+
+  const handleModalClose = () => {
+    setTempHideToday(false);
+    setHolidayModalOpen(false);
+  };
 
   // 공유 모달 상태
   const [isShareModalOpen, setShareModalOpen] = useState(false);
@@ -161,12 +184,7 @@ const Home: React.FC = () => {
     };
   }, [isModalOpen]);
 
-  // 홈 진입 시 로그인 안내 모달 열기
-  useEffect(() => {
-    // if (showNotice) {
-    //   setLoginNoticeOpen(true);
-    // }
-  }, [showNotice]);
+  // (구) 로그인 안내 모달 관련 코드 제거됨
 
   // 스크롤 맨 위로 이동 (재사용 가능한 훅 사용)
   const { scrollToTop } = useScrollToTop();
@@ -400,19 +418,7 @@ const Home: React.FC = () => {
   return (
     <>
       <UnifiedHeader variant='default' />
-      {/* 로그인 안내 모달 */}
-      <ReusableModal
-        isOpen={isLoginNoticeOpen}
-        onClose={() => setLoginNoticeOpen(false)}
-        title='멜픽 - 이용안내'
-      >
-        <p>멜픽 서비스에서 대여 이용 시 아래 순서로 진행하세요:</p>
-        <InfoList>
-          <li>결제카드 등록</li>
-          <li>이용권 결제</li>
-          <li>대여제품 신청</li>
-        </InfoList>
-      </ReusableModal>
+      {/* (구) 로그인 안내 모달 제거됨 */}
 
       {/* 공유 링크 복사 안내 모달 */}
       <ReusableModal
@@ -521,6 +527,54 @@ const Home: React.FC = () => {
       >
         아직 구현 전인 기능이에요.
       </ReusableModal>
+
+      {/* 광복절 휴무 안내 모달: 홈 진입 시 노출 */}
+      <ReusableModal
+        isOpen={isHolidayModalOpen}
+        onClose={handleModalClose}
+        title='광복절 휴무 안내'
+        onConfirm={handleConfirmHideToday}
+        showConfirmButton={true}
+      >
+        <div style={{ lineHeight: 1.7 }}>
+          이번 광복절 기간동안 택배사 휴무로 [ 8월 13일(수) ~ 8월 15일(금) ]
+          까지 발송이 제한됩니다.
+          <br />
+          그래서 택배로 발송은 12일(수)이 마지막으로 발송되며, 이후 8월
+          16일(토)에 발송이 가능합니다.
+          <br />
+          멜픽 서비스 또한 13일(수) ~ 15일(금) 까지는 휴무 입니다.
+        </div>
+
+        {/* 오늘 하루동안 보지 않기 체크박스 - 내용 하단에 위치 */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '16px 0 0 0',
+            marginTop: '130px',
+          }}
+        >
+          <input
+            type='checkbox'
+            id='hideToday'
+            checked={tempHideToday}
+            onChange={(e) => setTempHideToday(e.target.checked)}
+            style={{ width: '18px', height: '18px' }}
+          />
+          <label
+            htmlFor='hideToday'
+            style={{
+              fontSize: '14px',
+              cursor: 'pointer',
+              userSelect: 'none',
+            }}
+          >
+            오늘 하루동안 보지 않기
+          </label>
+        </div>
+      </ReusableModal>
     </>
   );
 };
@@ -547,12 +601,4 @@ const ContentWrapper = styled.div`
   min-height: 400px; /* CLS 개선을 위한 최소 높이 설정 */
 `;
 
-const InfoList = styled.ol`
-  margin: 12px 0 0 16px;
-  padding: 0;
-  list-style: decimal;
-  font-size: 14px;
-  & li {
-    margin-bottom: 8px;
-  }
-`;
+// (구) 로그인 안내 모달에서 사용하던 InfoList 제거
