@@ -1059,7 +1059,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background: #fff;
-  padding-top: 70px;
+  padding-top: 100px;
   padding-bottom: 70px;
   margin: 0 auto;
 
