@@ -537,23 +537,23 @@ const Home: React.FC = () => {
             alt='택배 휴무일정 안내'
             style={{
               width: '100%',
-              maxWidth: '400px',
+
               height: 'auto',
               borderRadius: '8px',
             }}
           />
         </div>
 
-        <div style={{ lineHeight: 1.7 }}>
-          이번 광복절 기간동안 택배사 휴무로{' '}
+        <div style={{ lineHeight: 1.7, fontSize: '14px' }}>
+          이번 광복절 기간동안 택배사 휴무로 <br />
           <span style={{ fontWeight: 800 }}>
             [ 8월 13일(수) ~ 8월 15일(금) ]
-          </span>
+          </span>{' '}
           까지 발송이 제한됩니다.
           <br />
           그래서 택배로 발송은 <span style={{ fontWeight: 800 }}>12일(화)</span>
-          이 마지막으로 발송되며, 이후{' '}
-          <span style={{ fontWeight: 800 }}>8월 16일(토)</span>에 발송이
+          이 마지막으로 발송되며, <br />
+          이후 <span style={{ fontWeight: 800 }}>8월 16일(토)</span>에 발송이
           가능합니다.
           <br />
           멜픽 서비스 또한{' '}
