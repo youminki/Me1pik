@@ -21,10 +21,10 @@ import IconPants from 'src/assets/category/Pants.svg';
 import IconJacket from 'src/assets/category/Jacket.svg';
 import IconCoat from 'src/assets/category/Coat.svg';
 import IconTop from 'src/assets/category/Top.svg';
-import IconTshirt from 'src/assets/category/Tshirt.svg';
 import IconCardigan from 'src/assets/category/Cardigan.svg';
-import IconBest from 'src/assets/category/Best.svg';
-import IconPadding from 'src/assets/category/Padding.svg';
+// import IconTshirt from 'src/assets/category/Tshirt.svg';
+// import IconBest from 'src/assets/category/Best.svg';
+// import IconPadding from 'src/assets/category/Padding.svg';
 
 const colorOptions = [
   { label: '화이트', value: 'WHITE' },
@@ -62,10 +62,10 @@ const categoryOptions = [
   { label: '자켓', value: 'Jacket', icon: IconJacket },
   { label: '코트', value: 'Coat', icon: IconCoat },
   { label: '탑', value: 'Top', icon: IconTop },
-  { label: '티셔츠', value: 'Tshirt', icon: IconTshirt },
   { label: '가디건', value: 'Cardigan', icon: IconCardigan },
-  { label: '베스트', value: 'Best', icon: IconBest },
-  { label: '패딩', value: 'Padding', icon: IconPadding },
+  // { label: '티셔츠', value: 'Tshirt', icon: IconTshirt },
+  // { label: '베스트', value: 'Best', icon: IconBest },
+  // { label: '패딩', value: 'Padding', icon: IconPadding },
 ];
 
 const statusOptions = [

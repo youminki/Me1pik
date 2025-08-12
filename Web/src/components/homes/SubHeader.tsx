@@ -4,7 +4,6 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
-import Best from '@/assets/sub-headers/Best.svg';
 import Blouse from '@/assets/sub-headers/Blouse.svg';
 import Cardigan from '@/assets/sub-headers/Cardigan.svg';
 import Coat from '@/assets/sub-headers/Coat.svg';
@@ -18,11 +17,12 @@ import MidiDress from '@/assets/sub-headers/MidiDress.svg';
 import MidiSkirt from '@/assets/sub-headers/MidiSkirt.svg';
 import MiniDress from '@/assets/sub-headers/MiniDress.svg';
 import MiniSkirt from '@/assets/sub-headers/MiniSkirt.svg';
-import Padding from '@/assets/sub-headers/Padding.svg';
 import Pants from '@/assets/sub-headers/Pants.svg';
 import ShirtTop from '@/assets/sub-headers/ShirtTop.svg';
 import Top from '@/assets/sub-headers/Top.svg';
-import Tshirt from '@/assets/sub-headers/Tshirt.svg';
+// import Best from '@/assets/sub-headers/Best.svg';
+// import Padding from '@/assets/sub-headers/Padding.svg';
+// import Tshirt from '@/assets/sub-headers/Tshirt.svg';
 
 const homeIcons = [
   { src: All, alt: '전체', category: 'All' },
@@ -40,10 +40,10 @@ const homeIcons = [
   { src: Jacket, alt: '자켓', category: 'Jacket' },
   { src: Coat, alt: '코트', category: 'Coat' },
   { src: Top, alt: '탑', category: 'Top' },
-  { src: Tshirt, alt: '티셔츠', category: 'Tshirt' },
   { src: Cardigan, alt: '가디건', category: 'Cardigan' },
-  { src: Best, alt: '베스트', category: 'Best' },
-  { src: Padding, alt: '패딩', category: 'Padding' },
+  // { src: Tshirt, alt: '티셔츠', category: 'Tshirt' },
+  // { src: Best, alt: '베스트', category: 'Best' },
+  // { src: Padding, alt: '패딩', category: 'Padding' },
 ];
 
 interface SubHeaderProps {
