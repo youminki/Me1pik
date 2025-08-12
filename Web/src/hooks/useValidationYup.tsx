@@ -135,6 +135,7 @@ export const schemaSignup = yup
     birthYear: yup
       .string()
       .notRequired()
+      .default('')
       .matches(/^\d{4}$/, {
         message: '태어난 해는 4자리 숫자로 입력해주세요.',
         excludeEmptyString: true,
@@ -147,8 +148,8 @@ export const schemaSignup = yup
         /^010\d{8}$/,
         '전화번호는 010으로 시작하는 11자리 숫자여야 합니다.'
       ),
-    region: yup.string().notRequired(),
-    district: yup.string().notRequired(),
+    region: yup.string().notRequired().default(''),
+    district: yup.string().notRequired().default(''),
     melpickAddress: yup
       .string()
       .required('멜픽 주소를 입력해주세요.')
@@ -156,8 +157,8 @@ export const schemaSignup = yup
         /^[a-zA-Z0-9]{1,12}$/,
         '영문과 숫자로 이루어진 1~12자 이내로 입력해주세요.'
       ),
-    height: yup.string().notRequired(),
-    size: yup.string().notRequired(),
+    height: yup.string().notRequired().default(''),
+    size: yup.string().notRequired().default(''),
     dress: yup.string().required('사이즈를 선택해주세요.'),
     top: yup.string().required('사이즈 선택.'),
     bottom: yup.string().required('사이즈 선택.'),

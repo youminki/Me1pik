@@ -15,6 +15,7 @@ import {
   verifyCode,
   checkWebpage,
   checkNickname,
+  type SignupRequest,
 } from '@/api-utils/user-managements/users/userApi';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import Modal from '@/components/melpiks/create-melpiks/settings/Modal';
@@ -374,7 +375,9 @@ const Signup: React.FC = () => {
     try {
       // 중복 제출 방지를 위해 isSubmitting 체크
       if (isSubmitting) return;
-      const response = await signUpUser(formattedData as any);
+      const response = await signUpUser(
+        formattedData as unknown as SignupRequest
+      );
       setSignupResult(`🎉 ${response.nickname}님, 회원가입이 완료되었습니다!`);
       setIsSignupSuccess(true);
       setShowSignupResultModal(true);
@@ -718,14 +721,19 @@ const Signup: React.FC = () => {
                   <option value='' disabled key='default'>
                     구를 선택하세요
                   </option>,
-                  ...(watch('region') && regionDistrictData[watch('region')]
-                    ? regionDistrictData[watch('region')].map(
-                        (district: string) => (
-                          <option key={district} value={district}>
-                            {district}
-                          </option>
-                        )
-                      )
+                  ...(watch('region') &&
+                  watch('region') !== '' &&
+                  watch('region') !== null &&
+                  regionDistrictData[
+                    watch('region') as keyof typeof regionDistrictData
+                  ]
+                    ? regionDistrictData[
+                        watch('region') as keyof typeof regionDistrictData
+                      ].map((district: string) => (
+                        <option key={district} value={district}>
+                          {district}
+                        </option>
+                      ))
                     : [
                         <option value='' key='empty'>
                           지역을 먼저 선택하세요
