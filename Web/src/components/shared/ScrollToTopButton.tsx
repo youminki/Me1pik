@@ -51,8 +51,12 @@ const Button = styled.button`
     transform: scale(0.95);
   }
 
-  @media (min-width: 1000px) {
-    right: calc((100vw - 1000px) / 2 + 20px);
+  /* Desktop: Bottom Dock와 가로(row)로 같은 위치 정렬 */
+  @media (min-width: 768px) {
+    bottom: 5%;
+    right: auto;
+    left: calc(50% + 240px); /* Dock 최대 너비 400px 기준, 우측으로 40px 간격 */
+    transform: translateX(0);
   }
 `;
 
