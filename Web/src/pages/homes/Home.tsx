@@ -551,13 +551,20 @@ const Home: React.FC = () => {
         </div>
 
         <div style={{ lineHeight: 1.7 }}>
-          이번 광복절 기간동안 택배사 휴무로 [ 8월 13일(수) ~ 8월 15일(금) ]
+          이번 광복절 기간동안 택배사 휴무로{' '}
+          <span style={{ fontWeight: 800 }}>
+            [ 8월 13일(수) ~ 8월 15일(금) ]
+          </span>
           까지 발송이 제한됩니다.
           <br />
-          그래서 택배로 발송은 12일(수)이 마지막으로 발송되며, 이후 8월
-          16일(토)에 발송이 가능합니다.
+          그래서 택배로 발송은 <span style={{ fontWeight: 800 }}>12일(화)</span>
+          이 마지막으로 발송되며, 이후{' '}
+          <span style={{ fontWeight: 800 }}>8월 16일(토)</span>에 발송이
+          가능합니다.
           <br />
-          멜픽 서비스 또한 13일(수) ~ 15일(금) 까지는 휴무 입니다.
+          멜픽 서비스 또한{' '}
+          <span style={{ fontWeight: 800 }}>13일(수) ~ 15일(금)</span> 까지는
+          휴무 입니다.
         </div>
 
         {/* 오늘 하루동안 보지 않기 체크박스 - 내용 하단에 위치 */}
@@ -580,7 +587,7 @@ const Home: React.FC = () => {
           <label
             htmlFor='hideToday'
             style={{
-              fontSize: '14px',
+              fontSize: '12px',
               cursor: 'pointer',
               userSelect: 'none',
             }}
