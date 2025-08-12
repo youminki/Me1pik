@@ -39,7 +39,7 @@ export interface ProductDetail {
   season: string;
   manufacturer: string;
   description: string;
-  fabricComposition: string[];
+  fabricComposition: string[] | Record<string, string>;
   elasticity: string;
   transparency: string;
   thickness: string;
@@ -90,7 +90,7 @@ interface RawProductListItem {
 }
 
 interface RawProductDetail extends Omit<ProductDetail, 'fabricComposition'> {
-  fabricComposition: string[];
+  fabricComposition: string[] | Record<string, string>;
   mainImage: string;
   product_img: string[];
   size_picture: string;

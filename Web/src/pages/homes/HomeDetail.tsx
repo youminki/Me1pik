@@ -378,12 +378,35 @@ const HomeDetail: React.FC<HomeDetailProps> = ({
         <Separator />
 
         <ProductDetails
-          fabricComposition={{
-            겉감: product.fabricComposition[0] || '',
-            안감: product.fabricComposition[1] || '',
-            배색: product.fabricComposition[2] || '',
-            부속: product.fabricComposition[3] || '',
-          }}
+          fabricComposition={(() => {
+            // fabricComposition이 객체인 경우와 배열인 경우를 모두 처리
+            if (Array.isArray(product.fabricComposition)) {
+              return {
+                겉감: product.fabricComposition[0] || '',
+                안감: product.fabricComposition[1] || '',
+                배색: product.fabricComposition[2] || '',
+                부속: product.fabricComposition[3] || '',
+              };
+            } else if (
+              typeof product.fabricComposition === 'object' &&
+              product.fabricComposition !== null
+            ) {
+              // 객체인 경우 직접 사용
+              return {
+                겉감: product.fabricComposition.겉감 || '',
+                안감: product.fabricComposition.안감 || '',
+                배색: product.fabricComposition.배색 || '',
+                부속: product.fabricComposition.부속 || '',
+              };
+            }
+            // 기본값
+            return {
+              겉감: '',
+              안감: '',
+              배색: '',
+              부속: '',
+            };
+          })()}
           detailsData={{
             품번: product.product_num,
             시즌: product.season,

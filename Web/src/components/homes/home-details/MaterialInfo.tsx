@@ -146,7 +146,7 @@ const ColoredBar = styled.div`
 
 const Thumb = styled.div`
   position: absolute;
-  top: -8px;
+  top: -5px;
   width: 14px;
   height: 14px;
   border: 3px solid #f6ae24;
