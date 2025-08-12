@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { useProducts } from '@/api-utils/product-managements/uploads/productApi';
+import DeliveryNoticeImage from '@/assets/DeliveryNotice.jpeg';
 import Footer from '@/components/homes/Footer';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
@@ -20,7 +21,6 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useNoResultHandler } from '@/hooks/useNoResultHandler';
 import { useProductFilter } from '@/hooks/useProductFilter';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
-
 /**
  * Home(상품 리스트) 페이지 - 최적화 버전
  * - react-query로 상품 데이터 관리(캐싱/중복방지)
@@ -533,11 +533,10 @@ const Home: React.FC = () => {
         {/* 택배 휴무 안내 이미지 */}
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <img
-            src='/src/assets/DeliveryNotice.jpeg'
+            src={DeliveryNoticeImage}
             alt='택배 휴무일정 안내'
             style={{
               width: '100%',
-
               height: 'auto',
               borderRadius: '8px',
             }}
