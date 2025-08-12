@@ -9,18 +9,79 @@ declare global {
   }
 }
 
-// Daum 우편번호 스크립트 로드
+// Daum 우편번호 스크립트 로드 (중복 로딩 방지 + https 고정 + 타임아웃 처리)
 const loadDaumPostcode = (): Promise<void> =>
   new Promise((resolve, reject) => {
-    if (window.daum && window.daum.Postcode) {
+    if (
+      typeof window !== 'undefined' &&
+      (window as Window & { daum?: { Postcode?: unknown } }).daum?.Postcode
+    ) {
       resolve();
       return;
     }
+
+    const SCRIPT_ID = 'daum-postcode-script';
+    const existing = document.getElementById(
+      SCRIPT_ID
+    ) as HTMLScriptElement | null;
+    if (existing) {
+      // 이미 추가된 스크립트가 있다면 onload를 기다리거나 즉시 resolve
+      if (
+        (window as Window & { daum?: { Postcode?: unknown } }).daum?.Postcode
+      ) {
+        resolve();
+      } else {
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', () =>
+          reject(new Error('다음 우편번호 로드 실패'))
+        );
+      }
+      return;
+    }
+
     const script = document.createElement('script');
+    script.id = SCRIPT_ID;
+    script.async = true;
+    script.defer = true;
     script.src =
-      '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('다음 우편번호 로드 실패'));
+      'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+
+    const onLoad = () => {
+      if (
+        (window as Window & { daum?: { Postcode?: unknown } }).daum?.Postcode
+      ) {
+        resolve();
+      } else {
+        // 로드됐지만 전역 객체가 아직 준비되지 않은 경우를 대비한 소폭 지연 재확인
+        setTimeout(() => {
+          const hasPostcode = (
+            window as Window & { daum?: { Postcode?: unknown } }
+          ).daum?.Postcode;
+          if (hasPostcode) {
+            resolve();
+          } else {
+            reject(new Error('다음 우편번호 전역 객체 확인 실패'));
+          }
+        }, 50);
+      }
+    };
+
+    const onError = () => reject(new Error('다음 우편번호 로드 실패'));
+
+    // 10초 타임아웃
+    const timeout = window.setTimeout(() => {
+      reject(new Error('다음 우편번호 로드 타임아웃'));
+    }, 10000);
+
+    script.addEventListener('load', () => {
+      window.clearTimeout(timeout);
+      onLoad();
+    });
+    script.addEventListener('error', () => {
+      window.clearTimeout(timeout);
+      onError();
+    });
+
     document.head.appendChild(script);
   });
 
@@ -178,6 +239,7 @@ const ModalContent = styled.div<{ width: string; height: string }>`
 const ModalHeader = styled.div`
   display: flex;
   flex-direction: column;
+  margin-bottom: 10px;
 `;
 
 const ModalTitle = styled.h2`
