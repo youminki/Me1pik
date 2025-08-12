@@ -8,7 +8,7 @@ export interface SignupRequest {
   password: string;
   name: string;
   nickname: string;
-  birthdate: string;
+  birthdate?: string;
   address: string;
   phoneNumber: string;
   gender: string;
@@ -16,8 +16,8 @@ export interface SignupRequest {
   agreeToTerms: boolean;
   agreeToPrivacyPolicy: boolean;
   personalWebpage: string;
-  height: number;
-  weight: number;
+  height?: number;
+  weight?: number;
   topSize: string;
   dressSize: string;
   bottomSize: string;

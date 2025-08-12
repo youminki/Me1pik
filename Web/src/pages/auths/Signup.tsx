@@ -337,21 +337,20 @@ const Signup: React.FC = () => {
     };
     verifiedPhoneNumber = formatPhoneNumber(verifiedPhoneNumber);
 
-    const formattedData = {
+    const formattedData: Record<string, unknown> = {
       email: data.email,
       password: data.password,
       name: data.name,
       nickname: data.nickname,
-      birthdate: `${data.birthYear}-01-01`,
-      address: `${data.region} ${data.district}`,
+      ...(data.region || data.district
+        ? { address: `${data.region ?? ''} ${data.district ?? ''}`.trim() }
+        : {}),
       phoneNumber: verifiedPhoneNumber,
       gender: gender === '여성' ? 'female' : 'male',
       instagramId: data.instar,
       agreeToTerms: true,
       agreeToPrivacyPolicy: true,
       personalWebpage: data.melpickAddress,
-      height: Number(data.height),
-      weight: Number(data.size),
       topSize: data.top,
       dressSize: data.dress,
       bottomSize: data.bottom,
@@ -362,10 +361,20 @@ const Signup: React.FC = () => {
       sleeveLength: data.sleeve ? Number(data.sleeve) : undefined,
     };
 
+    if (data.birthYear) {
+      formattedData.birthdate = `${data.birthYear}-01-01`;
+    }
+    if (data.height) {
+      formattedData.height = Number(data.height);
+    }
+    if (data.size) {
+      formattedData.weight = Number(data.size);
+    }
+
     try {
       // 중복 제출 방지를 위해 isSubmitting 체크
       if (isSubmitting) return;
-      const response = await signUpUser(formattedData);
+      const response = await signUpUser(formattedData as any);
       setSignupResult(`🎉 ${response.nickname}님, 회원가입이 완료되었습니다!`);
       setIsSignupSuccess(true);
       setShowSignupResultModal(true);
@@ -547,26 +556,26 @@ const Signup: React.FC = () => {
               <CommonField
                 label={
                   <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    태어난 해*
+                    태어난 해 (선택)
                   </span>
                 }
                 id='birthYear'
                 as='select'
                 error={errors.birthYear?.message}
-                required
                 {...register('birthYear')}
                 placeholder='태어난 해 선택'
                 children={[
                   <option value='' disabled key='default'>
                     태어난 해를 선택하세요
                   </option>,
-                  ...Array.from({ length: 100 }, (_, i) => 2023 - i).map(
-                    (year) => (
-                      <option key={year} value={year}>
-                        {year}년
-                      </option>
-                    )
-                  ),
+                  ...Array.from(
+                    { length: 100 },
+                    (_, i) => new Date().getFullYear() - i
+                  ).map((year) => (
+                    <option key={year} value={year}>
+                      {year}년
+                    </option>
+                  )),
                 ]}
               />
             </RowLabel>
@@ -675,13 +684,12 @@ const Signup: React.FC = () => {
               <CommonField
                 label={
                   <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    서비스 지역*
+                    서비스 지역 (선택)
                   </span>
                 }
                 id='region'
                 as='select'
                 error={errors.region?.message}
-                required
                 {...register('region')}
                 placeholder='지역 선택'
                 children={[
@@ -697,12 +705,13 @@ const Signup: React.FC = () => {
               />
               <CommonField
                 label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>구*</span>
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    구 (선택)
+                  </span>
                 }
                 id='district'
                 as='select'
                 error={errors.district?.message}
-                required
                 {...register('district')}
                 placeholder='구 선택'
                 children={[
@@ -782,7 +791,9 @@ const Signup: React.FC = () => {
             <RowLabel>
               <CommonField
                 label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>키*</span>
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    키 (선택)
+                  </span>
                 }
                 id='height'
                 as='select'
@@ -802,7 +813,9 @@ const Signup: React.FC = () => {
               />
               <CommonField
                 label={
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>몸무게*</span>
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    몸무게 (선택)
+                  </span>
                 }
                 id='size'
                 as='select'
