@@ -158,7 +158,7 @@ const Dock = styled.div`
 
   @media (max-width: 768px) {
     border-radius: 0;
-    padding: 0 0 25px 0;
+    padding: 0 0 28px 0;
     width: 100%;
   }
 `;
