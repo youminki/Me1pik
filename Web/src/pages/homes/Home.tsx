@@ -48,16 +48,12 @@ const Home: React.FC = () => {
     }
   }, []);
 
-  const handleConfirmHideToday = () => {
+  const handleModalClose = () => {
+    // 체크박스가 체크된 경우 하루 동안 모달 안 뜨도록 설정
     if (tempHideToday) {
       const today = new Date().toDateString();
       sessionStorage.setItem('holidayNoticeHiddenDate', today);
     }
-    setHolidayModalOpen(false);
-  };
-
-  const handleModalClose = () => {
-    setTempHideToday(false);
     setHolidayModalOpen(false);
   };
 
@@ -533,8 +529,6 @@ const Home: React.FC = () => {
         isOpen={isHolidayModalOpen}
         onClose={handleModalClose}
         title='광복절 휴무 안내'
-        onConfirm={handleConfirmHideToday}
-        showConfirmButton={true}
       >
         {/* 택배 휴무 안내 이미지 */}
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
