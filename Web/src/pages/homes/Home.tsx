@@ -536,6 +536,20 @@ const Home: React.FC = () => {
         onConfirm={handleConfirmHideToday}
         showConfirmButton={true}
       >
+        {/* 택배 휴무 안내 이미지 */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <img
+            src='/src/assets/DeliveryNotice.jpeg'
+            alt='택배 휴무일정 안내'
+            style={{
+              width: '100%',
+              maxWidth: '400px',
+              height: 'auto',
+              borderRadius: '8px',
+            }}
+          />
+        </div>
+
         <div style={{ lineHeight: 1.7 }}>
           이번 광복절 기간동안 택배사 휴무로 [ 8월 13일(수) ~ 8월 15일(금) ]
           까지 발송이 제한됩니다.
@@ -553,7 +567,7 @@ const Home: React.FC = () => {
             alignItems: 'center',
             gap: '8px',
             padding: '16px 0 0 0',
-            marginTop: '130px',
+            marginTop: '30px',
           }}
         >
           <input
