@@ -109,7 +109,7 @@ const PaypleTest: React.FC = () => {
       if (!res.ok) throw new Error('카드 등록 데이터 요청 실패');
 
       const data = await res.json();
-      console.log('[✅ 카드 등록용 데이터]', data);
+      // 카드 등록용 데이터 확인
 
       if (typeof window.PaypleCpayAuthCheck !== 'function') {
         console.error('[❌ Payple SDK 로딩 실패]');
@@ -137,7 +137,7 @@ const PaypleTest: React.FC = () => {
 
   const requestPayPasswordPopup = async (payerId: string) => {
     try {
-      console.log('🧾 PAYER_ID to use:', payerId);
+      // PAYER_ID 확인
       if (!payerId || typeof payerId !== 'string' || payerId.trim() === '') {
         alert('유효한 카드가 없습니다.');
         return;
@@ -204,7 +204,7 @@ const PaypleTest: React.FC = () => {
       if (!res.ok) throw new Error('앱카드 결제 초기화 실패');
 
       const data = await res.json();
-      console.log('[✅ 앱카드 결제 초기화 데이터]', data);
+      // 앱카드 결제 초기화 데이터 확인
 
       if (typeof window.PaypleCpayAuthCheck !== 'function') {
         console.error('[❌ Payple SDK 로딩 실패]');
@@ -239,7 +239,7 @@ const PaypleTest: React.FC = () => {
 
   useEffect(() => {
     window.PCD_PAY_CALLBACK = async (result: unknown) => {
-      console.log('[✅ Payple 결과 수신]', result);
+      // Payple 결과 수신
       if (!userInfo) return setError('로그인 정보를 찾을 수 없습니다.');
 
       if (
@@ -261,7 +261,7 @@ const PaypleTest: React.FC = () => {
         try {
           // 앱카드 결제인 경우 (PCD_CARD_VER === '02')
           if (r.PCD_CARD_VER === '02') {
-            console.log('[✅ 앱카드 결제 인증 성공]');
+            // 앱카드 결제 인증 성공
 
             // 앱카드 승인 요청
             const res = await fetch(
@@ -408,7 +408,7 @@ const Container = styled.div`
   padding: 32px;
   border-radius: 12px;
   background: #fff8f0;
-   0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
 `;
 

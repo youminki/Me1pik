@@ -161,7 +161,7 @@ const MyStyle: React.FC = () => {
       await updateUserStyle(updateData);
 
       // 성공 처리
-      console.log('스타일 정보가 업데이트되었습니다.');
+      // 스타일 정보가 업데이트되었습니다.
       alert('스타일 정보가 성공적으로 업데이트되었습니다.');
     } catch (e) {
       console.error(e);

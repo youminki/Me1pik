@@ -280,7 +280,7 @@ const App: React.FC = () => {
 
       // 30일 자동 로그인 설정이 활성화된 경우 추가 처리
       if (autoLogin) {
-        console.log('🔐 30일 자동 로그인 설정이 활성화되어 있습니다');
+        // 30일 자동 로그인 설정이 활성화되어 있습니다
 
         // 자동 토큰 갱신 인터벌이 없으면 설정
         const intervalId = localStorage.getItem('autoRefreshInterval');
@@ -324,10 +324,7 @@ const App: React.FC = () => {
                     document.cookie = `accessToken=${data.accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
                     document.cookie = `refreshToken=${data.refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
 
-                    console.log(
-                      '🔄 자동 토큰 갱신 완료:',
-                      new Date().toLocaleString()
-                    );
+                    // 자동 토큰 갱신 완료
                   }
                 }
               }
@@ -349,7 +346,7 @@ const App: React.FC = () => {
 
     // 강제 로그인 리다이렉트 이벤트 리스너
     const handleForceLoginRedirect = () => {
-      console.log('🔄 강제 로그인 리다이렉트 이벤트 발생');
+      // 강제 로그인 리다이렉트 이벤트 발생
       window.location.href = '/login';
     };
 
@@ -401,7 +398,7 @@ const App: React.FC = () => {
         navigator.serviceWorker
           .register('/sw.js', { scope: '/' })
           .then((registration) => {
-            console.log('✅ Service Worker 등록 성공:', registration);
+            // Service Worker 등록 성공
 
             // Service Worker 업데이트 확인
             registration.addEventListener('updatefound', () => {

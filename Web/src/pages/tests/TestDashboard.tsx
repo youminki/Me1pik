@@ -304,7 +304,7 @@ const TestDashboard: React.FC = () => {
       const interval = setInterval(() => {
         updateTokenInfo();
         runLoginPersistenceTest();
-        console.log('🔄 자동 테스트 업데이트:', new Date().toLocaleString());
+        // 자동 테스트 업데이트
       }, 10000); // 10초마다 업데이트
       setAutoRefreshInterval(interval);
       setIsAutoRefreshEnabled(true);
@@ -418,7 +418,7 @@ const TestDashboard: React.FC = () => {
   // 디버그 정보 출력
   const showDebugInfo = () => {
     debugTokenStatus();
-    console.log('🔍 상세 토큰 정보:', tokenInfo);
+    // 상세 토큰 정보 확인
   };
 
   // 30일 자동 로그인 설정
@@ -513,10 +513,7 @@ const TestDashboard: React.FC = () => {
               if (response.ok) {
                 const data = await response.json();
                 saveTokens(data.accessToken, data.refreshToken);
-                console.log(
-                  '🔄 자동 토큰 갱신 완료:',
-                  new Date().toLocaleString()
-                );
+                // 자동 토큰 갱신 완료
               }
             }
           }
@@ -547,14 +544,14 @@ const TestDashboard: React.FC = () => {
         if (!document.hidden) {
           // 페이지가 다시 보일 때 토큰 상태 확인
           updateTokenInfo();
-          console.log('👁️ 페이지 재활성화 - 토큰 상태 확인');
+          // 페이지 재활성화 - 토큰 상태 확인
         }
       };
 
       const handleStorageChange = (e: StorageEvent) => {
         if (e.key === 'accessToken' || e.key === 'refreshToken') {
           updateTokenInfo();
-          console.log('💾 저장소 변경 감지 - 토큰 상태 업데이트');
+          // 저장소 변경 감지 - 토큰 상태 업데이트
         }
       };
 

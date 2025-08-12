@@ -352,10 +352,7 @@ const Login: React.FC = () => {
                 document.cookie = `accessToken=${data.accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
                 document.cookie = `refreshToken=${data.refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
 
-                console.log(
-                  '🔄 자동 토큰 갱신 완료:',
-                  new Date().toLocaleString()
-                );
+                // 자동 토큰 갱신 완료
               }
             }
           }
@@ -390,26 +387,20 @@ const Login: React.FC = () => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         // 페이지가 다시 보일 때 토큰 상태 확인
-        console.log('👁️ 페이지 재활성화 - 토큰 상태 확인');
+        // 페이지 재활성화 - 토큰 상태 확인
       }
     };
 
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'accessToken' || e.key === 'refreshToken') {
-        console.log('💾 저장소 변경 감지 - 토큰 상태 업데이트');
+        // 저장소 변경 감지 - 토큰 상태 업데이트
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('storage', handleStorageChange);
 
-    console.log('🔐 30일 지속성 토큰 저장 완료:', {
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-      autoLogin: keepLogin,
-      timestamp: new Date().toLocaleString(),
-      duration: '30일',
-    });
+    // 30일 지속성 토큰 저장 완료
   };
 
   const handleLoginClick = async (data: LoginFormValues) => {
@@ -442,10 +433,10 @@ const Login: React.FC = () => {
         // 기존 로직 유지 (자동 로그인 설정)
         if (keepLogin) {
           localStorage.setItem('autoLogin', 'true');
-          console.log('자동로그인 설정됨');
+          // 자동로그인 설정됨
         } else {
           localStorage.removeItem('autoLogin');
-          console.log('자동로그인 해제됨');
+          // 자동로그인 해제됨
         }
       }
 
@@ -466,7 +457,7 @@ const Login: React.FC = () => {
         refreshToken: refreshToken || '',
         // expiresAt: (만료일 필요시 추가)
       };
-      console.log('[BRIDGE] saveLoginInfo 호출', { loginData });
+      // [BRIDGE] saveLoginInfo 호출
       const win = window as unknown as {
         webkit?: {
           messageHandlers?: {
@@ -482,10 +473,10 @@ const Login: React.FC = () => {
         win.webkit.messageHandlers &&
         win.webkit.messageHandlers.saveLoginInfo
       ) {
-        console.log('[BRIDGE] 네이티브 브릿지 호출!');
+        // [BRIDGE] 네이티브 브릿지 호출!
         win.webkit.messageHandlers.saveLoginInfo.postMessage({ loginData });
       } else {
-        console.log('[BRIDGE] 네이티브 브릿지 없음');
+        // [BRIDGE] 네이티브 브릿지 없음
       }
 
       const redirectTo = location.state?.from || '/home';

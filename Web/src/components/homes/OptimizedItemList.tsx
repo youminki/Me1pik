@@ -164,7 +164,7 @@ const OptimizedItemList: React.FC<OptimizedItemListProps> = ({
             scrollTop / (virtualItems.length * itemHeight - containerHeight);
           if (scrollPercentage > 0.8 && !isLoading) {
             // 80% 스크롤 시 추가 로딩
-            console.log('추가 로딩 트리거');
+            // 추가 로딩 트리거
           }
         }}
       />

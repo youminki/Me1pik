@@ -172,12 +172,12 @@ const TestLogin: React.FC = () => {
 
     // 4. 자동 갱신 인터벌 설정
     const autoRefreshInterval = setInterval(() => {
-      console.log('🔄 자동 토큰 갱신 체크:', new Date().toLocaleString());
+              // 자동 토큰 갱신 체크
     }, 60000); // 1분마다
 
     localStorage.setItem('autoRefreshInterval', autoRefreshInterval.toString());
 
-    console.log('🔐 30일 자동 로그인 설정 완료');
+            // 30일 자동 로그인 설정 완료
     runAutoLoginTest();
   };
 
@@ -199,7 +199,7 @@ const TestLogin: React.FC = () => {
     document.cookie =
       'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
-    console.log('🔓 30일 자동 로그인 해제 완료');
+            // 30일 자동 로그인 해제 완료
     runAutoLoginTest();
   };
 

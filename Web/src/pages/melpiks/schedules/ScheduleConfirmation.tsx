@@ -209,12 +209,7 @@ const ScheduleConfirmation: React.FC = () => {
   const handleEdit = async () => {
     if (!scheduleId || !detail) return;
 
-    console.log('=== 스케줄 수정 시도 ===');
-    console.log('handleEdit 시작 - scheduleId:', scheduleId);
-    console.log('detail:', detail);
-    console.log('스케줄 상태:', detail.status);
-    console.log('selectedItems:', selectedItems);
-    console.log('========================');
+    // === 스케줄 수정 시도 ===
 
     // 선택된 제품이 없으면 경고
     if (selectedItems.length === 0) {
@@ -234,7 +229,7 @@ const ScheduleConfirmation: React.FC = () => {
 
     // 현재 표시된 날짜 범위 사용 (모달에서 변경된 날짜 포함)
     const [s, e] = detail.dateRange.split('~').map((d) => d.trim());
-    console.log('파싱된 날짜 - startDate:', s, 'endDate:', e);
+    // 파싱된 날짜 확인
 
     const requestData = {
       title: detail.title,
@@ -243,8 +238,7 @@ const ScheduleConfirmation: React.FC = () => {
       productIds: selectedItems.map((id) => Number(id)), // 제품 목록 전달
     };
 
-    console.log('PATCH 요청 데이터:', requestData);
-    console.log('요청 URL:', `/sale_schedule/${scheduleId}`);
+    // PATCH 요청 데이터 준비 완료
 
     try {
       await patchSaleSchedule(Number(scheduleId), requestData);

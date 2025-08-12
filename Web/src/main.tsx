@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import { startPerformanceMonitoring } from './utils/performance.ts';
 
-
 import './styles/index.css';
 
 // 성능 모니터링 시작
@@ -19,11 +18,11 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js')
-      .then((registration) => {
-        console.log('✅ Service Worker 등록 성공:', registration.scope);
+      .then(() => {
+        // Service Worker 등록 성공
       })
-      .catch((error) => {
-        console.log('❌ Service Worker 등록 실패:', error);
+      .catch(() => {
+        // Service Worker 등록 실패
       });
   });
 }
