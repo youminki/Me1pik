@@ -2046,6 +2046,28 @@ class LoginManager: ObservableObject {
         let overallSuccess = accessTokenSuccess && refreshTokenSuccess
         print("🧪 === 토큰 저장 테스트 결과: \(overallSuccess ? "✅ 성공" : "❌ 실패") ===")
     }
+    
+    // MARK: - 토큰 제거
+    func removeToken() {
+        // Keychain에서 토큰 제거
+        deleteFromKeychain(key: "accessToken")
+        deleteFromKeychain(key: "refreshToken")
+        
+        // UserDefaults에서 토큰 제거
+        userDefaults.removeObject(forKey: "accessToken")
+        userDefaults.removeObject(forKey: "refreshToken")
+        
+        // Axios 헤더 제거 (웹뷰에서 사용하는 경우)
+        // Note: iOS에서는 Axios를 직접 사용하지 않으므로 주석 처리
+        
+        // 타이머 정리
+        if let timer = tokenRefreshTimer {
+            timer.invalidate()
+            tokenRefreshTimer = nil
+        }
+        
+        print("✅ 토큰 제거 완료")
+    }
 }
 
 // MARK: - Date Extension
