@@ -359,10 +359,24 @@ const App: React.FC = () => {
             try {
               const currentToken = getCurrentToken();
               if (currentToken && !hasValidToken()) {
-                await refreshToken();
+                const success = await refreshToken();
+                if (!success) {
+                  console.log('❌ 자동 토큰 갱신 실패 - 지속 로그인 설정 제거');
+                  // 갱신 실패 시 지속 로그인 설정 제거
+                  localStorage.removeItem('persistentLogin');
+                  localStorage.removeItem('autoLogin');
+                  // interval 정리
+                  if (autoRefreshTimer) {
+                    clearInterval(autoRefreshTimer);
+                    autoRefreshTimer = null;
+                  }
+                }
               }
             } catch (error) {
               console.error('자동 토큰 갱신 실패:', error);
+              // 에러 발생 시 지속 로그인 설정 제거
+              localStorage.removeItem('persistentLogin');
+              localStorage.removeItem('autoLogin');
               // 실패 시 interval 정리
               if (autoRefreshTimer) {
                 clearInterval(autoRefreshTimer);
