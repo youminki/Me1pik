@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { useProducts } from '@/api-utils/product-managements/uploads/productApi';
-import DeliveryNoticeImage from '@/assets/DeliveryNotice.jpeg';
 import Footer from '@/components/homes/Footer';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
@@ -32,30 +31,6 @@ import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 const Home: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // 광복절 휴무 안내 모달
-  const [isHolidayModalOpen, setHolidayModalOpen] = useState(false);
-  const [tempHideToday, setTempHideToday] = useState(false);
-
-  useEffect(() => {
-    // 오늘 날짜 기준으로 체크
-    const today = new Date().toDateString();
-    const lastHiddenDate = sessionStorage.getItem('holidayNoticeHiddenDate');
-
-    // 오늘 하루동안 보지 않기로 체크한 경우가 아니면 모달 표시
-    if (lastHiddenDate !== today) {
-      setHolidayModalOpen(true);
-    }
-  }, []);
-
-  const handleModalClose = () => {
-    // 체크박스가 체크된 경우 하루 동안 모달 안 뜨도록 설정
-    if (tempHideToday) {
-      const today = new Date().toDateString();
-      sessionStorage.setItem('holidayNoticeHiddenDate', today);
-    }
-    setHolidayModalOpen(false);
-  };
 
   // 공유 모달 상태
   const [isShareModalOpen, setShareModalOpen] = useState(false);
@@ -179,8 +154,6 @@ const Home: React.FC = () => {
       document.body.style.overflow = '';
     };
   }, [isModalOpen]);
-
-  // (구) 로그인 안내 모달 관련 코드 제거됨
 
   // 스크롤 맨 위로 이동 (재사용 가능한 훅 사용)
   const { scrollToTop } = useScrollToTop();
@@ -414,7 +387,6 @@ const Home: React.FC = () => {
   return (
     <>
       <UnifiedHeader variant='default' />
-      {/* (구) 로그인 안내 모달 제거됨 */}
 
       {/* 공유 링크 복사 안내 모달 */}
       <ReusableModal
@@ -523,72 +495,6 @@ const Home: React.FC = () => {
       >
         아직 구현 전인 기능이에요.
       </ReusableModal>
-
-      {/* 광복절 휴무 안내 모달: 홈 진입 시 노출 */}
-      <ReusableModal
-        isOpen={isHolidayModalOpen}
-        onClose={handleModalClose}
-        title='광복절 휴무 안내'
-      >
-        {/* 택배 휴무 안내 이미지 */}
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <img
-            src={DeliveryNoticeImage}
-            alt='택배 휴무일정 안내'
-            style={{
-              width: '100%',
-              height: 'auto',
-              borderRadius: '8px',
-            }}
-          />
-        </div>
-
-        <div style={{ lineHeight: 1.7, fontSize: '14px' }}>
-          이번 광복절 기간동안 택배사 휴무로 <br />
-          <span style={{ fontWeight: 800 }}>
-            [ 8월 13일(수) ~ 8월 15일(금) ]
-          </span>{' '}
-          까지 발송이 제한됩니다.
-          <br />
-          그래서 택배로 발송은 <span style={{ fontWeight: 800 }}>12일(화)</span>
-          이 마지막으로 발송되며, <br />
-          이후 <span style={{ fontWeight: 800 }}>8월 16일(토)</span>에 발송이
-          가능합니다.
-          <br />
-          멜픽 서비스 또한{' '}
-          <span style={{ fontWeight: 800 }}>13일(수) ~ 15일(금)</span> 까지는
-          휴무 입니다.
-        </div>
-
-        {/* 오늘 하루동안 보지 않기 체크박스 - 내용 하단에 위치 */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '16px 0 0 0',
-            marginTop: '30px',
-          }}
-        >
-          <input
-            type='checkbox'
-            id='hideToday'
-            checked={tempHideToday}
-            onChange={(e) => setTempHideToday(e.target.checked)}
-            style={{ width: '18px', height: '18px' }}
-          />
-          <label
-            htmlFor='hideToday'
-            style={{
-              fontSize: '12px',
-              cursor: 'pointer',
-              userSelect: 'none',
-            }}
-          >
-            오늘 하루동안 보지 않기
-          </label>
-        </div>
-      </ReusableModal>
     </>
   );
 };
@@ -614,5 +520,3 @@ const ContentWrapper = styled.div`
   align-items: center;
   min-height: 400px; /* CLS 개선을 위한 최소 높이 설정 */
 `;
-
-// (구) 로그인 안내 모달에서 사용하던 InfoList 제거
