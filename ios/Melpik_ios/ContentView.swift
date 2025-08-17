@@ -25,7 +25,8 @@ struct ContentView: View {
             .onAppear {
                 // 앱 시작 시 로그인 상태 점검
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    loginManager.checkLoginPersistence()
+                    let canMaintainLogin = loginManager.checkLoginPersistence()
+                    print("📱 앱 시작 시 로그인 상태 점검 결과: \(canMaintainLogin ? "✅ 유지 가능" : "❌ 유지 불가")")
                 }
             }
     }
@@ -210,7 +211,8 @@ struct MainWebViewContainer: View {
             .onAppear {
                 // 웹뷰 컨테이너 시작 시 로그인 상태 점검
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    loginManager.checkLoginPersistence()
+                    let canMaintainLogin = loginManager.checkLoginPersistence()
+                    print("🌐 웹뷰 컨테이너 시작 시 로그인 상태 점검 결과: \(canMaintainLogin ? "✅ 유지 가능" : "❌ 유지 불가")")
                 }
             }
     }
@@ -962,8 +964,10 @@ struct WebView: UIViewRepresentable {
                 print("Instagram login status checked: \(isLoggedIn)")
                 
             case "initializeInstagramLoginStatus":
-                parent.loginManager.initializeInstagramLoginStatus()
-                print("Instagram login status initialized")
+                Task {
+                    await parent.loginManager.initializeInstagramLoginStatus()
+                    print("Instagram login status initialized")
+                }
                 
             case "forceLoginInfo":
                 // 로그인 정보 강제 전송
@@ -1101,7 +1105,14 @@ struct ContentViewMain: View {
                 .onAppear {
                     // 웹뷰 시작 시 로그인 상태 점검
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                        loginManager.checkLoginPersistence()
+                        let canMaintainLogin = loginManager.checkLoginPersistence()
+                        print("🔍 웹뷰 시작 시 로그인 상태 점검 결과: \(canMaintainLogin ? "✅ 유지 가능" : "❌ 유지 불가")")
+                        
+                        // 로그인 상태가 유지되지 않으면 강제 복구 시도
+                        if !canMaintainLogin {
+                            print("⚠️ 로그인 상태 유지 불가 - 강제 복구 시도")
+                            loginManager.forceRestoreLoginState()
+                        }
                     }
                 }
             }

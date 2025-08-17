@@ -5,6 +5,7 @@ import { Axios } from '@/api-utils/Axios';
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
+  expiresIn?: number; // 토큰 만료 시간 (초)
   user?: {
     id: string;
     email: string;
@@ -92,7 +93,9 @@ export const LoginPost = async (
           '',
         token: response.data.accessToken,
         refreshToken: response.data.refreshToken,
-        expiresAt: new Date(Date.now() + 3600000).toISOString(), // 1시간 후 만료
+        expiresAt: new Date(
+          Date.now() + (response.data.expiresIn || 3600) * 1000
+        ).toISOString(), // 서버 응답의 expiresIn 사용
         keepLogin: autoLogin,
       };
 

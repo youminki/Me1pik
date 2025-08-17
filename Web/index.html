@@ -65,21 +65,7 @@
     <!-- 인스타그램 방식 앱-웹뷰 통신 스크립트 -->
     <script src="/webview_integration.js"></script>
 
-    <!-- Service Worker 등록 -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('/sw.js')
-            .then((registration) => {
-              console.log('✅ Service Worker 등록 성공:', registration.scope);
-            })
-            .catch((error) => {
-              console.error('❌ Service Worker 등록 실패:', error);
-            });
-        });
-      }
-    </script>
+    <!-- Service Worker 등록은 App.tsx에서 통합 관리 -->
 
     <!-- 개발 모드에서만 main.tsx 로드 -->
     <script type="module" src="/src/main.tsx"></script>

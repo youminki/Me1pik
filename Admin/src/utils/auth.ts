@@ -6,6 +6,26 @@ import { Axios } from 'src/api/Axios';
 let tokenRefreshTimer: NodeJS.Timeout | null = null;
 
 /**
+ * JWT 페이로드를 안전하게 디코드합니다 (base64url 규격 대응)
+ */
+function decodeJwtPayload(token: string) {
+  const [, payload] = token.split('.');
+  if (!payload) return null;
+
+  // base64url을 base64로 변환
+  const base64 = payload
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(Math.ceil(payload.length / 4) * 4, '=');
+
+  try {
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
+
+/**
  * 토큰이 유효한지 확인
  */
 export const hasValidToken = (): boolean => {
@@ -13,7 +33,12 @@ export const hasValidToken = (): boolean => {
   if (!token) return false;
 
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = decodeJwtPayload(token);
+    if (!payload) {
+      console.error('❌ 토큰 페이로드 디코드 실패');
+      return false;
+    }
+
     const currentTime = Date.now() / 1000;
     return payload.exp > currentTime;
   } catch (error) {
@@ -26,20 +51,26 @@ export const hasValidToken = (): boolean => {
  * 토큰 저장 (쿠키 + 로컬스토리지)
  */
 export function setToken(accessToken: string, refreshToken?: string) {
-  // 쿠키에 저장 (보안 강화)
-  Cookies.set('accessToken', accessToken, { secure: true, sameSite: 'strict' });
-  if (refreshToken) {
-    Cookies.set('refreshToken', refreshToken, { secure: true, sameSite: 'strict' });
-  }
-
-  // 로컬스토리지에도 저장 (백업용)
+  // 로컬스토리지에 저장
   localStorage.setItem('accessToken', accessToken);
   if (refreshToken) {
     localStorage.setItem('refreshToken', refreshToken);
   }
 
-  // Axios 헤더 설정
-  Axios.defaults.headers.Authorization = `Bearer ${accessToken}`;
+  // 쿠키에 저장 (보안 강화)
+  Cookies.set('accessToken', accessToken, {
+    secure: window.location.protocol === 'https:',
+    sameSite: 'strict',
+    path: '/',
+  });
+
+  if (refreshToken) {
+    Cookies.set('refreshToken', refreshToken, {
+      secure: window.location.protocol === 'https:',
+      sameSite: 'strict',
+      path: '/',
+    });
+  }
 }
 
 /**
@@ -63,6 +94,28 @@ export function removeToken() {
     tokenRefreshTimer = null;
   }
 }
+
+/**
+ * 모든 토큰과 관련 데이터를 정리합니다 (로그아웃 시 사용)
+ */
+export const clearAllTokensAndIntervals = (): void => {
+  // 로컬스토리지 정리
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('userEmail');
+
+  // 쿠키 정리
+  Cookies.remove('accessToken');
+  Cookies.remove('refreshToken');
+
+  // 자동 갱신 타이머 정리
+  if (tokenRefreshTimer) {
+    clearInterval(tokenRefreshTimer);
+    tokenRefreshTimer = null;
+  }
+
+  console.log('🧹 모든 토큰과 인터벌이 정리되었습니다');
+};
 
 /**
  * 앱과 토큰 동기화
@@ -138,7 +191,11 @@ export const getRefreshToken = (): string | null => {
  */
 const setupTokenRefreshTimer = (token: string): void => {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = decodeJwtPayload(token);
+    if (!payload) {
+      console.error('❌ 토큰 페이로드 디코드 실패');
+      return;
+    }
     const currentTime = Date.now() / 1000;
     const expiresAt = payload.exp;
 
@@ -220,7 +277,11 @@ export const refreshToken = async (retryCount = 0): Promise<boolean> => {
 
     // 토큰 만료 시간 확인
     try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const payload = decodeJwtPayload(accessToken);
+      if (!payload) {
+        console.error('새로 받은 토큰 페이로드 디코드 실패');
+        return false;
+      }
       const currentTime = Date.now() / 1000;
       if (payload.exp <= currentTime) {
         console.error('새로 받은 토큰이 이미 만료됨');
@@ -347,7 +408,11 @@ const getEmailFromToken = (): string | null => {
     const token = getCurrentToken();
     if (!token) return null;
 
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = decodeJwtPayload(token);
+    if (!payload) {
+      console.error('토큰에서 이메일 추출 실패: 페이로드 디코드 실패');
+      return null;
+    }
     return payload.email || null;
   } catch (error) {
     console.error('토큰에서 이메일 추출 실패:', error);
@@ -446,16 +511,18 @@ export const debugTokenStatus = (): void => {
 
   if (accessToken) {
     try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
-      const expiresAt = new Date(payload.exp * 1000);
-      const currentTime = new Date();
-      const timeUntilExpiry = expiresAt.getTime() - currentTime.getTime();
+      const payload = decodeJwtPayload(accessToken);
+      if (payload) {
+        const expiresAt = new Date(payload.exp * 1000);
+        const currentTime = new Date();
+        const timeUntilExpiry = expiresAt.getTime() - currentTime.getTime();
 
-      console.log('📅 토큰 만료 정보:', {
-        expiresAt: expiresAt.toLocaleString(),
-        timeUntilExpiry: Math.floor(timeUntilExpiry / 1000 / 60) + '분',
-        isExpired: timeUntilExpiry < 0,
-      });
+        console.log('📅 토큰 만료 정보:', {
+          expiresAt: expiresAt.toLocaleString(),
+          timeUntilExpiry: Math.floor(timeUntilExpiry / 1000 / 60) + '분',
+          isExpired: timeUntilExpiry < 0,
+        });
+      }
     } catch (e) {
       console.error('토큰 디코딩 실패:', e);
     }
@@ -529,7 +596,11 @@ if (typeof window !== 'undefined') {
     }
 
     try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const payload = decodeJwtPayload(accessToken);
+      if (!payload) {
+        console.log('❌ 액세스 토큰 페이로드 디코드 실패');
+        return;
+      }
       const currentTime = Date.now() / 1000;
       const timeUntilExpiry = payload.exp - currentTime;
 

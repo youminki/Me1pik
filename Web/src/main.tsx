@@ -13,19 +13,7 @@ if (import.meta.env.DEV) {
 
 // 네이티브 앱 초기화 코드 제거됨
 
-// Service Worker 등록
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then(() => {
-        // Service Worker 등록 성공
-      })
-      .catch(() => {
-        // Service Worker 등록 실패
-      });
-  });
-}
+// Service Worker 등록은 App.tsx에서 통합 관리
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

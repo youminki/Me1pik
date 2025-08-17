@@ -6,6 +6,26 @@ import { Axios } from '@/api-utils/Axios';
 let tokenRefreshTimer: NodeJS.Timeout | null = null;
 
 /**
+ * JWT 페이로드를 안전하게 디코드합니다 (base64url 규격 대응)
+ */
+function decodeJwtPayload(token: string) {
+  const [, payload] = token.split('.');
+  if (!payload) return null;
+
+  // base64url을 base64로 변환
+  const base64 = payload
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(Math.ceil(payload.length / 4) * 4, '=');
+
+  try {
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
+
+/**
  * 토큰의 유효성을 검사합니다 (존재 여부와 만료 여부 확인)
  */
 export const hasValidToken = (): boolean => {
@@ -21,8 +41,14 @@ export const hasValidToken = (): boolean => {
   }
 
   try {
-    // JWT 토큰의 페이로드 부분을 디코드
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    // JWT 토큰의 페이로드 부분을 안전하게 디코드
+    const payload = decodeJwtPayload(token);
+    if (!payload) {
+      console.error('❌ 토큰 페이로드 디코드 실패');
+      clearTokens();
+      return false;
+    }
+
     const currentTime = Date.now() / 1000;
 
     // 토큰이 만료되었는지 확인
@@ -50,6 +76,45 @@ export const hasValidToken = (): boolean => {
 /**
  * access/refresh 토큰을 여러 저장소(localStorage, sessionStorage, Cookies)에 저장
  */
+export const saveTokens = (
+  accessToken: string,
+  refreshToken?: string,
+  autoLogin: boolean = false
+): void => {
+  // 로컬스토리지에 저장
+  localStorage.setItem('accessToken', accessToken);
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+
+  // 세션스토리지에 저장
+  sessionStorage.setItem('accessToken', accessToken);
+  if (refreshToken) {
+    sessionStorage.setItem('refreshToken', refreshToken);
+  }
+
+  // 쿠키에 저장 (보안 강화)
+  const maxAge = autoLogin ? 30 * 24 * 60 * 60 : 24 * 60 * 60; // 30일 또는 1일
+  const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+
+  document.cookie = `accessToken=${accessToken}; Max-Age=${maxAge}; Path=/; SameSite=Strict${secureFlag}`;
+  if (refreshToken) {
+    document.cookie = `refreshToken=${refreshToken}; Max-Age=${maxAge}; Path=/; SameSite=Strict${secureFlag}`;
+  }
+
+  // 자동 로그인 설정 저장
+  localStorage.setItem('autoLogin', autoLogin.toString());
+
+  console.log('✅ 토큰 저장 완료:', {
+    accessTokenLength: accessToken.length,
+    hasRefreshToken: !!refreshToken,
+    duration: autoLogin ? '30일' : '일반',
+  });
+};
+
+/**
+ * 기본 토큰 저장 함수 (기존 코드 호환성)
+ */
 export function setToken(accessToken: string, refreshToken?: string) {
   localStorage.setItem('accessToken', accessToken);
   sessionStorage.setItem('accessToken', accessToken);
@@ -62,7 +127,40 @@ export function setToken(accessToken: string, refreshToken?: string) {
 }
 
 /**
- * access/refresh 토큰을 여러 저장소에서 삭제
+ * 모든 토큰과 관련 데이터를 정리합니다 (로그아웃 시 사용)
+ */
+export const clearAllTokensAndIntervals = (): void => {
+  // 로컬스토리지 정리
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('autoLogin');
+  localStorage.removeItem('persistentLogin');
+  localStorage.removeItem('loginTimestamp');
+  localStorage.removeItem('tokenExpiresAt');
+  localStorage.removeItem('userEmail');
+
+  // 세션스토리지 정리
+  sessionStorage.removeItem('accessToken');
+  sessionStorage.removeItem('refreshToken');
+
+  // 쿠키 정리
+  Cookies.remove('accessToken');
+  Cookies.remove('refreshToken');
+
+  // 자동 갱신 타이머 정리
+  if (tokenRefreshTimer) {
+    clearInterval(tokenRefreshTimer);
+    tokenRefreshTimer = null;
+  }
+
+  // 앱-웹뷰 동기화
+  syncTokenWithApp();
+
+  console.log('🧹 모든 토큰과 지속 로그인 설정이 정리되었습니다');
+};
+
+/**
+ * 토큰을 여러 저장소에서 삭제
  */
 export function removeToken() {
   localStorage.removeItem('accessToken');
@@ -113,81 +211,14 @@ export function syncTokenWithApp(accessToken?: string, refreshToken?: string) {
 /**
  * 토큰을 저장합니다 (인스타그램 방식)
  */
-export const saveTokens = (
+export const saveTokensLegacy = (
   accessToken: string,
   refreshToken?: string
 ): void => {
   const autoLogin = localStorage.getItem('autoLogin') === 'true';
 
   // 기본 토큰 저장
-  setToken(accessToken, refreshToken);
-
-  // 30일 자동 로그인 설정이 활성화된 경우 추가 처리
-  if (autoLogin && refreshToken) {
-    // 쿠키에 30일 만료 시간 설정
-    const maxAge = 30 * 24 * 60 * 60; // 30일을 초 단위로
-    document.cookie = `accessToken=${accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
-    document.cookie = `refreshToken=${refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
-
-    // 자동 토큰 갱신 인터벌이 없으면 설정
-    const intervalId = localStorage.getItem('autoRefreshInterval');
-    if (!intervalId) {
-      const autoRefreshInterval = setInterval(async () => {
-        try {
-          const currentToken = getCurrentToken();
-          const currentRefreshToken = getRefreshToken();
-
-          if (currentToken && currentRefreshToken) {
-            const payload = JSON.parse(atob(currentToken.split('.')[1]));
-            const currentTime = Date.now() / 1000;
-            const timeUntilExpiry = payload.exp - currentTime;
-
-            // 10분 이내 만료되면 자동 갱신
-            if (timeUntilExpiry <= 600) {
-              const response = await fetch(
-                'https://api.stylewh.com/auth/refresh',
-                {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    refreshToken: currentRefreshToken,
-                    autoLogin: true,
-                  }),
-                }
-              );
-
-              if (response.ok) {
-                const data = await response.json();
-                // 갱신된 토큰을 모든 저장소에 저장
-                localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('refreshToken', data.refreshToken);
-                sessionStorage.setItem('accessToken', data.accessToken);
-                sessionStorage.setItem('refreshToken', data.refreshToken);
-
-                // 쿠키도 갱신
-                document.cookie = `accessToken=${data.accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
-                document.cookie = `refreshToken=${data.refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
-
-                console.log(
-                  '🔄 자동 토큰 갱신 완료:',
-                  new Date().toLocaleString()
-                );
-              }
-            }
-          }
-        } catch (error) {
-          console.error('자동 토큰 갱신 오류:', error);
-        }
-      }, 60000); // 1분마다 체크
-
-      localStorage.setItem(
-        'autoRefreshInterval',
-        autoRefreshInterval.toString()
-      );
-    }
-  }
+  saveTokens(accessToken, refreshToken, autoLogin);
 
   setupTokenRefreshTimer(accessToken);
   syncTokenWithApp(accessToken, refreshToken);
@@ -198,7 +229,6 @@ export const saveTokens = (
     hasRefreshToken: !!refreshToken,
     autoLogin,
     timestamp: new Date().toLocaleString(),
-    duration: autoLogin ? '30일' : '일반',
   });
 };
 
@@ -312,11 +342,11 @@ const setupTokenRefreshTimer = (token: string): void => {
  */
 export const refreshToken = async (retryCount = 0): Promise<boolean> => {
   try {
-    const refreshToken = getRefreshToken();
+    const currentRefreshToken = getRefreshToken();
     const autoLogin = localStorage.getItem('autoLogin') === 'true';
     console.log('토큰 갱신 시도:', { autoLogin, retryCount });
 
-    if (!refreshToken) {
+    if (!currentRefreshToken) {
       console.log('Refresh 토큰이 없음');
       return false;
     }
@@ -324,22 +354,24 @@ export const refreshToken = async (retryCount = 0): Promise<boolean> => {
     // 토큰 갱신 API 호출
     console.log('🔄 토큰 갱신 API 호출:', {
       endpoint: '/auth/refresh',
-      hasRefreshToken: !!refreshToken,
+      hasRefreshToken: !!currentRefreshToken,
       autoLogin,
-      refreshTokenLength: refreshToken?.length,
+      refreshTokenLength: currentRefreshToken?.length,
     });
 
     const response = await Axios.post('/auth/refresh', {
-      refreshToken,
+      refreshToken: currentRefreshToken,
       autoLogin,
     });
     const { accessToken, refreshToken: newRefreshToken } = response.data;
 
     // 새 토큰의 만료시간 확인
     try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
-      const expiresAt = new Date(payload.exp * 1000);
-      console.log('새 토큰 만료시간:', expiresAt.toLocaleString());
+      const payload = decodeJwtPayload(accessToken);
+      if (payload?.exp) {
+        const expiresAt = new Date(payload.exp * 1000);
+        console.log('새 토큰 만료시간:', expiresAt.toLocaleString());
+      }
     } catch (e) {
       console.error('새 토큰 디코딩 실패:', e);
     }
@@ -349,8 +381,8 @@ export const refreshToken = async (retryCount = 0): Promise<boolean> => {
       saveTokens(accessToken, newRefreshToken);
     } else {
       // 리프레시 토큰이 없으면 액세스 토큰만 업데이트
-      const currentRefreshToken = getRefreshToken();
-      saveTokens(accessToken, currentRefreshToken || undefined);
+      const currentRefreshTokenForSave = getRefreshToken();
+      saveTokens(accessToken, currentRefreshTokenForSave || undefined);
       console.log('⚠️ 서버에서 새 리프레시 토큰을 반환하지 않음, 기존 것 유지');
     }
 
@@ -402,13 +434,30 @@ export const refreshToken = async (retryCount = 0): Promise<boolean> => {
  * 모든 토큰을 제거합니다
  */
 export const clearTokens = (): void => {
-  removeToken();
-  localStorage.removeItem('autoLogin'); // 자동로그인 플래그도 제거
+  // 로컬스토리지에서 제거
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('autoLogin');
+  localStorage.removeItem('persistentLogin');
+  localStorage.removeItem('loginTimestamp');
+  localStorage.removeItem('tokenExpiresAt');
+  localStorage.removeItem('userEmail');
+
+  // 세션스토리지에서 제거
+  sessionStorage.removeItem('accessToken');
+  sessionStorage.removeItem('refreshToken');
+
+  // 쿠키에서 제거
+  Cookies.remove('accessToken');
+  Cookies.remove('refreshToken');
+
+  // 자동 갱신 타이머 정리
   if (tokenRefreshTimer) {
-    clearTimeout(tokenRefreshTimer);
+    clearInterval(tokenRefreshTimer);
     tokenRefreshTimer = null;
   }
-  syncTokenWithApp(); // 로그아웃 이벤트
+
+  console.log('🧹 모든 토큰과 지속 로그인 설정이 제거되었습니다');
 };
 
 /**
@@ -750,3 +799,156 @@ if (typeof window !== 'undefined') {
   console.log('- simulateTokenExpiry(): 토큰 만료 시뮬레이션');
   console.log('- testAutoRefresh(): 자동 갱신 테스트');
 }
+
+/**
+ * 네이티브 앱 환경인지 확인
+ */
+export const isNativeApp = (): boolean => {
+  return !!(window.webkit?.messageHandlers || window.ReactNativeWebView);
+};
+
+/**
+ * 30일 자동 로그인을 위한 토큰 저장 (앱 종료 후에도 유지)
+ */
+export const saveTokensForPersistentLogin = (
+  accessToken: string,
+  refreshToken?: string,
+  email?: string
+): void => {
+  // 1. localStorage에 저장 (브라우저 종료 후에도 유지)
+  localStorage.setItem('accessToken', accessToken);
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+  if (email) {
+    localStorage.setItem('userEmail', email);
+  }
+
+  // 2. sessionStorage에도 저장 (탭별 세션 유지)
+  sessionStorage.setItem('accessToken', accessToken);
+  if (refreshToken) {
+    sessionStorage.setItem('refreshToken', refreshToken);
+  }
+
+  // 3. 쿠키에 저장 (30일 만료, 보안 강화)
+  const maxAge = 30 * 24 * 60 * 60; // 30일
+  const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+
+  document.cookie = `accessToken=${accessToken}; Max-Age=${maxAge}; Path=/; SameSite=Strict${secureFlag}`;
+  if (refreshToken) {
+    document.cookie = `refreshToken=${refreshToken}; Max-Age=${maxAge}; Path=/; SameSite=Strict${secureFlag}`;
+  }
+
+  // 4. 자동 로그인 설정 활성화
+  localStorage.setItem('autoLogin', 'true');
+  localStorage.setItem('loginTimestamp', Date.now().toString());
+  localStorage.setItem('persistentLogin', 'true');
+
+  // 5. 토큰 만료 시간 저장
+  try {
+    const payload = decodeJwtPayload(accessToken);
+    if (payload?.exp) {
+      const expiresAt = new Date(payload.exp * 1000);
+      localStorage.setItem('tokenExpiresAt', expiresAt.toISOString());
+      console.log('⏰ 토큰 만료 시간 저장:', expiresAt.toLocaleString());
+    }
+  } catch (error) {
+    console.error('토큰 만료 시간 저장 실패:', error);
+  }
+
+  console.log('✅ 30일 지속 로그인 토큰 저장 완료:', {
+    accessTokenLength: accessToken.length,
+    hasRefreshToken: !!refreshToken,
+    email,
+    expiresAt: localStorage.getItem('tokenExpiresAt'),
+  });
+};
+
+/**
+ * 앱 시작 시 자동 로그인 상태 복원
+ */
+export const restorePersistentLogin = async (): Promise<boolean> => {
+  try {
+    const persistentLogin = localStorage.getItem('persistentLogin');
+    const autoLogin = localStorage.getItem('autoLogin');
+
+    if (persistentLogin !== 'true' && autoLogin !== 'true') {
+      console.log('ℹ️ 지속 로그인 설정이 비활성화됨');
+      return false;
+    }
+
+    const accessToken = getCurrentToken();
+    const currentRefreshToken = getRefreshToken();
+
+    if (!accessToken && !currentRefreshToken) {
+      console.log('ℹ️ 저장된 토큰이 없음');
+      return false;
+    }
+
+    // 토큰 유효성 확인
+    if (accessToken && hasValidToken()) {
+      console.log('✅ 저장된 토큰이 유효함 - 자동 로그인 성공');
+      return true;
+    }
+
+    // accessToken이 만료되었지만 refreshToken이 있는 경우 갱신 시도
+    if (currentRefreshToken) {
+      console.log('🔄 accessToken 만료, refreshToken으로 갱신 시도');
+      const success = await refreshToken();
+      if (success) {
+        console.log('✅ 토큰 갱신 성공 - 자동 로그인 완료');
+        return true;
+      }
+    }
+
+    console.log('❌ 자동 로그인 실패 - 토큰 갱신 불가');
+    return false;
+  } catch (error) {
+    console.error('자동 로그인 복원 중 오류:', error);
+    return false;
+  }
+};
+
+/**
+ * 자동 로그인 상태 확인 및 설정
+ */
+export const checkAndSetupAutoLogin = (): void => {
+  const persistentLogin = localStorage.getItem('persistentLogin');
+  const autoLogin = localStorage.getItem('autoLogin');
+
+  if (persistentLogin === 'true' || autoLogin === 'true') {
+    console.log('🔄 자동 로그인 설정 감지됨');
+
+    // 토큰 만료 시간 확인 및 갱신 타이머 설정
+    const expiresAt = localStorage.getItem('tokenExpiresAt');
+    if (expiresAt) {
+      const expiryDate = new Date(expiresAt);
+      const now = new Date();
+      const timeUntilExpiry = expiryDate.getTime() - now.getTime();
+
+      if (timeUntilExpiry > 0) {
+        // 만료 10분 전에 갱신
+        const refreshTime = Math.max(timeUntilExpiry - 10 * 60 * 1000, 0);
+        console.log(
+          `⏰ 토큰 만료 ${Math.floor(timeUntilExpiry / 1000 / 60)}분 전에 자동 갱신 예정`
+        );
+
+        setTimeout(async () => {
+          console.log('🔄 자동 토큰 갱신 실행');
+          try {
+            await refreshToken();
+          } catch (error) {
+            console.error('자동 토큰 갱신 실패:', error);
+          }
+        }, refreshTime);
+      } else {
+        console.log('⚠️ 토큰이 이미 만료됨 - 즉시 갱신 시도');
+        try {
+          refreshToken();
+        } catch (error) {
+          console.error('즉시 토큰 갱신 실패:', error);
+        }
+      }
+    }
+  }
+};

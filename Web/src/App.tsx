@@ -25,16 +25,63 @@ import {
   hasValidToken,
   refreshToken,
   getCurrentToken,
+  restorePersistentLogin,
+  checkAndSetupAutoLogin,
 } from '@/utils/auth';
 import { monitoringService, setUserId } from '@/utils/monitoring';
 
 // RootRedirect 컴포넌트 - 토큰 상태에 따라 적절한 페이지로 리다이렉트
 const RootRedirect: React.FC = () => {
-  const token = getCurrentToken();
-  if (token) {
+  const [isChecking, setIsChecking] = useState(true);
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        // 1. 지속 로그인 상태 확인
+        const persistentLogin = localStorage.getItem('persistentLogin');
+        const autoLogin = localStorage.getItem('autoLogin');
+
+        if (persistentLogin === 'true' || autoLogin === 'true') {
+          console.log('🔄 지속 로그인 설정 감지됨 - 자동 로그인 시도');
+
+          // 2. 저장된 토큰으로 자동 로그인 시도
+          const autoLoginSuccess = await restorePersistentLogin();
+          if (autoLoginSuccess) {
+            console.log('✅ 자동 로그인 성공 - 홈으로 이동');
+            setRedirectPath('/home');
+            return;
+          }
+        }
+
+        // 3. 일반 토큰 상태 확인
+        const token = getCurrentToken();
+        if (token && hasValidToken()) {
+          console.log('✅ 유효한 토큰 존재 - 홈으로 이동');
+          setRedirectPath('/home');
+        } else {
+          console.log('ℹ️ 유효한 토큰 없음 - 로그인 페이지로 이동');
+          setRedirectPath('/login');
+        }
+      } catch (error) {
+        console.error('로그인 상태 확인 중 오류:', error);
+        setRedirectPath('/login');
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  if (isChecking) {
+    return <div>로그인 상태 확인 중...</div>;
+  }
+
+  if (redirectPath === '/home') {
     return <Navigate to='/home' replace />;
   } else {
-    return <Navigate to='/landing' replace />;
+    return <Navigate to='/login' replace />;
   }
 };
 
@@ -44,9 +91,10 @@ interface LayoutShift extends PerformanceEntry {
   hadRecentInput: boolean;
 }
 
-interface PerformanceEventTiming extends PerformanceEntry {
-  processingStart: number;
-  startTime: number;
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
 }
 
 interface NetworkInformation extends EventTarget {
@@ -57,14 +105,6 @@ interface NetworkInformation extends EventTarget {
 
 interface NavigatorWithConnection extends Navigator {
   connection?: NetworkInformation;
-}
-
-interface PerformanceWithMemory extends Performance {
-  memory?: {
-    usedJSHeapSize: number;
-    totalJSHeapSize: number;
-    jsHeapSizeLimit: number;
-  };
 }
 
 // React Query 클라이언트 설정 - 성능 최적화
@@ -226,8 +266,12 @@ const AuthGuard: React.FC = () => {
     // 초기 인증 체크
     const checkInitialAuth = async () => {
       try {
-        // 테스트 관련 경로는 인증 체크 제외
-        if (location.pathname.startsWith('/test-')) {
+        // 테스트 관련 경로는 인증 체크 제외 (/test-*, /test/* 모두)
+        const isTestRoute =
+          location.pathname.startsWith('/test-') ||
+          location.pathname.startsWith('/test/');
+
+        if (isTestRoute) {
           setIsInitialized(true);
           return;
         }
@@ -250,8 +294,12 @@ const AuthGuard: React.FC = () => {
   useEffect(() => {
     if (!isInitialized) return;
 
-    // 테스트 관련 경로는 인증 체크 제외
-    if (location.pathname.startsWith('/test-')) {
+    // 테스트 관련 경로는 인증 체크 제외 (/test-*, /test/* 모두)
+    const isTestRoute =
+      location.pathname.startsWith('/test-') ||
+      location.pathname.startsWith('/test/');
+
+    if (isTestRoute) {
       return;
     }
 
@@ -266,83 +314,69 @@ const AuthGuard: React.FC = () => {
   return null;
 };
 
+// 모듈 스코프에서 interval 관리
+let autoRefreshTimer: ReturnType<typeof setInterval> | null = null;
+
 const App: React.FC = () => {
   useEffect(() => {
-    const tryAutoLogin = async () => {
-      const token = getCurrentToken();
-      const autoLogin = localStorage.getItem('autoLogin') === 'true';
+    const initializeApp = async () => {
+      console.log('🚀 앱 초기화 시작');
 
-      if (token && !hasValidToken()) {
-        // accessToken이 만료된 경우 refresh 시도
-        await refreshToken();
-        // refresh 실패 시에는 기존 인증 체크 로직에 따라 로그인 페이지로 이동
+      // 1. 자동 로그인 상태 복원 시도
+      const autoLoginSuccess = await restorePersistentLogin();
+      if (autoLoginSuccess) {
+        console.log('✅ 자동 로그인 성공 - 사용자 인증됨');
+      } else {
+        console.log('ℹ️ 자동 로그인 실패 또는 설정되지 않음');
       }
 
-      // 30일 자동 로그인 설정이 활성화된 경우 추가 처리
-      if (autoLogin) {
-        // 30일 자동 로그인 설정이 활성화되어 있습니다
+      // 2. 자동 로그인 설정 확인 및 타이머 설정
+      checkAndSetupAutoLogin();
 
-        // 자동 토큰 갱신 인터벌이 없으면 설정
-        const intervalId = localStorage.getItem('autoRefreshInterval');
-        if (!intervalId) {
-          const autoRefreshInterval = setInterval(async () => {
+      // 3. 기존 자동 로그인 로직 실행
+      const tryAutoLogin = async () => {
+        const token = getCurrentToken();
+        const autoLogin = localStorage.getItem('autoLogin') === 'true';
+
+        if (token && !hasValidToken()) {
+          // accessToken이 만료된 경우 refresh 시도
+          await refreshToken();
+          // refresh 실패 시에는 기존 인증 체크 로직에 따라 로그인 페이지로 이동
+        }
+
+        // 30일 자동 로그인 설정이 활성화된 경우 추가 처리
+        if (autoLogin) {
+          // 30일 자동 로그인 설정이 활성화되어 있습니다
+
+          // 기존 interval이 있으면 정리
+          if (autoRefreshTimer) {
+            clearInterval(autoRefreshTimer);
+            autoRefreshTimer = null;
+          }
+
+          // 자동 토큰 갱신 인터벌 설정
+          autoRefreshTimer = setInterval(async () => {
             try {
               const currentToken = getCurrentToken();
-              const currentRefreshToken = localStorage.getItem('refreshToken');
-
-              if (currentToken && currentRefreshToken) {
-                const payload = JSON.parse(atob(currentToken.split('.')[1]));
-                const currentTime = Date.now() / 1000;
-                const timeUntilExpiry = payload.exp - currentTime;
-
-                // 10분 이내 만료되면 자동 갱신
-                if (timeUntilExpiry <= 600) {
-                  const response = await fetch(
-                    'https://api.stylewh.com/auth/refresh',
-                    {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        refreshToken: currentRefreshToken,
-                        autoLogin: true,
-                      }),
-                    }
-                  );
-
-                  if (response.ok) {
-                    const data = await response.json();
-                    // 갱신된 토큰을 모든 저장소에 저장
-                    localStorage.setItem('accessToken', data.accessToken);
-                    localStorage.setItem('refreshToken', data.refreshToken);
-                    sessionStorage.setItem('accessToken', data.accessToken);
-                    sessionStorage.setItem('refreshToken', data.refreshToken);
-
-                    // 쿠키도 갱신
-                    const maxAge = 30 * 24 * 60 * 60;
-                    document.cookie = `accessToken=${data.accessToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
-                    document.cookie = `refreshToken=${data.refreshToken}; max-age=${maxAge}; path=/; SameSite=Strict`;
-
-                    // 자동 토큰 갱신 완료
-                  }
-                }
+              if (currentToken && !hasValidToken()) {
+                await refreshToken();
               }
             } catch (error) {
-              console.error('자동 토큰 갱신 오류:', error);
+              console.error('자동 토큰 갱신 실패:', error);
+              // 실패 시 interval 정리
+              if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+                autoRefreshTimer = null;
+              }
             }
-          }, 60000); // 1분마다 체크
-
-          localStorage.setItem(
-            'autoRefreshInterval',
-            autoRefreshInterval.toString()
-          );
+          }, 60_000); // 1분마다 체크
         }
-      }
+      };
 
-      // 토큰이 없으면 기존 인증 체크 로직이 동작함
+      tryAutoLogin();
     };
-    tryAutoLogin();
+
+    initializeApp();
 
     // 강제 로그인 리다이렉트 이벤트 리스너
     const handleForceLoginRedirect = () => {
@@ -352,11 +386,12 @@ const App: React.FC = () => {
 
     window.addEventListener('forceLoginRedirect', handleForceLoginRedirect);
 
+    // 컴포넌트 언마운트 시 interval 정리
     return () => {
-      window.removeEventListener(
-        'forceLoginRedirect',
-        handleForceLoginRedirect
-      );
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+        autoRefreshTimer = null;
+      }
     };
   }, []);
 
@@ -386,19 +421,20 @@ const App: React.FC = () => {
 
     // Service Worker 등록 (더 안전한 방식)
     if ('serviceWorker' in navigator) {
-      // 기존 Service Worker 제거
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        for (const registration of registrations) {
-          registration.unregister();
-        }
-      });
-
-      // 새 Service Worker 등록 (개발 환경에서는 비활성화)
-      if (import.meta.env.PROD) {
+      if (import.meta.env.DEV) {
+        // 개발 환경에서는 기존 Service Worker 제거
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
+        });
+      } else {
+        // 프로덕션 환경에서는 기존 등록 유지하고 업데이트만 확인
         navigator.serviceWorker
           .register('/sw.js', { scope: '/' })
           .then((registration) => {
             // Service Worker 등록 성공
+            registration.update(); // 최신본 확인
 
             // Service Worker 업데이트 확인
             registration.addEventListener('updatefound', () => {
@@ -427,112 +463,143 @@ const App: React.FC = () => {
 
     // 성능 모니터링 시작
     const startPerformanceMonitoring = () => {
-      // Core Web Vitals 모니터링
       if ('PerformanceObserver' in window) {
+        const observers: PerformanceObserver[] = [];
+
         // LCP (Largest Contentful Paint)
-        new PerformanceObserver((list) => {
-          const entries = list.getEntries();
-          const lastEntry = entries[entries.length - 1];
-          if (lastEntry.entryType === 'largest-contentful-paint') {
-            monitoringService.trackCustomEvent('performance_lcp', {
-              value: lastEntry.startTime,
-              url: window.location.href,
-            });
-          }
-        }).observe({ entryTypes: ['largest-contentful-paint'] });
-
-        // TTFB (Time to First Byte) 모니터링 추가
-        new PerformanceObserver((list) => {
-          const entries = list.getEntries();
-          entries.forEach((entry) => {
-            if (entry.entryType === 'navigation') {
-              const navigationEntry = entry as PerformanceNavigationTiming;
-              monitoringService.trackCustomEvent('performance_ttfb', {
-                value:
-                  navigationEntry.responseStart - navigationEntry.requestStart,
-                url: window.location.href,
+        try {
+          const lcpObs = new PerformanceObserver((list) => {
+            const last = list.getEntries().pop();
+            if (last) {
+              monitoringService.trackCustomEvent('performance_lcp', {
+                value: last.startTime,
+                url: location.href,
               });
             }
           });
-        }).observe({ entryTypes: ['navigation'] });
+          lcpObs.observe({
+            type: 'largest-contentful-paint',
+            buffered: true,
+          } as PerformanceObserverInit);
+          observers.push(lcpObs);
+        } catch {
+          // PerformanceObserver 지원하지 않는 경우 무시
+        }
 
-        // FID (First Input Delay) 모니터링
-        new PerformanceObserver((list) => {
-          const entries = list.getEntries();
-          entries.forEach((entry) => {
-            if (entry.entryType === 'first-input') {
-              const firstInputEntry = entry as PerformanceEventTiming;
-              monitoringService.trackCustomEvent('performance_fid', {
-                value:
-                  firstInputEntry.processingStart - firstInputEntry.startTime,
-                url: window.location.href,
-              });
-            }
-          });
-        }).observe({ entryTypes: ['first-input'] });
-
-        // CLS (Cumulative Layout Shift) 모니터링
-        let clsValue = 0;
-        new PerformanceObserver((list) => {
-          const entries = list.getEntries();
-          entries.forEach((entry) => {
-            if (entry.entryType === 'layout-shift') {
-              const layoutShiftEntry = entry as LayoutShift;
-              if (!layoutShiftEntry.hadRecentInput) {
-                clsValue += layoutShiftEntry.value;
+        // INP (Interaction to Next Paint) - FID 대신 사용
+        try {
+          const inpObs = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+              const eventEntry = entry as PerformanceEntry & {
+                duration?: number;
+                name?: string;
+              };
+              if (eventEntry.name === 'event' && eventEntry.duration) {
+                monitoringService.trackCustomEvent('performance_inp', {
+                  value: eventEntry.duration,
+                  url: location.href,
+                });
               }
             }
           });
+          inpObs.observe({
+            type: 'event',
+            buffered: true,
+          } as PerformanceObserverInit);
+          observers.push(inpObs);
+        } catch {
+          // PerformanceObserver 지원하지 않는 경우 무시
+        }
 
-          // 페이지 언로드 시 CLS 값 전송
-          window.addEventListener('beforeunload', () => {
+        // CLS (Cumulative Layout Shift)
+        let clsValue = 0;
+        try {
+          const clsObs = new PerformanceObserver((list) => {
+            for (const e of list.getEntries()) {
+              const layoutShiftEntry = e as LayoutShift;
+              if (!layoutShiftEntry.hadRecentInput)
+                clsValue += layoutShiftEntry.value || 0;
+            }
+          });
+          clsObs.observe({
+            type: 'layout-shift',
+            buffered: true,
+          } as PerformanceObserverInit);
+          observers.push(clsObs);
+
+          // 페이지 숨김/종료 시 CLS 전송
+          const flushCls = () =>
             monitoringService.trackCustomEvent('performance_cls', {
               value: clsValue,
-              url: window.location.href,
+              url: location.href,
             });
+
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') flushCls();
           });
-        }).observe({ entryTypes: ['layout-shift'] });
+          window.addEventListener('pagehide', flushCls);
+        } catch {
+          // PerformanceObserver 지원하지 않는 경우 무시
+        }
+
+        // TTFB (Time to First Byte) - navigation entry에서 측정
+        const nav = performance.getEntriesByType('navigation')[0] as
+          | PerformanceNavigationTiming
+          | undefined;
+        if (nav) {
+          monitoringService.trackCustomEvent('performance_ttfb', {
+            value: nav.responseStart - nav.requestStart,
+            url: location.href,
+          });
+        }
+
+        // 컴포넌트 언마운트 시 옵저버 정리
+        return () => {
+          observers.forEach((o) => o.disconnect());
+        };
       }
     };
 
-    startPerformanceMonitoring();
+    const cleanupPerformanceMonitoring = startPerformanceMonitoring();
+
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      if (cleanupPerformanceMonitoring) {
+        cleanupPerformanceMonitoring();
+      }
+    };
 
     // 네트워크 상태 모니터링
     const monitorNetworkStatus = () => {
-      if ('connection' in navigator) {
-        const connection = (navigator as NavigatorWithConnection).connection;
+      const nav = navigator as NavigatorWithConnection;
+      const connection = nav.connection;
 
-        if (connection) {
-          monitoringService.trackCustomEvent('network_info', {
-            effectiveType: connection.effectiveType,
-            downlink: connection.downlink,
-            rtt: connection.rtt,
+      if (connection?.addEventListener) {
+        connection.addEventListener('change', () => {
+          monitoringService.trackCustomEvent('network_change', {
+            effectiveType: connection.effectiveType || 'unknown',
+            downlink: connection.downlink || 0,
+            rtt: connection.rtt || 0,
+            url: location.href,
           });
-
-          connection.addEventListener('change', () => {
-            monitoringService.trackCustomEvent('network_change', {
-              effectiveType: connection.effectiveType,
-              downlink: connection.downlink,
-              rtt: connection.rtt,
-            });
-          });
-        }
+        });
       }
     };
 
     monitorNetworkStatus();
 
-    // 메모리 사용량 모니터링 (개발 환경에서만)
-    if (import.meta.env.DEV && 'memory' in performance) {
-      const memory = (performance as PerformanceWithMemory).memory;
+    // 메모리 사용량 모니터링 (Chrome에서만 지원)
+    if ('memory' in performance) {
+      const memory = (
+        performance as Performance & { memory: PerformanceMemory }
+      ).memory;
       if (memory) {
-        setInterval(() => {
-          monitoringService.trackCustomEvent('memory_usage', {
-            usedJSHeapSize: memory.usedJSHeapSize,
-            totalJSHeapSize: memory.totalJSHeapSize,
-            jsHeapSizeLimit: memory.jsHeapSizeLimit,
-          });
-        }, 30000); // 30초마다 체크
+        monitoringService.trackCustomEvent('performance_memory', {
+          usedJSHeapSize: memory.usedJSHeapSize,
+          totalJSHeapSize: memory.totalJSHeapSize,
+          jsHeapSizeLimit: memory.jsHeapSizeLimit,
+          url: location.href,
+        });
       }
     }
   }, []);
@@ -698,11 +765,16 @@ const App: React.FC = () => {
                     element={<DocumentDetail />}
                   />
                   <Route path='/password-change' element={<PasswordChange />} />
+
+                  {/* 결제 완료/실패 - 이전 경로는 리다이렉트로 처리 */}
                   <Route
                     path='/payment-complete'
-                    element={<PaymentComplete />}
+                    element={<Navigate to='/payment/complete' replace />}
                   />
-                  <Route path='/payment-fail' element={<PaymentFail />} />
+                  <Route
+                    path='/payment-fail'
+                    element={<Navigate to='/payment/fail' replace />}
+                  />
 
                   <Route
                     path='/ticketDetail/:ticketId'
