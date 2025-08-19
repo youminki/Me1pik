@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { FiRefreshCw, FiHome } from 'react-icons/fi';
 import styled from 'styled-components';
 
 // Window 타입 확장
@@ -24,35 +25,118 @@ const ErrorContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  padding: 2rem;
+  min-height: 100vh;
+
   text-align: center;
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family:
+    'NanumSquareNeo',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+`;
+
+const ErrorIcon = styled.div`
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  animation: bounce 2s infinite;
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
 `;
 
 const ErrorTitle = styled.h1`
   color: #dc3545;
   margin-bottom: 1rem;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 `;
 
 const ErrorMessage = styled.p`
-  color: #6c757d;
-  margin-bottom: 1rem;
-  font-size: 1rem;
+  color: #495057;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
 `;
 
 const RetryButton = styled.button`
-  background-color: #007bff;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f7c600;
+  color: #000;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.375rem;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 1rem;
+  transition: all 0.2s ease;
 
   &:hover {
-    background-color: #0056b3;
+    background: #e6b800;
+  }
+
+  &:active {
+    background: #d4a800;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const HomeButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #000;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #333;
+  }
+
+  &:active {
+    background: #1a1a1a;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
   }
 `;
 
@@ -89,11 +173,25 @@ class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <ErrorContainer>
-          <ErrorTitle>오류가 발생했습니다</ErrorTitle>
+          <ErrorIcon>⚠️</ErrorIcon>
+          <ErrorTitle>앗! 문제가 발생했어요</ErrorTitle>
           <ErrorMessage>
-            페이지를 새로고침하거나 다시 시도해주세요.
+            죄송합니다. 예상치 못한 오류가 발생했습니다.
+            <br />
+            잠시 후 다시 시도해주시거나, 문제가 지속되면 고객센터에
+            문의해주세요.
           </ErrorMessage>
-          <RetryButton onClick={this.handleRetry}>다시 시도</RetryButton>
+
+          <ActionButtons>
+            <RetryButton onClick={this.handleRetry}>
+              <FiRefreshCw />
+              다시 시도
+            </RetryButton>
+            <HomeButton onClick={() => (window.location.href = '/')}>
+              <FiHome />
+              홈으로 이동
+            </HomeButton>
+          </ActionButtons>
         </ErrorContainer>
       );
     }

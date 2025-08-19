@@ -190,6 +190,30 @@ const UpdateProfile: React.FC = () => {
     // 필요 시, 성공 후 다른 동작(ex: 뒤로 이동 등)을 이곳에 추가 가능
   }, []);
 
+  // 계정삭제 모달 상태
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+
+  // 계정삭제 처리
+  const handleAccountDeletion = useCallback(async () => {
+    try {
+      // TODO: 실제 계정삭제 API 호출
+      // await deleteAccount();
+      setShowDeleteModal(false);
+      setSignupResult('✅ 계정이 성공적으로 삭제되었습니다.');
+      setShowResultModal(true);
+      // 삭제 후 로그인 페이지로 이동
+      setTimeout(() => {
+        // navigate('/login');
+        // 또는 로그아웃 처리
+      }, 2000);
+    } catch (err: unknown) {
+      console.error('계정삭제 오류:', err);
+      const msg = getErrorMessage(err);
+      setSignupResult(`❌ 계정삭제 중 오류가 발생했습니다: ${msg}`);
+      setShowResultModal(true);
+    }
+  }, []);
+
   if (isLoading) {
     return (
       <ThemeProvider theme={theme}>
@@ -309,6 +333,22 @@ const UpdateProfile: React.FC = () => {
                   {errors.district.message}
                 </span>
               )}
+
+              {/* 계정삭제 섹션 */}
+              <Divider />
+              <AccountDeletionSection>
+                <AccountDeletionTitle>계정삭제</AccountDeletionTitle>
+                <AccountDeletionDescription>
+                  계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수
+                  없습니다.
+                </AccountDeletionDescription>
+                <DeleteAccountButton
+                  type='button'
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  계정삭제
+                </DeleteAccountButton>
+              </AccountDeletionSection>
             </Form>
 
             <FixedBottomBar
@@ -324,6 +364,33 @@ const UpdateProfile: React.FC = () => {
               title='회원정보 수정'
             >
               {signupResult}
+            </ReusableModal>
+
+            {/* 계정삭제 확인 모달 */}
+            <ReusableModal
+              isOpen={showDeleteModal}
+              onClose={() => setShowDeleteModal(false)}
+              title='계정삭제 확인'
+            >
+              <DeleteConfirmContent>
+                <DeleteWarningText>
+                  정말로 계정을 삭제하시겠습니까?
+                </DeleteWarningText>
+                <DeleteWarningDescription>
+                  • 모든 개인정보가 영구적으로 삭제됩니다
+                  <br />
+                  • 주문 내역, 찜 목록 등 모든 데이터가 사라집니다
+                  <br />• 삭제 후에는 복구할 수 없습니다
+                </DeleteWarningDescription>
+                <DeleteConfirmButtons>
+                  <CancelButton onClick={() => setShowDeleteModal(false)}>
+                    취소
+                  </CancelButton>
+                  <ConfirmDeleteButton onClick={handleAccountDeletion}>
+                    계정삭제
+                  </ConfirmDeleteButton>
+                </DeleteConfirmButtons>
+              </DeleteConfirmContent>
             </ReusableModal>
           </PageContainer>
         </FormProvider>
@@ -358,4 +425,118 @@ const RowLabel = styled.div`
   align-items: center;
   gap: 10px;
   width: 100%;
+`;
+
+const Divider = styled.div`
+  width: 100%;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 20px 0;
+`;
+
+const AccountDeletionSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+`;
+
+const AccountDeletionTitle = styled.h3`
+  font-size: 16px;
+  font-weight: 600;
+  color: #dc3545;
+  margin: 0;
+`;
+
+const AccountDeletionDescription = styled.p`
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.5;
+  margin: 0;
+`;
+
+const DeleteAccountButton = styled.button`
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #c82333;
+  }
+
+  &:active {
+    background: #bd2130;
+  }
+`;
+
+const DeleteConfirmContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+`;
+
+const DeleteWarningText = styled.h4`
+  font-size: 18px;
+  font-weight: 600;
+  color: #dc3545;
+  margin: 0;
+`;
+
+const DeleteWarningDescription = styled.div`
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.6;
+  text-align: left;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #dc3545;
+`;
+
+const DeleteConfirmButtons = styled.div`
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+`;
+
+const CancelButton = styled.button`
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #5a6268;
+  }
+`;
+
+const ConfirmDeleteButton = styled.button`
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #c82333;
+  }
 `;

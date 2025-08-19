@@ -654,6 +654,10 @@ const App: React.FC = () => {
                 {/* 테스트 페이지 라우트 - 일반 경로로 이동 */}
                 <Route path='/test-login' element={<TestLoginPage />} />
                 <Route path='/test-dashboard' element={<TestDashboard />} />
+                {/* <Route
+          path='/test-error-boundary'
+          element={<ErrorBoundaryTest />}
+        /> */}
                 {/* <Route path='/findid' element={<FindId />} />
             <Route path='/findPassword' element={<FindPassword />} /> */}
 

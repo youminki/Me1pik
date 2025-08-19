@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { FiRefreshCw, FiHome } from 'react-icons/fi';
 import styled from 'styled-components';
 
 interface Props {
@@ -36,23 +37,24 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <ErrorContainer>
           <ErrorIcon>⚠️</ErrorIcon>
-          <ErrorTitle>오류가 발생했습니다</ErrorTitle>
+          <ErrorTitle>앗! 문제가 발생했어요</ErrorTitle>
           <ErrorMessage>
             죄송합니다. 예상치 못한 오류가 발생했습니다.
             <br />
-            페이지를 새로고침하거나 잠시 후 다시 시도해주세요.
+            잠시 후 다시 시도해주시거나, 문제가 지속되면 고객센터에
+            문의해주세요.
           </ErrorMessage>
-          <RetryButton onClick={() => window.location.reload()}>
-            페이지 새로고침
-          </RetryButton>
-          {import.meta.env.DEV && this.state.error && (
-            <ErrorDetails>
-              <details>
-                <summary>개발자 정보</summary>
-                <pre>{this.state.error.toString()}</pre>
-              </details>
-            </ErrorDetails>
-          )}
+
+          <ActionButtons>
+            <RetryButton onClick={() => window.location.reload()}>
+              <FiRefreshCw />
+              페이지 새로고침
+            </RetryButton>
+            <HomeButton onClick={() => (window.location.href = '/')}>
+              <FiHome />
+              홈으로 이동
+            </HomeButton>
+          </ActionButtons>
         </ErrorContainer>
       );
     }
@@ -68,74 +70,117 @@ const ErrorContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  min-height: 100vh;
   padding: 2rem;
   text-align: center;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  margin: 1rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family:
+    'NanumSquareNeo',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 `;
 
 const ErrorIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  animation: bounce 2s infinite;
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
 `;
 
-const ErrorTitle = styled.h2`
+const ErrorTitle = styled.h1`
   color: #dc3545;
   margin-bottom: 1rem;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 `;
 
 const ErrorMessage = styled.p`
-  color: #6c757d;
+  color: #495057;
   margin-bottom: 2rem;
+  font-size: 1.1rem;
   line-height: 1.6;
   max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
 `;
 
 const RetryButton = styled.button`
-  background-color: #007bff;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f7c600;
+  color: #000;
   border: none;
-  padding: 12px 24px;
+  padding: 12px 20px;
   border-radius: 6px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 
   &:hover {
-    background-color: #0056b3;
+    background: #e6b800;
+  }
+
+  &:active {
+    background: #d4a800;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
   }
 `;
 
-const ErrorDetails = styled.div`
-  margin-top: 2rem;
-  text-align: left;
-  max-width: 600px;
-  width: 100%;
+const HomeButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #000;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
-  details {
-    background-color: white;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 1rem;
+  &:hover {
+    background: #333;
   }
 
-  summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0.5rem;
+  &:active {
+    background: #1a1a1a;
   }
 
-  pre {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 4px;
-    overflow-x: auto;
-    font-size: 0.875rem;
-    color: #dc3545;
+  svg {
+    width: 16px;
+    height: 16px;
   }
 `;
