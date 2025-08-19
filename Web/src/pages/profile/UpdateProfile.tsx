@@ -418,9 +418,9 @@ const UpdateProfile: React.FC = () => {
               <CommonField
                 label='회원탈퇴'
                 type='text'
-                value='회원을 탈퇴하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.'
+                value='등록된 정보 및 이용내역 모두 삭제처리 진행'
                 readOnly
-                buttonLabel='회원탈퇴'
+                buttonLabel='탈퇴신청'
                 buttonColorType='red'
                 onButtonClick={() => setShowDeleteModal(true)}
               />
