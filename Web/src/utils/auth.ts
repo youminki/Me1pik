@@ -506,7 +506,7 @@ export const logout = async (): Promise<void> => {
     const email = getEmailFromToken();
     if (email) {
       // logoutUser API 호출 (에러가 나도 무시)
-      await Axios.post('/user/logout', { email });
+      await Axios.post('/auth/logout', { email });
     }
   } catch (error) {
     console.log('로그아웃 처리 중 오류:', error);
