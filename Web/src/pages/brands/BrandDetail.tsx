@@ -494,7 +494,7 @@ const ContentSection = styled.div`
 `;
 
 const TitleStatsContainer = styled.div`
-  width: 400px;
+  width: 100%;
   margin: 0 auto;
   margin-top: -100px;
   position: relative;
@@ -509,7 +509,6 @@ const CompanyTitle = styled.div`
 `;
 
 const StatsSection = styled.div`
-  width: 400px;
   height: 56px;
   margin: 0 auto;
   position: relative;
@@ -519,7 +518,7 @@ const StatsSection = styled.div`
 
 const StatsCard = styled.div`
   box-sizing: border-box;
-  width: 192px;
+  width: 100%;
   height: 56px;
   background: #ffffff;
   border: 1px solid #000000;
