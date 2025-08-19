@@ -16,15 +16,19 @@ import MypageIcon from '@/assets/headers/MypageIcon.svg';
 import ShareIcon from '@/assets/headers/ShareIcon.svg';
 import Logo from '@/assets/Logo.svg';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
-import { getCurrentToken } from '@/utils/auth';
+import { getCurrentToken, logout } from '@/utils/auth';
 
 interface HeaderContainerProps {
   $variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
+  $bgImage?: string;
 }
 interface UnifiedHeaderProps {
   variant?: 'default' | 'oneDepth' | 'twoDepth' | 'threeDepth';
   title?: string;
   onBack?: () => void;
+  backgroundImage?: string;
+  centerTitle?: boolean;
+  showLogoutButton?: boolean;
 }
 
 const HISTORY_KEY = 'search_history';
@@ -47,17 +51,28 @@ const HeaderContainer = styled.header<HeaderContainerProps>`
   padding: 1rem;
   position: relative;
   min-height: var(--header-height, 70px);
+  ${({ $bgImage }) =>
+    $bgImage
+      ? `background: url(${$bgImage}) no-repeat center center; background-size: cover;`
+      : ''};
 `;
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
 `;
-const CenterSection = styled.div`
+const CenterSection = styled.div<{ $absoluteCenter?: boolean }>`
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: ${({ $absoluteCenter }) =>
+    $absoluteCenter ? 'absolute' : 'static'};
+  left: ${({ $absoluteCenter }) => ($absoluteCenter ? '50%' : 'auto')};
+  transform: ${({ $absoluteCenter }) =>
+    $absoluteCenter ? 'translateX(-50%)' : 'none'};
+  pointer-events: ${({ $absoluteCenter }) =>
+    $absoluteCenter ? 'none' : 'auto'};
 `;
 const RightSection = styled.div`
   display: flex;
@@ -181,10 +196,25 @@ const CancelIcon = styled.img`
   cursor: pointer;
 `;
 
+const LogoutTextButton = styled.button`
+  width: 69px;
+  height: 34px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+`;
+
 const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
   variant = 'default',
   title,
   onBack,
+
+  centerTitle,
+  showLogoutButton,
 }) => {
   const navigate = useNavigate();
 
@@ -531,9 +561,24 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
               onClick={handleBack}
             />
           </LeftSection>
-          <CenterSection>
+          <CenterSection $absoluteCenter={centerTitle}>
             <TitleText>{title}</TitleText>
           </CenterSection>
+          {showLogoutButton && (
+            <RightSection>
+              <LogoutTextButton
+                onClick={async () => {
+                  try {
+                    await logout();
+                  } finally {
+                    navigate('/login', { replace: true });
+                  }
+                }}
+              >
+                로그아웃
+              </LogoutTextButton>
+            </RightSection>
+          )}
         </HeaderContainer>
       </HeaderWrapper>
     );

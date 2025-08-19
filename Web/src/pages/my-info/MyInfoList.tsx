@@ -118,7 +118,13 @@ const MyinfoList: React.FC = () => {
 
   return (
     <>
-      <UnifiedHeader variant='threeDepth' title='내 정보' />
+      <UnifiedHeader
+        variant='threeDepth'
+        title='내 정보'
+        backgroundImage={MyInfoListBackgroundimage}
+        centerTitle
+        showLogoutButton
+      />
       <Container>
         {/* Profile Section */}
         <ProfileSection>
