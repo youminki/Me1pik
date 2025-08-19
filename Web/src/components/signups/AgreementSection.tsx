@@ -735,7 +735,7 @@ const DescriptionWrapper = styled.div`
 const Description = styled.p`
   font-size: 12px;
   line-height: 1.5;
-  margin-bottom: 10px;
+
   color: ${({ theme }) => theme.colors.gray};
 `;
 

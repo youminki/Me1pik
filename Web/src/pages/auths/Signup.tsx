@@ -141,6 +141,8 @@ const Signup: React.FC = () => {
   const [emailApiError, setEmailApiError] = useState<string>('');
   const [nicknameApiError, setNicknameApiError] = useState<string>('');
   const [phoneApiError, setPhoneApiError] = useState<string>('');
+  const [melpickAddressApiError, setMelpickAddressApiError] =
+    useState<string>('');
 
   const [gender, setGender] = useState<string>('여성');
   const [selectedGenderButton, setSelectedGenderButton] =
@@ -181,6 +183,7 @@ const Signup: React.FC = () => {
     }
     if (field === 'melpickAddress') {
       setIsMelpickAddressChecked(false);
+      setMelpickAddressApiError('');
     }
   };
 
@@ -287,44 +290,42 @@ const Signup: React.FC = () => {
       const result = await checkWebpage(melpickAddress);
       if (result.isAvailable) {
         setIsMelpickAddressChecked(true);
+        setMelpickAddressApiError('');
       } else {
         setIsMelpickAddressChecked(false);
+        setMelpickAddressApiError('멜픽 주소 인증에 실패했습니다.');
       }
     } catch {
       setIsMelpickAddressChecked(false);
+      setMelpickAddressApiError('멜픽 주소 인증 중 오류가 발생했습니다.');
     }
   };
 
   const onSubmit: SubmitHandler<SignupFormData> = async (data) => {
-    const missing: string[] = [];
-    if (!isEmailChecked) missing.push('이메일 인증을 완료하세요.');
-    if (!isNicknameChecked) missing.push('닉네임 인증을 완료하세요.');
-    if (!isPhoneVerified) missing.push('전화번호 인증을 완료하세요.');
-    if (!isMelpickAddressChecked) missing.push('멜픽 주소 인증을 완료하세요.');
-    if (missing.length > 0) {
-      setSignupResult(
-        missing.map((msg, idx) => (
-          <React.Fragment key={idx}>
-            {msg}
-            <br />
-          </React.Fragment>
-        ))
-      );
-      setIsSignupSuccess(false);
-      setShowSignupResultModal(true);
+    // 인증 상태 확인 및 필드별 오류 메시지 설정
+    if (!isEmailChecked) {
+      setEmailApiError('이메일 인증을 완료하세요.');
+      return;
+    }
+    if (!isNicknameChecked) {
+      setNicknameApiError('닉네임 인증을 완료하세요.');
+      return;
+    }
+    if (!isPhoneVerified) {
+      setPhoneApiError('전화번호 인증을 완료하세요.');
+      return;
+    }
+    if (!isMelpickAddressChecked) {
+      setMelpickAddressApiError('멜픽 주소 인증을 완료하세요.');
       return;
     }
 
     if (data.password !== data.passwordConfirm) {
-      setSignupResult(
-        <>
-          비밀번호가 일치하지 않습니다.
-          <br />
-          다시 확인해주세요.
-        </>
-      );
-      setIsSignupSuccess(false);
-      setShowSignupResultModal(true);
+      // 비밀번호 확인 필드에 오류 표시
+      methods.setError('passwordConfirm', {
+        type: 'manual',
+        message: '비밀번호가 일치하지 않습니다.',
+      });
       return;
     }
 
@@ -383,35 +384,37 @@ const Signup: React.FC = () => {
       setShowSignupResultModal(true);
     } catch (err: unknown) {
       console.error('회원가입 오류:', err);
-      setSignupResult(
-        err instanceof Error
-          ? `회원가입 중 오류가 발생했습니다: ${err.message}`
-          : '회원가입 중 오류가 발생했습니다.'
-      );
-      setIsSignupSuccess(false);
-      setShowSignupResultModal(true);
+      // API 오류를 적절한 필드에 표시
+      if (err instanceof Error) {
+        const errorMessage = err.message;
+        if (errorMessage.includes('이메일') || errorMessage.includes('email')) {
+          setEmailApiError(errorMessage);
+        } else if (
+          errorMessage.includes('닉네임') ||
+          errorMessage.includes('nickname')
+        ) {
+          setNicknameApiError(errorMessage);
+        } else if (
+          errorMessage.includes('전화번호') ||
+          errorMessage.includes('phone')
+        ) {
+          setPhoneApiError(errorMessage);
+        } else {
+          // 일반적인 오류는 이메일 필드 아래에 표시
+          setEmailApiError(`회원가입 오류: ${errorMessage}`);
+        }
+      } else {
+        setEmailApiError('회원가입 중 오류가 발생했습니다.');
+      }
     }
   };
 
   const onSignupButtonClick = async () => {
     if (isSubmitting) return;
     const valid = await trigger();
-    const errorMessages = Object.values(methods.formState.errors)
-      .map((err) => err?.message)
-      .filter(Boolean)
-      .join('\n');
 
-    if (!valid || errorMessages) {
-      setSignupResult(
-        errorMessages.split('\n').map((line, idx) => (
-          <React.Fragment key={idx}>
-            {line}
-            <br />
-          </React.Fragment>
-        ))
-      );
-      setIsSignupSuccess(false);
-      setShowSignupResultModal(true);
+    if (!valid) {
+      // 폼 검증 오류는 react-hook-form이 자동으로 필드 아래에 표시
       return;
     }
 
@@ -742,59 +745,69 @@ const Signup: React.FC = () => {
                 ]}
               />
             </RowLabel>
-            <RowLabel>
-              <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                <span style={{ fontWeight: 700, fontSize: 13, minWidth: 100 }}>
-                  instagram.com/
-                </span>
-                <CommonField
-                  id='instar'
-                  type='text'
-                  placeholder='인스타 아이디를 입력하세요'
-                  error={errors.instar?.message}
-                  required
-                  maxLength={50}
-                  style={{
-                    flex: 1,
-                    fontSize: 16,
-                    marginLeft: 3,
-                  }}
-                  {...register('instar')}
-                />
-              </div>
+            <RowLabel style={{ gap: 0 }}>
+              <span
+                style={{
+                  fontWeight: 700,
+                  fontSize: 13,
+                  minWidth: 120,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  paddingRight: 0,
+                  marginRight: 0,
+                  flex: 'none',
+                }}
+              >
+                instagram.com/
+              </span>
+              <CommonField
+                id='instar'
+                type='text'
+                placeholder='인스타 아이디를 입력하세요'
+                error={errors.instar?.message}
+                required
+                maxLength={50}
+                {...register('instar')}
+              />
             </RowLabel>
 
-            <RowLabel>
-              <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                <span style={{ fontWeight: 700, fontSize: 13, minWidth: 100 }}>
-                  me1pik.com/
-                </span>
-                <CommonField
-                  id='melpickAddress'
-                  type='text'
-                  placeholder='멜픽 주소를 입력하세요'
-                  error={errors.melpickAddress?.message}
-                  required
-                  maxLength={12}
-                  style={{
-                    flex: 1,
-                    fontSize: 16,
-                    marginLeft: 3,
-                  }}
-                  {...register('melpickAddress', {
-                    onChange: (e) => {
-                      resetVerificationState('melpickAddress');
-                      setValue('melpickAddress', e.target.value);
-                    },
-                  })}
-                  buttonLabel='체크'
-                  buttonColorType='yellow'
-                  onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.preventDefault();
-                    handleMelpickAddressCheck();
-                  }}
-                />
-              </div>
+            <RowLabel style={{ gap: 0 }}>
+              <span
+                style={{
+                  fontWeight: 700,
+                  fontSize: 13,
+                  minWidth: 100,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  paddingRight: 0,
+                  marginRight: 0,
+                  flex: 'none',
+                }}
+              >
+                me1pik.com/
+              </span>
+              <CommonField
+                id='melpickAddress'
+                type='text'
+                placeholder='멜픽 주소를 입력하세요'
+                error={melpickAddressApiError || errors.melpickAddress?.message}
+                required
+                maxLength={12}
+                {...register('melpickAddress', {
+                  onChange: (e) => {
+                    resetVerificationState('melpickAddress');
+                    setValue('melpickAddress', e.target.value);
+                  },
+                })}
+                buttonLabel={isMelpickAddressChecked ? '인증 완료' : '체크'}
+                buttonColorType={isMelpickAddressChecked ? 'blue' : 'yellow'}
+                onButtonClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.preventDefault();
+                  handleMelpickAddressCheck();
+                }}
+              />
             </RowLabel>
             <RowLabel>
               <CommonField
@@ -1029,13 +1042,94 @@ const Signup: React.FC = () => {
           </BlackContainer>
         </FormProvider>
 
-        {showSignupResultModal && (
+        {/* 회원가입 성공 시에만 모달 표시 */}
+        {showSignupResultModal && isSignupSuccess && (
           <ReusableModal
             isOpen={showSignupResultModal}
             onClose={handleSignupResultModalClose}
-            title='회원가입 결과'
+            title='🎉 회원가입 완료'
+            actions={
+              <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                <button
+                  onClick={handleSignupResultModalClose}
+                  style={{
+                    flex: 1,
+                    background: '#28a745',
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 20px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                  }}
+                >
+                  시작하기
+                </button>
+              </div>
+            }
           >
-            {signupResult}
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '20px 0',
+                minHeight: '120px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '48px',
+                  marginBottom: '20px',
+                  animation: 'bounce 0.6s ease-in-out',
+                }}
+              >
+                🎉
+              </div>
+              <h3
+                style={{
+                  color: '#28a745',
+                  marginBottom: '16px',
+                  fontSize: '18px',
+                  fontWeight: '600',
+                }}
+              >
+                회원가입이 완료되었습니다!
+              </h3>
+              <p
+                style={{
+                  color: '#6c757d',
+                  fontSize: '14px',
+                  lineHeight: '1.6',
+                  margin: '0',
+                }}
+              >
+                {signupResult}
+              </p>
+              <div
+                style={{
+                  background: '#f8f9fa',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  marginTop: '20px',
+                  border: '1px solid #e9ecef',
+                  fontSize: '13px',
+                  color: '#495057',
+                  textAlign: 'left',
+                  width: '100%',
+                }}
+              >
+                <strong>다음 단계:</strong>
+                <br />
+                • 로그인하여 서비스를 이용하세요
+                <br />
+                • 프로필을 완성하여 맞춤형 서비스를 받아보세요
+                <br />• 멜픽 커뮤니티에 참여해보세요
+              </div>
+            </div>
           </ReusableModal>
         )}
 
@@ -1083,7 +1177,6 @@ const RowLabel = styled.div`
   width: 100%;
   margin-top: -2px;
   & > * {
-    flex: 1;
     min-width: 0;
     font-size: 13px;
   }
