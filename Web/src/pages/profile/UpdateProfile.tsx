@@ -2,8 +2,10 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
 
+import { withdrawUser } from '@/api-utils/user-managements/userApi';
 import {
   useMyInfo,
   updateMyInfo,
@@ -31,6 +33,7 @@ export type UpdateProfileFormData = {
 };
 
 const UpdateProfile: React.FC = () => {
+  const navigate = useNavigate();
   const methods = useForm<UpdateProfileFormData>({
     mode: 'all',
     defaultValues: {
@@ -192,26 +195,102 @@ const UpdateProfile: React.FC = () => {
 
   // 계정삭제 모달 상태
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [withdrawPassword, setWithdrawPassword] = useState('');
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
 
   // 계정삭제 처리
   const handleAccountDeletion = useCallback(async () => {
+    if (!withdrawPassword.trim()) {
+      setPasswordError('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    setPasswordError('');
+    setIsWithdrawing(true);
     try {
-      // TODO: 실제 계정삭제 API 호출
-      // await deleteAccount();
+      await withdrawUser(withdrawPassword);
+      alert('회원탈퇴가 완료되었습니다.');
       setShowDeleteModal(false);
-      setSignupResult('✅ 계정이 성공적으로 삭제되었습니다.');
-      setShowResultModal(true);
+      setWithdrawPassword('');
+      setPasswordError('');
       // 삭제 후 로그인 페이지로 이동
       setTimeout(() => {
-        // navigate('/login');
-        // 또는 로그아웃 처리
+        navigate('/login');
       }, 2000);
-    } catch (err: unknown) {
-      console.error('계정삭제 오류:', err);
-      const msg = getErrorMessage(err);
-      setSignupResult(`❌ 계정삭제 중 오류가 발생했습니다: ${msg}`);
-      setShowResultModal(true);
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const apiError = error as {
+          response?: {
+            status?: number;
+            data?: {
+              message?: string;
+              error?: string;
+            };
+          };
+        };
+
+        const status = apiError.response?.status;
+        const errorData = apiError.response?.data;
+
+        if (status === 400) {
+          // API에서 받은 메시지가 있으면 사용, 없으면 기본 메시지
+          const errorMessage =
+            errorData?.message || '비밀번호가 일치하지 않습니다.';
+          setPasswordError(errorMessage);
+        } else if (status === 404) {
+          const errorMessage =
+            errorData?.message || '사용자 정보를 찾을 수 없습니다.';
+          alert(errorMessage);
+        } else if (status === 401) {
+          const errorMessage =
+            errorData?.message || '인증이 만료되었습니다. 다시 로그인해주세요.';
+          alert(errorMessage);
+        } else if (status === 403) {
+          const errorMessage = errorData?.message || '접근 권한이 없습니다.';
+          alert(errorMessage);
+        } else if (status === 500) {
+          const errorMessage =
+            errorData?.message ||
+            '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+          alert(errorMessage);
+        } else if (status && status >= 500) {
+          const errorMessage =
+            errorData?.message ||
+            '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+          alert(errorMessage);
+        } else {
+          const errorMessage =
+            errorData?.message || '회원탈퇴 처리 중 오류가 발생했습니다.';
+          alert(errorMessage);
+        }
+      } else if (error instanceof Error) {
+        // 네트워크 오류 등
+        if (
+          error.message.includes('Network Error') ||
+          error.message.includes('timeout')
+        ) {
+          alert(
+            '네트워크 연결을 확인해주세요. 인터넷 연결 상태를 점검해주세요.'
+          );
+        } else if (error.message.includes('Request failed')) {
+          alert('요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        } else {
+          alert(`오류가 발생했습니다: ${error.message}`);
+        }
+      } else {
+        alert('알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    } finally {
+      setIsWithdrawing(false);
     }
+  }, [withdrawPassword, navigate]);
+
+  // 모달 닫기 시 상태 초기화
+  const handleModalClose = useCallback(() => {
+    setShowDeleteModal(false);
+    setWithdrawPassword('');
+    setPasswordError('');
   }, []);
 
   if (isLoading) {
@@ -336,19 +415,15 @@ const UpdateProfile: React.FC = () => {
 
               {/* 계정삭제 섹션 */}
               <Divider />
-              <AccountDeletionSection>
-                <AccountDeletionTitle>계정삭제</AccountDeletionTitle>
-                <AccountDeletionDescription>
-                  계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수
-                  없습니다.
-                </AccountDeletionDescription>
-                <DeleteAccountButton
-                  type='button'
-                  onClick={() => setShowDeleteModal(true)}
-                >
-                  계정삭제
-                </DeleteAccountButton>
-              </AccountDeletionSection>
+              <CommonField
+                label='회원탈퇴'
+                type='text'
+                value='회원을 탈퇴하면 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.'
+                readOnly
+                buttonLabel='회원탈퇴'
+                buttonColorType='red'
+                onButtonClick={() => setShowDeleteModal(true)}
+              />
             </Form>
 
             <FixedBottomBar
@@ -366,31 +441,136 @@ const UpdateProfile: React.FC = () => {
               {signupResult}
             </ReusableModal>
 
-            {/* 계정삭제 확인 모달 */}
+            {/* 회원탈퇴 확인 모달 */}
             <ReusableModal
               isOpen={showDeleteModal}
-              onClose={() => setShowDeleteModal(false)}
-              title='계정삭제 확인'
+              onClose={handleModalClose}
+              title='회원탈퇴 확인'
+              actions={
+                <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                  <button
+                    onClick={handleModalClose}
+                    style={{
+                      flex: 1,
+                      background: '#6c757d',
+                      color: 'white',
+                      border: 'none',
+                      padding: '12px 20px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleAccountDeletion}
+                    style={{
+                      flex: 1,
+                      background: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      padding: '12px 20px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                    }}
+                    disabled={isWithdrawing}
+                  >
+                    {isWithdrawing ? '탈퇴 중...' : '회원탈퇴'}
+                  </button>
+                </div>
+              }
             >
-              <DeleteConfirmContent>
-                <DeleteWarningText>
-                  정말로 계정을 삭제하시겠습니까?
-                </DeleteWarningText>
-                <DeleteWarningDescription>
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <h4
+                  style={{
+                    color: '#dc3545',
+                    marginBottom: '20px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                  }}
+                >
+                  정말로 회원을 탈퇴하시겠습니까?
+                </h4>
+                <div
+                  style={{
+                    textAlign: 'left',
+                    background: '#f8f9fa',
+                    padding: '15px',
+                    borderRadius: '6px',
+                    borderLeft: '4px solid #dc3545',
+                    marginBottom: '20px',
+                    fontSize: '14px',
+                    lineHeight: '1.6',
+                    color: '#6c757d',
+                  }}
+                >
                   • 모든 개인정보가 영구적으로 삭제됩니다
                   <br />
                   • 주문 내역, 찜 목록 등 모든 데이터가 사라집니다
                   <br />• 삭제 후에는 복구할 수 없습니다
-                </DeleteWarningDescription>
-                <DeleteConfirmButtons>
-                  <CancelButton onClick={() => setShowDeleteModal(false)}>
-                    취소
-                  </CancelButton>
-                  <ConfirmDeleteButton onClick={handleAccountDeletion}>
-                    계정삭제
-                  </ConfirmDeleteButton>
-                </DeleteConfirmButtons>
-              </DeleteConfirmContent>
+                </div>
+                <div style={{ marginTop: '20px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <label
+                      htmlFor='withdrawPassword'
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: '500',
+                        color: '#333',
+                        marginBottom: '4px',
+                      }}
+                    >
+                      비밀번호 확인
+                    </label>
+                    <input
+                      id='withdrawPassword'
+                      type='password'
+                      placeholder='회원탈퇴를 위해 비밀번호를 입력하세요'
+                      value={withdrawPassword}
+                      onChange={(e) => {
+                        setWithdrawPassword(e.target.value);
+                        if (passwordError) setPasswordError('');
+                      }}
+                      minLength={6}
+                      maxLength={20}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        border: passwordError
+                          ? '1px solid #dc3545'
+                          : '1px solid #ddd',
+
+                        fontSize: '14px',
+                        outline: 'none',
+                        transition: 'border-color 0.2s ease',
+                      }}
+                    />
+                    {passwordError && (
+                      <div
+                        style={{
+                          color: '#dc3545',
+                          fontSize: '12px',
+                          marginTop: '4px',
+                          textAlign: 'left',
+                        }}
+                      >
+                        {passwordError}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </ReusableModal>
           </PageContainer>
         </FormProvider>
@@ -432,111 +612,4 @@ const Divider = styled.div`
   height: 1px;
   background: #e0e0e0;
   margin: 20px 0;
-`;
-
-const AccountDeletionSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-`;
-
-const AccountDeletionTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: #dc3545;
-  margin: 0;
-`;
-
-const AccountDeletionDescription = styled.p`
-  font-size: 14px;
-  color: #6c757d;
-  line-height: 1.5;
-  margin: 0;
-`;
-
-const DeleteAccountButton = styled.button`
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background: #c82333;
-  }
-
-  &:active {
-    background: #bd2130;
-  }
-`;
-
-const DeleteConfirmContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  text-align: center;
-`;
-
-const DeleteWarningText = styled.h4`
-  font-size: 18px;
-  font-weight: 600;
-  color: #dc3545;
-  margin: 0;
-`;
-
-const DeleteWarningDescription = styled.div`
-  font-size: 14px;
-  color: #6c757d;
-  line-height: 1.6;
-  text-align: left;
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 6px;
-  border-left: 4px solid #dc3545;
-`;
-
-const DeleteConfirmButtons = styled.div`
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-`;
-
-const CancelButton = styled.button`
-  background: #6c757d;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background: #5a6268;
-  }
-`;
-
-const ConfirmDeleteButton = styled.button`
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background: #c82333;
-  }
 `;
