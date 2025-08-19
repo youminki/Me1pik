@@ -15,7 +15,6 @@ import HomeIcon from '@/assets/headers/HomeIcon.svg';
 import MypageIcon from '@/assets/headers/MypageIcon.svg';
 import ShareIcon from '@/assets/headers/ShareIcon.svg';
 import Logo from '@/assets/Logo.svg';
-import MypageModal from '@/components/shared/modals/MypageModal';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 import { getCurrentToken } from '@/utils/auth';
 
@@ -192,7 +191,6 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [nickname, setNickname] = useState('멜픽 회원');
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
-  const [isMypageOpen, setMypageOpen] = useState(false);
 
   const [isFeatureModalOpen, setFeatureModalOpen] = useState(false);
 
@@ -290,7 +288,11 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
       <>
         <HeaderWrapper>
           <HeaderContainer>
-            <LeftSection onClick={() => isLoggedIn && setMypageOpen(true)}>
+            <LeftSection
+              onClick={() =>
+                isLoggedIn ? navigate('/MyInfoList') : navigate('/')
+              }
+            >
               {isLoggedIn ? (
                 <Greeting>
                   {profileImageUrl ? (
@@ -307,7 +309,7 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
                   </GreetingText>
                 </Greeting>
               ) : (
-                <LogoIcon src={Logo} alt='Logo' onClick={() => navigate('/')} />
+                <LogoIcon src={Logo} alt='Logo' />
               )}
             </LeftSection>
 
@@ -377,11 +379,6 @@ const UnifiedHeader: React.FC<UnifiedHeaderProps> = ({
             </RightSection>
           </HeaderContainer>
         </HeaderWrapper>
-
-        <MypageModal
-          isOpen={isMypageOpen}
-          onClose={() => setMypageOpen(false)}
-        />
 
         <ReusableModal
           isOpen={isFeatureModalOpen}

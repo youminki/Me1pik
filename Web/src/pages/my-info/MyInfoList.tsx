@@ -14,6 +14,7 @@ import alarmIcon from '@/assets/my-info/alarmIcon.svg';
 import deliveryIcon from '@/assets/my-info/deliveryIcon.svg';
 import MyInfoListBackgroundimage from '@/assets/my-info/MyInfoListBackgroundimage.png';
 import passwordIcon from '@/assets/my-info/PasswordChangeIcon.svg';
+import styleIcon from '@/assets/my-info/styleIcon.svg';
 import userInfoIcon from '@/assets/my-info/UserInfoChangeIcon.svg';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
@@ -27,6 +28,12 @@ const MENU_ITEMS = [
     title: '회원정보',
     desc: '계정, 닉네임, 성별, 서비스 지역',
     iconSrc: userInfoIcon,
+  },
+  {
+    key: 'style',
+    title: '스타일 정보',
+    desc: '사이즈 설정, 브랜드 선택, 실측정보',
+    iconSrc: styleIcon,
   },
   {
     key: 'password',
@@ -96,6 +103,8 @@ const MyinfoList: React.FC = () => {
       navigate('/ChangePassword');
     } else if (key === 'address') {
       navigate('/deliveryManagement');
+    } else if (key === 'style') {
+      navigate('/MyStyle'); // 내스타일 페이지로 이동
     }
   };
 
@@ -292,7 +301,8 @@ const UserInfoBox = styled.div`
   display: flex;
   align-items: center;
   background: #fff;
-  border: 1px solid #000;
+  border: 2px solid #000;
+  height: 64px;
 
   margin-bottom: 30px;
   overflow: hidden;
@@ -300,19 +310,19 @@ const UserInfoBox = styled.div`
 
 const UserInfoLeft = styled.div`
   flex: 1;
-  padding: 15px;
+
   text-align: center;
 `;
 
 const UserInfoRight = styled.div`
   flex: 1;
-  padding: 15px;
+
   text-align: center;
 `;
 
 const UserInfoDivider = styled.div`
   width: 1px;
-  height: 40px;
+  height: 64px;
   background: #000;
 `;
 
