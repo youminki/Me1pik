@@ -1,72 +1,64 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 
-import HomeserviceIcon from '@/assets/homes/HomeserviceIcon.svg';
+import homeIcon1 from '@/assets/homes/homeIcon1.svg';
+import homeIcon2 from '@/assets/homes/homeIcon2.svg';
+import homeIcon3 from '@/assets/homes/homeIcon3.svg';
+import homeIcon4 from '@/assets/homes/homeIcon4.svg';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
 
 const BannerWrapper = styled.div`
-  width: 100%;
-  height: 70px;
+  width: 251px;
+  height: 56px;
   background: #fff;
   border: 0.5px solid #ccc;
-  border-radius: 20px 0px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   position: relative;
-  margin: 0 auto 26px auto;
-  cursor: pointer;
-  margin-top: 20px;
+  margin: 20px auto;
 `;
 
-const IconBox = styled.div`
-  width: 66px;
-  height: 50px;
-  margin-left: 15px;
+const IconContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const IconBox = styled.div<{ isActive: boolean }>`
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  position: relative;
+  border-radius: 6px;
+  background: ${(props) => (props.isActive ? '#000' : 'transparent')};
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${(props) => (props.isActive ? '#000' : '#f5f5f5')};
+  }
 `;
 
-const ContentBox = styled.div`
-  flex: 1;
-  margin-left: 20px;
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  justify-content: flex-start;
+const Divider = styled.div`
+  width: 1px;
+  height: 30px;
+  background: #ddd;
 `;
 
-const GuideText = styled.span`
-  font-style: normal;
-  font-size: 14px;
-  line-height: 15px;
-  color: #000;
-`;
+const IconImage = styled.img<{ isActive: boolean }>`
+  width: 22px;
+  height: 22px;
 
-const MelpikText = styled(GuideText)`
-  font-weight: 800;
-`;
+  transition: all 0.2s ease;
+  filter: ${(props) => (props.isActive ? 'brightness(0) invert(1)' : 'none')};
 
-const GuideBoldText = styled(GuideText)`
-  font-weight: 900;
-`;
-
-const RegularText = styled(GuideText)`
-  font-weight: 400;
-`;
-
-const PopupBadge = styled.span`
-  background: #000;
-  border-radius: 4px;
-  color: #fff;
-  font-family: 'NanumSquare Neo OTF', sans-serif;
-  font-weight: 800;
-  font-size: 10px;
-  line-height: 11px;
-  padding: 4px 8px;
-  margin-left: 10px;
-  display: flex;
-  align-items: center;
+  &:hover {
+    transform: scale(1.05);
+  }
 `;
 
 const InfoList = styled.ol`
@@ -81,37 +73,113 @@ const InfoList = styled.ol`
 
 const MelpikGuideBanner = () => {
   const [open, setOpen] = useState(false);
+  const [modalType, setModalType] = useState<
+    'guide' | 'temp1' | 'temp2' | 'temp3'
+  >('guide');
+  const [activeIcon, setActiveIcon] = useState<
+    'guide' | 'temp1' | 'temp2' | 'temp3'
+  >('guide');
+
+  const handleIconClick = (type: 'guide' | 'temp1' | 'temp2' | 'temp3') => {
+    setModalType(type);
+    setActiveIcon(type);
+    setOpen(true);
+  };
+
+  const getModalTitle = () => {
+    switch (modalType) {
+      case 'guide':
+        return '멜픽 - 이용안내';
+      case 'temp1':
+        return '서비스 1';
+      case 'temp2':
+        return '서비스 2';
+      case 'temp3':
+        return '서비스 3';
+      default:
+        return '멜픽 - 이용안내';
+    }
+  };
+
+  const getModalContent = () => {
+    switch (modalType) {
+      case 'guide':
+        return (
+          <>
+            <p>멜픽 서비스에서 대여 이용 시 아래 순서로 진행하세요:</p>
+            <InfoList>
+              <li>결제카드 등록</li>
+              <li>이용권 결제</li>
+              <li>대여제품 신청</li>
+            </InfoList>
+          </>
+        );
+      case 'temp1':
+        return <p>서비스 1 - 구현 예정입니다.</p>;
+      case 'temp2':
+        return <p>서비스 2 - 구현 예정입니다.</p>;
+      case 'temp3':
+        return <p>서비스 3 - 구현 예정입니다.</p>;
+      default:
+        return <p>서비스 가이드</p>;
+    }
+  };
 
   return (
     <>
-      <BannerWrapper onClick={() => setOpen(true)}>
-        <IconBox>
-          <img
-            src={HomeserviceIcon}
-            alt='멜픽 서비스 아이콘'
-            width={66}
-            height={50}
-          />
-        </IconBox>
-        <ContentBox>
-          <MelpikText>멜픽 </MelpikText>
-          <RegularText>서비스 - </RegularText>
-          <GuideBoldText>이용 가이드</GuideBoldText>
-          <RegularText>(안내)</RegularText>
-          <PopupBadge>팝업</PopupBadge>
-        </ContentBox>
+      <BannerWrapper>
+        <IconContainer>
+          <IconBox
+            isActive={activeIcon === 'guide'}
+            onClick={() => handleIconClick('guide')}
+          >
+            <IconImage
+              src={homeIcon1}
+              alt='서비스 가이드'
+              isActive={activeIcon === 'guide'}
+            />
+          </IconBox>
+          <Divider />
+          <IconBox
+            isActive={activeIcon === 'temp1'}
+            onClick={() => handleIconClick('temp1')}
+          >
+            <IconImage
+              src={homeIcon2}
+              alt='서비스 1'
+              isActive={activeIcon === 'temp1'}
+            />
+          </IconBox>
+          <Divider />
+          <IconBox
+            isActive={activeIcon === 'temp2'}
+            onClick={() => handleIconClick('temp2')}
+          >
+            <IconImage
+              src={homeIcon3}
+              alt='서비스 2'
+              isActive={activeIcon === 'temp2'}
+            />
+          </IconBox>
+          <Divider />
+          <IconBox
+            isActive={activeIcon === 'temp3'}
+            onClick={() => handleIconClick('temp3')}
+          >
+            <IconImage
+              src={homeIcon4}
+              alt='서비스 3'
+              isActive={activeIcon === 'temp3'}
+            />
+          </IconBox>
+        </IconContainer>
       </BannerWrapper>
       <ReusableModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        title='멜픽 - 이용안내'
+        title={getModalTitle()}
       >
-        <p>멜픽 서비스에서 대여 이용 시 아래 순서로 진행하세요:</p>
-        <InfoList>
-          <li>결제카드 등록</li>
-          <li>이용권 결제</li>
-          <li>대여제품 신청</li>
-        </InfoList>
+        {getModalContent()}
       </ReusableModal>
     </>
   );
