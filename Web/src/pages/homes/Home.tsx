@@ -57,16 +57,9 @@ const Home: React.FC = () => {
     searchParams.get('search') || ''
   );
 
-  // 검색 모달 노출 상태
-  const [isSearchModalOpen, setSearchModalOpen] = useState(false);
-
-  // 필터 모달 상태
-  const [isFilterModalOpen, setFilterModalOpen] = useState(false);
+  // 필터 상태
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  // 필터모달 임시 상태
-  const [tempSelectedColors, setTempSelectedColors] = useState<string[]>([]);
-  const [tempSelectedSizes, setTempSelectedSizes] = useState<string[]>([]);
 
   // 모든 카테고리의 상품을 미리 로드
   const allProductsQuery = useProducts('all');
@@ -90,7 +83,6 @@ const Home: React.FC = () => {
     categorized['All'] = allProductsQuery.data;
 
     return categorized;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allProductsQuery.data]);
 
   // 현재 선택된 카테고리의 상품들
@@ -199,35 +191,11 @@ const Home: React.FC = () => {
     }
   }, []);
 
-  // 필터 모달이 열릴 때 임시 상태를 실제 상태로 동기화
-  useEffect(() => {
-    if (isFilterModalOpen) {
-      setTempSelectedColors(selectedColors);
-      setTempSelectedSizes(selectedSizes);
-    }
-  }, [isFilterModalOpen, selectedColors, selectedSizes]);
-
   // 무한스크롤 (재사용 가능한 훅 사용)
   const { visibleItems, observerRef } = useInfiniteScroll({
     items: uiItems,
     resetKey: selectedCategory, // 카테고리 변경 시 초기화
   });
-
-  // 필터 칩 제거 시 검색어와 필터 초기화
-  const handleClearFilters = useCallback(() => {
-    setSearchQuery('');
-    setSelectedColors([]);
-    setSelectedSizes([]);
-    // URL에서 search 파라미터 제거
-    setSearchParams(
-      (prev) => {
-        const params = Object.fromEntries(prev.entries());
-        delete params.search;
-        return params;
-      },
-      { replace: true }
-    );
-  }, [setSearchParams]);
 
   // 검색 결과 없음 처리 (재사용 가능한 훅 사용)
   const { showNoResult, countdown } = useNoResultHandler({
@@ -237,7 +205,19 @@ const Home: React.FC = () => {
     selectedSizes,
     isLoading: allProductsQuery.isLoading,
     selectedCategory,
-    onClearFilters: handleClearFilters,
+    onClearFilters: () => {
+      setSearchQuery('');
+      setSelectedColors([]);
+      setSelectedSizes([]);
+      setSearchParams(
+        (prev) => {
+          const params = Object.fromEntries(prev.entries());
+          delete params.search;
+          return params;
+        },
+        { replace: true }
+      );
+    },
     setSearchParams,
   });
 
@@ -256,7 +236,24 @@ const Home: React.FC = () => {
   if (allProductsQuery.isLoading) {
     return (
       <MainContainer>
-        <MelpikGuideBanner />
+        <MelpikGuideBanner
+          onSearchSubmit={(searchTerm) => {
+            setSearchQuery(searchTerm);
+            setSelectedCategory('All');
+            setSearchParams(
+              { category: 'All', search: searchTerm },
+              { replace: true }
+            );
+          }}
+          onColorSelect={(colors) => {
+            setSelectedColors(colors);
+          }}
+          onSizeSelect={(sizes) => {
+            setSelectedSizes(sizes);
+          }}
+          selectedColors={selectedColors}
+          selectedSizes={selectedSizes}
+        />
         <SubHeader
           selectedCategory={selectedCategory}
           setSelectedCategory={(cat) => {
@@ -267,12 +264,11 @@ const Home: React.FC = () => {
           isLoading={allProductsQuery.isLoading}
         />
 
-        {/* 필터 및 열 선택 */}
+        {/* 필터 칩 표시 */}
         <FilterChipContainer
           searchQuery={searchQuery}
           onSearchQueryChange={(query) => {
             setSearchQuery(query);
-            // URL 동기화
             setSearchParams(
               (prev) => {
                 const params = Object.fromEntries(prev.entries());
@@ -298,16 +294,15 @@ const Home: React.FC = () => {
           selectedSizes={selectedSizes}
           onColorsChange={setSelectedColors}
           onSizesChange={setSelectedSizes}
-          isSearchModalOpen={isSearchModalOpen}
-          isFilterModalOpen={isFilterModalOpen}
-          onSearchModalToggle={setSearchModalOpen}
-          onFilterModalToggle={setFilterModalOpen}
-          tempSelectedColors={tempSelectedColors}
-          tempSelectedSizes={tempSelectedSizes}
-          onTempColorsChange={setTempSelectedColors}
-          onTempSizesChange={setTempSelectedSizes}
+          isSearchModalOpen={false}
+          isFilterModalOpen={false}
+          onSearchModalToggle={() => {}}
+          onFilterModalToggle={() => {}}
+          tempSelectedColors={selectedColors}
+          tempSelectedSizes={selectedSizes}
+          onTempColorsChange={setSelectedColors}
+          onTempSizesChange={setSelectedSizes}
           searchPlaceholder='브랜드 또는 설명으로 검색...'
-          onClearAll={handleClearFilters}
         />
 
         <ContentWrapper>
@@ -321,7 +316,24 @@ const Home: React.FC = () => {
   if (showNoResult) {
     return (
       <MainContainer>
-        <MelpikGuideBanner />
+        <MelpikGuideBanner
+          onSearchSubmit={(searchTerm) => {
+            setSearchQuery(searchTerm);
+            setSelectedCategory('All');
+            setSearchParams(
+              { category: 'All', search: searchTerm },
+              { replace: true }
+            );
+          }}
+          onColorSelect={(colors) => {
+            setSelectedColors(colors);
+          }}
+          onSizeSelect={(sizes) => {
+            setSelectedSizes(sizes);
+          }}
+          selectedColors={selectedColors}
+          selectedSizes={selectedSizes}
+        />
         <SubHeader
           selectedCategory={selectedCategory}
           setSelectedCategory={(cat) => {
@@ -332,12 +344,11 @@ const Home: React.FC = () => {
           isLoading={allProductsQuery.isLoading}
         />
 
-        {/* 필터 및 열 선택 */}
+        {/* 필터 칩 표시 */}
         <FilterChipContainer
           searchQuery={searchQuery}
           onSearchQueryChange={(query) => {
             setSearchQuery(query);
-            // URL 동기화
             setSearchParams(
               (prev) => {
                 const params = Object.fromEntries(prev.entries());
@@ -363,16 +374,15 @@ const Home: React.FC = () => {
           selectedSizes={selectedSizes}
           onColorsChange={setSelectedColors}
           onSizesChange={setSelectedSizes}
-          isSearchModalOpen={isSearchModalOpen}
-          isFilterModalOpen={isFilterModalOpen}
-          onSearchModalToggle={setSearchModalOpen}
-          onFilterModalToggle={setFilterModalOpen}
-          tempSelectedColors={tempSelectedColors}
-          tempSelectedSizes={tempSelectedSizes}
-          onTempColorsChange={setTempSelectedColors}
-          onTempSizesChange={setTempSelectedSizes}
+          isSearchModalOpen={false}
+          isFilterModalOpen={false}
+          onSearchModalToggle={() => {}}
+          onFilterModalToggle={() => {}}
+          tempSelectedColors={selectedColors}
+          tempSelectedSizes={selectedSizes}
+          onTempColorsChange={setSelectedColors}
+          onTempSizesChange={setSelectedSizes}
           searchPlaceholder='브랜드 또는 설명으로 검색...'
-          onClearAll={handleClearFilters}
         />
 
         <ContentWrapper>
@@ -398,7 +408,24 @@ const Home: React.FC = () => {
       </ReusableModal>
 
       {/* 서브헤더 */}
-      <MelpikGuideBanner />
+      <MelpikGuideBanner
+        onSearchSubmit={(searchTerm) => {
+          setSearchQuery(searchTerm);
+          setSelectedCategory('All');
+          setSearchParams(
+            { category: 'All', search: searchTerm },
+            { replace: true }
+          );
+        }}
+        onColorSelect={(colors) => {
+          setSelectedColors(colors);
+        }}
+        onSizeSelect={(sizes) => {
+          setSelectedSizes(sizes);
+        }}
+        selectedColors={selectedColors}
+        selectedSizes={selectedSizes}
+      />
       <SubHeader
         selectedCategory={selectedCategory}
         setSelectedCategory={(cat) => {
@@ -419,7 +446,7 @@ const Home: React.FC = () => {
         isLoading={allProductsQuery.isLoading}
       />
 
-      {/* 필터 및 열 선택 */}
+      {/* 필터 칩 표시 */}
       <FilterChipContainer
         searchQuery={searchQuery}
         onSearchQueryChange={(query) => {
@@ -450,16 +477,15 @@ const Home: React.FC = () => {
         selectedSizes={selectedSizes}
         onColorsChange={setSelectedColors}
         onSizesChange={setSelectedSizes}
-        isSearchModalOpen={isSearchModalOpen}
-        isFilterModalOpen={isFilterModalOpen}
-        onSearchModalToggle={setSearchModalOpen}
-        onFilterModalToggle={setFilterModalOpen}
-        tempSelectedColors={tempSelectedColors}
-        tempSelectedSizes={tempSelectedSizes}
-        onTempColorsChange={setTempSelectedColors}
-        onTempSizesChange={setTempSelectedSizes}
+        isSearchModalOpen={false}
+        isFilterModalOpen={false}
+        onSearchModalToggle={() => {}}
+        onFilterModalToggle={() => {}}
+        tempSelectedColors={selectedColors}
+        tempSelectedSizes={selectedSizes}
+        onTempColorsChange={setSelectedColors}
+        onTempSizesChange={setSelectedSizes}
         searchPlaceholder='브랜드 또는 설명으로 검색...'
-        onClearAll={handleClearFilters}
       />
 
       {/* 제품 리스트 or 로딩 스피너 */}

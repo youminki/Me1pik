@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 
-import FilterContainer from '@/components/homes/FilterContainer';
 import SearchModal from '@/components/homes/SearchModal';
 import FilterModal from '@/components/shared/modals/FilterModal';
 
@@ -11,6 +10,7 @@ const RowAlignBox = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  /* height: 36px; */
   gap: 0;
 `;
 
@@ -36,22 +36,6 @@ const IconBox = styled.div`
   align-items: center;
   flex-shrink: 0;
   margin-left: 12px;
-`;
-
-const ClearAllButton = styled.button`
-  background: none;
-  border: none;
-  color: #666;
-  font-size: 12px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-right: 8px;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #f0f0f0;
-  }
 `;
 
 const Chip = styled.div`
@@ -113,7 +97,6 @@ interface FilterChipContainerProps {
   onTempColorsChange: React.Dispatch<React.SetStateAction<string[]>>;
   onTempSizesChange: React.Dispatch<React.SetStateAction<string[]>>;
   searchPlaceholder?: string;
-  onClearAll?: () => void;
 }
 
 const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
@@ -133,7 +116,6 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
   onTempColorsChange,
   onTempSizesChange,
   searchPlaceholder = '브랜드 또는 설명으로 검색...',
-  onClearAll,
 }) => {
   const handleSearchChipDelete = (idx: number) => {
     const terms = searchQuery
@@ -151,10 +133,6 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
     const newSizes = selectedSizes.filter((_, i) => i !== idx);
     onSizesChange(newSizes);
   };
-
-  // 필터가 있는지 확인
-  const hasFilters =
-    searchQuery.trim() || selectedColors.length > 0 || selectedSizes.length > 0;
 
   return (
     <ControlsContainer>
@@ -187,15 +165,7 @@ const FilterChipContainer: React.FC<FilterChipContainerProps> = ({
             />
           ))}
         </ChipList>
-        <IconBox>
-          {hasFilters && onClearAll && (
-            <ClearAllButton onClick={onClearAll}>모두 지우기</ClearAllButton>
-          )}
-          <FilterContainer
-            onSearchClick={() => onSearchModalToggle(true)}
-            onFilterClick={() => onFilterModalToggle(true)}
-          />
-        </IconBox>
+        <IconBox>{/* 모든 필터 지우기 버튼 제거됨 */}</IconBox>
       </RowAlignBox>
       <SearchModal
         isOpen={isSearchModalOpen}
