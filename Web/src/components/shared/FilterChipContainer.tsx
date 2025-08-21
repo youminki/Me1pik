@@ -23,7 +23,7 @@ const ChipList = styled.div`
   min-width: 0;
   flex-wrap: wrap;
   row-gap: 8px;
-  max-width: 100vw;
+  max-width: 100%;
   overflow-x: auto;
   white-space: nowrap;
   &::-webkit-scrollbar {
