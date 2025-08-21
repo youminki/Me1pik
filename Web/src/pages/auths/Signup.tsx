@@ -424,7 +424,7 @@ const Signup: React.FC = () => {
   const handleSignupResultModalClose = () => {
     setShowSignupResultModal(false);
     if (isSignupSuccess) {
-      navigate('/landing');
+      navigate('/login');
     }
   };
 

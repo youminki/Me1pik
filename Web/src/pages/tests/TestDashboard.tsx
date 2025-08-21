@@ -838,6 +838,68 @@ const TestDashboard: React.FC = () => {
     setTestResults(results);
   };
 
+  // 토큰 갱신 타이머 테스트
+  const testTokenRefreshTimer = () => {
+    const results: TestResult[] = [];
+
+    try {
+      // 1. 현재 토큰 상태 확인
+      const accessToken = getCurrentToken();
+      const refreshToken = getRefreshToken();
+
+      if (!accessToken) {
+        results.push({
+          name: '토큰 갱신 타이머 테스트',
+          status: 'error',
+          message: '❌ 액세스 토큰이 없습니다. 먼저 로그인해주세요.',
+          details: {
+            hasAccessToken: false,
+            hasRefreshToken: !!refreshToken,
+          },
+          timestamp: new Date().toLocaleString(),
+        });
+        return results;
+      }
+
+      // 2. 토큰 갱신 타이머 설정
+      import('@/utils/auth').then(({ setupTokenRefreshTimer }) => {
+        setupTokenRefreshTimer(accessToken);
+      });
+
+      results.push({
+        name: '토큰 갱신 타이머 설정',
+        status: 'success',
+        message: '✅ 토큰 갱신 타이머가 설정되었습니다.',
+        details: {
+          hasAccessToken: true,
+          hasRefreshToken: !!refreshToken,
+          timerSet: true,
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+
+      // 3. 타이머 상태 확인
+      if (
+        typeof window !== 'undefined' &&
+        (window as any).checkTokenRefreshTimer
+      ) {
+        (window as any).checkTokenRefreshTimer();
+      }
+    } catch (error) {
+      results.push({
+        name: '토큰 갱신 타이머 테스트',
+        status: 'error',
+        message: '❌ 토큰 갱신 타이머 설정 중 오류가 발생했습니다.',
+        details: {
+          error: error instanceof Error ? error.message : String(error),
+        },
+        timestamp: new Date().toLocaleString(),
+      });
+    }
+
+    return results;
+  };
+
   useEffect(() => {
     if (isAuthorized) {
       updateTokenInfo();
@@ -986,6 +1048,9 @@ const TestDashboard: React.FC = () => {
             </ActionButton>
             <ActionButton onClick={check30DayAutoLoginStatus} variant='default'>
               📊 30일 자동 로그인 상태 확인
+            </ActionButton>
+            <ActionButton onClick={testTokenRefreshTimer} variant='info'>
+              ⏱️ 토큰 갱신 타이머 테스트
             </ActionButton>
           </ButtonGroup>
 
@@ -1139,7 +1204,7 @@ const CardActions = styled.div`
 `;
 
 const ActionButton = styled.button<{
-  variant?: 'danger' | 'warning' | 'success' | 'default';
+  variant?: 'danger' | 'warning' | 'success' | 'default' | 'info';
   size?: 'small';
 }>`
   padding: ${(props) => (props.size === 'small' ? '8px 16px' : '12px 20px')};
@@ -1157,6 +1222,8 @@ const ActionButton = styled.button<{
         return '#f39c12';
       case 'success':
         return '#27ae60';
+      case 'info':
+        return '#3498db';
       default:
         return '#667eea';
     }
@@ -1172,6 +1239,8 @@ const ActionButton = styled.button<{
           return '#e67e22';
         case 'success':
           return '#229954';
+        case 'info':
+          return '#2980b9';
         default:
           return '#5a6fd8';
       }

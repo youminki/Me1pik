@@ -276,6 +276,20 @@ const AuthGuard: React.FC = () => {
           return;
         }
 
+        // 🎯 자동 로그인이 진행 중이거나 완료된 경우 인증 체크 건너뛰기
+        const autoLoginInProgress =
+          localStorage.getItem('autoLoginInProgress') === 'true';
+        const autoLoginCompleted =
+          localStorage.getItem('autoLoginCompleted') === 'true';
+
+        if (autoLoginInProgress || autoLoginCompleted) {
+          console.log(
+            '🔄 자동 로그인 진행 중 또는 완료됨 - 인증 체크 건너뛰기'
+          );
+          setIsInitialized(true);
+          return;
+        }
+
         const needsRedirect = checkTokenAndRedirect(location.pathname);
         if (needsRedirect && isProtectedRoute(location.pathname)) {
           redirectToLogin();
@@ -303,6 +317,17 @@ const AuthGuard: React.FC = () => {
       return;
     }
 
+    // 🎯 자동 로그인이 진행 중이거나 완료된 경우 인증 체크 건너뛰기
+    const autoLoginInProgress =
+      localStorage.getItem('autoLoginInProgress') === 'true';
+    const autoLoginCompleted =
+      localStorage.getItem('autoLoginCompleted') === 'true';
+
+    if (autoLoginInProgress || autoLoginCompleted) {
+      console.log('🔄 자동 로그인 진행 중 또는 완료됨 - 인증 체크 건너뛰기');
+      return;
+    }
+
     // 보호된 라우트에서 토큰 체크 및 리다이렉트
     const needsRedirect = checkTokenAndRedirect(location.pathname);
     if (needsRedirect) {
@@ -322,72 +347,97 @@ const App: React.FC = () => {
     const initializeApp = async () => {
       console.log('🚀 앱 초기화 시작');
 
-      // 1. 자동 로그인 상태 복원 시도
-      const autoLoginSuccess = await restorePersistentLogin();
-      if (autoLoginSuccess) {
-        console.log('✅ 자동 로그인 성공 - 사용자 인증됨');
-      } else {
-        console.log('ℹ️ 자동 로그인 실패 또는 설정되지 않음');
-      }
+      try {
+        // 🎯 1. 자동 로그인 상태 복원 시도 (최우선)
+        console.log('🔄 자동 로그인 복원 시작...');
+        localStorage.setItem('autoLoginInProgress', 'true');
 
-      // 2. 자동 로그인 설정 확인 및 타이머 설정
-      checkAndSetupAutoLogin();
-
-      // 3. 기존 자동 로그인 로직 실행
-      const tryAutoLogin = async () => {
-        const token = getCurrentToken();
-        const autoLogin = localStorage.getItem('autoLogin') === 'true';
-
-        if (token && !hasValidToken()) {
-          // accessToken이 만료된 경우 refresh 시도
-          await refreshToken();
-          // refresh 실패 시에는 기존 인증 체크 로직에 따라 로그인 페이지로 이동
+        const autoLoginSuccess = await restorePersistentLogin();
+        if (autoLoginSuccess) {
+          console.log('✅ 자동 로그인 성공 - 사용자 인증됨');
+          localStorage.setItem('autoLoginCompleted', 'true');
+          localStorage.removeItem('autoLoginInProgress');
+        } else {
+          console.log('ℹ️ 자동 로그인 실패 또는 설정되지 않음');
+          localStorage.setItem('autoLoginCompleted', 'false');
+          localStorage.removeItem('autoLoginInProgress');
         }
 
-        // 30일 자동 로그인 설정이 활성화된 경우 추가 처리
-        if (autoLogin) {
-          // 30일 자동 로그인 설정이 활성화되어 있습니다
+        // 🎯 2. 자동 로그인 설정 확인 및 타이머 설정
+        await checkAndSetupAutoLogin();
 
-          // 기존 interval이 있으면 정리
-          if (autoRefreshTimer) {
-            clearInterval(autoRefreshTimer);
-            autoRefreshTimer = null;
+        // 🎯 3. 현재 토큰이 있다면 토큰 갱신 타이머 설정
+        const currentToken = getCurrentToken();
+        if (currentToken && hasValidToken()) {
+          console.log('🔄 현재 토큰으로 갱신 타이머 설정');
+          const { setupTokenRefreshTimer } = await import('@/utils/auth');
+          setupTokenRefreshTimer(currentToken);
+        }
+
+        // 🎯 4. 기존 자동 로그인 로직 실행
+        const tryAutoLogin = async () => {
+          const token = getCurrentToken();
+          const autoLogin = localStorage.getItem('autoLogin') === 'true';
+
+          if (token && !hasValidToken()) {
+            // accessToken이 만료된 경우 refresh 시도
+            await refreshToken();
+            // refresh 실패 시에는 기존 인증 체크 로직에 따라 로그인 페이지로 이동
           }
 
-          // 자동 토큰 갱신 인터벌 설정
-          autoRefreshTimer = setInterval(async () => {
-            try {
-              const currentToken = getCurrentToken();
-              if (currentToken && !hasValidToken()) {
-                const success = await refreshToken();
-                if (!success) {
-                  console.log('❌ 자동 토큰 갱신 실패 - 지속 로그인 설정 제거');
-                  // 갱신 실패 시 지속 로그인 설정 제거
-                  localStorage.removeItem('persistentLogin');
-                  localStorage.removeItem('autoLogin');
-                  // interval 정리
-                  if (autoRefreshTimer) {
-                    clearInterval(autoRefreshTimer);
-                    autoRefreshTimer = null;
+          // 30일 자동 로그인 설정이 활성화된 경우 추가 처리
+          if (autoLogin) {
+            // 30일 자동 로그인 설정이 활성화되어 있습니다
+
+            // 기존 interval이 있으면 정리
+            if (autoRefreshTimer) {
+              clearInterval(autoRefreshTimer);
+              autoRefreshTimer = null;
+            }
+
+            // 자동 토큰 갱신 인터벌 설정
+            autoRefreshTimer = setInterval(async () => {
+              try {
+                const currentToken = getCurrentToken();
+                if (currentToken && !hasValidToken()) {
+                  const success = await refreshToken();
+                  if (!success) {
+                    console.log(
+                      '❌ 자동 토큰 갱신 실패 - 지속 로그인 설정 제거'
+                    );
+                    // 갱신 실패 시 지속 로그인 설정 제거
+                    localStorage.removeItem('persistentLogin');
+                    localStorage.removeItem('autoLogin');
+                    // interval 정리
+                    if (autoRefreshTimer) {
+                      clearInterval(autoRefreshTimer);
+                      autoRefreshTimer = null;
+                    }
                   }
                 }
+              } catch (error) {
+                console.error('자동 토큰 갱신 실패:', error);
+                // 에러 발생 시 지속 로그인 설정 제거
+                localStorage.removeItem('persistentLogin');
+                localStorage.removeItem('autoLogin');
+                // 실패 시 interval 정리
+                if (autoRefreshTimer) {
+                  clearInterval(autoRefreshTimer);
+                  autoRefreshTimer = null;
+                }
               }
-            } catch (error) {
-              console.error('자동 토큰 갱신 실패:', error);
-              // 에러 발생 시 지속 로그인 설정 제거
-              localStorage.removeItem('persistentLogin');
-              localStorage.removeItem('autoLogin');
-              // 실패 시 interval 정리
-              if (autoRefreshTimer) {
-                clearInterval(autoRefreshTimer);
-                autoRefreshTimer = null;
-              }
-            }
-          }, 60_000); // 1분마다 체크
-        }
-      };
+            }, 60_000); // 1분마다 체크
+          }
+        };
 
-      tryAutoLogin();
+        tryAutoLogin();
+      } catch (error) {
+        console.error('앱 초기화 중 오류:', error);
+        localStorage.setItem('autoLoginCompleted', 'false');
+        localStorage.removeItem('autoLoginInProgress');
+      } finally {
+        console.log('🚀 앱 초기화 완료');
+      }
     };
 
     initializeApp();
