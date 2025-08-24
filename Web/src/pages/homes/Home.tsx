@@ -205,19 +205,26 @@ const Home: React.FC = () => {
     selectedSizes,
     isLoading: allProductsQuery.isLoading,
     selectedCategory,
-    onClearFilters: () => {
+    onClearFilters: useCallback(() => {
+      // 모든 필터 상태를 한 번에 초기화
       setSearchQuery('');
       setSelectedColors([]);
       setSelectedSizes([]);
-      setSearchParams(
-        (prev) => {
-          const params = Object.fromEntries(prev.entries());
-          delete params.search;
-          return params;
-        },
-        { replace: true }
-      );
-    },
+      setSelectedCategory('All');
+
+      // URL 파라미터 정리 (setTimeout으로 상태 업데이트 후 실행)
+      setTimeout(() => {
+        setSearchParams(
+          (prev) => {
+            const params = Object.fromEntries(prev.entries());
+            delete params.search;
+            delete params.category;
+            return params;
+          },
+          { replace: true }
+        );
+      }, 0);
+    }, [setSearchParams]),
     setSearchParams,
   });
 

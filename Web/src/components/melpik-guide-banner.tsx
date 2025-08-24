@@ -34,20 +34,27 @@ const IconContainer = styled.div`
   width: 100%;
 `;
 
-const IconBox = styled.div<{ isActive: boolean }>`
+const IconBox = styled.div<{ isActive: boolean; disabled?: boolean }>`
   width: 52px;
   height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
   position: relative;
   border-radius: 6px;
-  background: ${(props) => (props.isActive ? '#000' : 'transparent')};
+  background: ${(props) => {
+    if (props.disabled) return '#f5f5f5';
+    return props.isActive ? '#000' : 'transparent';
+  }};
   transition: all 0.2s ease;
+  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
 
   &:hover {
-    background: ${(props) => (props.isActive ? '#000' : '#f5f5f5')};
+    background: ${(props) => {
+      if (props.disabled) return '#f5f5f5';
+      return props.isActive ? '#000' : '#f5f5f5';
+    }};
   }
 `;
 
@@ -57,15 +64,18 @@ const Divider = styled.div`
   background: #ddd;
 `;
 
-const IconImage = styled.img<{ isActive: boolean }>`
+const IconImage = styled.img<{ isActive: boolean; disabled?: boolean }>`
   width: 22px;
   height: 22px;
 
   transition: all 0.2s ease;
-  filter: ${(props) => (props.isActive ? 'brightness(0) invert(1)' : 'none')};
+  filter: ${(props) => {
+    if (props.disabled) return 'grayscale(100%)';
+    return props.isActive ? 'brightness(0) invert(1)' : 'none';
+  }};
 
   &:hover {
-    transform: scale(1.05);
+    transform: ${(props) => (props.disabled ? 'none' : 'scale(1.05)')};
   }
 `;
 
@@ -315,6 +325,11 @@ const MelpikGuideBanner: React.FC<MelpikGuideBannerProps> = ({
   };
 
   const handleIconClick = (type: 'guide' | 'temp1' | 'filter' | 'search') => {
+    // 서비스1은 미구현이므로 클릭 무시
+    if (type === 'temp1') {
+      return;
+    }
+
     setModalType(type);
     setActiveIcon(type);
     setOpen(true);
@@ -544,11 +559,13 @@ const MelpikGuideBanner: React.FC<MelpikGuideBannerProps> = ({
           <IconBox
             isActive={activeIcon === 'temp1'}
             onClick={() => handleIconClick('temp1')}
+            disabled={true}
           >
             <IconImage
               src={homeIcon2}
               alt='서비스 1'
               isActive={activeIcon === 'temp1'}
+              disabled={true}
             />
           </IconBox>
           <Divider />

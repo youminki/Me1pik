@@ -15,6 +15,7 @@ import {
 import MyInfoListBackgroundimage from '@/assets/my-info/MyInfoListBackgroundimage.png';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
+import MelpikGuideBanner from '@/components/melpik-guide-banner';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
@@ -32,6 +33,7 @@ import { useScrollToTop } from '@/hooks/useScrollToTop';
  * - 검색/필터 useMemo 적용
  * - 무한스크롤 IntersectionObserver 적용
  * - 상태 최소화, 타입 보강, 주석 추가
+ * - MelpikGuideBanner 추가로 홈과 동일한 검색/필터 기능 제공
  */
 
 interface LocalBrand {
@@ -255,22 +257,6 @@ const BrandDetail: React.FC = () => {
     }
   }, [isFilterModalOpen, selectedColors, selectedSizes]);
 
-  // 필터 칩 제거 시 검색어와 필터 초기화
-  const handleClearFilters = useCallback(() => {
-    setSearchQuery('');
-    setSelectedColors([]);
-    setSelectedSizes([]);
-    // URL에서 search 파라미터 제거
-    setSearchParams(
-      (prev) => {
-        const params = Object.fromEntries(prev.entries());
-        delete params.search;
-        return params;
-      },
-      { replace: true }
-    );
-  }, [setSearchParams]);
-
   // UIItem 매핑 (filteredProducts 기준)
   const uiItems: UIItem[] = useMemo(() => {
     return filteredProducts.map((it) => ({
@@ -298,7 +284,26 @@ const BrandDetail: React.FC = () => {
     selectedSizes,
     isLoading: loadingProducts,
     selectedCategory,
-    onClearFilters: handleClearFilters,
+    onClearFilters: useCallback(() => {
+      // 모든 필터 상태를 한 번에 초기화
+      setSearchQuery('');
+      setSelectedColors([]);
+      setSelectedSizes([]);
+      setSelectedCategory('All');
+
+      // URL 파라미터 정리 (setTimeout으로 상태 업데이트 후 실행)
+      setTimeout(() => {
+        setSearchParams(
+          (prev) => {
+            const params = Object.fromEntries(prev.entries());
+            delete params.search;
+            delete params.category;
+            return params;
+          },
+          { replace: true }
+        );
+      }, 0);
+    }, [setSearchParams]),
     setSearchParams,
   });
 
@@ -339,7 +344,25 @@ const BrandDetail: React.FC = () => {
               </StatsSection>
             </TitleStatsContainer>
 
-            <Divider />
+            {/* MelpikGuideBanner 추가 */}
+            <MelpikGuideBanner
+              onSearchSubmit={(searchTerm) => {
+                setSearchQuery(searchTerm);
+                setSelectedCategory('All');
+                setSearchParams(
+                  { category: 'All', search: searchTerm },
+                  { replace: true }
+                );
+              }}
+              onColorSelect={(colors) => {
+                setSelectedColors(colors);
+              }}
+              onSizeSelect={(sizes) => {
+                setSelectedSizes(sizes);
+              }}
+              selectedColors={selectedColors}
+              selectedSizes={selectedSizes}
+            />
 
             <SubHeader
               selectedCategory={selectedCategory}
@@ -399,7 +422,6 @@ const BrandDetail: React.FC = () => {
               onTempColorsChange={setTempSelectedColors}
               onTempSizesChange={setTempSelectedSizes}
               searchPlaceholder='브랜드 또는 설명으로 검색...'
-              onClearAll={handleClearFilters}
             />
 
             {/* 제품 리스트 or 로딩 스피너 */}
@@ -539,13 +561,6 @@ const StatsText = styled.div`
 
 const BoldText = styled.span`
   font-weight: 700;
-`;
-
-const Divider = styled.div`
-  width: 100%;
-  height: 1px;
-  background: #ddd;
-  margin: 30px 0 0;
 `;
 
 // styled-components: Home.tsx에서 ContentWrapper, NoResultText, CountdownText 복사 (파일 하단에 위치)
