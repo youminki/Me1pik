@@ -8,6 +8,8 @@ export default defineConfig(() => {
   return {
     plugins: [react()],
     base: '/', // 명시적으로 base URL 설정
+    appType: 'spa' as const, // SPA 앱 타입 명시
+    publicDir: 'public', // 정적 파일 디렉토리 설정
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
@@ -17,9 +19,25 @@ export default defineConfig(() => {
       rollupOptions: {
         output: {
           // 파일명에 해시 포함 (캐시 무효화)
-          entryFileNames: 'assets/[name].[hash].js',
-          chunkFileNames: 'assets/[name].[hash].js',
-          assetFileNames: 'assets/[name].[hash].[ext]',
+          entryFileNames: 'assets/[name].[hash:8].js',
+          chunkFileNames: 'assets/[name].[hash:8].js',
+          assetFileNames: (assetInfo) => {
+            if (/\.(js|mjs)$/.test(assetInfo.name || '')) {
+              return 'assets/[name].[hash:8].js';
+            }
+            if (/\.(css)$/.test(assetInfo.name || '')) {
+              return 'assets/[name].[hash:8].css';
+            }
+            if (/\.(woff|woff2|ttf|otf)$/.test(assetInfo.name || '')) {
+              return 'assets/[name].[hash:8].[ext]';
+            }
+            if (
+              /\.(png|jpg|jpeg|gif|svg|ico|webp)$/.test(assetInfo.name || '')
+            ) {
+              return 'assets/[name].[hash:8].[ext]';
+            }
+            return 'assets/[name].[hash:8].[ext]';
+          },
           // 청크 크기 경고 임계값 증가
           manualChunks: {
             // 핵심 라이브러리들
@@ -185,11 +203,20 @@ export default defineConfig(() => {
     server: {
       port: 5173,
       host: true,
+      strictPort: true,
       hmr: {
         overlay: false, // HMR 오버레이 비활성화로 성능 향상
       },
       // SPA 라우팅을 위한 설정
-      historyApiFallback: true,
+      historyApiFallback: {
+        index: '/index.html',
+        disableDotRule: true,
+      },
+      // 정적 파일 서빙 최적화
+      fs: {
+        strict: false,
+        allow: ['..', './dist/assets'],
+      },
     },
     // CSS 최적화는 postcss.config.js에서 처리
   };
