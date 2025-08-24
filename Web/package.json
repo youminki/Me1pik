@@ -6,12 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:analyze": "tsc -b && vite build --mode analyze",
+    "build:dev": "tsc -b && vite build --mode development",
+    "build:staging": "tsc -b && vite build --mode staging",
     "build:prod": "tsc -b && vite build --mode production",
+    "build:analyze": "tsc -b && vite build --mode analyze",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "analyze": "npm run build:analyze && npx vite-bundle-analyzer dist",
-    "performance": "lighthouse http://localhost:5173 --output=json --output-path=./lighthouse-report.json"
+    "performance": "lighthouse http://localhost:5173 --output=json --output-path=./lighthouse-report.json",
+    "type-check": "tsc --noEmit",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.0",

@@ -3,8 +3,13 @@ import ReactDOM from 'react-dom/client';
 
 import App from './App.tsx';
 import { startPerformanceMonitoring } from './utils/performance.ts';
+import { logBuildInfo, setupProductionLogging } from './utils/buildInfo';
 
 import './styles/index.css';
+
+// 빌드 정보 로깅 및 프로덕션 로깅 설정
+logBuildInfo();
+setupProductionLogging();
 
 // 성능 모니터링 시작
 if (import.meta.env.DEV) {

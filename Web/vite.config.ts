@@ -4,7 +4,9 @@ import path from 'path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+  const isProduction = mode === 'production';
+
   return {
     plugins: [react()],
     base: '/', // 명시적으로 base URL 설정
@@ -14,6 +16,10 @@ export default defineConfig(() => {
       },
     },
     build: {
+      // 빌드 최적화 설정
+      target: 'es2015', // 브라우저 호환성
+      minify: isProduction ? 'terser' : false, // 프로덕션에서만 압축
+      sourcemap: !isProduction, // 개발에서만 소스맵
       rollupOptions: {
         output: {
           // 파일명에 해시 포함 (캐시 무효화)
@@ -159,13 +165,10 @@ export default defineConfig(() => {
         },
       },
       chunkSizeWarningLimit: 2000, // 경고 임계값 증가 (2MB로 설정)
-      sourcemap: false,
       // CSS 최적화
       cssCodeSplit: true,
       // 에셋 최적화
       assetsInlineLimit: 4096, // 4KB 이하 파일은 인라인
-      // 트리 셰이킹 최적화
-      minify: 'esbuild' as const, // terser 대신 esbuild 사용 (더 빠름)
     },
     optimizeDeps: {
       include: [

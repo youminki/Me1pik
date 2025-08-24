@@ -7,14 +7,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependency directories
+# Dependencies
 node_modules
 dist
 dist-ssr
 *.local
-# Dependency directories
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
 # Editor directories and files
-.vscode/
+.vscode/*
 !.vscode/extensions.json
 .idea/
 .DS_Store
@@ -24,39 +31,15 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment files
-.env
-
-# Certificates
-cert/n
-*.sw?
-
-# Environment files
-.env
-
 # Certificates
 cert/
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Build outputs
+build/
+coverage/
+*.tsbuildinfo
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-.env
-
-cert
+# Temporary files
+*.tmp
+*.temp
 
