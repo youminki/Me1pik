@@ -15,6 +15,13 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; connect-src 'self' https://api.stylewh.com https://www.google-analytics.com https://hub.payple.kr https://postcode.map.daum.net http://postcode.map.daum.net; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://code.jquery.com https://cpay.payple.kr https://t1.daumcdn.net; frame-src 'self' https://postcode.map.daum.net http://postcode.map.daum.net; style-src 'self' 'unsafe-inline'; img-src * data: blob:; font-src 'self';"
     />
+    <!-- 캐시 방지 메타 태그 -->
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Melpik</title>
     <link rel="icon" type="image/png" href="/assets/icon-192.png" />
 
@@ -63,9 +70,67 @@
     </script>
     <script src="https://cpay.payple.kr/js/v1/payment.js"></script>
     <!-- 인스타그램 방식 앱-웹뷰 통신 스크립트 -->
-    <script src="/webview_integration.js"></script>
 
+    <script src="/webview_integration.js"></script>
     <!-- Service Worker 등록은 App.tsx에서 통합 관리 -->
+
+    <!-- 서비스 워커 캐시 정리 스크립트 -->
+    <script>
+      // 구 서비스 워커 및 캐시 정리
+      if ('serviceWorker' in navigator) {
+        // 기존 SW 등록 해제
+        navigator.serviceWorker
+          .getRegistrations()
+          .then(function (registrations) {
+            for (let registration of registrations) {
+              registration.unregister();
+            }
+          });
+
+        // 기존 캐시 정리
+        if ('caches' in window) {
+          caches.keys().then(function (names) {
+            for (let name of names) {
+              caches.delete(name);
+            }
+          });
+        }
+      }
+
+      // 강력한 캐시 방지
+      if ('caches' in window) {
+        // 모든 캐시 삭제
+        caches.keys().then(function (names) {
+          names.forEach(function (name) {
+            caches.delete(name);
+          });
+        });
+      }
+
+      // IndexedDB 캐시 정리
+      if ('indexedDB' in window) {
+        indexedDB.databases().then(function (databases) {
+          databases.forEach(function (db) {
+            indexedDB.deleteDatabase(db.name);
+          });
+        });
+      }
+
+      // localStorage 및 sessionStorage 정리 (선택사항)
+      // localStorage.clear();
+      // sessionStorage.clear();
+
+      // 디버깅 로그
+      console.log('🚀 Melpik 앱 초기화 시작');
+      console.log('📍 현재 URL:', window.location.href);
+      console.log('🔍 User Agent:', navigator.userAgent);
+      console.log('🧹 캐시 정리 완료');
+
+      // 페이지 로드 시 강제 새로고침 방지
+      if (performance.navigation.type === 1) {
+        console.log('🔄 일반 새로고침 감지됨');
+      }
+    </script>
 
     <!-- 개발 모드에서만 main.tsx 로드 -->
     <script type="module" src="/src/main.tsx"></script>

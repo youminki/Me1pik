@@ -15,39 +15,97 @@
   publish = "Web/dist"
   environment = { NODE_VERSION = "20" }
 
-# 리다이렉트 설정
+# 리다이렉트 설정 - 정적 파일은 제외하고 SPA 라우팅만 처리
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/fonts/*"
+  to = "/fonts/:splat"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/manifest.json"
+  to = "/manifest.json"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/favicon.ico"
+  status = 200
+  force = false
+
+# SPA 라우팅 - 정적 파일이 아닌 경우에만 index.html로
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  conditions = {Role = ["admin"]}
 
-# 헤더 설정
+# ✅ 루트 경로 자체도 no-cache (일반 새로고침 때 가장 중요)
 [[headers]]
-  for = "*.js"
+  for = "/"
   [headers.values]
-    Content-Type = "application/javascript"
+    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
+    Pragma = "no-cache"
+    Expires = "0"
+    Vary = "Accept-Encoding"
+
+# ✅ index.html도 no-cache
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
+    Pragma = "no-cache"
+    Expires = "0"
+    Vary = "Accept-Encoding"
+
+# ✅ 모든 HTML no-cache (혹시 라우트에 HTML 출력이 있을 경우 대비)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
+
+# ✅ JavaScript 파일 명확한 MIME 타입 설정
+[[headers]]
+  for = "/assets/*.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
+
+# ✅ CSS 파일 명확한 MIME 타입 설정
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
+
+# ✅ 해시 달린 정적 에셋은 강캐시
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
     X-Content-Type-Options = "nosniff"
 
 [[headers]]
-  for = "*.css"
+  for = "/fonts/*"
   [headers.values]
-    Content-Type = "text/css"
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"
     X-Content-Type-Options = "nosniff"
 
+# 보안 헤더
 [[headers]]
-  for = "*.woff2"
+  for = "/*"
   [headers.values]
-    Content-Type = "font/woff2"
+    X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
-
-[[headers]]
-  for = "*.woff"
-  [headers.values]
-    Content-Type = "font/woff"
-    X-Content-Type-Options = "nosniff"
-
-[[headers]]
-  for = "*.ttf"
-  [headers.values]
-    Content-Type = "font/ttf"
-    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

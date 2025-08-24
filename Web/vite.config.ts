@@ -14,18 +14,31 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-
-    // 리터럴 타입 유지: 'esbuild' as const (또는 boolean/terser)
-    minify: 'esbuild', // 필요시 false로 바꿔도 됨
+    minify: 'esbuild',
     cssCodeSplit: true,
-
     assetsDir: 'assets',
+    // 빌드 시 소스맵 생성 (디버깅용)
+    sourcemap: false,
+    // 청크 크기 경고 임계값 설정
+    chunkSizeWarningLimit: 1000,
+    // 빌드 시 타임스탬프 추가로 캐시 무효화
     rollupOptions: {
       output: {
         // 모든 산출물을 /assets/ 밑으로 모으고, [name].[hash] 패턴 사용
         entryFileNames: 'assets/[name].[hash].js',
-        chunkFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: (chunkInfo) => {
+          const facadeModuleId = chunkInfo.facadeModuleId
+            ? chunkInfo.facadeModuleId.split('/').pop()
+            : 'chunk';
+          return `assets/${facadeModuleId}.[hash].js`;
+        },
         assetFileNames: 'assets/[name].[hash][extname]',
+        // 청크 분할 최적화
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          utils: ['@tanstack/react-query', 'styled-components'],
+        },
       },
     },
   },
