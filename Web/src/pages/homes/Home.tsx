@@ -83,7 +83,7 @@ const Home: React.FC = () => {
     categorized['All'] = allProductsQuery.data;
 
     return categorized;
-  }, [allProductsQuery.data]);
+  }, [allProductsQuery]);
 
   // 현재 선택된 카테고리의 상품들
   const currentCategoryProducts = useMemo(() => {

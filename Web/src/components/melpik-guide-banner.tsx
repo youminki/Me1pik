@@ -64,7 +64,10 @@ const Divider = styled.div`
   background: #ddd;
 `;
 
-const IconImage = styled.img<{ isActive: boolean; disabled?: boolean }>`
+const IconImage = styled.img.withConfig({
+  shouldForwardProp: (prop) =>
+    !['isActive', 'disabled'].includes(prop as string),
+})<{ isActive: boolean; disabled?: boolean }>`
   width: 22px;
   height: 22px;
 
