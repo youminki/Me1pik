@@ -6,17 +6,17 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+<<<<<<< HEAD
     "build:dev": "tsc -b && vite build --mode development",
     "build:prod": "tsc -b && vite build --mode production",
+=======
+>>>>>>> parent of ef6bc4f (Add environment config and build info utilities)
     "build:analyze": "tsc -b && vite build --mode analyze",
+    "build:prod": "tsc -b && vite build --mode production",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "analyze": "npm run build:analyze && npx vite-bundle-analyzer dist",
-    "performance": "lighthouse http://localhost:5173 --output=json --output-path=./lighthouse-report.json",
-    "type-check": "tsc --noEmit",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "performance": "lighthouse http://localhost:5173 --output=json --output-path=./lighthouse-report.json"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.0",

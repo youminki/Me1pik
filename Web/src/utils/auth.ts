@@ -1,6 +1,10 @@
 import Cookies from 'js-cookie';
 
+<<<<<<< HEAD
 import { API_CONFIG, isDevelopment, FEATURE_FLAGS } from './env';
+=======
+import { Axios } from '@/api-utils/Axios';
+>>>>>>> parent of ef6bc4f (Add environment config and build info utilities)
 
 import { Axios } from '@/api-utils/Axios';
 
@@ -38,9 +42,7 @@ export const hasValidToken = (): boolean => {
     localToken?.trim() || sessionToken?.trim() || cookieToken?.trim();
 
   if (!token) {
-    if (FEATURE_FLAGS.DEBUG_MODE) {
-      console.log('❌ 토큰이 없습니다');
-    }
+    console.log('❌ 토큰이 없습니다');
     return false;
   }
 
@@ -48,9 +50,7 @@ export const hasValidToken = (): boolean => {
     // JWT 토큰의 페이로드 부분을 안전하게 디코드
     const payload = decodeJwtPayload(token);
     if (!payload) {
-      if (isDevelopment()) {
-        console.error('❌ 토큰 페이로드 디코드 실패');
-      }
+      console.error('❌ 토큰 페이로드 디코드 실패');
       // 🎯 페이로드 디코드 실패 시에만 토큰 삭제 (만료된 토큰은 보존)
       clearTokens();
       return false;
@@ -60,23 +60,19 @@ export const hasValidToken = (): boolean => {
 
     // 토큰이 만료되었는지 확인
     if (payload.exp && payload.exp < currentTime) {
-      if (isDevelopment()) {
-        console.log('⚠️ 토큰이 만료되었습니다 (refreshToken으로 갱신 가능):', {
-          expiresAt: new Date(payload.exp * 1000).toLocaleString(),
-          currentTime: new Date(currentTime * 1000).toLocaleString(),
-          timeExpired: Math.floor((currentTime - payload.exp) / 60) + '분',
-        });
-      }
+      console.log('⚠️ 토큰이 만료되었습니다 (refreshToken으로 갱신 가능):', {
+        expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+        currentTime: new Date(currentTime * 1000).toLocaleString(),
+        timeExpired: Math.floor((currentTime - payload.exp) / 60) + '분',
+      });
       // 🎯 만료된 토큰은 삭제하지 않고 보존 (refreshToken으로 갱신 가능)
       return false;
     }
 
-    if (isDevelopment()) {
-      console.log('✅ 토큰이 유효합니다:', {
-        expiresAt: new Date(payload.exp * 1000).toLocaleString(),
-        timeLeft: Math.floor((payload.exp - currentTime) / 60) + '분',
-      });
-    }
+    console.log('✅ 토큰이 유효합니다:', {
+      expiresAt: new Date(payload.exp * 1000).toLocaleString(),
+      timeLeft: Math.floor((payload.exp - currentTime) / 60) + '분',
+    });
     return true;
   } catch (error) {
     console.error('❌ 토큰 파싱 오류:', error);
@@ -473,16 +469,13 @@ export const refreshToken = async (retryCount = 0): Promise<boolean> => {
       }
 
       // 토큰 갱신 API 호출
-      if (FEATURE_FLAGS.DEBUG_MODE) {
-        console.log('🔄 토큰 갱신 API 호출:', {
-          endpoint: '/auth/refresh',
-          hasRefreshToken: !!currentRefreshToken,
-          autoLogin,
-          refreshTokenLength: currentRefreshToken?.length,
-          retryCount: currentRetryCount,
-          apiUrl: API_CONFIG.BASE_URL,
-        });
-      }
+      console.log('🔄 토큰 갱신 API 호출:', {
+        endpoint: '/auth/refresh',
+        hasRefreshToken: !!currentRefreshToken,
+        autoLogin,
+        refreshTokenLength: currentRefreshToken?.length,
+        retryCount: currentRetryCount,
+      });
 
       const response = await Axios.post('/auth/refresh', {
         refreshToken: currentRefreshToken,

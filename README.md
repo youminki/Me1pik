@@ -53,7 +53,7 @@ src/
 
 ## 개발 환경 설정
 
-- Node.js 20.0.0 이상 (package.json engines 참조)
+- Node.js 18.0.0 이상
 - Yarn 또는 npm
 
 ### 설치 및 실행
@@ -63,40 +63,13 @@ src/
 yarn install
 # 개발 서버 실행
 yarn dev
-# 빌드 (환경별)
-yarn build          # 기본 빌드
-yarn build:dev      # 개발 환경 빌드
-yarn build:staging  # 스테이징 환경 빌드
-yarn build:prod     # 프로덕션 환경 빌드
+# 빌드
+yarn build
 # 린트 검사
 yarn lint
-yarn lint:fix       # 자동 수정
-# 타입 체크
-yarn type-check
 # 테스트 실행
 yarn test
-yarn test:watch     # 감시 모드
-yarn test:coverage  # 커버리지 포함
 ```
-
-### 환경 변수 설정
-
-프로젝트 루트에 다음 파일들을 생성하여 환경 변수를 설정하세요:
-
-```bash
-Web/
-├── .env.local      # 로컬 개발용 (gitignore에 포함)
-├── .env.development # 개발 환경용
-├── .env.staging    # 스테이징 환경용
-└── .env.production # 프로덕션 환경용
-```
-
-주요 환경 변수:
-
-- `VITE_API_BASE_URL`: API 서버 URL
-- `VITE_APP_ENV`: 애플리케이션 환경 (development/staging/production)
-- `VITE_ENABLE_DEBUG_MODE`: 디버그 모드 활성화
-- `VITE_ENABLE_ANALYTICS`: 분석 도구 활성화
 
 ## 네이티브 앱 로그인 연동
 
@@ -119,4 +92,4 @@ Web/
 
 ## 라이센스
 
-이 프로젝트는 MIT 라이센스 하에 배포됩니다
+이 프로젝트는 MIT 라이센스 하에 배포됩니다.

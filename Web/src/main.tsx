@@ -2,14 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import App from './App.tsx';
+<<<<<<< HEAD
 import { logBuildInfo, setupProductionLogging } from './utils/buildInfo';
+=======
+>>>>>>> parent of ef6bc4f (Add environment config and build info utilities)
 import { startPerformanceMonitoring } from './utils/performance.ts';
 
 import './styles/index.css';
-
-// 빌드 정보 로깅 및 프로덕션 로깅 설정
-logBuildInfo();
-setupProductionLogging();
 
 // 성능 모니터링 시작
 if (import.meta.env.DEV) {
