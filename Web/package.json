@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
 <<<<<<< HEAD
     "build:dev": "tsc -b && vite build --mode development",
+    "build:staging": "tsc -b && vite build --mode staging",
     "build:prod": "tsc -b && vite build --mode production",
 =======
 >>>>>>> parent of ef6bc4f (Add environment config and build info utilities)

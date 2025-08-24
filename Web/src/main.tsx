@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom/client';
 
 import App from './App.tsx';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { logBuildInfo, setupProductionLogging } from './utils/buildInfo';
 =======
 >>>>>>> parent of ef6bc4f (Add environment config and build info utilities)
+=======
+>>>>>>> parent of 7da97c6 (Update build process and environment variable handling)
 import { startPerformanceMonitoring } from './utils/performance.ts';
+import { logBuildInfo, setupProductionLogging } from './utils/buildInfo';
 
 import './styles/index.css';
 
