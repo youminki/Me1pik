@@ -168,6 +168,47 @@ export const changeRentalSchedulePeriod = async (
 };
 
 /**
+ * 관리자: 대여 제품정보 변경
+ * PATCH /admin/rental/{id}/change-product
+ *
+ * Request body:
+ * {
+ *   "productNum": "ITP4DPT850",
+ *   "sizeLabel": "55",
+ *   "color": "BLUE"
+ * }
+ *
+ * Response example:
+ * {
+ *   "id": 1,
+ *   "product_id": 1,
+ *   "product_size_stock_id": 1
+ * }
+ */
+export interface ChangeRentalProductRequest {
+  productNum: string; // 품번
+  sizeLabel: string; // 사이즈 라벨
+  color: string; // 색상
+}
+
+export interface ChangeRentalProductResponse {
+  id: number;
+  product_id: number;
+  product_size_stock_id: number;
+}
+
+export const changeRentalScheduleProduct = async (
+  id: number,
+  payload: ChangeRentalProductRequest,
+): Promise<ChangeRentalProductResponse> => {
+  const response = await Axios.patch<ChangeRentalProductResponse>(
+    `/admin/rental/${id}/change-product`,
+    payload,
+  );
+  return response.data;
+};
+
+/**
  * 관리자: 대여 ID로 상세 내역 조회 (관리자 전용)
  * GET /rental-schedule/search-by-rental-id?rentalId={rentalId}
  *
@@ -286,4 +327,72 @@ export const getRentalScheduleByRentalId = async (
     isRepaired: data.is_repaired,
   };
   return mapped;
+};
+
+/**
+ * 관리자: 제품 정보 조회 (드롭다운용)
+ * GET /admin/products
+ *
+ * Response example:
+ * {
+ *   "products": [
+ *     {
+ *       "id": 1,
+ *       "productNum": "ITP4DPT850",
+ *       "name": "제품명",
+ *       "brand": "브랜드명"
+ *     }
+ *   ]
+ * }
+ */
+export interface ProductInfo {
+  id: number;
+  productNum: string;
+  name: string;
+  brand: string;
+}
+
+export interface GetProductsResponse {
+  products: ProductInfo[];
+}
+
+export const getProducts = async (): Promise<GetProductsResponse> => {
+  const response = await Axios.get<GetProductsResponse>('/admin/products');
+  return response.data;
+};
+
+/**
+ * 관리자: 사이즈 옵션 조회
+ * GET /admin/sizes
+ *
+ * Response example:
+ * {
+ *   "sizes": ["XS", "S", "M", "L", "XL", "55", "66", "77"]
+ * }
+ */
+export interface GetSizesResponse {
+  sizes: string[];
+}
+
+export const getSizes = async (): Promise<GetSizesResponse> => {
+  const response = await Axios.get<GetSizesResponse>('/admin/sizes');
+  return response.data;
+};
+
+/**
+ * 관리자: 색상 옵션 조회
+ * GET /admin/colors
+ *
+ * Response example:
+ * {
+ *   "colors": ["BLACK", "WHITE", "BLUE", "RED", "GREEN"]
+ * }
+ */
+export interface GetColorsResponse {
+  colors: string[];
+}
+
+export const getColors = async (): Promise<GetColorsResponse> => {
+  const response = await Axios.get<GetColorsResponse>('/admin/colors');
+  return response.data;
 };

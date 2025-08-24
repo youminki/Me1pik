@@ -15,12 +15,16 @@ const tabs: TabItem[] = [
   { label: '등록완료', path: '등록완료' },
   { label: '등록대기', path: '등록대기' },
   { label: '판매종료', path: '판매종료' },
+  { label: '삭제예정', path: '삭제예정' },
+  { label: '비활성화', path: '비활성화' },
 ];
 
 const statuses: Array<{ label: string; value: string }> = [
-  { label: '등록완료', value: '1' },
   { label: '등록대기', value: '0' },
+  { label: '등록완료', value: '1' },
   { label: '판매종료', value: '2' },
+  { label: '삭제예정', value: '4' },
+  { label: '비활성화', value: '5' },
 ];
 
 const colorOptions = [
@@ -115,6 +119,25 @@ categoryOptions.forEach((opt) => {
     if (!allCategoryKeywords.includes(key)) allCategoryKeywords.push(key);
   });
 });
+
+// 상태 매핑 테이블 (탭 경로 -> 상태 값)
+const statusMapping: Record<string, string> = {
+  전체보기: '',
+  등록완료: '1',
+  등록대기: '0',
+  판매종료: '2',
+  삭제예정: '4',
+  비활성화: '5',
+};
+
+// 상태 값 -> 라벨 매핑
+const statusLabelMapping: Record<string, string> = {
+  '0': '등록대기',
+  '1': '등록완료',
+  '2': '판매종료',
+  '4': '삭제예정',
+  '5': '비활성화',
+};
 
 // Chip 컴포넌트
 const Chip = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
@@ -223,10 +246,16 @@ const ProductList: React.FC = () => {
     setSearchParams(params);
   };
 
-  // 2) 탭 필터링
-  const dataByTab = allData.filter((item) =>
-    selectedTab.path === '전체보기' ? true : item.status === selectedTab.path,
-  );
+  // 2) 탭 필터링 - 상태 매핑을 사용하여 개선
+  const dataByTab = allData.filter((item) => {
+    if (selectedTab.path === '전체보기') return true;
+
+    const targetStatus = statusMapping[selectedTab.path];
+    if (targetStatus === '') return true; // 전체보기
+
+    // 상태 값으로 비교 (문자열 또는 숫자)
+    return String(item.status) === targetStatus || item.status === targetStatus;
+  });
 
   // 3) 검색 고도화 (복수 키워드 AND, 색상/카테고리/브랜드 한영/유사어/부분일치)
   const txt = normalize(searchTerm);
@@ -288,13 +317,21 @@ const ProductList: React.FC = () => {
       });
 
       const label = statuses.find((s) => s.value === newStatus)?.label || '';
-      // 데이터가 캐시되어 있으므로 직접 업데이트
-      // setAllData((prev) =>
-      //   prev.map((item) => (selectedRows.has(item.no) ? { ...item, status: label } : item)),
-      // );
+
+      // 🎯 데이터 직접 업데이트 (캐시 무효화 대신)
+      const updatedData = allData.map((item) =>
+        selectedRows.has(item.no) ? { ...item, status: newStatus } : item,
+      );
+
+      // React Query 캐시 업데이트 (실제로는 queryClient.setQueryData 사용 권장)
+      // queryClient.setQueryData(['products'], updatedData);
+
       alert(`선택된 ${selectedRows.size}개 상품을 "${label}" 상태로 변경했습니다.`);
       setSelectedRows(new Set());
       setNewStatus('');
+
+      // 🎯 페이지 새로고침으로 변경사항 반영 (임시 해결책)
+      window.location.reload();
     } catch (err) {
       console.error('일괄 변경 실패', err);
       alert('일괄 변경 중 오류가 발생했습니다.');
@@ -372,6 +409,7 @@ const ProductList: React.FC = () => {
             ...item,
             color: getColorKo(item.color),
             category: getCategoryKo(item.category),
+            status: statusLabelMapping[String(item.status)] || item.status, // 상태 라벨 매핑 적용
           }))}
           handleEdit={handleEdit}
           startNo={(page - 1) * limit}

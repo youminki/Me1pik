@@ -72,6 +72,8 @@ const statusOptions = [
   { label: '등록대기', value: 0 },
   { label: '등록완료', value: 1 },
   { label: '판매종료', value: 2 },
+  { label: '삭제예정', value: 4 },
+  { label: '비활성화', value: 5 },
 ];
 
 const defaultSizes = ['44', '55', '66', '77', 'Free'];
