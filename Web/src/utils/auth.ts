@@ -1,16 +1,6 @@
 import Cookies from 'js-cookie';
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { API_CONFIG, isDevelopment, FEATURE_FLAGS } from './env';
-=======
 import { Axios } from '@/api-utils/Axios';
->>>>>>> parent of ef6bc4f (Add environment config and build info utilities)
-
-=======
->>>>>>> parent of 7da97c6 (Update build process and environment variable handling)
-import { Axios } from '@/api-utils/Axios';
-import { API_CONFIG, isDevelopment, FEATURE_FLAGS } from './env';
 
 // 인스타그램 방식 토큰 갱신 타이머
 let tokenRefreshTimer: NodeJS.Timeout | null = null;
