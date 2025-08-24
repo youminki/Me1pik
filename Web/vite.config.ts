@@ -1,21 +1,53 @@
 // vite.config.ts
 import path from 'path';
+import { copyFileSync, mkdirSync } from 'fs';
 
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
-    plugins: [react()],
-    base: '/', // 명시적으로 base URL 설정
-    appType: 'spa' as const, // SPA 앱 타입 명시
-    publicDir: 'public', // 정적 파일 디렉토리 설정
+    plugins: [
+      react(),
+      // _redirects 파일을 빌드 디렉토리에 복사하는 플러그인
+      {
+        name: 'copy-redirects',
+        writeBundle() {
+          try {
+            // dist 디렉토리가 없으면 생성
+            mkdirSync('dist', { recursive: true });
+            // _redirects 파일을 dist 디렉토리로 복사
+            copyFileSync('public/_redirects', 'dist/_redirects');
+            console.log('✅ _redirects 파일이 dist 디렉토리에 복사되었습니다.');
+          } catch (error) {
+            console.warn('Failed to copy _redirects file:', error);
+          }
+        },
+      },
+    ],
+    base: '/', // 루트 경로로 설정
+    appType: 'spa' as const,
+    publicDir: 'public',
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
       },
     },
     build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      // 빌드 후 정리
+      emptyOutDir: true,
+      // 소스맵 비활성화
+      sourcemap: false,
+      // CSS 최적화
+      cssCodeSplit: true,
+      // 에셋 최적화
+      assetsInlineLimit: 4096,
+      // 트리 셰이킹 최적화
+      minify: 'esbuild' as const,
+      // 청크 크기 경고 임계값 증가
+      chunkSizeWarningLimit: 2000,
       rollupOptions: {
         output: {
           // 파일명에 해시 포함 (캐시 무효화)
@@ -176,14 +208,6 @@ export default defineConfig(() => {
           },
         },
       },
-      chunkSizeWarningLimit: 2000, // 경고 임계값 증가 (2MB로 설정)
-      sourcemap: false,
-      // CSS 최적화
-      cssCodeSplit: true,
-      // 에셋 최적화
-      assetsInlineLimit: 4096, // 4KB 이하 파일은 인라인
-      // 트리 셰이킹 최적화
-      minify: 'esbuild' as const, // terser 대신 esbuild 사용 (더 빠름)
     },
     optimizeDeps: {
       include: [
@@ -205,7 +229,7 @@ export default defineConfig(() => {
       host: true,
       strictPort: true,
       hmr: {
-        overlay: false, // HMR 오버레이 비활성화로 성능 향상
+        overlay: false,
       },
       // SPA 라우팅을 위한 설정
       historyApiFallback: {
