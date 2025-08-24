@@ -15,19 +15,14 @@
   publish = "Web/dist"
   environment = { NODE_VERSION = "20" }
 
-# 정적 파일 우선 서빙 (assets 폴더)
-[[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
-  status = 200
-
-# SPA 라우팅 - 정적 파일이 아닌 모든 경로를 index.html로 리다이렉트
+# 리다이렉트 설정 - SPA 라우팅
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = true
 
-# 헤더 설정 - JavaScript 파일
+# 헤더 설정
 [[headers]]
   for = "*.js"
   [headers.values]
@@ -35,7 +30,6 @@
     X-Content-Type-Options = "nosniff"
     Cache-Control = "public, max-age=31536000, immutable"
 
-# 헤더 설정 - CSS 파일
 [[headers]]
   for = "*.css"
   [headers.values]
@@ -43,7 +37,6 @@
     X-Content-Type-Options = "nosniff"
     Cache-Control = "public, max-age=31536000, immutable"
 
-# 헤더 설정 - 폰트 파일
 [[headers]]
   for = "*.woff2"
   [headers.values]
