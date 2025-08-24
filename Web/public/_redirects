@@ -1,23 +1,5 @@
-# 정적 파일 우선 서빙 (모든 파일 확장자)
-/*.js    /assets/:splat    200
-/*.css   /assets/:splat    200
-/*.woff2 /assets/:splat    200
-/*.woff  /assets/:splat    200
-/*.ttf   /assets/:splat    200
-/*.otf   /assets/:splat    200
-/*.png   /assets/:splat    200
-/*.jpg   /assets/:splat    200
-/*.jpeg  /assets/:splat    200
-/*.gif   /assets/:splat    200
-/*.svg   /assets/:splat    200
-/*.ico   /assets/:splat    200
-/*.webp  /assets/:splat    200
-/*.json  /assets/:splat    200
-/*.xml   /assets/:splat    200
-/*.txt   /assets/:splat    200
-
-# assets 폴더 내 모든 파일 직접 서빙
-/assets/*    /assets/:splat    200
+# 정적 파일 우선 서빙 (assets 폴더)
+/assets/*    /assets/:splat   200
 
 # SPA 라우팅 - 정적 파일이 아닌 모든 경로를 index.html로 리다이렉트
-/*    /index.html    200
+/*    /index.html   200
