@@ -21,6 +21,8 @@ import {
   RentalScheduleAdminDetailResponse,
   UpdateRentalStatusRequest,
   changeRentalSchedulePeriod,
+  changeRentalScheduleProduct,
+  ChangeRentalProductRequest,
 } from '@api/RentalSchedule/RentalScheduleApi';
 
 import {
@@ -79,6 +81,11 @@ const MonitoringDetail: React.FC<MonitoringDetailProps> = ({ isCreate = false })
     '결제완료',
   );
 
+  // ─── 제품정보 편집 state ───
+  const [editingProductName, setEditingProductName] = useState('');
+  const [editingColor, setEditingColor] = useState('');
+  const [editingSize, setEditingSize] = useState('');
+
   // ─── 대여일자 범위 state ───
   const [rentalDates, setRentalDates] = useState<[Date | undefined, Date | undefined]>([
     undefined,
@@ -135,6 +142,11 @@ const MonitoringDetail: React.FC<MonitoringDetailProps> = ({ isCreate = false })
           setSize(data.size);
           setPaymentStatus(data.paymentStatus ?? '결제완료');
           setShippingMethod(data.deliveryInfo.shipping.deliveryMethod);
+
+          // 제품정보 편집 state 초기화
+          setEditingProductName(data.productNum);
+          setEditingColor(data.color);
+          setEditingSize(data.size || ''); // 빈 값일 경우 빈 문자열로 설정
 
           const [startStr, endStr] = data.rentalPeriod.split(' ~ ');
           const startDate = parseKoreanDate(startStr);
@@ -212,6 +224,61 @@ const MonitoringDetail: React.FC<MonitoringDetailProps> = ({ isCreate = false })
           setOriginalDates([newStart!, newEnd!]);
         }
 
+        // 제품정보 변경 확인
+        let productChanged = false;
+        if (editingProductName !== productName || editingColor !== color || editingSize !== size) {
+          // 유효성 검사
+          if (!editingProductName.trim()) {
+            setModalTitle('입력 오류');
+            setModalMessage('제품명(품번)을 입력해주세요.');
+            setIsModalOpen(true);
+            setLoading(false);
+            return;
+          }
+
+          if (!editingColor) {
+            setModalTitle('입력 오류');
+            setModalMessage('색상을 선택해주세요.');
+            setIsModalOpen(true);
+            setLoading(false);
+            return;
+          }
+
+          if (!editingSize) {
+            setModalTitle('입력 오류');
+            setModalMessage('사이즈를 선택해주세요.');
+            setIsModalOpen(true);
+            setLoading(false);
+            return;
+          }
+
+          productChanged = true;
+
+          // 디버깅 로그 추가
+          console.log('🔍 제품정보 변경 요청:', {
+            rentalId: numericNo,
+            currentProduct: { productName, color, size },
+            newProduct: { editingProductName, editingColor, editingSize },
+          });
+
+          const requestPayload = {
+            productNum: editingProductName,
+            sizeLabel: editingSize,
+            color: editingColor,
+          };
+
+          console.log('📤 API 요청 데이터:', requestPayload);
+
+          await changeRentalScheduleProduct(numericNo, requestPayload);
+
+          console.log('✅ 제품정보 변경 성공');
+
+          // 로컬 상태 업데이트
+          setProductName(editingProductName);
+          setColor(editingColor);
+          setSize(editingSize);
+        }
+
         const payload: UpdateRentalStatusRequest = {
           paymentStatus,
           deliveryStatus,
@@ -221,16 +288,27 @@ const MonitoringDetail: React.FC<MonitoringDetailProps> = ({ isCreate = false })
         await updateRentalScheduleStatus(numericNo, payload);
 
         setModalTitle('변경 완료');
-        setModalMessage(
-          dateChanged
-            ? '대여 기간 및 기타 변경 내용을 성공적으로 저장했습니다.'
-            : '변경 내용을 성공적으로 저장했습니다.',
-        );
+        let message = '변경 내용을 성공적으로 저장했습니다.';
+        if (dateChanged && productChanged) {
+          message = '대여 기간, 제품정보 및 기타 변경 내용을 성공적으로 저장했습니다.';
+        } else if (dateChanged) {
+          message = '대여 기간 및 기타 변경 내용을 성공적으로 저장했습니다.';
+        } else if (productChanged) {
+          message = '제품정보 및 기타 변경 내용을 성공적으로 저장했습니다.';
+        }
+        setModalMessage(message);
         setIsModalOpen(true);
-      } catch (err) {
+      } catch (err: any) {
         console.error('저장 실패', err);
         setModalTitle('오류');
-        setModalMessage('변경 내용 저장에 실패했습니다.');
+
+        // 404 에러에 대한 구체적인 메시지
+        if (err?.response?.status === 404) {
+          setModalMessage('해당 제품을 찾을 수 없습니다. 품번, 색상, 사이즈를 확인해주세요.');
+        } else {
+          setModalMessage('변경 내용 저장에 실패했습니다.');
+        }
+
         setIsModalOpen(true);
       } finally {
         setLoading(false);
@@ -305,12 +383,53 @@ const MonitoringDetail: React.FC<MonitoringDetailProps> = ({ isCreate = false })
       <SessionHeader>주문상세</SessionHeader>
       <FormBox>
         <Row>
-          <Field label="제품명" value={productName} readOnly />
+          <Field label="제품명">
+            <input
+              value={editingProductName}
+              onChange={(e) => setEditingProductName(e.target.value)}
+              placeholder="품번을 입력하세요"
+            />
+          </Field>
           <Field label="브랜드" value={brand} readOnly />
-          <Field label="색상" value={color} readOnly />
+          <Field label="색상">
+            <select value={editingColor} onChange={(e) => setEditingColor(e.target.value)}>
+              <option value="">색상을 선택하세요</option>
+              <option value="BLACK">BLACK</option>
+              <option value="WHITE">WHITE</option>
+              <option value="BLUE">BLUE</option>
+              <option value="RED">RED</option>
+              <option value="GREEN">GREEN</option>
+              <option value="YELLOW">YELLOW</option>
+              <option value="PURPLE">PURPLE</option>
+              <option value="PINK">PINK</option>
+              <option value="GRAY">GRAY</option>
+              <option value="BROWN">BROWN</option>
+              <option value="NAVY">NAVY</option>
+              <option value="BEIGE">BEIGE</option>
+              <option value="ORANGE">ORANGE</option>
+              <option value="MINT">MINT</option>
+              <option value="KHAKI">KHAKI</option>
+              <option value="IVORY">IVORY</option>
+              <option value="SILVER">SILVER</option>
+              <option value="GOLD">GOLD</option>
+              <option value="MAROON">MAROON</option>
+              <option value="OLIVE">OLIVE</option>
+              <option value="TEAL">TEAL</option>
+              <option value="AQUA">AQUA</option>
+              <option value="FUCHSIA">FUCHSIA</option>
+              <option value="LIME">LIME</option>
+            </select>
+          </Field>
         </Row>
         <Row>
-          <Field label="사이즈" value={size} readOnly />
+          <Field label="사이즈">
+            <select value={editingSize} onChange={(e) => setEditingSize(e.target.value)}>
+              <option value="SIZE 44">SIZE 44</option>
+              <option value="SIZE 55">SIZE 55</option>
+              <option value="SIZE 66">SIZE 66</option>
+              <option value="SIZE FREE">SIZE FREE</option>
+            </select>
+          </Field>
           <Field label="배송방법" value={shippingMethod} readOnly />
           <Field label="이용권" value={amount} readOnly />
         </Row>
