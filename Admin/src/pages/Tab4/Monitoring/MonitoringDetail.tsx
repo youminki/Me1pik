@@ -22,7 +22,6 @@ import {
   UpdateRentalStatusRequest,
   changeRentalSchedulePeriod,
   changeRentalScheduleProduct,
-  ChangeRentalProductRequest,
 } from '@api/RentalSchedule/RentalScheduleApi';
 
 import {

@@ -319,9 +319,9 @@ const ProductList: React.FC = () => {
       const label = statuses.find((s) => s.value === newStatus)?.label || '';
 
       // 🎯 데이터 직접 업데이트 (캐시 무효화 대신)
-      const updatedData = allData.map((item) =>
-        selectedRows.has(item.no) ? { ...item, status: newStatus } : item,
-      );
+      // const updatedData = allData.map((item) =>
+      //   selectedRows.has(item.no) ? { ...item, status: newStatus } : item,
+      // );
 
       // React Query 캐시 업데이트 (실제로는 queryClient.setQueryData 사용 권장)
       // queryClient.setQueryData(['products'], updatedData);
