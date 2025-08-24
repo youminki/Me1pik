@@ -14,6 +14,14 @@
   command = "cd Web && yarn install && yarn build:prod"
   publish = "Web/dist"
   environment = { NODE_VERSION = "20" }
+  base = "Web"
+
+# 기본 설정 (fallback)
+[build]
+  command = "cd Web && yarn install && yarn build:prod"
+  publish = "Web/dist"
+  base = "Web"
+  environment = { NODE_VERSION = "20" }
 
 # 리다이렉트 설정
 [[redirects]]
