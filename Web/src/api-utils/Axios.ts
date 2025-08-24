@@ -196,8 +196,27 @@ Axios.interceptors.response.use(
       } catch (refreshError) {
         console.error('❌ Axios 인터셉터: 토큰 갱신 실패:', refreshError);
 
-        // 토큰 갱신 실패 시 즉시 로그아웃 처리
-        console.log('❌ 토큰 갱신 실패로 인한 로그아웃 처리');
+        // 🎯 토큰 갱신 실패 시 즉시 로그아웃하지 않고 이벤트 발생
+        console.log('❌ 토큰 갱신 실패 - 이벤트 발생');
+
+        // 토큰 갱신 실패 이벤트 발생
+        window.dispatchEvent(
+          new CustomEvent('tokenRefreshFailed', {
+            detail: {
+              reason: 'Axios 인터셉터 토큰 갱신 실패',
+              error: refreshError,
+              timestamp: new Date().toLocaleString(),
+            },
+          })
+        );
+
+        // 🎯 iOS 앱 환경에서는 로그아웃하지 않고 에러만 반환
+        if (window.webkit?.messageHandlers) {
+          console.log('iOS 앱 환경 - 로그아웃 처리하지 않음');
+          return Promise.reject(refreshError);
+        }
+
+        // 웹 환경에서만 로그아웃 처리
         clearAllTokens();
         redirectToLogin();
         return Promise.reject(refreshError);

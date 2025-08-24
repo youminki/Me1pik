@@ -34,6 +34,7 @@ import {
   saveTokens,
   saveTokensForPersistentLogin,
   isNativeApp,
+  isIOSApp,
   forceSaveAppToken,
 } from '@/utils/auth';
 
@@ -231,6 +232,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [keepLogin, setKeepLogin] = useState(false); // 로그인 상태 유지
   const [isCapsLock, setIsCapsLock] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {}, [errorMessage]);
   useEffect(() => {}, []);
@@ -295,6 +297,22 @@ const Login: React.FC = () => {
 
   const handleLoginClick = async (data: LoginFormValues) => {
     try {
+      setErrorMessage('');
+      setIsLoading(true);
+
+      // 🎯 iOS 앱 환경 감지 및 로깅
+      const isIOS = isIOSApp();
+      const isNative = isNativeApp();
+
+      console.log('🔍 로그인 환경 감지:', {
+        isIOS,
+        isNative,
+        userAgent: navigator.userAgent,
+        hasWebKit: !!window.webkit,
+        hasMessageHandlers: !!window.webkit?.messageHandlers,
+        timestamp: new Date().toLocaleString(),
+      });
+
       const response = (await LoginPost(
         data.email,
         data.password,
@@ -302,15 +320,28 @@ const Login: React.FC = () => {
       )) as LoginResponse;
       const { accessToken, refreshToken } = response;
 
+      console.log('✅ 로그인 성공:', {
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+        accessTokenLength: accessToken?.length || 0,
+        refreshTokenLength: refreshToken?.length || 0,
+        isIOS,
+        isNative,
+        timestamp: new Date().toLocaleString(),
+      });
+
       // 앱에서는 항상 localStorage에 저장 (영구 보관)
-      if (isNativeApp()) {
+      if (isNative) {
+        console.log('📱 네이티브 앱 환경 - forceSaveAppToken 사용');
         forceSaveAppToken(accessToken, refreshToken);
       } else {
         // 30일 지속성을 위한 토큰 저장 (앱 종료 후에도 유지)
         if (keepLogin) {
+          console.log('🌐 웹 환경 - saveTokensForPersistentLogin 사용');
           saveTokensForPersistentLogin(accessToken, refreshToken, data.email);
         } else {
           // 일반 로그인 - 표준 토큰 저장
+          console.log('🌐 웹 환경 - saveTokens 사용');
           saveTokens(accessToken, refreshToken, false);
         }
       }
@@ -368,6 +399,8 @@ const Login: React.FC = () => {
           ? error.message
           : '로그인 실패. 다시 시도해주세요.'
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -519,10 +552,10 @@ const Login: React.FC = () => {
 
               <LoginBtn
                 type='submit'
-                disabled={!isValid || isSubmitting}
-                $active={isValid && !isSubmitting}
+                disabled={!isValid || isSubmitting || isLoading}
+                $active={isValid && !isSubmitting && !isLoading}
               >
-                {isSubmitting ? '로그인 중...' : '로그인'}
+                {isLoading ? '로그인 중...' : '로그인'}
               </LoginBtn>
             </FormSection>
             <LinksRow>

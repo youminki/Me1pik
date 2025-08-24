@@ -1149,7 +1149,30 @@ if (typeof window !== 'undefined') {
  * 네이티브 앱 환경인지 확인
  */
 export const isNativeApp = (): boolean => {
-  return !!(window.webkit?.messageHandlers || window.ReactNativeWebView);
+  return !!(
+    window.webkit?.messageHandlers ||
+    window.nativeApp ||
+    window.ReactNativeWebView ||
+    // iOS WebKit 환경 추가 감지
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) && window.webkit)
+  );
+};
+
+/**
+ * iOS 앱 환경인지 확인
+ */
+export const isIOSApp = (): boolean => {
+  return !!(
+    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    window.webkit?.messageHandlers
+  );
+};
+
+/**
+ * Android 앱 환경인지 확인
+ */
+export const isAndroidApp = (): boolean => {
+  return !!(/Android/.test(navigator.userAgent) && window.ReactNativeWebView);
 };
 
 /**
@@ -1328,7 +1351,41 @@ export const restorePersistentLogin = async (): Promise<boolean> => {
       // 🎯 모든 재시도 실패
       console.log('❌ 토큰 갱신 최대 재시도 실패 - 자동 로그인 실패');
 
-      // 🎯 사용자에게 친화적인 메시지 표시
+      // 🎯 iOS 앱 환경에서는 특별한 처리
+      if (isIOSApp()) {
+        console.log('📱 iOS 앱 환경 - 토큰 갱신 실패 이벤트 발생');
+
+        // iOS 앱에 토큰 갱신 실패 알림
+        const messageHandlers = window.webkit?.messageHandlers as any;
+        if (messageHandlers?.tokenRefreshFailed) {
+          try {
+            messageHandlers.tokenRefreshFailed.postMessage({
+              type: 'tokenRefreshFailed',
+              reason: '토큰 갱신 최대 재시도 실패',
+              message: '자동 로그인이 만료되었습니다. 다시 로그인해주세요.',
+              timestamp: new Date().toLocaleString(),
+            });
+            console.log('✅ iOS 앱에 토큰 갱신 실패 알림 전송 완료');
+          } catch (error) {
+            console.error('❌ iOS 앱에 토큰 갱신 실패 알림 전송 실패:', error);
+          }
+        }
+
+        // 웹에서는 이벤트만 발생시키고 로그아웃하지 않음
+        window.dispatchEvent(
+          new CustomEvent('autoLoginFailed', {
+            detail: {
+              reason: '토큰 갱신 실패 (iOS 앱)',
+              message: '자동 로그인이 만료되었습니다. 다시 로그인해주세요.',
+              timestamp: new Date().toLocaleString(),
+            },
+          })
+        );
+
+        return false;
+      }
+
+      // 🎯 웹 환경에서만 사용자에게 친화적인 메시지 표시
       try {
         // 브라우저 환경에서만 실행
         if (typeof window !== 'undefined') {

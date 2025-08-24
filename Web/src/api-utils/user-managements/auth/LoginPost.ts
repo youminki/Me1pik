@@ -1,6 +1,5 @@
-import Cookies from 'js-cookie';
-
 import { Axios } from '@/api-utils/Axios';
+import { saveTokens, saveTokensForPersistentLogin } from '@/utils/auth';
 
 interface LoginResponse {
   accessToken: string;
@@ -63,19 +62,16 @@ export const LoginPost = async (
       autoLogin, // 자동로그인 여부를 서버에 전달
     });
 
-    const isHttps = window.location.protocol === 'https:';
-    Cookies.set('accessToken', response.data.accessToken, {
-      secure: isHttps,
-      httpOnly: false,
-      sameSite: 'strict',
-      path: '/',
-    });
-    Cookies.set('refreshToken', response.data.refreshToken, {
-      secure: isHttps,
-      httpOnly: false,
-      sameSite: 'strict',
-      path: '/',
-    });
+    // 🎯 auth.ts의 통합된 토큰 저장 함수 사용
+    if (autoLogin) {
+      saveTokensForPersistentLogin(
+        response.data.accessToken,
+        response.data.refreshToken,
+        email
+      );
+    } else {
+      saveTokens(response.data.accessToken, response.data.refreshToken, false);
+    }
 
     // iOS 앱에 로그인 정보 전달 (refreshToken 포함)
     if (
@@ -133,7 +129,8 @@ export const LoginPost = async (
       );
     }
 
-    Axios.defaults.headers.Authorization = `Bearer ${response.data.accessToken}`;
+    // 🎯 Axios 헤더 설정은 auth.ts의 saveTokens에서 처리되므로 제거
+    // Axios.defaults.headers.Authorization = `Bearer ${response.data.accessToken}`;
 
     return response.data;
   } catch (error) {

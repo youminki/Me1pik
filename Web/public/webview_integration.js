@@ -83,43 +83,50 @@ function notifyAppLogout() {
 function handleAppLogin(loginInfo) {
   console.log('앱에서 로그인 정보 수신:', loginInfo);
 
-  // 다중 저장소에 토큰 저장
+  // 🎯 auth.ts의 통합된 토큰 저장 함수 사용
   if (loginInfo.token) {
+    // localStorage와 sessionStorage에 저장
     localStorage.setItem('accessToken', loginInfo.token);
     sessionStorage.setItem('accessToken', loginInfo.token);
 
+    // 자동 로그인 설정 활성화
+    localStorage.setItem('autoLogin', 'true');
+    localStorage.setItem('persistentLogin', 'true');
+
     // 쿠키에도 저장
-    document.cookie = `accessToken=${loginInfo.token}; path=/; secure; samesite=strict`;
+    const isHttps = window.location.protocol === 'https:';
+    document.cookie = `accessToken=${loginInfo.token}; path=/; ${isHttps ? 'secure;' : ''} samesite=strict`;
   }
 
   if (loginInfo.refreshToken) {
     localStorage.setItem('refreshToken', loginInfo.refreshToken);
     sessionStorage.setItem('refreshToken', loginInfo.refreshToken);
 
-    // 쿠키에도 저장
-    document.cookie = `refreshToken=${loginInfo.refreshToken}; path=/; secure; samesite=strict`;
+    const isHttps = window.location.protocol === 'https:';
+    document.cookie = `refreshToken=${loginInfo.refreshToken}; path=/; ${isHttps ? 'secure;' : ''} samesite=strict`;
   }
 
-  if (loginInfo.email) {
-    localStorage.setItem('userEmail', loginInfo.email);
+  // 🎯 토큰 갱신 타이머 설정
+  if (loginInfo.token && typeof window.setupTokenRefreshTimer === 'function') {
+    try {
+      window.setupTokenRefreshTimer(loginInfo.token);
+      console.log('토큰 갱신 타이머 설정 완료');
+    } catch (error) {
+      console.error('토큰 갱신 타이머 설정 실패:', error);
+    }
   }
 
-  if (loginInfo.userId) {
-    localStorage.setItem('userId', loginInfo.userId);
+  // 🎯 앱-웹뷰 동기화
+  if (typeof window.syncTokenWithApp === 'function') {
+    try {
+      window.syncTokenWithApp(loginInfo.token, loginInfo.refreshToken);
+      console.log('앱-웹뷰 토큰 동기화 완료');
+    } catch (error) {
+      console.error('앱-웹뷰 토큰 동기화 실패:', error);
+    }
   }
 
-  if (loginInfo.name) {
-    localStorage.setItem('userName', loginInfo.name);
-  }
-
-  // 로그인 성공 이벤트 발생
-  window.dispatchEvent(
-    new CustomEvent('appLoginSuccess', {
-      detail: loginInfo,
-    })
-  );
-
-  console.log('앱 로그인 정보 저장 완료');
+  console.log('✅ 앱에서 받은 로그인 정보 처리 완료');
 }
 
 /**
