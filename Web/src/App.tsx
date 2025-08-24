@@ -676,7 +676,7 @@ const App: React.FC = () => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <GlobalStyles />
-          <Router basename='/'>
+          <Router>
             <AuthGuard />
             {/* 전체 페이지 라우트 로딩에는 원형 스피너, 명확한 안내 문구 */}
             <Suspense
