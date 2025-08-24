@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import App from './App.tsx';
-import { startPerformanceMonitoring } from './utils/performance.ts';
 import { logBuildInfo, setupProductionLogging } from './utils/buildInfo';
+import { startPerformanceMonitoring } from './utils/performance.ts';
 
 import './styles/index.css';
 

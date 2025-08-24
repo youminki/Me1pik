@@ -1,7 +1,8 @@
 import Cookies from 'js-cookie';
 
-import { Axios } from '@/api-utils/Axios';
 import { API_CONFIG, isDevelopment, FEATURE_FLAGS } from './env';
+
+import { Axios } from '@/api-utils/Axios';
 
 // 인스타그램 방식 토큰 갱신 타이머
 let tokenRefreshTimer: NodeJS.Timeout | null = null;

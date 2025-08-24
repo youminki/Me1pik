@@ -11,7 +11,7 @@
 
 # Web 프로젝트 배포 설정  
 [context.web]
-  command = "cd Web && yarn install && yarn build"
+  command = "cd Web && yarn install && yarn build:prod"
   publish = "Web/dist"
   environment = { NODE_VERSION = "20" }
 
