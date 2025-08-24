@@ -1,5 +1,1 @@
-# SPA 라우팅 - 모든 경로를 index.html로 리다이렉트
 /*    /index.html   200
-
-# 정적 파일 서빙 - assets 폴더의 파일들은 직접 서빙
-/assets/*    /assets/:splat   200
