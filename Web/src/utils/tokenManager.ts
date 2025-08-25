@@ -33,26 +33,21 @@ export const getCurrentToken = (): string | null => {
     const isIOSEnvironment = isIOS();
 
     if (isIOSEnvironment) {
-      console.log('📱 iOS 환경 감지 - iOS 최적화된 토큰 읽기');
-
       // iOS에서는 쿠키를 우선으로 사용 (ITP 대응)
       const cookieToken = Cookies.get('accessToken');
       if (cookieToken?.trim()) {
-        console.log('🍪 iOS: 쿠키에서 토큰 읽기 성공');
         return cookieToken.trim();
       }
 
       // sessionStorage (iOS에서 더 안정적)
       const sessionToken = sessionStorage.getItem('accessToken');
       if (sessionToken?.trim()) {
-        console.log('📱 iOS: sessionStorage에서 토큰 읽기 성공');
         return sessionToken.trim();
       }
 
       // localStorage (마지막 선택)
       const localToken = localStorage.getItem('accessToken');
       if (localToken?.trim()) {
-        console.log('💾 iOS: localStorage에서 토큰 읽기 성공');
         return localToken.trim();
       }
     } else {

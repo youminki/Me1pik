@@ -64,8 +64,9 @@ const BrandDetail: React.FC = () => {
 
   // 모든 카테고리의 상품을 미리 로드
   const [allProducts, setAllProducts] = useState<ApiProduct[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState<boolean>(false);
+  const [loadingProducts, setLoadingProducts] = useState<boolean>(true); // 초기값을 true로 변경
   const [errorProducts, setErrorProducts] = useState<string>('');
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true); // 초기 로딩 상태 추가
 
   // 카테고리 필터: 초기값은 URL의 category 파라미터 or 'All'
   const initialCat = searchParams.get('category') || 'All';
@@ -115,7 +116,6 @@ const BrandDetail: React.FC = () => {
     if (isNaN(idNum)) {
       return;
     }
-    setLoadingProducts(true);
     setErrorProducts('');
     (async () => {
       try {
@@ -132,12 +132,12 @@ const BrandDetail: React.FC = () => {
           });
         } else {
           setErrorProducts('해당 브랜드를 찾을 수 없습니다.');
+          setLoadingProducts(false); // 에러 시에만 로딩 상태 해제
         }
       } catch (err) {
         console.error('브랜드 정보 조회 실패:', err);
         setErrorProducts('브랜드 정보를 불러오는 중 오류가 발생했습니다.');
-      } finally {
-        setLoadingProducts(false);
+        setLoadingProducts(false); // 에러 시에만 로딩 상태 해제
       }
     })();
   }, [idNum]);
@@ -145,19 +145,21 @@ const BrandDetail: React.FC = () => {
   // 모든 카테고리의 제품을 한 번에 로드
   useEffect(() => {
     if (!brand) return;
-    setLoadingProducts(true);
     setErrorProducts('');
     (async () => {
       try {
         // 모든 카테고리의 제품을 한 번에 가져오기
         const data = await getProductsByBrand(brand.id);
         setAllProducts(data);
+        // 모든 데이터 로드 완료 후 로딩 상태 해제
+        setLoadingProducts(false);
+        setIsInitialLoad(false); // 초기 로딩 완료
       } catch (err) {
         console.error('제품 목록 조회 실패:', err);
         setErrorProducts('제품 목록을 불러오는 중 오류가 발생했습니다.');
         setAllProducts([]);
-      } finally {
         setLoadingProducts(false);
+        setIsInitialLoad(false); // 에러 시에도 초기 로딩 완료
       }
     })();
   }, [brand]);
@@ -313,6 +315,135 @@ const BrandDetail: React.FC = () => {
     return <ErrorMessage message={errorProducts} />;
   }
 
+  // 초기 로딩 중에는 스켈레톤만 렌더링 (홈과 동일한 방식)
+  if (isInitialLoad && loadingProducts) {
+    return (
+      <>
+        <UnifiedHeader variant='oneDepth' />
+        <PageWrapper>
+          <Container>
+            {/* Profile Section with Background */}
+            <ProfileSection>
+              <BrandHeader>
+                <BrandTitle>{brand?.name || 'CC Collect'}</BrandTitle>
+              </BrandHeader>
+            </ProfileSection>
+
+            {/* Content Section */}
+            <ContentSection>
+              {/* Title and Stats Section */}
+              <TitleStatsContainer>
+                <CompanyTitle>(주)대현</CompanyTitle>
+
+                <StatsSection>
+                  <StatsCard>
+                    <StatsText>
+                      카테고리 <BoldText>21종</BoldText>
+                    </StatsText>
+                  </StatsCard>
+                  <StatsCard>
+                    <StatsText>
+                      등록 제품수{' '}
+                      <BoldText>{brand?.productCount || ''}</BoldText>
+                    </StatsText>
+                  </StatsCard>
+                </StatsSection>
+              </TitleStatsContainer>
+
+              {/* MelpikGuideBanner 추가 */}
+              <MelpikGuideBanner
+                onSearchSubmit={(searchTerm) => {
+                  setSearchQuery(searchTerm);
+                  setSelectedCategory('All');
+                  setSearchParams(
+                    { category: 'All', search: searchTerm },
+                    { replace: true }
+                  );
+                }}
+                onColorSelect={(colors) => {
+                  setSelectedColors(colors);
+                }}
+                onSizeSelect={(sizes) => {
+                  setSelectedColors(sizes);
+                }}
+                selectedColors={selectedColors}
+                selectedSizes={selectedSizes}
+              />
+
+              <SubHeader
+                selectedCategory={selectedCategory}
+                setSelectedCategory={(cat) => {
+                  setSelectedCategory(cat);
+                  setTimeout(() => {
+                    scrollToTop();
+                  }, 100);
+                }}
+                onCategoryClick={() => {
+                  setTimeout(() => {
+                    scrollToTop();
+                  }, 100);
+                }}
+                isLoading={true}
+              />
+
+              {/* 필터 및 열 선택 */}
+              <FilterChipContainer
+                searchQuery={searchQuery}
+                onSearchQueryChange={(query) => {
+                  setSearchQuery(query);
+                  setSearchParams(
+                    (prev) => {
+                      const params = Object.fromEntries(prev.entries());
+                      if (query.trim()) {
+                        params.search = query;
+                      } else {
+                        delete params.search;
+                      }
+                      return params;
+                    },
+                    { replace: true }
+                  );
+                }}
+                onSearchSubmit={(searchTerm) => {
+                  setSearchQuery(searchTerm);
+                  setSelectedCategory('All');
+                  setSearchParams(
+                    { category: 'All', search: searchTerm },
+                    { replace: true }
+                  );
+                }}
+                selectedColors={selectedColors}
+                selectedSizes={selectedSizes}
+                onColorsChange={setSelectedColors}
+                onSizesChange={setSelectedSizes}
+                isSearchModalOpen={isSearchModalOpen}
+                isFilterModalOpen={isFilterModalOpen}
+                onSearchModalToggle={setSearchModalOpen}
+                onFilterModalToggle={setFilterModalOpen}
+                tempSelectedColors={tempSelectedColors}
+                tempSelectedSizes={tempSelectedSizes}
+                onTempColorsChange={setTempSelectedColors}
+                onTempSizesChange={setTempSelectedSizes}
+                searchPlaceholder='브랜드 또는 설명으로 검색...'
+              />
+
+              {/* 제품 리스트 or 로딩 스피너 */}
+              <MainContent>
+                <ItemList items={[]} columns={viewCols} isLoading={true} />
+              </MainContent>
+
+              {/* 푸터 */}
+              <Footer />
+
+              {/* 하단 스크롤 탑 버튼(유지) */}
+              <ScrollToTopButtonComponent onClick={scrollToTop} />
+            </ContentSection>
+          </Container>
+        </PageWrapper>
+      </>
+    );
+  }
+
   return (
     <>
       <UnifiedHeader variant='oneDepth' />
@@ -425,11 +556,9 @@ const BrandDetail: React.FC = () => {
               searchPlaceholder='브랜드 또는 설명으로 검색...'
             />
 
-            {/* 제품 리스트 or 로딩 스피너 */}
+            {/* 제품 리스트 or 검색 결과 없음 메시지 */}
             <MainContent>
-              {loadingProducts ? (
-                <ItemList items={[]} columns={viewCols} isLoading={true} />
-              ) : showNoResult ? (
+              {showNoResult ? (
                 <ContentWrapper>
                   <NoResultMessageComponent countdown={countdown} />
                 </ContentWrapper>
@@ -440,6 +569,7 @@ const BrandDetail: React.FC = () => {
                     columns={viewCols}
                     onItemClick={handleItemClick}
                     observerRef={observerRef as React.RefObject<HTMLDivElement>}
+                    isLoading={loadingProducts && !isInitialLoad} // 카테고리 변경 시에만 로딩 표시
                   />
                   <div ref={observerRef} style={{ height: 1 }} />
                 </>
@@ -448,7 +578,7 @@ const BrandDetail: React.FC = () => {
 
             {/* 푸터 */}
             <Footer />
-            
+
             {/* 하단 스크롤 탑 버튼(유지) */}
             <ScrollToTopButtonComponent onClick={scrollToTop} />
           </ContentSection>
