@@ -20,7 +20,7 @@
     "typeRoots": ["./node_modules/@types"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": [
@@ -31,7 +31,7 @@
     "src/svg.d.ts"
   ],
   "exclude": [
-    "node_modules",
-    "dist"
+    "node_modules", // 빌드 제외
+    "dist" // 빌드 제외
   ]
 }
