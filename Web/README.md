@@ -53,7 +53,7 @@ src/
 
 ## 개발 환경 설정
 
-- Node.js 18.0.0 이상
+- Node.js 20.0.0 이상
 - Yarn 또는 npm
 
 ### 설치 및 실행
@@ -65,11 +65,36 @@ yarn install
 yarn dev
 # 빌드
 yarn build
+# TypeScript 타입 체크
+yarn type-check
 # 린트 검사
 yarn lint
 # 테스트 실행
 yarn test
 ```
+
+## 빌드 및 배포
+
+### 빌드 프로세스
+
+- **빌드**: `yarn build` - Vite를 사용한 프로덕션 빌드
+- **타입 체크**: `yarn type-check` - TypeScript 타입 검증
+- **개발 빌드**: `yarn build:dev` - 개발 모드로 빌드
+- **스테이징 빌드**: `yarn build:staging` - 스테이징 모드로 빌드
+- **프로덕션 빌드**: `yarn build:prod` - 프로덕션 모드로 빌드
+
+### Netlify 배포
+
+- Netlify에서 `[context.web]` 컨텍스트를 사용하여 Web 프로젝트를 배포
+- 빌드 명령어: `cd Web && yarn install && yarn build`
+- 배포 디렉토리: `Web/dist`
+- Node.js 버전: 20
+
+### 빌드 최적화
+
+- TypeScript 컴파일과 Vite 빌드를 분리하여 빌드 속도 향상
+- `@` 경로 별칭을 Vite에서 처리하여 Netlify 환경 호환성 개선
+- 청크 분할 및 코드 스플리팅으로 번들 크기 최적화
 
 ## 네이티브 앱 로그인 연동
 
