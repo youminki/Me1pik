@@ -397,7 +397,7 @@ const Payment = React.lazy(() => import('@/pages/payments/Payment'));
 const PaymentComplete = React.lazy(
   () => import('@/pages/payments/PaymentComplete')
 );
-const PaymentFail = React.lazy(() => import('@/pages/payments/PaymentFail'));
+const PaymentFail = React.lazy(() => import('./pages/payments/PaymentFail'));
 const ChangePassword = React.lazy(
   () => import('@/pages/profile/ChangePassword')
 );
