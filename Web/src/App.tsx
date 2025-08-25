@@ -397,7 +397,9 @@ const Payment = React.lazy(() => import('@/pages/payments/Payment'));
 const PaymentComplete = React.lazy(
   () => import('@/pages/payments/PaymentComplete')
 );
-const PaymentFail = React.lazy(() => import('@/pages/payments/PaymentFail'));
+const PaymentFailure = React.lazy(
+  () => import('@/pages/payments/PaymentFailure')
+);
 const ChangePassword = React.lazy(
   () => import('@/pages/profile/ChangePassword')
 );
@@ -913,7 +915,7 @@ const AppRouter: React.FC = () => {
             }
           />
           <Route path='/payment/complete' element={<PaymentComplete />} />
-          <Route path='/payment/fail' element={<PaymentFail />} />
+          <Route path='/payment/fail' element={<PaymentFailure />} />
 
           {/* Brand */}
           <Route
