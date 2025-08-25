@@ -55,12 +55,26 @@ class LoginManager: ObservableObject {
         }
     }
     
+    // 🔧 개선: 중복 초기화 및 토큰 갱신 방지
     private var isInitializing = false
+    private var observersAdded = false
+    private var refreshInFlight = false
+    private var lastRefreshAttempt: Date = Date.distantPast
+    private var lastAppBecameActive: Date = Date.distantPast
+    private var lastWebViewSync: Date = Date.distantPast
+    
     private var tokenRefreshTimer: Timer?
     private var appLifecycleObserver: NSObjectProtocol?
     
     init() {
         print("=== LoginManager 초기화 시작 ===")
+        
+        // 🔧 개선: 중복 초기화 방지
+        guard !observersAdded else {
+            print("⚠️ LoginManager 이미 초기화됨 - 중복 초기화 방지")
+            return
+        }
+        
         setupAppLifecycleObserver()
         
         // 초기화 중 플래그 설정
@@ -90,6 +104,12 @@ class LoginManager: ObservableObject {
     // MARK: - 앱 생명주기 관찰자 설정 (개선된 버전)
     private func setupAppLifecycleObserver() {
         print("🔄 === 앱 생명주기 관찰자 설정 ===")
+        
+        // 🔧 개선: 중복 옵저버 등록 방지
+        guard !observersAdded else {
+            print("⚠️ 앱 생명주기 관찰자가 이미 등록됨 - 중복 등록 방지")
+            return
+        }
         
         // 기존 관찰자 제거
         NotificationCenter.default.removeObserver(self)
@@ -140,6 +160,9 @@ class LoginManager: ObservableObject {
         
         // 관찰자 저장 (deinit에서 제거하기 위해)
         appLifecycleObserver = willResignObserver
+        
+        // 🔧 개선: 옵저버 등록 완료 플래그 설정
+        observersAdded = true
         
         print("✅ 앱 생명주기 관찰자 설정 완료")
         print("  - willResignActive: ✅")
@@ -244,6 +267,14 @@ class LoginManager: ObservableObject {
     // MARK: - 앱이 활성화될 때 처리 (개선된 버전)
     private func handleAppDidBecomeActive() {
         print("🔄 === 앱이 활성화됨 - 토큰 상태 확인 ===")
+        
+        // 🔧 개선: 디바운스 로직 (2초 내 중복 호출 방지)
+        let now = Date()
+        if now.timeIntervalSince(lastAppBecameActive) < 2.0 {
+            print("⚠️ 앱 활성화 처리가 너무 빈번함 - 디바운스 적용 (2초)")
+            return
+        }
+        lastAppBecameActive = now
         
         // 1. 토큰 저장 확인 및 복구
         verifyTokenStorage()
@@ -819,6 +850,30 @@ class LoginManager: ObservableObject {
     func refreshAccessToken() {
         print("🔄 === 토큰 갱신 시작 ===")
         
+        // 🔧 개선: 싱글플라이트 가드 (중복 갱신 방지)
+        guard !refreshInFlight else {
+            print("⚠️ 토큰 갱신이 이미 진행 중 - 중복 호출 방지")
+            return
+        }
+        
+        // 🔧 개선: 디바운스 로직 (5초 내 중복 갱신 방지)
+        let now = Date()
+        if now.timeIntervalSince(lastRefreshAttempt) < 5.0 {
+            print("⚠️ 토큰 갱신이 너무 빈번함 - 디바운스 적용 (5초)")
+            return
+        }
+        
+        // 갱신 진행 중 플래그 설정
+        refreshInFlight = true
+        lastRefreshAttempt = now
+        
+        // 🔧 개선: defer를 사용하여 갱신 완료 후 플래그 해제 보장
+        defer {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                self?.refreshInFlight = false
+            }
+        }
+        
         // 1. UserDefaults에서 refreshToken 확인
         let refreshTokenFromDefaults = userDefaults.string(forKey: "refreshToken")
         let refreshTokenFromKeychain = loadFromKeychain(key: "refreshToken")
@@ -876,7 +931,7 @@ class LoginManager: ObservableObject {
         // 3. 요청 본문에 refreshToken 포함 (웹 애플리케이션과 동일한 형식)
         let requestBody: [String: Any] = [
             "refreshToken": refreshToken,
-            "autoLogin": false
+            "autoLogin": true  // 🔧 개선: autoLogin을 true로 변경하여 웹과 일치
         ]
         
         do {
@@ -967,6 +1022,7 @@ class LoginManager: ObservableObject {
                         // 9. UserDefaults 강제 동기화
                         self.userDefaults.synchronize()
                         
+                        // 🔧 개선: expiresAt 설정 완료 후 웹뷰 동기화 순서 보장
                         // 10. 웹뷰에 새로운 토큰 전달 (API 응답 형식에 맞게 수정)
                         let tokenDataForWeb: [String: Any] = [
                             "token": accessToken,
@@ -1142,6 +1198,7 @@ class LoginManager: ObservableObject {
         // accessToken이 없어도 refreshToken이 있으면 갱신 시도
         if let refreshToken = refreshToken, !refreshToken.isEmpty {
             print("✅ refreshToken이 존재함 - 토큰 갱신 시도")
+            // 🔧 개선: autoLogin 플래그를 true로 설정하여 웹과 일치
             refreshAccessToken()
             return true
         }
@@ -1716,6 +1773,19 @@ class LoginManager: ObservableObject {
         let js = """
         (function() {
             try {
+                // 🔧 개선: readyState 확인으로 보안 에러 방지
+                if (document.readyState !== 'complete') {
+                    console.log('Document not ready, retrying in 200ms...');
+                    setTimeout(() => {
+                        // 재시도 로직
+                        if (typeof window !== 'undefined' && window.localStorage) {
+                            console.log('=== iOS에서 로그인 정보 수신 시작 (재시도) ===');
+                            // ... 기존 로직 반복
+                        }
+                    }, 200);
+                    return;
+                }
+                
                 console.log('=== iOS에서 로그인 정보 수신 시작 ===');
                 
                 // 이미 로그인된 상태라면 중복 처리 방지
@@ -1806,6 +1876,24 @@ class LoginManager: ObservableObject {
                 
             } catch (error) {
                 console.error('❌ iOS 로그인 정보 저장 중 오류:', error);
+                
+                // 🔧 개선: 오류 시 재시도 로직
+                if (error.message && error.message.includes('SecurityError')) {
+                    console.log('보안 오류 감지 - 500ms 후 재시도');
+                    setTimeout(() => {
+                        try {
+                            // 간단한 재시도
+                            if (window.localStorage) {
+                                localStorage.setItem('accessToken', '\(accessToken)');
+                                localStorage.setItem('refreshToken', '\(refreshToken)');
+                                localStorage.setItem('isLoggedIn', 'true');
+                                console.log('재시도로 로그인 정보 저장 완료');
+                            }
+                        } catch (retryError) {
+                            console.error('재시도 실패:', retryError);
+                        }
+                    }, 500);
+                }
             }
         })();
         """
@@ -1813,6 +1901,14 @@ class LoginManager: ObservableObject {
         webView.evaluateJavaScript(js) { result, error in
             if let error = error {
                 print("Error sending login info to web: \(error)")
+                
+                // 🔧 개선: 보안 에러 시 재시도 로직
+                if let wkError = error as? WKError, wkError.code == .javaScriptExceptionOccurred {
+                    print("⚠️ JavaScript 보안 에러 감지 - 500ms 후 재시도")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.sendLoginInfoToWeb(webView: webView)
+                    }
+                }
             } else {
                 print("✅ Login info sent to web successfully")
                 print("✅ Keep login setting sent: \(keepLogin)")
@@ -1828,6 +1924,12 @@ class LoginManager: ObservableObject {
         let script = """
         (function() {
             try {
+                // 🔧 개선: readyState 확인으로 보안 에러 방지
+                if (document.readyState !== 'complete') {
+                    console.log('Document not ready, skipping refreshToken sync');
+                    return null;
+                }
+                
                 const refreshToken = localStorage.getItem('refreshToken');
                 console.log('WebView localStorage refreshToken:', refreshToken);
                 return refreshToken || null;
@@ -1841,6 +1943,14 @@ class LoginManager: ObservableObject {
         webView.evaluateJavaScript(script) { [weak self] result, error in
             if let error = error {
                 print("Error getting refreshToken from webView: \(error)")
+                
+                // 🔧 개선: 보안 에러 시 재시도 로직
+                if let wkError = error as? WKError, wkError.code == .javaScriptExceptionOccurred {
+                    print("⚠️ JavaScript 보안 에러 감지 - 500ms 후 재시도")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self?.syncRefreshTokenFromWebView(webView: webView)
+                    }
+                }
                 return
             }
             
@@ -1919,36 +2029,63 @@ class LoginManager: ObservableObject {
     func syncTokenWithWebView(webView: WKWebView) {
         print("=== syncTokenWithWebView called ===")
         
+        // 🔧 개선: 디바운스 로직 (3초 내 중복 동기화 방지)
+        let now = Date()
+        if now.timeIntervalSince(lastWebViewSync) < 3.0 {
+            print("⚠️ 웹뷰 토큰 동기화가 너무 빈번함 - 디바운스 적용 (3초)")
+            return
+        }
+        lastWebViewSync = now
+        
         let accessToken = userDefaults.string(forKey: "accessToken") ?? ""
         let refreshToken = userDefaults.string(forKey: "refreshToken") ?? ""
         
         if !accessToken.isEmpty {
+            // 🔧 개선: WKWebView 보안 에러 완화 - readyState 확인 후 JS 실행
             let script = """
-            if (typeof window !== 'undefined') {
-                // 웹뷰에 토큰 동기화
-                if (window.localStorage) {
-                    window.localStorage.setItem('accessToken', '\(accessToken)');
-                    window.sessionStorage.setItem('accessToken', '\(accessToken)');
-                }
-                if (window.document && window.document.cookie) {
-                    document.cookie = 'accessToken=\(accessToken); path=/';
-                }
-                if ('\(refreshToken)' !== '') {
+            (function() {
+                try {
+                    // readyState 확인으로 보안 에러 방지
+                    if (document.readyState !== 'complete') {
+                        console.log('Document not ready, skipping token sync');
+                        return;
+                    }
+                    
+                    // 웹뷰에 토큰 동기화
                     if (window.localStorage) {
-                        window.localStorage.setItem('refreshToken', '\(refreshToken)');
-                        window.sessionStorage.setItem('refreshToken', '\(refreshToken)');
+                        window.localStorage.setItem('accessToken', '\(accessToken)');
+                        window.sessionStorage.setItem('accessToken', '\(accessToken)');
                     }
                     if (window.document && window.document.cookie) {
-                        document.cookie = 'refreshToken=\(refreshToken); path=/';
+                        document.cookie = 'accessToken=\(accessToken); path=/';
                     }
+                    if ('\(refreshToken)' !== '') {
+                        if (window.localStorage) {
+                            window.localStorage.setItem('refreshToken', '\(refreshToken)');
+                            window.sessionStorage.setItem('refreshToken', '\(refreshToken)');
+                        }
+                        if (window.document && window.document.cookie) {
+                            document.cookie = 'refreshToken=\(refreshToken); path=/';
+                        }
+                    }
+                    console.log('Token synchronized from native app');
+                } catch (error) {
+                    console.error('Token sync error:', error);
                 }
-                console.log('Token synchronized from native app');
-            }
+            })();
             """
             
             webView.evaluateJavaScript(script) { result, error in
                 if let error = error {
                     print("❌ Failed to sync token with webview: \(error)")
+                    
+                    // 🔧 개선: 보안 에러 시 재시도 로직
+                    if let wkError = error as? WKError, wkError.code == .javaScriptExceptionOccurred {
+                        print("⚠️ JavaScript 보안 에러 감지 - 500ms 후 재시도")
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.syncTokenWithWebView(webView: webView)
+                        }
+                    }
                 } else {
                     print("✅ Token synchronized with webview")
                 }

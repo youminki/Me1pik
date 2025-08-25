@@ -8,7 +8,7 @@ export default defineConfig({
     userAgent:
       'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
 
-    setupNodeEvents(on, config) {
+    setupNodeEvents(on) {
       // iOS 환경 시뮬레이션을 위한 플러그인 설정
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'chrome') {

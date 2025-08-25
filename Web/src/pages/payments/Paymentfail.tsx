@@ -26,9 +26,6 @@ const PaymentFail: React.FC<PaymentFailProps> = ({ onClose }) => {
     }
   };
 
-  // 예시: 공통 에러 컴포넌트 사용
-  // return <CommonErrorMessage message="결제에 실패했습니다. 서비스팀에 문의해 주세요." />;
-
   return (
     <>
       <UnifiedHeader variant='twoDepth' title='결제실패' />
@@ -103,8 +100,8 @@ const Strong = styled.span`
 
 const Subtitle = styled.p`
   font-weight: 400;
-  font-size: 14px;
-  line-height: 23px;
-  text-align: center;
-  color: #999999;
+  font-size: 16px;
+  line-height: 24px;
+  color: #666;
+  margin: 0;
 `;

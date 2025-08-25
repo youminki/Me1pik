@@ -67,7 +67,7 @@ export const LoginPost = async (
       saveTokensForPersistentLogin(
         response.data.accessToken,
         response.data.refreshToken,
-        email
+        autoLogin
       );
     } else {
       saveTokens(response.data.accessToken, response.data.refreshToken, false);

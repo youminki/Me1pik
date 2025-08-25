@@ -342,7 +342,7 @@ const Login: React.FC = () => {
         } else {
           // fallback: 기존 함수 사용
           if (keepLogin) {
-            saveTokensForPersistentLogin(accessToken, refreshToken, data.email);
+            saveTokensForPersistentLogin(accessToken, refreshToken, keepLogin);
           } else {
             saveTokens(accessToken, refreshToken, false);
           }
@@ -351,7 +351,7 @@ const Login: React.FC = () => {
         // 30일 지속성을 위한 토큰 저장 (앱 종료 후에도 유지)
         if (keepLogin) {
           console.log('🌐 웹 환경 - saveTokensForPersistentLogin 사용');
-          saveTokensForPersistentLogin(accessToken, refreshToken, data.email);
+          saveTokensForPersistentLogin(accessToken, refreshToken, keepLogin);
         } else {
           // 일반 로그인 - 표준 토큰 저장
           console.log('🌐 웹 환경 - saveTokens 사용');
