@@ -15,6 +15,7 @@ import {
 import MyInfoListBackgroundimage from '@/assets/my-info/MyInfoListBackgroundimage.png';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
+import Footer from '@/components/homes/Footer';
 import MelpikGuideBanner from '@/components/melpik-guide-banner';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
@@ -445,6 +446,9 @@ const BrandDetail: React.FC = () => {
               )}
             </MainContent>
 
+            {/* 푸터 */}
+            <Footer />
+            
             {/* 하단 스크롤 탑 버튼(유지) */}
             <ScrollToTopButtonComponent onClick={scrollToTop} />
           </ContentSection>
