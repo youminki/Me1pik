@@ -10,7 +10,7 @@ interface PaymentFailProps {
   onClose?: () => void;
 }
 
-const PaymentFail: React.FC<PaymentFailProps> = ({ onClose }) => {
+const Paymentfail: React.FC<PaymentFailProps> = ({ onClose }) => {
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -49,7 +49,7 @@ const PaymentFail: React.FC<PaymentFailProps> = ({ onClose }) => {
   );
 };
 
-export default PaymentFail;
+export default Paymentfail;
 
 const Container = styled.div`
   position: fixed;
