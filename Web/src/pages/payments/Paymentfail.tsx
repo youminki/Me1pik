@@ -6,11 +6,11 @@ import FailIcon from '@/assets/completes/FailIcon.svg';
 import FixedBottomBar from '@/components/fixed-bottom-bar';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 
-interface PaymentFailureProps {
+interface PaymentFailProps {
   onClose?: () => void;
 }
 
-const PaymentFailure: React.FC<PaymentFailureProps> = ({ onClose }) => {
+const PaymentFail: React.FC<PaymentFailProps> = ({ onClose }) => {
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -49,7 +49,7 @@ const PaymentFailure: React.FC<PaymentFailureProps> = ({ onClose }) => {
   );
 };
 
-export default PaymentFailure;
+export default PaymentFail;
 
 const Container = styled.div`
   position: fixed;
