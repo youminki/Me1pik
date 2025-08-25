@@ -334,6 +334,19 @@ const Login: React.FC = () => {
       if (isNative) {
         console.log('📱 네이티브 앱 환경 - forceSaveAppToken 사용');
         forceSaveAppToken(accessToken, refreshToken);
+      } else if (isIOS) {
+        // iOS 환경에서는 iOS 최적화된 토큰 저장 함수 사용
+        console.log('🍎 iOS 환경 - saveTokenForIOS 사용');
+        if (typeof window.iOSAutoLogin?.saveToken === 'function') {
+          window.iOSAutoLogin.saveToken(accessToken, refreshToken, keepLogin);
+        } else {
+          // fallback: 기존 함수 사용
+          if (keepLogin) {
+            saveTokensForPersistentLogin(accessToken, refreshToken, data.email);
+          } else {
+            saveTokens(accessToken, refreshToken, false);
+          }
+        }
       } else {
         // 30일 지속성을 위한 토큰 저장 (앱 종료 후에도 유지)
         if (keepLogin) {

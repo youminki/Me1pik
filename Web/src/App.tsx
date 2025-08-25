@@ -252,8 +252,10 @@ const App: React.FC = () => {
           // 백그라운드에서 토큰 갱신 타이머 설정
           setTimeout(async () => {
             try {
-              const { setupTokenRefreshTimer } = await import('@/utils/auth');
-              setupTokenRefreshTimer(currentToken);
+              const { setupOptimizedTokenRefreshTimer } = await import(
+                '@/utils/auth'
+              );
+              setupOptimizedTokenRefreshTimer(currentToken);
               console.log('⏰ 백그라운드에서 토큰 갱신 타이머 설정 완료');
             } catch (error) {
               console.error('토큰 갱신 타이머 설정 실패:', error);

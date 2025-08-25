@@ -7,7 +7,7 @@ interface UseIntersectionObserverOptions {
 }
 
 interface UseIntersectionObserverReturn {
-  ref: React.RefObject<HTMLDivElement | null>;
+  ref: React.RefObject<HTMLDivElement>;
   isIntersecting: boolean;
   entry: IntersectionObserverEntry | null;
 }
@@ -22,7 +22,7 @@ export const useIntersectionObserver = (
 ): UseIntersectionObserverReturn => {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null!);
 
   const callback = useCallback(([entry]: IntersectionObserverEntry[]) => {
     setIsIntersecting(entry.isIntersecting);

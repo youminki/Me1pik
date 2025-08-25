@@ -33,7 +33,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const { ref, shouldLoad } = useLazyLoad();
+  const { ref: lazyLoadRef, shouldLoad } = useLazyLoad();
 
   // 우선순위 이미지는 즉시 로딩
   const shouldLoadImage = priority || shouldLoad;
@@ -99,7 +99,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
 
   return (
     <ImageContainer
-      ref={ref}
+      ref={lazyLoadRef}
       className={className}
       width={width}
       height={height}

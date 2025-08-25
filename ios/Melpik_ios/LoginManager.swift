@@ -31,8 +31,30 @@ class LoginManager: ObservableObject {
     @Published var isLoading = true
     @Published var userInfo: UserInfo?
     
-    private let keychainService = "me1pik.com"
+    // 🧬 Biometric 인증 관리자 추가 (임시 주석 처리)
+    // private let biometricAuthManager = BiometricAuthManager()
+    
+    // MARK: - UserDefaults Keys
     private let userDefaults = UserDefaults.standard
+    private let keychainService = "com.melpik.auth"
+    
+    // MARK: - Biometric Auth Settings
+    var isBiometricAuthEnabled: Bool {
+        get { userDefaults.bool(forKey: "isBiometricAuthEnabled") }
+        set { 
+            userDefaults.set(newValue, forKey: "isBiometricAuthEnabled")
+            userDefaults.synchronize()
+        }
+    }
+    
+    var requireBiometricForAutoLogin: Bool {
+        get { userDefaults.bool(forKey: "requireBiometricForAutoLogin") }
+        set { 
+            userDefaults.set(newValue, forKey: "requireBiometricForAutoLogin")
+            userDefaults.synchronize()
+        }
+    }
+    
     private var isInitializing = false
     private var tokenRefreshTimer: Timer?
     private var appLifecycleObserver: NSObjectProtocol?
@@ -227,7 +249,9 @@ class LoginManager: ObservableObject {
         verifyTokenStorage()
         
         // 2. 지속 로그인 상태 복원 시도
-        restorePersistentLogin()
+        Task {
+            await restorePersistentLogin()
+        }
         
         // 3. 토큰 상태 확인
         let accessToken = userDefaults.string(forKey: "accessToken")
@@ -270,8 +294,8 @@ class LoginManager: ObservableObject {
         print("🔄 === 앱 활성화 처리 완료 ===")
     }
     
-    // MARK: - 지속 로그인 상태 복원
-    private func restorePersistentLogin() {
+    // MARK: - 지속 로그인 상태 복원 (Biometric 인증 연동)
+    private func restorePersistentLogin() async {
         print("🔄 === 지속 로그인 상태 복원 시작 ===")
         
         let persistentLogin = userDefaults.bool(forKey: "persistentLogin")
@@ -281,6 +305,24 @@ class LoginManager: ObservableObject {
             print("ℹ️ 지속 로그인 설정이 비활성화됨")
             return
         }
+        
+        // 🧬 Biometric 인증이 필요한 경우 처리 (임시 주석 처리)
+        /*
+        if requireBiometricForAutoLogin && isBiometricAuthEnabled {
+            print("🧬 Biometric 인증이 필요한 자동로그인")
+            
+            let biometricResult = await biometricAuthManager.authenticateForAutoLogin()
+            if !biometricResult.success {
+                print("❌ Biometric 인증 실패 - 자동로그인 중단")
+                if let error = biometricResult.error {
+                    print("에러:", error.errorDescription ?? "알 수 없는 오류")
+                }
+                return
+            }
+            
+            print("✅ Biometric 인증 성공 - 자동로그인 계속")
+        }
+        */
         
         // Keychain에서 토큰 복원 시도
         let keychainAccessToken = loadFromKeychain(key: "accessToken")
@@ -1910,6 +1952,136 @@ class LoginManager: ObservableObject {
                 } else {
                     print("✅ Token synchronized with webview")
                 }
+            }
+        }
+    }
+    
+    // MARK: - 🍎 iOS 앱에서 토큰 갱신 시 웹뷰 실시간 동기화
+    func syncRefreshedTokenWithWebView(webView: WKWebView, newAccessToken: String, newRefreshToken: String? = nil) {
+        print("=== 🍎 syncRefreshedTokenWithWebView called ===")
+        print("새로운 accessToken:", newAccessToken.isEmpty ? "❌ 비어있음" : "✅ 존재")
+        print("새로운 refreshToken:", newRefreshToken?.isEmpty == false ? "✅ 존재" : "❌ 없음")
+        
+        let script = """
+        if (typeof window !== 'undefined') {
+            try {
+                console.log('🍎 iOS 앱에서 토큰 갱신 동기화 시작');
+                
+                // 1. 새로운 토큰으로 모든 저장소 업데이트
+                if (window.localStorage) {
+                    window.localStorage.setItem('accessToken', '\(newAccessToken)');
+                    if ('\(newRefreshToken ?? "")' !== '') {
+                        window.localStorage.setItem('refreshToken', '\(newRefreshToken ?? "")');
+                    }
+                }
+                
+                if (window.sessionStorage) {
+                    window.sessionStorage.setItem('accessToken', '\(newAccessToken)');
+                    if ('\(newRefreshToken ?? "")' !== '') {
+                        window.sessionStorage.setItem('refreshToken', '\(newRefreshToken ?? "")');
+                    }
+                }
+                
+                if (window.document && window.document.cookie) {
+                    document.cookie = 'accessToken=\(newAccessToken); path=/; max-age=86400';
+                    if ('\(newRefreshToken ?? "")' !== '') {
+                        document.cookie = 'refreshToken=\(newRefreshToken ?? ""); path=/; max-age=86400';
+                    }
+                }
+                
+                // 2. 토큰 업데이트 이벤트 발생
+                window.dispatchEvent(new CustomEvent('tokenUpdated', {
+                    detail: {
+                        token: '\(newAccessToken)',
+                        refreshToken: '\(newRefreshToken ?? "")',
+                        source: 'ios_native_app',
+                        timestamp: new Date().toISOString()
+                    }
+                }));
+                
+                // 3. iOS 전용 토큰 갱신 성공 이벤트 발생
+                window.dispatchEvent(new CustomEvent('iosTokenRefreshSuccess', {
+                    detail: {
+                        tokenData: {
+                            token: '\(newAccessToken)',
+                            refreshToken: '\(newRefreshToken ?? "")',
+                            source: 'ios_native_app'
+                        }
+                    }
+                }));
+                
+                console.log('✅ 🍎 iOS 앱에서 토큰 갱신 동기화 완료');
+                
+            } catch (error) {
+                console.error('❌ 🍎 iOS 앱에서 토큰 갱신 동기화 중 오류:', error);
+            }
+        }
+        """
+        
+        webView.evaluateJavaScript(script) { result, error in
+            if let error = error {
+                print("❌ 🍎 Failed to sync refreshed token with webview: \(error)")
+            } else {
+                print("✅ 🍎 Refreshed token synchronized with webview")
+            }
+        }
+    }
+    
+    // MARK: - 🍎 iOS 앱에서 멀티 디바이스 로그아웃 시 웹뷰 동기화
+    func syncMultiDeviceLogoutWithWebView(webView: WKWebView, reason: String) {
+        print("=== 🍎 syncMultiDeviceLogoutWithWebView called ===")
+        print("로그아웃 이유:", reason)
+        
+        let script = """
+        if (typeof window !== 'undefined') {
+            try {
+                console.log('🍎 iOS 앱에서 멀티 디바이스 로그아웃 동기화 시작');
+                
+                // 1. 모든 저장소에서 토큰 정리
+                if (window.localStorage) {
+                    window.localStorage.removeItem('accessToken');
+                    window.localStorage.removeItem('refreshToken');
+                    window.localStorage.removeItem('isLoggedIn');
+                    window.localStorage.removeItem('keepLoginSetting');
+                }
+                
+                if (window.sessionStorage) {
+                    window.sessionStorage.removeItem('accessToken');
+                    window.sessionStorage.removeItem('refreshToken');
+                    window.sessionStorage.removeItem('isLoggedIn');
+                    window.sessionStorage.removeItem('keepLoginSetting');
+                }
+                
+                if (window.document && window.document.cookie) {
+                    document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                    document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                    document.cookie = 'isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                    document.cookie = 'keepLoginSetting=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                }
+                
+                // 2. 멀티 디바이스 로그아웃 이벤트 발생
+                window.dispatchEvent(new CustomEvent('iosMultiDeviceLogout', {
+                    detail: {
+                        reason: '\(reason)',
+                        message: '다른 디바이스에서 로그아웃되어 자동 로그인이 해제되었습니다.',
+                        timestamp: new Date().toLocaleString(),
+                        showMultiDeviceUI: true
+                    }
+                }));
+                
+                console.log('✅ 🍎 iOS 앱에서 멀티 디바이스 로그아웃 동기화 완료');
+                
+            } catch (error) {
+                console.error('❌ 🍎 iOS 앱에서 멀티 디바이스 로그아웃 동기화 중 오류:', error);
+            }
+        }
+        """
+        
+        webView.evaluateJavaScript(script) { result, error in
+            if let error = error {
+                print("❌ 🍎 Failed to sync multi-device logout with webview: \(error)")
+            } else {
+                print("✅ 🍎 Multi-device logout synchronized with webview")
             }
         }
     }

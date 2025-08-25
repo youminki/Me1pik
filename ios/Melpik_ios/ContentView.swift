@@ -812,7 +812,7 @@ struct WebView: UIViewRepresentable {
                 print("상태바 높이 요청 처리")
                 
             default:
-                print("=== [COORDINATOR] 알 수 없는 메시지:", message.name)
+                print("=== [COORDINATOR] 알 수 없는 메시지 타입")
                 break
             }
         }
@@ -980,7 +980,194 @@ struct WebView: UIViewRepresentable {
                 parent.loginManager.requestLoginInfoFromWeb(webView: parent.webView)
                 print("Requesting login info from web")
                 
+            case "autoLoginFailed":
+                // 🍎 iOS 자동로그인 실패 처리
+                print("=== [COORDINATOR] autoLoginFailed 메시지 처리 시작 ===")
+                if let reason = body["reason"] as? String,
+                   let message = body["message"] as? String,
+                   let context = body["context"] as? String {
+                    print("자동로그인 실패 이유:", reason)
+                    print("사용자 메시지:", message)
+                    print("발생 컨텍스트:", context)
+                    
+                    // iOS 앱에서 사용자에게 알림 표시
+                    DispatchQueue.main.async {
+                        // 여기서 iOS 앱의 알림 UI 표시 (예: Alert, Toast 등)
+                        print("🍎 iOS 앱에서 자동로그인 실패 알림 표시 필요")
+                    }
+                }
+                
+            case "multiDeviceLogout":
+                // 🍎 iOS 멀티 디바이스 로그아웃 처리
+                print("=== [COORDINATOR] multiDeviceLogout 메시지 처리 시작 ===")
+                if let reason = body["reason"] as? String,
+                   let message = body["message"] as? String {
+                    print("멀티 디바이스 로그아웃 이유:", reason)
+                    print("사용자 메시지:", message)
+                    
+                    // iOS 앱에서 멀티 디바이스 로그아웃 처리
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
+                        // 1. 앱 내 로그인 상태 정리
+                        self.parent.loginManager.logout()
+                        
+                        // 2. 웹뷰와 동기화
+                        self.parent.loginManager.syncMultiDeviceLogoutWithWebView(
+                            webView: self.parent.webView,
+                            reason: reason
+                        )
+                        
+                        // 3. 사용자에게 알림 표시
+                        print("🍎 iOS 앱에서 멀티 디바이스 로그아웃 알림 표시 필요")
+                    }
+                }
+                
+            case "syncToken":
+                // 🍎 iOS 토큰 동기화 처리
+                print("=== [COORDINATOR] syncToken 메시지 처리 시작 ===")
+                if let token = body["token"] as? String,
+                   let refreshToken = body["refreshToken"] as? String,
+                   let keepLogin = body["keepLogin"] as? Bool {
+                    print("토큰 동기화 요청:")
+                    print("- accessToken:", token.isEmpty ? "❌ 비어있음" : "✅ 존재")
+                    print("- refreshToken:", refreshToken.isEmpty ? "❌ 없음" : "✅ 존재")
+                    print("- keepLogin:", keepLogin)
+                    
+                    // iOS 앱에서 토큰 저장
+                    parent.loginManager.saveLoginInfo([
+                        "token": token,
+                        "refreshToken": refreshToken,
+                        "keepLogin": keepLogin
+                    ])
+                    
+                    // 웹뷰와 동기화
+                    parent.loginManager.syncRefreshedTokenWithWebView(
+                        webView: parent.webView,
+                        newAccessToken: token,
+                        newRefreshToken: refreshToken
+                    )
+                }
+                
+            case "requestBiometricAuth":
+                // 🧬 Biometric 인증 요청 처리
+                print("=== [COORDINATOR] requestBiometricAuth 메시지 처리 시작 ===")
+                if let reason = body["reason"] as? String {
+                    print("Biometric 인증 요청 이유:", reason)
+                    
+                    // 🧬 Biometric 인증 비활성화 (임시 주석 처리)
+                    /*
+                    Task {
+                        let result = await parent.loginManager.biometricAuthManager.authenticateWithBiometrics(reason: reason)
+                        
+                        // 웹뷰에 결과 전달
+                        let script = """
+                        window.dispatchEvent(new CustomEvent('biometricAuthResult', {
+                            detail: {
+                                success: \(result.success),
+                                error: \(result.error?.errorDescription ?? "null"),
+                                timestamp: new Date().toISOString()
+                            }
+                        }));
+                        """
+                        
+                        parent.webView.evaluateJavaScript(script)
+                    }
+                    */
+                    
+                    // 임시로 실패 결과 반환
+                    let script = """
+                    window.dispatchEvent(new CustomEvent('biometricAuthResult', {
+                        detail: {
+                            success: false,
+                            error: "Biometric 인증이 비활성화됨",
+                            timestamp: new Date().toISOString()
+                        }
+                    }));
+                    """
+                    parent.webView.evaluateJavaScript(script)
+                }
+                
+            case "checkBiometricStatus":
+                // 🧬 Biometric 상태 확인
+                print("=== [COORDINATOR] checkBiometricStatus 메시지 처리 시작 ===")
+                
+                let script = """
+                window.dispatchEvent(new CustomEvent('biometricStatusResult', {
+                    detail: {
+                        isAvailable: false,
+                        biometricType: 'none',
+                        isEnabled: false,
+                        requireForAutoLogin: false,
+                        timestamp: new Date().toISOString()
+                    }
+                }));
+                """
+                
+                parent.webView.evaluateJavaScript(script)
+                
+            case "enableBiometricAuth":
+                // 🧬 Biometric 인증 활성화 (임시 주석 처리)
+                print("=== [COORDINATOR] enableBiometricAuth 메시지 처리 시작 ===")
+                
+                // 🧬 Biometric 인증 비활성화 (임시 주석 처리)
+                /*
+                Task {
+                    let success = await parent.loginManager.biometricAuthManager.enableBiometricAuth()
+                    if success {
+                        parent.loginManager.isBiometricAuthEnabled = true
+                        print("✅ Biometric 인증 활성화됨")
+                    } else {
+                        print("❌ Biometric 인증 활성화 실패")
+                    }
+                    
+                    // 웹뷰에 결과 전달
+                    let script = """
+                    window.dispatchEvent(new CustomEvent('biometricAuthEnabled', {
+                        detail: {
+                            success: \(success),
+                            timestamp: new Date().toISOString()
+                        }
+                    }));
+                    """
+                    
+                    parent.webView.evaluateJavaScript(script)
+                }
+                */
+                
+                // 임시로 실패 결과 반환
+                print("❌ Biometric 인증이 비활성화됨")
+                let script = """
+                window.dispatchEvent(new CustomEvent('biometricAuthEnabled', {
+                    detail: {
+                        success: false,
+                        timestamp: new Date().toISOString()
+                    }
+                }));
+                """
+                parent.webView.evaluateJavaScript(script)
+                
+            case "setBiometricAutoLogin":
+                // 🧬 Biometric 자동로그인 설정
+                print("=== [COORDINATOR] setBiometricAutoLogin 메시지 처리 시작 ===")
+                if let require = body["require"] as? Bool {
+                    parent.loginManager.requireBiometricForAutoLogin = require
+                    print("Biometric 자동로그인 요구사항 설정:", require)
+                    
+                    // 웹뷰에 결과 전달
+                    let script = """
+                    window.dispatchEvent(new CustomEvent('biometricAutoLoginSettingChanged', {
+                        detail: {
+                            require: \(require),
+                            timestamp: new Date().toISOString()
+                        }
+                    }));
+                    """
+                    
+                    parent.webView.evaluateJavaScript(script)
+                }
+                
             default:
+                print("=== [COORDINATOR] 알 수 없는 액션")
                 break
             }
         }

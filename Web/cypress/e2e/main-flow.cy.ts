@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('메인 사용자 플로우', () => {
   it('로그인 → 상품 검색 → 장바구니 담기 → 결제', () => {
     cy.visit('/login');
