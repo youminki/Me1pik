@@ -13,7 +13,7 @@ import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
-import NoResultMessageComponent from '@/components/shared/NoResultMessage';
+
 import ProductDetailModal from '@/components/shared/ProductDetailModal';
 import ScrollToTopButtonComponent from '@/components/shared/ScrollToTopButton';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -194,38 +194,18 @@ const Home: React.FC = () => {
   // 무한스크롤 (재사용 가능한 훅 사용)
   const { visibleItems, observerRef } = useInfiniteScroll({
     items: uiItems,
-    resetKey: selectedCategory, // 카테고리 변경 시 초기화
+    resetKey: `${selectedCategory}-${searchQuery}-${selectedColors.join(',')}-${selectedSizes.join(',')}`, // 필터 조건 변경 시 초기화
   });
 
   // 검색 결과 없음 처리 (재사용 가능한 훅 사용)
-  const { showNoResult, countdown } = useNoResultHandler({
+  const { showNoResult } = useNoResultHandler({
     items: uiItems,
+    originalItems: currentCategoryProducts, // 원본 상품 목록 전달
     searchQuery,
     selectedColors,
     selectedSizes,
     isLoading: allProductsQuery.isLoading,
     selectedCategory,
-    onClearFilters: useCallback(() => {
-      // 모든 필터 상태를 한 번에 초기화
-      setSearchQuery('');
-      setSelectedColors([]);
-      setSelectedSizes([]);
-      setSelectedCategory('All');
-
-      // URL 파라미터 정리 (setTimeout으로 상태 업데이트 후 실행)
-      setTimeout(() => {
-        setSearchParams(
-          (prev) => {
-            const params = Object.fromEntries(prev.entries());
-            delete params.search;
-            delete params.category;
-            return params;
-          },
-          { replace: true }
-        );
-      }, 0);
-    }, [setSearchParams]),
-    setSearchParams,
   });
 
   // 에러 처리
@@ -392,9 +372,13 @@ const Home: React.FC = () => {
           searchPlaceholder='브랜드 또는 설명으로 검색...'
         />
 
-        <ContentWrapper>
-          <NoResultMessageComponent countdown={countdown} />
-        </ContentWrapper>
+        <ItemList
+          items={visibleItems}
+          columns={viewCols}
+          onItemClick={handleOpenModal}
+          observerRef={observerRef as React.RefObject<HTMLDivElement>}
+          showNoResult={showNoResult} // NoResult 표시 여부 전달
+        />
         <Footer />
         <ScrollToTopButtonComponent onClick={scrollToTop} />
       </MainContainer>

@@ -22,6 +22,7 @@ type ItemListProps = {
   isLoading?: boolean;
   observerRef?: React.RefObject<HTMLDivElement>;
   visibleCount?: number;
+  showNoResult?: boolean; // NoResult 표시 여부 추가
 };
 
 const ItemList: React.FC<ItemListProps> = ({
@@ -32,6 +33,7 @@ const ItemList: React.FC<ItemListProps> = ({
   isLoading = false,
   observerRef,
   visibleCount = 40,
+  showNoResult = false, // 기본값 false
 }) => {
   const renderedItems = useMemo(() => {
     const handleOpen = onItemClick ?? (() => {});
@@ -42,6 +44,7 @@ const ItemList: React.FC<ItemListProps> = ({
         <SkeletonItemCard key={`skeleton-${i}`} />
       ));
     }
+
     return items.map((item, index) => (
       <ItemCard
         key={item.id}
@@ -56,8 +59,14 @@ const ItemList: React.FC<ItemListProps> = ({
   return (
     <ListContainer>
       <ItemsWrapper $columns={columns}>
-        {renderedItems}
-        {observerRef && <div ref={observerRef} style={{ height: 1 }} />}
+        {showNoResult ? (
+          <NoResultMessage>조건에 맞는 상품이 없습니다.</NoResultMessage>
+        ) : (
+          <>
+            {renderedItems}
+            {observerRef && <div ref={observerRef} style={{ height: 1 }} />}
+          </>
+        )}
       </ItemsWrapper>
     </ListContainer>
   );
@@ -76,4 +85,22 @@ const ItemsWrapper = styled.div<{ $columns: number }>`
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(${({ $columns }) => $columns}, minmax(0, 1fr));
+`;
+
+const NoResultMessage = styled.div`
+  font-size: 18px;
+  color: #666;
+  font-weight: 600;
+  text-align: center;
+  grid-column: 1 / -1;
+  padding: 40px 20px;
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
 `;

@@ -28,7 +28,11 @@ export const useInfiniteScroll = <T = unknown>({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setVisibleCount((prev) => Math.min(prev + pageSize, items.length));
+          const newVisibleCount = Math.min(
+            visibleCount + pageSize,
+            items.length
+          );
+          setVisibleCount(newVisibleCount);
         }
       },
       { threshold }
@@ -36,7 +40,7 @@ export const useInfiniteScroll = <T = unknown>({
 
     observer.observe(observerRef.current);
     return () => observer.disconnect();
-  }, [items.length, pageSize, threshold]);
+  }, [items.length, pageSize, threshold, visibleCount]);
 
   const visibleItems = useMemo(() => {
     return items.slice(0, visibleCount);

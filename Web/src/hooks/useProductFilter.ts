@@ -160,6 +160,7 @@ export const useProductFilter = ({
         matchesSelectedSizes
       );
     });
+
     return filtered;
   }, [products, searchQuery, selectedColors, selectedSizes]);
 

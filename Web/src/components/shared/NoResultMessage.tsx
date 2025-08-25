@@ -1,17 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-interface NoResultMessageProps {
-  countdown: number;
-}
-
-const NoResultMessage: React.FC<NoResultMessageProps> = ({ countdown }) => {
+const NoResultMessage: React.FC = () => {
   return (
     <Container>
       <MainMessage>조건에 맞는 상품이 없습니다.</MainMessage>
-      <CountdownText>
-        {countdown}초 후 전체 상품으로 이동합니다...
-      </CountdownText>
     </Container>
   );
 };
@@ -33,6 +26,8 @@ const Container = styled.div`
   justify-content: center;
   background: #fff;
   border-radius: 12px;
+
+  width: 100%;
 `;
 
 const MainMessage = styled.div`
@@ -41,11 +36,5 @@ const MainMessage = styled.div`
   font-weight: 600;
   margin-bottom: 12px;
   line-height: 1.4;
-`;
-
-const CountdownText = styled.div`
-  font-size: 14px;
-  color: #999;
-  font-weight: 400;
-  line-height: 1.3;
+  text-align: center;
 `;

@@ -123,10 +123,10 @@ const GlobalStyles = createGlobalStyle`
   }
 
   /* 🔧 개선: 포커스 아웃라인 복원 (접근성 향상) */
-  :focus-visible {
+  /* :focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
-  }
+  } */
 
   /* 리스트 기본 스타일 리셋 */
   ul, ol {

@@ -1,136 +1,77 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 interface UseNoResultHandlerProps {
-  items: unknown[];
+  items: unknown[]; // 필터링된 상품 목록
+  originalItems: unknown[]; // 원본 상품 목록 (필터링 전)
   searchQuery: string;
   selectedColors: string[];
   selectedSizes: string[];
   isLoading: boolean;
   selectedCategory?: string;
-  onClearFilters: () => void;
-  setSearchParams: (
-    params:
-      | Record<string, string>
-      | ((prev: URLSearchParams) => URLSearchParams),
-    options?: { replace?: boolean }
-  ) => void;
 }
 
 export const useNoResultHandler = ({
   items,
+  originalItems,
   searchQuery,
   selectedColors,
   selectedSizes,
   isLoading,
   selectedCategory,
-  onClearFilters,
-  setSearchParams,
 }: UseNoResultHandlerProps) => {
   const [showNoResult, setShowNoResult] = useState(false);
-  const [countdown, setCountdown] = useState(3);
 
-  // 타이머 참조를 useRef로 관리하여 안정적인 정리 보장
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // 타이머 정리 함수를 useCallback으로 메모이제이션
-  const clearTimers = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    if (countdownTimerRef.current) {
-      clearInterval(countdownTimerRef.current);
-      countdownTimerRef.current = null;
-    }
-  }, []);
-
-  // 컴포넌트 언마운트 시 타이머 정리
+  // 검색 결과 없음 감지 및 필터 조건 변경 시 즉시 반영
   useEffect(() => {
-    return () => {
-      clearTimers();
-    };
-  }, [clearTimers]);
+    // 로딩 중이면 NoResult를 표시하지 않음
+    if (isLoading) {
+      setShowNoResult(false);
+      return;
+    }
 
-  // 검색 결과 없음 감지 및 자동 초기화
-  useEffect(() => {
-    // 기존 타이머들 정리
-    clearTimers();
-
-    // 검색어나 필터가 있고, 로딩이 완료되었으며, 결과가 없을 때
+    // 검색어나 필터가 있는지 확인
     const hasActiveFilters =
       searchQuery.trim() ||
       selectedColors.length > 0 ||
       selectedSizes.length > 0;
 
-    // 카테고리에 아이템이 없거나 검색/필터 결과가 없을 때
-    const shouldShowNoResult =
-      !isLoading &&
-      items.length === 0 &&
-      (hasActiveFilters || selectedCategory !== 'All');
+    // All 카테고리가 아니거나 필터가 활성화된 경우
+    const hasActiveCategoryOrFilters =
+      selectedCategory !== 'All' || hasActiveFilters;
 
-    // 검색어나 필터가 없고 All 카테고리이면 showNoResult를 false로 설정
+    // 원본 상품이 있는지 확인
+    const hasOriginalItems = originalItems && originalItems.length > 0;
+
+    // 필터 조건이 변경되었을 때 즉시 반영
     if (!hasActiveFilters && selectedCategory === 'All') {
+      // 모든 필터가 해제되고 All 카테고리인 경우 NoResult 숨김
       setShowNoResult(false);
-      setCountdown(3);
       return;
     }
 
-    if (shouldShowNoResult) {
-      // 300ms 후에 NoResult 표시
-      timerRef.current = setTimeout(() => {
+    // 결과가 없고 필터나 카테고리가 활성화된 경우에만 NoResult 표시
+    if (items.length === 0 && hasActiveCategoryOrFilters && hasOriginalItems) {
+      // 깜빡임 방지를 위한 짧은 지연
+      const timer = setTimeout(() => {
         setShowNoResult(true);
-        setCountdown(3);
+      }, 100);
 
-        // 1초마다 카운트다운
-        countdownTimerRef.current = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev <= 1) {
-              // 카운트다운 완료 시 모든 필터 초기화
-              onClearFilters();
-              setShowNoResult(false);
-              setCountdown(3);
-
-              // URL에서 search 파라미터 제거하고 All 카테고리로 이동
-              setSearchParams(
-                (prev: URLSearchParams) => {
-                  const newParams = new URLSearchParams(prev);
-                  newParams.delete('search');
-                  newParams.delete('category');
-                  return newParams;
-                },
-                { replace: true }
-              );
-
-              // 타이머 정리
-              clearTimers();
-              return 3;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      }, 300);
+      return () => clearTimeout(timer);
     } else {
+      // 결과가 있거나 필터가 없거나 원본 상품이 없는 경우 NoResult 숨김
       setShowNoResult(false);
-      setCountdown(3);
     }
-
-    // cleanup 함수에서 타이머들 정리
-    return clearTimers;
   }, [
     isLoading,
     items.length,
+    originalItems,
     searchQuery,
     selectedColors,
     selectedSizes,
     selectedCategory,
-    onClearFilters,
-    setSearchParams,
-    clearTimers,
   ]);
 
   return {
     showNoResult,
-    countdown,
   };
 };

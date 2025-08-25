@@ -20,7 +20,7 @@ import MelpikGuideBanner from '@/components/melpik-guide-banner';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
-import NoResultMessageComponent from '@/components/shared/NoResultMessage';
+
 import ProductDetailModal from '@/components/shared/ProductDetailModal';
 import ScrollToTopButtonComponent from '@/components/shared/ScrollToTopButton';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -276,38 +276,18 @@ const BrandDetail: React.FC = () => {
   // 무한스크롤 (재사용 가능한 훅 사용)
   const { visibleItems, observerRef } = useInfiniteScroll({
     items: uiItems,
-    resetKey: selectedCategory, // 카테고리 변경 시 초기화
+    resetKey: `${selectedCategory}-${searchQuery}-${selectedColors.join(',')}-${selectedSizes.join(',')}`, // 필터 조건 변경 시 초기화
   });
 
   // 검색 결과 없음 처리 (재사용 가능한 훅 사용)
-  const { showNoResult, countdown } = useNoResultHandler({
+  const { showNoResult } = useNoResultHandler({
     items: uiItems,
+    originalItems: currentCategoryProducts, // 원본 상품 목록 전달
     searchQuery,
     selectedColors,
     selectedSizes,
     isLoading: loadingProducts,
     selectedCategory,
-    onClearFilters: useCallback(() => {
-      // 모든 필터 상태를 한 번에 초기화
-      setSearchQuery('');
-      setSelectedColors([]);
-      setSelectedSizes([]);
-      setSelectedCategory('All');
-
-      // URL 파라미터 정리 (setTimeout으로 상태 업데이트 후 실행)
-      setTimeout(() => {
-        setSearchParams(
-          (prev) => {
-            const params = Object.fromEntries(prev.entries());
-            delete params.search;
-            delete params.category;
-            return params;
-          },
-          { replace: true }
-        );
-      }, 0);
-    }, [setSearchParams]),
-    setSearchParams,
   });
 
   // 에러 처리
@@ -543,8 +523,12 @@ const BrandDetail: React.FC = () => {
               }}
               selectedColors={selectedColors}
               selectedSizes={selectedSizes}
-              onColorsChange={setSelectedColors}
-              onSizesChange={setSelectedSizes}
+              onColorsChange={(colors) => {
+                setSelectedColors(colors);
+              }}
+              onSizesChange={(sizes) => {
+                setSelectedSizes(sizes);
+              }}
               isSearchModalOpen={isSearchModalOpen}
               isFilterModalOpen={isFilterModalOpen}
               onSearchModalToggle={setSearchModalOpen}
@@ -558,22 +542,14 @@ const BrandDetail: React.FC = () => {
 
             {/* 제품 리스트 or 검색 결과 없음 메시지 */}
             <MainContent>
-              {showNoResult ? (
-                <ContentWrapper>
-                  <NoResultMessageComponent countdown={countdown} />
-                </ContentWrapper>
-              ) : (
-                <>
-                  <ItemList
-                    items={visibleItems}
-                    columns={viewCols}
-                    onItemClick={handleItemClick}
-                    observerRef={observerRef as React.RefObject<HTMLDivElement>}
-                    isLoading={loadingProducts && !isInitialLoad} // 카테고리 변경 시에만 로딩 표시
-                  />
-                  <div ref={observerRef} style={{ height: 1 }} />
-                </>
-              )}
+              <ItemList
+                items={visibleItems}
+                columns={viewCols}
+                onItemClick={handleItemClick}
+                observerRef={observerRef as React.RefObject<HTMLDivElement>}
+                isLoading={loadingProducts && !isInitialLoad} // 카테고리 변경 시에만 로딩 표시
+                showNoResult={showNoResult} // NoResult 표시 여부 전달
+              />
             </MainContent>
 
             {/* 푸터 */}
@@ -711,14 +687,5 @@ const MainContent = styled.div`
   justify-content: center;
 
   width: 100%;
-  min-height: 400px; /* CLS 개선을 위한 최소 높이 설정 */
-`;
-
-// styled-components: Home.tsx에서 ContentWrapper, NoResultMessage 복사
-const ContentWrapper = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 400px; /* CLS 개선을 위한 최소 높이 설정 */
 `;
