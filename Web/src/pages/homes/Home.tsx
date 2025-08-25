@@ -497,15 +497,13 @@ const Home: React.FC = () => {
 
       {/* 제품 리스트 or 로딩 스피너 */}
       <ContentWrapper>
-        <>
-          <ItemList
-            items={visibleItems}
-            columns={viewCols}
-            onItemClick={handleOpenModal}
-            observerRef={observerRef as React.RefObject<HTMLDivElement>}
-          />
-          <div ref={observerRef} style={{ height: 1 }} />
-        </>
+        <ItemList
+          items={visibleItems}
+          columns={viewCols}
+          onItemClick={handleOpenModal}
+          observerRef={observerRef as React.RefObject<HTMLDivElement>}
+        />
+        <div ref={observerRef} style={{ height: 1 }} />
       </ContentWrapper>
 
       {/* 푸터 */}
@@ -549,7 +547,7 @@ const MainContainer = styled.div`
 const ContentWrapper = styled.div`
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  width: 100%;
   min-height: 400px; /* CLS 개선을 위한 최소 높이 설정 */
 `;

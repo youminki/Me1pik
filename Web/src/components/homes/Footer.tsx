@@ -21,6 +21,7 @@ const FooterContainer = styled.footer`
   width: 100%;
   display: flex;
   flex-direction: column;
+  margin-bottom: 100px;
 `;
 
 const Divider = styled.div`
