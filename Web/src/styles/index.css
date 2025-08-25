@@ -46,24 +46,6 @@
   }
 }
 
-/* 아이폰에서 하단바와 겹치지 않도록 하는 전역 스타일 */
-@supports (padding: max(0px)) {
-  body {
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
-  }
-}
-
-/* FixedBottomBar를 사용하는 페이지에서 하단 여백 확보 */
-body {
-  padding-bottom: 120px;
-}
-
-@media screen and (max-width: 768px) {
-  body {
-    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
-  }
-}
-
 #root {
   max-width: 1000px;
   margin: 0 auto;
