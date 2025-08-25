@@ -4,6 +4,10 @@ import Cookies from 'js-cookie';
 import { getCurrentToken } from '@/utils/auth';
 import { trackApiCall } from '@/utils/monitoring';
 
+// 🔧 개선: 단일 refresh in-flight + 요청 큐잉 보장
+let refreshing = false;
+let waiters: Array<() => void> = [];
+
 interface RequestMetadata {
   requestId: string;
   startTime: number;
@@ -127,6 +131,34 @@ Axios.interceptors.response.use(
       );
     }
 
+    // 🔧 개선: 초기 401 폭격 방지 - 복구 중일 때는 요청을 큐잉
+    if (error.response?.status === 401) {
+      const isRecovering =
+        localStorage.getItem('autoLoginInProgress') === 'true';
+      const isCompleted = localStorage.getItem('autoLoginCompleted') === 'true';
+
+      if (isRecovering && !isCompleted) {
+        console.log('🔄 자동 로그인 복구 중 - 요청을 큐잉합니다');
+        // 복구가 완료될 때까지 잠시 대기
+        await new Promise((resolve) => {
+          const checkRecovery = () => {
+            const completed =
+              localStorage.getItem('autoLoginCompleted') === 'true';
+            if (completed) {
+              resolve(true);
+            } else {
+              setTimeout(checkRecovery, 100);
+            }
+          };
+          checkRecovery();
+        });
+
+        // 복구 완료 후 원래 요청 재시도
+        console.log('✅ 복구 완료 - 원래 요청 재시도');
+        return Axios(originalRequest);
+      }
+    }
+
     // 재시도 로직
     if (shouldRetry(error, originalRequest)) {
       return retryRequest(originalRequest);
@@ -134,6 +166,19 @@ Axios.interceptors.response.use(
 
     // 401 에러 처리 (토큰 갱신)
     if (error.response?.status === 401) {
+      // 🔧 개선: 이미 refresh 중이면 대기
+      if (refreshing) {
+        console.log('🔄 이미 토큰 갱신 중 - 요청을 큐에 대기');
+        await new Promise<void>((resolve) => waiters.push(resolve));
+        console.log('✅ 토큰 갱신 완료 - 대기 중인 요청 재시도');
+        // 🔧 개선: 재시도 시 최신 토큰 주입
+        const currentToken = getCurrentToken();
+        if (currentToken) {
+          originalRequest.headers.Authorization = `Bearer ${currentToken}`;
+        }
+        return Axios(originalRequest); // 토큰 갱신 후 재시도
+      }
+
       // 이미 재시도 중인 경우 무한 루프 방지
       if ((originalRequest as ExtendedAxiosRequestConfig)._retry) {
         console.log('🔄 이미 토큰 갱신을 시도했으므로 로그아웃 처리');
@@ -160,6 +205,8 @@ Axios.interceptors.response.use(
           return Promise.reject(error);
         }
 
+        // 🔧 개선: refresh 시작 플래그 설정
+        refreshing = true;
         console.log('🔄 Axios 인터셉터: 토큰 갱신 시도', {
           url: originalRequest.url,
           method: originalRequest.method,
@@ -178,6 +225,10 @@ Axios.interceptors.response.use(
 
         // 새 토큰 저장
         saveTokens(data.accessToken, data.refreshToken);
+
+        // 🔧 개선: 대기 중인 모든 요청들 해제
+        waiters.forEach((w) => w());
+        waiters = [];
 
         // 성공 이벤트 발생
         window.dispatchEvent(
@@ -220,6 +271,9 @@ Axios.interceptors.response.use(
         clearAllTokens();
         redirectToLogin();
         return Promise.reject(refreshError);
+      } finally {
+        // 🔧 개선: refresh 완료 플래그 리셋
+        refreshing = false;
       }
     }
 

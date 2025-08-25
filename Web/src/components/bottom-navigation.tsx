@@ -159,6 +159,12 @@ const Dock = styled.div`
   @media (max-width: 768px) {
     border-radius: 0;
     padding: 0 0 28px 0;
+    padding-bottom: calc(
+      28px + env(safe-area-inset-bottom)
+    ); /* safe-area 보강 */
+    padding-bottom: calc(
+      28px + constant(safe-area-inset-bottom)
+    ); /* legacy fallback */
     width: 100%;
   }
 `;

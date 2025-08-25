@@ -10,6 +10,10 @@ const GlobalStyles = createGlobalStyle`
     --status-bar-height: 0px;
     --safe-area-top: 0px;
     --safe-area-bottom: 0px;
+
+    /* 🔧 개선: CSS 변수 네이밍 통일 (AppLayout과 매핑) */
+    --header-h: var(--header-h, var(--header-height));
+    --bottom-h: var(--bottom-h, var(--bottom-nav-height));
     
     /* 네이티브 앱 환경에서 상태바 높이 설정 */
     ${isNativeApp() ? `--status-bar-height: ${getStatusBarHeight()}px;` : ''}
@@ -71,7 +75,7 @@ const GlobalStyles = createGlobalStyle`
       ? `
     html, body {
       height: calc(100% - var(--status-bar-height));
-      padding-top: var(--status-bar-height);
+      /* 🔧 개선: 상단 safe-area는 헤더에서만 처리, 이중 보정 방지 */
     }
   `
       : ''
@@ -116,7 +120,12 @@ const GlobalStyles = createGlobalStyle`
   input, textarea, select {
     font-family: inherit;
     border: none;
-    outline: none;
+  }
+
+  /* 🔧 개선: 포커스 아웃라인 복원 (접근성 향상) */
+  :focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
   }
 
   /* 리스트 기본 스타일 리셋 */
@@ -134,7 +143,8 @@ const GlobalStyles = createGlobalStyle`
   ${
     isNativeApp()
       ? `
-    * {
+    /* 🔧 개선: user-select none은 필요 요소에만 한정 (본문 텍스트 복사 허용) */
+    [data-no-select='true'] {
       -webkit-tap-highlight-color: transparent;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -153,6 +163,35 @@ const GlobalStyles = createGlobalStyle`
     }
   `
       : ''
+  }
+
+  /* 🔧 개선: 접근성 - 스킵 링크 스타일 */
+  .sr-only {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .sr-only:focus {
+    position: fixed !important;
+    top: calc(var(--header-h, 0px) + 8px);
+    left: 8px;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 8px 12px;
+    clip: auto;
+    overflow: visible;
+    background: #000;
+    color: #fff;
+    border-radius: 6px;
+    z-index: 1100;
   }
 `;
 

@@ -85,7 +85,13 @@
       console.log('🧬 Biometric 상태 확인 시작');
 
       if (!window.webkit?.messageHandlers?.nativeBridge) {
-        throw new Error('iOS 네이티브 브릿지가 사용할 수 없습니다');
+        console.log('🧬 iOS 네이티브 브릿지가 없음 - 웹 환경에서 정상');
+        return {
+          isAvailable: false,
+          biometricType: null,
+          isEnabled: false,
+          requireForAutoLogin: false,
+        };
       }
 
       // iOS 앱에 Biometric 상태 확인 요청
@@ -131,7 +137,8 @@
       console.log('🧬 Biometric 인증 활성화 시작');
 
       if (!window.webkit?.messageHandlers?.nativeBridge) {
-        throw new Error('iOS 네이티브 브릿지가 사용할 수 없습니다');
+        console.log('🧬 iOS 네이티브 브릿지가 없음 - 웹 환경에서 정상');
+        return false;
       }
 
       // iOS 앱에 Biometric 인증 활성화 요청
@@ -175,7 +182,8 @@
       console.log('🧬 Biometric 자동로그인 설정 시작:', require);
 
       if (!window.webkit?.messageHandlers?.nativeBridge) {
-        throw new Error('iOS 네이티브 브릿지가 사용할 수 없습니다');
+        console.log('🧬 iOS 네이티브 브릿지가 없음 - 웹 환경에서 정상');
+        return false;
       }
 
       // iOS 앱에 Biometric 자동로그인 설정 요청
@@ -298,6 +306,7 @@
       console.log('✅ Biometric 인증 자동 설정 완료');
     } catch (error) {
       console.error('🧬 Biometric 인증 자동 설정 중 오류:', error);
+      // 에러가 발생해도 계속 진행 (웹 환경에서는 정상)
     }
   };
 

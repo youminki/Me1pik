@@ -337,6 +337,9 @@ const UpdateProfile: React.FC = () => {
                 placeholder='닉네임을 입력하세요'
                 {...register('nickname')}
                 maxLength={8}
+                style={{
+                  scrollMarginBottom: 'var(--bottom-h, 80px)', // 바텀바 높이만큼 여백 추가
+                }}
               />
 
               {/* 이름 & 태어난 해 (읽기 전용) */}
@@ -386,6 +389,9 @@ const UpdateProfile: React.FC = () => {
                   id='region'
                   as='select'
                   {...register('region', { required: '시/도를 선택하세요' })}
+                  style={{
+                    scrollMarginBottom: 'var(--bottom-h, 80px)', // 바텀바 높이만큼 여백 추가
+                  }}
                 >
                   <option value=''>시/도를 선택하세요</option>
                   {regionOptions}
@@ -397,6 +403,9 @@ const UpdateProfile: React.FC = () => {
                   as='select'
                   {...register('district', { required: '구/군을 선택하세요' })}
                   disabled={!watch('region')}
+                  style={{
+                    scrollMarginBottom: 'var(--bottom-h, 80px)', // 바텀바 높이만큼 여백 추가
+                  }}
                 >
                   {districtOptions}
                 </CommonField>
@@ -415,15 +424,20 @@ const UpdateProfile: React.FC = () => {
 
               {/* 계정삭제 섹션 */}
               <Divider />
-              <CommonField
-                label='회원탈퇴'
-                type='text'
-                value='등록된 정보 및 이용내역 모두 삭제처리 진행'
-                readOnly
-                buttonLabel='탈퇴신청'
-                buttonColorType='red'
-                onButtonClick={() => setShowDeleteModal(true)}
-              />
+              <WithdrawSection>
+                <CommonField
+                  label='회원탈퇴'
+                  type='text'
+                  value='등록된 정보 및 이용내역 모두 삭제처리 진행'
+                  readOnly
+                  buttonLabel='탈퇴신청'
+                  buttonColorType='red'
+                  onButtonClick={() => setShowDeleteModal(true)}
+                  style={{
+                    scrollMarginBottom: 'var(--bottom-h, 80px)', // 바텀바 높이만큼 여백 추가
+                  }}
+                />
+              </WithdrawSection>
             </Form>
 
             <FixedBottomBar
@@ -612,4 +626,8 @@ const Divider = styled.div`
   height: 1px;
   background: #e0e0e0;
   margin: 20px 0;
+`;
+
+const WithdrawSection = styled.div`
+  margin-bottom: 200px;
 `;

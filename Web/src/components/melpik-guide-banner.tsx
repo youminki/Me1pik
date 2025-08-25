@@ -34,7 +34,10 @@ const IconContainer = styled.div`
   width: 100%;
 `;
 
-const IconBox = styled.div<{ isActive: boolean; disabled?: boolean }>`
+const IconBox = styled.div.withConfig({
+  shouldForwardProp: (prop) =>
+    !['isActive', 'disabled'].includes(prop as string),
+})<{ isActive: boolean; disabled?: boolean }>`
   width: 52px;
   height: 52px;
   display: flex;

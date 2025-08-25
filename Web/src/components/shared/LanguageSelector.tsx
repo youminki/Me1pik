@@ -83,7 +83,9 @@ const ButtonContainer = styled.div<{ size: string }>`
   flex-wrap: wrap;
 `;
 
-const LanguageButton = styled.button<{ isActive: boolean; size: string }>`
+const LanguageButton = styled.button.withConfig({
+  shouldForwardProp: (prop) => !['isActive'].includes(prop as string),
+})<{ isActive: boolean; size: string }>`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -172,7 +174,9 @@ const DropdownButton = styled.button<{ size: string }>`
   }
 `;
 
-const DropdownArrow = styled.span<{ isOpen: boolean }>`
+const DropdownArrow = styled.span.withConfig({
+  shouldForwardProp: (prop) => !['isOpen'].includes(prop as string),
+})<{ isOpen: boolean }>`
   transition: transform 0.2s ease-in-out;
   transform: ${({ isOpen }) => (isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
 `;
@@ -191,7 +195,9 @@ const DropdownMenu = styled.div<{ size: string }>`
   margin-top: 4px;
 `;
 
-const DropdownItem = styled.div<{ isActive: boolean }>`
+const DropdownItem = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['isActive'].includes(prop as string),
+})<{ isActive: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;

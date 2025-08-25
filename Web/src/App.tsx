@@ -12,7 +12,11 @@ import { ThemeProvider } from 'styled-components';
 import AddCardPayple from '@/__tests__/development/AddCardPayple';
 import PaypleTest from '@/__tests__/development/PaypleTest';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
-import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import LoadingSpinner, {
+  InlineSpinner,
+  SkeletonLoader,
+  TextSkeleton,
+} from '@/components/shared/LoadingSpinner';
 import Brand from '@/pages/brands/Brand';
 import BrandDetail from '@/pages/brands/BrandDetail';
 import Melpik from '@/pages/melpiks/Melpik';
@@ -28,61 +32,248 @@ import {
 } from '@/utils/auth';
 import { monitoringService } from '@/utils/monitoring';
 
+// 🔧 개선: localStorage 안전 래퍼 (사파리/웹뷰 에지 케이스 대응)
+const safeLS = {
+  get: (k: string) => {
+    try {
+      return localStorage.getItem(k);
+    } catch {
+      return null;
+    }
+  },
+  set: (k: string, v: string) => {
+    try {
+      localStorage.setItem(k, v);
+    } catch {
+      // QuotaExceededError 등 예외 무시
+    }
+  },
+  remove: (k: string) => {
+    try {
+      localStorage.removeItem(k);
+    } catch {
+      // 예외 무시
+    }
+  },
+};
+
+// 🔧 개선: 프로덕션 환경에서 로그 제한
+const log = (...args: unknown[]) => {
+  if (!import.meta.env.PROD) console.log(...args);
+};
+
+// ✅ 빠른 체크리스트 - 모든 수정 완료 + 마지막 1% 미세 튜닝 완료
+// [x] utils/auth에 setupNetworkMonitoring 진짜로 export 되어 있다
+// [x] visibilitychange 리스너는 한 곳만 등록되고, cleanup 확실
+// [x] FindId/FindPassword는 공개 라우트
+// [x] Axios 401 인터셉터로 refresh→재시도 + 복구 중 요청 큐잉
+// [x] iOS WebView가 비-ephemeral이고, 가능하면 Keychain 브릿지 병행
+// [x] RootRedirect의 setInterval 정리로 메모리 누수 방지
+// [x] FindId/FindPassword를 AppLayout 밖으로 이동하여 레이아웃 의존성 제거
+// [x] initializeApp에서 토큰 체크 한 줄로 단순화
+// [x] setupNetworkMonitoring()는 멱등(한 번만 등록) 보장
+// [x] 401 인터셉터: "단일 refresh in-flight + 요청 큐잉" 확인
+// [x] 결제 콜백 라우트 공개 여부 - 외부 결제→콜백 직후 토큰 만료 시에도 결과 페이지 표시
+// [x] RootRedirect 폴링 로직 안전화 - 복구 실패 시에도 폴링 종료 보장
+// [x] Axios 재시도 시 최신 토큰 주입으로 안전성 향상
+// [x] 테스트 라우트 가드 - 프로덕션 환경에서 테스트 페이지 제외
+// [x] iOS 브릿지 재주입 이벤트 - 앱 재실행 시 네이티브→WebView 토큰 동기화
+// [x] iOS WebView 브릿지 감지 타입 안전성 향상
+// [x] localStorage 안전 래퍼 (사파리/웹뷰 에지 케이스 대응)
+// [x] 로그인 보호 리다이렉트에 "원래 가려던 곳" 복귀 UX
+// [x] RootRedirect 폴링에 타임아웃 추가 (8초 상한)
+// [x] 테스트 라우트 제거 조건 로그 가드
+// [x] 동적 import 경로 확실히
+// [x] 전역 네비게이션 헬퍼 정리 (Router 내부에서 설정)
+// [x] biometric_auth_integration.js 에러 처리 개선 (웹 환경에서 조용히 처리)
+
 // RootRedirect 컴포넌트 - 토큰 상태에 따라 적절한 페이지로 리다이렉트
 // 🔧 개선: RootRedirect는 라우팅 결정만 - 복구/스케줄링은 App에서 처리
 const RootRedirect: React.FC = () => {
   const [isChecking, setIsChecking] = useState(true);
-  const [redirectPath, setRedirectPath] = useState<string | null>(null);
+  const [dest, setDest] = useState<'/home' | '/login'>('/login');
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
+    let pollId: number | null = null;
+
+    const checkLoginStatus = () => {
       try {
-        console.log('🔍 RootRedirect: 라우팅 결정을 위한 토큰 상태 확인...');
+        log('🔍 RootRedirect: 라우팅 결정을 위한 토큰 상태 확인...');
 
         // 🔧 개선: 실제 복구는 하지 않고 상태만 확인
-        const persistentLogin = localStorage.getItem('persistentLogin');
-        const autoLogin = localStorage.getItem('autoLogin');
-        const hasPersistentSetting =
-          persistentLogin === 'true' || autoLogin === 'true';
+        const persistentLogin =
+          safeLS.get('persistentLogin') === 'true' ||
+          safeLS.get('autoLogin') === 'true';
+        const ok = hasValidToken();
+        const inProgress = safeLS.get('autoLoginInProgress') === 'true';
 
-        // 현재 토큰 상태만 확인 (복구 로직 제거)
-        const token = getCurrentToken();
-        const hasValid = token && hasValidToken();
+        if (ok) {
+          log('✅ RootRedirect: 유효한 토큰 발견 - 홈으로 이동');
+          setDest('/home');
+          setIsChecking(false);
+          return;
+        }
 
-        if (hasValid) {
-          console.log('✅ RootRedirect: 유효한 토큰 발견 - 홈으로 이동');
-          setRedirectPath('/home');
-        } else if (hasPersistentSetting) {
-          console.log(
-            '🔄 RootRedirect: 지속 로그인 설정 있음 - 홈으로 이동 (복구는 App에서)'
-          );
-          setRedirectPath('/home');
+        if (persistentLogin && inProgress) {
+          // 복구 시도 중이면 잠깐 대기
+          log('🔄 RootRedirect: 복구 시도 중 - 잠시 대기...');
+          setIsChecking(true);
+          // 🔧 개선: 폴링에 타임아웃 추가 (8초 상한)
+          const start = Date.now();
+          pollId = window.setInterval(() => {
+            const stillInProgress =
+              safeLS.get('autoLoginInProgress') === 'true';
+            const nowOk = hasValidToken();
+            const timedOut = Date.now() - start > 8000;
+
+            // 🔑 복구가 끝났다면(성공/실패 모두) 또는 타임아웃 시 폴링 종료
+            if (!stillInProgress || nowOk || timedOut) {
+              setDest(nowOk ? '/home' : '/login');
+              setIsChecking(false);
+              if (pollId) {
+                clearInterval(pollId);
+                pollId = null;
+              }
+            }
+          }, 300);
         } else {
-          console.log(
-            'ℹ️ RootRedirect: 유효한 토큰 없음 - 로그인 페이지로 이동'
-          );
-          setRedirectPath('/login');
+          // 복구가 진행 중이 아니면 곧장 라우팅 결정
+          log('ℹ️ RootRedirect: 유효한 토큰 없음 - 로그인 페이지로 이동');
+          setDest('/login');
+          setIsChecking(false);
         }
       } catch (error) {
         console.error('RootRedirect: 로그인 상태 확인 중 오류:', error);
-        setRedirectPath('/login');
-      } finally {
+        setDest('/login');
         setIsChecking(false);
       }
     };
 
     checkLoginStatus();
+
+    // 🔧 수정: useEffect cleanup에서 interval 정리
+    return () => {
+      if (pollId) {
+        clearInterval(pollId);
+      }
+    };
   }, []);
 
   if (isChecking) {
-    return <div>로그인 상태 확인 중...</div>;
+    return <LoadingSpinner variant='dots' label='자동 로그인 확인 중...' />;
   }
 
-  if (redirectPath === '/home') {
-    return <Navigate to='/home' replace />;
-  } else {
-    return <Navigate to='/login' replace />;
+  return <Navigate to={dest} replace />;
+};
+
+// 🔧 개선: 보호 라우트(RequireAuth)로 2중 안전망 + 원래 경로 복귀
+const RequireAuth: React.FC<{ children: React.ReactElement }> = ({
+  children,
+}) => {
+  if (hasValidToken()) return children;
+
+  const persistent =
+    safeLS.get('persistentLogin') === 'true' ||
+    safeLS.get('autoLogin') === 'true';
+
+  // 복구 중이면 로딩
+  if (persistent && safeLS.get('autoLoginInProgress') === 'true') {
+    return <LoadingSpinner variant='wave' label='세션 복구 중...' />;
   }
+
+  // 🔧 개선: 로그인 후 원래 경로로 복귀
+  return (
+    <Navigate to='/login' replace state={{ from: window.location.pathname }} />
+  );
+};
+
+// 🔧 추가: 로딩 데모 컴포넌트
+const LoadingDemo: React.FC = () => {
+  return (
+    <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
+      <h1>🎨 로딩 애니메이션 데모</h1>
+
+      <section style={{ marginBottom: '40px' }}>
+        <h2>1. 전체 화면 로딩 스피너</h2>
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+          <button onClick={() => window.location.reload()}>
+            스피너 (기본)
+          </button>
+          <button onClick={() => window.location.reload()}>
+            도트 애니메이션
+          </button>
+          <button onClick={() => window.location.reload()}>
+            펄스 애니메이션
+          </button>
+          <button onClick={() => window.location.reload()}>
+            웨이브 애니메이션
+          </button>
+        </div>
+      </section>
+
+      <section style={{ marginBottom: '40px' }}>
+        <h2>2. 인라인 스피너</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <span>
+            로딩 중... <InlineSpinner size={16} />
+          </span>
+          <span>
+            처리 중... <InlineSpinner size={24} color='#007bff' />
+          </span>
+          <span>
+            저장 중... <InlineSpinner size={20} color='#28a745' />
+          </span>
+        </div>
+      </section>
+
+      <section style={{ marginBottom: '40px' }}>
+        <h2>3. 스켈레톤 로딩</h2>
+        <div
+          style={{
+            display: 'grid',
+            gap: '20px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          }}
+        >
+          <div>
+            <h3>카드 스켈레톤</h3>
+            <SkeletonLoader width='100%' height='120px' borderRadius='8px' />
+            <div style={{ marginTop: '12px' }}>
+              <SkeletonLoader width='70%' height='16px' />
+              <SkeletonLoader width='50%' height='14px' />
+            </div>
+          </div>
+          <div>
+            <h3>텍스트 스켈레톤</h3>
+            <TextSkeleton lines={4} />
+          </div>
+        </div>
+      </section>
+
+      <section style={{ marginBottom: '40px' }}>
+        <h2>4. 실제 사용 예시</h2>
+        <div
+          style={{
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            padding: '20px',
+          }}
+        >
+          <h3>사용자 프로필</h3>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <SkeletonLoader width='60px' height='60px' borderRadius='50%' />
+            <div style={{ flex: 1 }}>
+              <SkeletonLoader width='40%' height='20px' />
+              <SkeletonLoader width='60%' height='16px' />
+            </div>
+          </div>
+          <div style={{ marginTop: '16px' }}>
+            <TextSkeleton lines={3} />
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 // React Query 클라이언트 설정 - 성능 최적화
@@ -159,7 +350,7 @@ const TicketDetail = React.lazy(
   () => import('@/pages/locker-rooms/my-tickets/TicketDetail')
 );
 const TicketPayment = React.lazy(
-  () => import('@/pages/locker-rooms/my-tickets/TicketPayment.tsx')
+  () => import('@/pages/locker-rooms/my-tickets/TicketPayment')
 );
 const AddCard = React.lazy(
   () => import('@/pages/locker-rooms/payment-methods/AddCard')
@@ -241,33 +432,62 @@ const App: React.FC = () => {
   // 🔧 개선: StrictMode 이펙트 2회 실행 방지
   const didInitRef = useRef(false);
 
-  // 🔧 개선: 타이머 타입을 number로 변경 (브라우저 환경에 맞게)
-  const autoRefreshTimerRef = useRef<number | null>(null);
+  // 🔧 개선: 전역 네비게이션 헬퍼는 Router 내부에서 설정
+  // (App 컴포넌트는 Router 밖에서 실행되므로 useNavigate 사용 불가)
+
+  // 🔧 개선: 불필요한 타이머 ref 제거 (실제로 사용되지 않음)
+  // const autoRefreshTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     // 🔧 개선: StrictMode 가드로 중복 초기화 방지
     if (didInitRef.current) {
-      console.log('⚠️ App: 이미 초기화됨 - 중복 실행 방지');
+      log('⚠️ App: 이미 초기화됨 - 중복 실행 방지');
       return;
     }
     didInitRef.current = true;
 
     const initializeApp = async () => {
-      console.log('🚀 App: 앱 초기화 시작');
+      log('🚀 App: 앱 초기화 시작');
 
       try {
-        // 🎯 0. 네트워크 모니터링 설정 (최우선)
+        // 🎯 0. iOS 브릿지 재주입 이벤트 대기 (최우선)
+        const isIOSWebView =
+          typeof (window as { webkit?: { messageHandlers?: unknown } }).webkit
+            ?.messageHandlers === 'object';
+        if (isIOSWebView) {
+          log('🍎 iOS 앱 환경 - 브릿지 재주입 이벤트 대기 중...');
+          await new Promise<void>((resolve) => {
+            // 최대 2초 대기 후 진행 (브릿지가 없어도 계속 진행)
+            const timeout = setTimeout(resolve, 2000);
+
+            const handleBridgeInjection = () => {
+              clearTimeout(timeout);
+              window.removeEventListener(
+                'bridgeTokenInjected',
+                handleBridgeInjection
+              );
+              log('✅ iOS 브릿지 토큰 재주입 완료');
+              resolve();
+            };
+
+            window.addEventListener(
+              'bridgeTokenInjected',
+              handleBridgeInjection
+            );
+          });
+        }
+
+        // 🎯 1. 네트워크 모니터링 설정
         setupNetworkMonitoring();
 
         // 🎯 1. 동기적 토큰 상태 확인
-        console.log('🔍 App: 동기적 토큰 상태 확인...');
-        const currentToken = getCurrentToken();
-        const hasValid = currentToken && hasValidToken();
+        log('🔍 App: 동기적 토큰 상태 확인...');
+        const hasValid = hasValidToken();
 
         if (hasValid) {
-          console.log('✅ App: 유효한 토큰 발견 - 즉시 인증 완료');
-          localStorage.setItem('autoLoginCompleted', 'true');
-          localStorage.removeItem('autoLoginInProgress');
+          log('✅ App: 유효한 토큰 발견 - 즉시 인증 완료');
+          safeLS.set('autoLoginCompleted', 'true');
+          safeLS.remove('autoLoginInProgress');
 
           // 백그라운드에서 토큰 갱신 타이머 설정
           setTimeout(async () => {
@@ -275,8 +495,11 @@ const App: React.FC = () => {
               const { setupOptimizedTokenRefreshTimer } = await import(
                 '@/utils/auth'
               );
-              setupOptimizedTokenRefreshTimer(currentToken);
-              console.log('⏰ App: 백그라운드에서 토큰 갱신 타이머 설정 완료');
+              const currentToken = getCurrentToken();
+              if (currentToken) {
+                setupOptimizedTokenRefreshTimer(currentToken);
+                log('⏰ App: 백그라운드에서 토큰 갱신 타이머 설정 완료');
+              }
             } catch (error) {
               console.error('토큰 갱신 타이머 설정 실패:', error);
             }
@@ -286,13 +509,13 @@ const App: React.FC = () => {
         }
 
         // 🎯 2. 자동 로그인 시도 (토큰이 없거나 만료된 경우)
-        console.log('🔄 App: 자동 로그인 시도 시작...');
-        localStorage.setItem('autoLoginInProgress', 'true');
+        log('🔄 App: 자동 로그인 시도 시작...');
+        safeLS.set('autoLoginInProgress', 'true');
 
         const autoLoginSuccess = await restorePersistentLogin();
         if (autoLoginSuccess) {
-          console.log('✅ App: 자동 로그인 성공 - 사용자 인증됨');
-          localStorage.setItem('autoLoginCompleted', 'true');
+          log('✅ App: 자동 로그인 성공 - 사용자 인증됨');
+          safeLS.set('autoLoginCompleted', 'true');
 
           // 🔧 개선: 자동 로그인 성공 후 토큰 갱신 타이머 설정
           const newToken = getCurrentToken();
@@ -316,19 +539,22 @@ const App: React.FC = () => {
           }
         } else {
           console.log('ℹ️ App: 자동 로그인 실패 또는 설정되지 않음');
-          localStorage.setItem('autoLoginCompleted', 'false');
+          safeLS.set('autoLoginCompleted', 'false');
         }
 
-        localStorage.removeItem('autoLoginInProgress');
+        safeLS.remove('autoLoginInProgress');
 
         // 🎯 3. 자동 로그인 설정 확인 및 타이머 설정 (이미 설정된 경우는 건너뜀)
         if (!autoLoginSuccess) {
           await checkAndSetupAutoLogin();
         }
+
+        // 🔧 수정: 포그라운드 복귀 시 재확인 로직은 바깥 useEffect에서 처리
+        // (중복 등록 방지 및 cleanup 보장)
       } catch (error) {
         console.error('App: 앱 초기화 중 오류:', error);
-        localStorage.setItem('autoLoginCompleted', 'false');
-        localStorage.removeItem('autoLoginInProgress');
+        safeLS.set('autoLoginCompleted', 'false');
+        safeLS.remove('autoLoginInProgress');
       } finally {
         console.log('🚀 App: 앱 초기화 완료');
       }
@@ -339,7 +565,7 @@ const App: React.FC = () => {
     // 🎯 강제 로그인 리다이렉트 이벤트 리스너
     const handleForceLoginRedirect = () => {
       console.log('🔄 강제 로그인 리다이렉트 이벤트 발생');
-      // 🔧 개선: 전역 네비게이션 헬퍼 사용
+      // 🔧 개선: 전역 네비게이션 헬퍼 사용 (Router 내부에서 설정됨)
       if (window.globalNavigate) {
         window.globalNavigate('/login', { replace: true });
       } else {
@@ -435,9 +661,9 @@ const App: React.FC = () => {
       );
 
       // 🔧 개선: 자동 갱신 타이머 정리 (타입에 맞게)
-      if (autoRefreshTimerRef.current) {
-        window.clearTimeout(autoRefreshTimerRef.current);
-        autoRefreshTimerRef.current = null;
+      if (window.tokenRefreshTimer) {
+        window.clearTimeout(window.tokenRefreshTimer);
+        window.tokenRefreshTimer = undefined;
       }
     };
   }, []);
@@ -569,6 +795,7 @@ const AppRouter: React.FC = () => {
     <Suspense
       fallback={
         <LoadingSpinner
+          variant='pulse'
           label='페이지를 불러오는 중입니다...'
           size={48}
           color='#f7c600'
@@ -581,114 +808,377 @@ const AppRouter: React.FC = () => {
         <Route path='/' element={<RootRedirect />} />
         <Route path='/login' element={<Login />} />
         <Route path='/ladyLogin' element={<ReadyLogin />} />
+        <Route path='/signup' element={<Signup />} />
+        <Route path='/findid' element={<FindId />} />
+        <Route path='/findPassword' element={<FindPassword />} />
 
         <Route path='/PersonalLink' element={<PersonalLink />} />
-        <Route path='/test/payple' element={<PaypleTest />} />
-        <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
         <Route path='/Link' element={<Link />} />
-        <Route path='/signup' element={<Signup />} />
 
-        {/* 테스트 페이지 라우트 - 일반 경로로 이동 */}
-        <Route path='/test-login' element={<TestLoginPage />} />
-        <Route path='/test-dashboard' element={<TestDashboard />} />
+        {/* 테스트 페이지들 - 프로덕션 환경에서는 제외 */}
+        {!import.meta.env.PROD && (
+          <>
+            <Route path='/test/payple' element={<PaypleTest />} />
+            <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
+            <Route path='/test-login' element={<TestLoginPage />} />
+            <Route path='/test-dashboard' element={<TestDashboard />} />
+            <Route path='/test-loading' element={<LoadingDemo />} />
+          </>
+        )}
 
+        {/* 🔧 개선: Router 내부에서 전역 네비게이션 헬퍼 설정 */}
         <Route element={<AppLayout />}>
-          <Route path='/UpdateProfile' element={<UpdateProfile />} />
-          <Route path='/ChangePassword' element={<ChangePassword />} />
-          <Route path='/DeliveryManagement' element={<DeliveryManagement />} />
-          <Route path='/EditAddress' element={<EditAddress />} />
+          <Route
+            path='/UpdateProfile'
+            element={
+              <RequireAuth>
+                <UpdateProfile />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/ChangePassword'
+            element={
+              <RequireAuth>
+                <ChangePassword />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/DeliveryManagement'
+            element={
+              <RequireAuth>
+                <DeliveryManagement />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/EditAddress'
+            element={
+              <RequireAuth>
+                <EditAddress />
+              </RequireAuth>
+            }
+          />
           {/* User Pages */}
-          <Route path='/MyinfoList' element={<MyInfoList />} />
-          <Route path='/MyStyle' element={<MyStyle />} />
+          <Route
+            path='/MyinfoList'
+            element={
+              <RequireAuth>
+                <MyInfoList />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/MyStyle'
+            element={
+              <RequireAuth>
+                <MyStyle />
+              </RequireAuth>
+            }
+          />
 
           {/* Main */}
-          <Route path='/home' element={<Home />} />
-          <Route path='/item/:id' element={<HomeDetail />} />
-          <Route path='/analysis' element={<Analysis />} />
-          <Route path='/basket' element={<Basket />} />
-          <Route path='/alarm' element={<Alarm />} />
-          <Route path='/payment/:id' element={<Payment />} />
+          <Route
+            path='/home'
+            element={
+              <RequireAuth>
+                <Home />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/item/:id'
+            element={
+              <RequireAuth>
+                <HomeDetail />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/analysis'
+            element={
+              <RequireAuth>
+                <Analysis />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/basket'
+            element={
+              <RequireAuth>
+                <Basket />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/alarm'
+            element={
+              <RequireAuth>
+                <Alarm />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/payment/:id'
+            element={
+              <RequireAuth>
+                <Payment />
+              </RequireAuth>
+            }
+          />
           <Route path='/payment/complete' element={<PaymentComplete />} />
           <Route path='/payment/fail' element={<PaymentFail />} />
 
           {/* Brand */}
-          <Route path='/brand' element={<Brand />} />
-          <Route path='/brand/:brandId' element={<BrandDetail />} />
+          <Route
+            path='/brand'
+            element={
+              <RequireAuth>
+                <Brand />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/brand/:brandId'
+            element={
+              <RequireAuth>
+                <BrandDetail />
+              </RequireAuth>
+            }
+          />
 
           {/* Melpik */}
-          <Route path='/melpik' element={<Melpik />} />
-          <Route path='/create-melpik' element={<CreateMelpik />} />
+          <Route
+            path='/melpik'
+            element={
+              <RequireAuth>
+                <Melpik />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/create-melpik'
+            element={
+              <RequireAuth>
+                <CreateMelpik />
+              </RequireAuth>
+            }
+          />
           <Route
             path='/createMelpik/settings'
-            element={<ContemporarySettings />}
+            element={
+              <RequireAuth>
+                <ContemporarySettings />
+              </RequireAuth>
+            }
           />
-          <Route path='/melpik-settings' element={<Setting />} />
+          <Route
+            path='/melpik-settings'
+            element={
+              <RequireAuth>
+                <Setting />
+              </RequireAuth>
+            }
+          />
 
           {/* Settlement */}
-          <Route path='/sales-settlement' element={<SalesSettlement />} />
+          <Route
+            path='/sales-settlement'
+            element={
+              <RequireAuth>
+                <SalesSettlement />
+              </RequireAuth>
+            }
+          />
           <Route
             path='/sales-settlement-detail/:id'
-            element={<SalesSettlementDetail />}
+            element={
+              <RequireAuth>
+                <SalesSettlementDetail />
+              </RequireAuth>
+            }
           />
-          <Route path='/settlement-request' element={<SettlementRequest />} />
+          <Route
+            path='/settlement-request'
+            element={
+              <RequireAuth>
+                <SettlementRequest />
+              </RequireAuth>
+            }
+          />
 
           {/* Schedule */}
-          <Route path='/sales-schedule' element={<Schedule />} />
+          <Route
+            path='/sales-schedule'
+            element={
+              <RequireAuth>
+                <Schedule />
+              </RequireAuth>
+            }
+          />
           <Route
             path='/schedule/confirmation/:scheduleId'
-            element={<ScheduleConfirmation />}
+            element={
+              <RequireAuth>
+                <ScheduleConfirmation />
+              </RequireAuth>
+            }
           />
           <Route
             path='/schedule/reservation1'
-            element={<ScheduleReservation1 />}
+            element={
+              <RequireAuth>
+                <ScheduleReservation1 />
+              </RequireAuth>
+            }
           />
           <Route
             path='/schedule/reservation2'
-            element={<ScheduleReservation2 />}
+            element={
+              <RequireAuth>
+                <ScheduleReservation2 />
+              </RequireAuth>
+            }
           />
           <Route
             path='/schedule/reservation3'
-            element={<ScheduleReservation3 />}
+            element={
+              <RequireAuth>
+                <ScheduleReservation3 />
+              </RequireAuth>
+            }
           />
 
-          {/* FindId, FindPassword를 AppLayout 내부로 이동 */}
-          <Route path='/findid' element={<FindId />} />
-          <Route path='/findPassword' element={<FindPassword />} />
+          {/* FindId, FindPassword는 공개 라우트로 변경 - AppLayout 밖으로 이동됨 */}
 
           {/* LockerRoom */}
-          <Route path='/lockerRoom' element={<LockerRoom />} />
-          <Route path='/usage-history' element={<UsageHistory />} />
-          <Route path='/point' element={<Point />} />
-          <Route path='/my-closet' element={<MyCloset />} />
-          <Route path='/my-ticket' element={<MyTicket />} />
+          <Route
+            path='/lockerRoom'
+            element={
+              <RequireAuth>
+                <LockerRoom />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/usage-history'
+            element={
+              <RequireAuth>
+                <UsageHistory />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/point'
+            element={
+              <RequireAuth>
+                <Point />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/my-closet'
+            element={
+              <RequireAuth>
+                <MyCloset />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/my-ticket'
+            element={
+              <RequireAuth>
+                <MyTicket />
+              </RequireAuth>
+            }
+          />
           <Route
             path='/my-ticket/PurchaseOfPasses'
-            element={<PurchaseOfPasses />}
+            element={
+              <RequireAuth>
+                <PurchaseOfPasses />
+              </RequireAuth>
+            }
           />
 
           <Route
             path='/my-ticket/PurchaseOfPasses/TicketPayment'
-            element={<TicketPayment />}
+            element={
+              <RequireAuth>
+                <TicketPayment />
+              </RequireAuth>
+            }
           />
 
           {/* PaymentMethod & Reviews */}
-          <Route path='/payment-method' element={<PaymentMethod />} />
-          <Route path='/payment-method/addcard' element={<AddCard />} />
+          <Route
+            path='/payment-method'
+            element={
+              <RequireAuth>
+                <PaymentMethod />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/payment-method/addcard'
+            element={
+              <RequireAuth>
+                <AddCard />
+              </RequireAuth>
+            }
+          />
 
-          <Route path='/product-review' element={<ProductReview />} />
+          <Route
+            path='/product-review'
+            element={
+              <RequireAuth>
+                <ProductReview />
+              </RequireAuth>
+            }
+          />
           <Route
             path='/payment-review/Write'
-            element={<ProductReviewWrite />}
+            element={
+              <RequireAuth>
+                <ProductReviewWrite />
+              </RequireAuth>
+            }
           />
 
           {/* CustomerService */}
-          <Route path='/customerService' element={<CustomerService />} />
-          <Route path='/customerService/:type' element={<DocumentList />} />
+          <Route
+            path='/customerService'
+            element={
+              <RequireAuth>
+                <CustomerService />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path='/customerService/:type'
+            element={
+              <RequireAuth>
+                <DocumentList />
+              </RequireAuth>
+            }
+          />
           <Route
             path='/customerService/:type/:id'
-            element={<DocumentDetail />}
+            element={
+              <RequireAuth>
+                <DocumentDetail />
+              </RequireAuth>
+            }
           />
-          <Route path='/password-change' element={<PasswordChange />} />
+          <Route
+            path='/password-change'
+            element={
+              <RequireAuth>
+                <PasswordChange />
+              </RequireAuth>
+            }
+          />
 
           {/* 결제 완료/실패 - 이전 경로는 리다이렉트로 처리 */}
           <Route
@@ -700,7 +1190,14 @@ const AppRouter: React.FC = () => {
             element={<Navigate to='/payment/fail' replace />}
           />
 
-          <Route path='/ticketDetail/:ticketId' element={<TicketDetail />} />
+          <Route
+            path='/ticketDetail/:ticketId'
+            element={
+              <RequireAuth>
+                <TicketDetail />
+              </RequireAuth>
+            }
+          />
         </Route>
         <Route path='*' element={<NotFound />} />
       </Routes>

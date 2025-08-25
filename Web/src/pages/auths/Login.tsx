@@ -36,6 +36,7 @@ import {
   isNativeApp,
   isIOSApp,
   forceSaveAppToken,
+  setupTokenRefreshTimer,
 } from '@/utils/auth';
 
 interface LoginFormValues {
@@ -274,6 +275,17 @@ const Login: React.FC = () => {
         if (email) {
           localStorage.setItem('userEmail', email);
         }
+
+        // 🎯 네이티브 토큰 수신 시에도 타이머 설치
+        try {
+          // 🔧 개선: setupOptimizedTokenRefreshTimer 사용
+          import('@/utils/auth').then(({ setupOptimizedTokenRefreshTimer }) => {
+            setupOptimizedTokenRefreshTimer(accessToken);
+            console.log('✅ 네이티브 토큰 수신 후 최적화된 타이머 설치 완료');
+          });
+        } catch (e) {
+          console.error('네이티브 토큰 수신 후 타이머 설치 실패:', e);
+        }
       }
     }
     window.addEventListener('nativeToken', handleNativeToken as EventListener);
@@ -396,6 +408,14 @@ const Login: React.FC = () => {
         win.webkit.messageHandlers.saveLoginInfo.postMessage({ loginData });
       } else {
         // [BRIDGE] 네이티브 브릿지 없음
+      }
+
+      // 🎯 로그인 직후, 어떤 경우에도 타이머 바로 설치
+      try {
+        setupTokenRefreshTimer(accessToken);
+        console.log('✅ 토큰 갱신 타이머 설치 완료');
+      } catch (e) {
+        console.error('토큰 갱신 타이머 설치 실패:', e);
       }
 
       const redirectTo = location.state?.from || '/home';

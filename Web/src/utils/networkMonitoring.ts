@@ -1,10 +1,20 @@
 import { getCurrentToken, hasValidToken, refreshToken } from './tokenManager';
 
+// 🔧 개선: 멱등성 보장 - 한 번만 등록
+let _netMonInited = false;
+
 /**
  * 🎯 네트워크 상태 변경 이벤트 리스너 설정
  */
 export const setupNetworkMonitoring = (): void => {
   if (typeof window === 'undefined') return;
+
+  // 🔧 개선: 이미 초기화된 경우 중복 등록 방지
+  if (_netMonInited) {
+    console.log('🌐 네트워크 모니터링 이미 초기화됨 - 중복 등록 방지');
+    return;
+  }
+  _netMonInited = true;
 
   const handleOnline = () => {
     console.log('🌐 네트워크 연결 복구됨');

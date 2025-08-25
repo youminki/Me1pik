@@ -1,13 +1,6 @@
 import Cookies from 'js-cookie';
 
-// 🔧 개선: 전역 타입 정의 (기본적인 것만)
-declare global {
-  interface Window {
-    tokenRefreshTimer?: number;
-    tokenRefreshTime?: Date;
-    gc?: () => void;
-  }
-}
+import { isIOS } from './environmentDetection';
 
 // 인스타그램 방식 토큰 갱신 타이머
 let tokenRefreshTimer: number | null = null;
@@ -31,17 +24,6 @@ export function decodeJwtPayload(token: string) {
     return null;
   }
 }
-
-/**
- * 🎯 iOS 환경 감지 함수
- */
-const isIOS = (): boolean => {
-  if (typeof window === 'undefined') return false;
-
-  // iOS Safari 감지
-  const userAgent = navigator.userAgent.toLowerCase();
-  return /iphone|ipad|ipod/.test(userAgent) || /ipad/.test(navigator.platform);
-};
 
 /**
  * 🎯 iOS 환경에 최적화된 토큰 읽기 함수
@@ -346,7 +328,7 @@ export const setupTokenRefreshTimer = (token: string): void => {
     }
 
     // iOS 환경에서는 더 일찍 갱신 (ITP 대응)
-    const refreshOffset = isIOSEnvironment ? 15 * 60 : 5 * 60; // iOS: 15분, 일반: 5분
+    const refreshOffset = isIOSEnvironment ? 15 * 60 : 10 * 60; // iOS: 15분, 웹: 10분
     const refreshTime = Math.max(timeUntilExpiry - refreshOffset, 0);
 
     console.log(
@@ -373,15 +355,17 @@ export const setupTokenRefreshTimer = (token: string): void => {
           }
         } else {
           console.log('❌ 토큰 갱신 실패');
-          // clearPersistentLoginSettings 함수를 동적으로 import
-          const { clearPersistentLoginSettings } = await import('./autoLogin');
-          clearPersistentLoginSettings();
+          // 토큰 갱신 실패 시 지속 로그인 설정 제거
+          clearTokens();
+          localStorage.removeItem('autoLogin');
+          localStorage.removeItem('persistentLogin');
         }
       } catch (error) {
         console.error('토큰 갱신 중 오류:', error);
-        // clearPersistentLoginSettings 함수를 동적으로 import
-        const { clearPersistentLoginSettings } = await import('./autoLogin');
-        clearPersistentLoginSettings();
+        // 에러 발생 시 지속 로그인 설정 제거
+        clearTokens();
+        localStorage.removeItem('autoLogin');
+        localStorage.removeItem('persistentLogin');
       }
     }, refreshTime * 1000);
 
@@ -478,6 +462,20 @@ export const refreshToken = async (retryCount = 0): Promise<boolean> => {
       }
 
       console.log('✅ 토큰 갱신 성공');
+
+      // 🎯 성공 시 항상 타이머 재설치 (방어선)
+      try {
+        const { getCurrentToken, setupTokenRefreshTimer } = await import(
+          './tokenManager'
+        );
+        const latest = getCurrentToken();
+        if (latest) {
+          setupTokenRefreshTimer(latest); // ✅ 성공 후 항상 재설치(중복 방지 코드 이미 있음)
+        }
+      } catch (e) {
+        console.error('토큰 갱신 성공 후 타이머 재설치 실패:', e);
+      }
+
       return true;
     } catch (error: unknown) {
       console.error(`토큰 갱신 시도 ${currentRetryCount + 1} 실패:`, error);
