@@ -57,11 +57,6 @@ const safeLS = {
   },
 };
 
-// 🔧 개선: 프로덕션 환경에서 로그 제한
-const log = (...args: unknown[]) => {
-  if (!import.meta.env.PROD) console.log(...args);
-};
-
 // ✅ 빠른 체크리스트 - 모든 수정 완료 + 마지막 1% 미세 튜닝 완료
 // [x] utils/auth에 setupNetworkMonitoring 진짜로 export 되어 있다
 // [x] visibilitychange 리스너는 한 곳만 등록되고, cleanup 확실
@@ -98,8 +93,6 @@ const RootRedirect: React.FC = () => {
 
     const checkLoginStatus = () => {
       try {
-        log('🔍 RootRedirect: 라우팅 결정을 위한 토큰 상태 확인...');
-
         // 🔧 개선: 실제 복구는 하지 않고 상태만 확인
         const persistentLogin =
           safeLS.get('persistentLogin') === 'true' ||
@@ -108,7 +101,6 @@ const RootRedirect: React.FC = () => {
         const inProgress = safeLS.get('autoLoginInProgress') === 'true';
 
         if (ok) {
-          log('✅ RootRedirect: 유효한 토큰 발견 - 홈으로 이동');
           setDest('/home');
           setIsChecking(false);
           return;
@@ -116,7 +108,7 @@ const RootRedirect: React.FC = () => {
 
         if (persistentLogin && inProgress) {
           // 복구 시도 중이면 잠깐 대기
-          log('🔄 RootRedirect: 복구 시도 중 - 잠시 대기...');
+
           setIsChecking(true);
           // 🔧 개선: 폴링에 타임아웃 추가 (8초 상한)
           const start = Date.now();
@@ -138,7 +130,7 @@ const RootRedirect: React.FC = () => {
           }, 300);
         } else {
           // 복구가 진행 중이 아니면 곧장 라우팅 결정
-          log('ℹ️ RootRedirect: 유효한 토큰 없음 - 로그인 페이지로 이동');
+
           setDest('/login');
           setIsChecking(false);
         }
@@ -441,21 +433,17 @@ const App: React.FC = () => {
   useEffect(() => {
     // 🔧 개선: StrictMode 가드로 중복 초기화 방지
     if (didInitRef.current) {
-      log('⚠️ App: 이미 초기화됨 - 중복 실행 방지');
       return;
     }
     didInitRef.current = true;
 
     const initializeApp = async () => {
-      log('🚀 App: 앱 초기화 시작');
-
       try {
         // 🎯 0. iOS 브릿지 재주입 이벤트 대기 (최우선)
         const isIOSWebView =
           typeof (window as { webkit?: { messageHandlers?: unknown } }).webkit
             ?.messageHandlers === 'object';
         if (isIOSWebView) {
-          log('🍎 iOS 앱 환경 - 브릿지 재주입 이벤트 대기 중...');
           await new Promise<void>((resolve) => {
             // 최대 2초 대기 후 진행 (브릿지가 없어도 계속 진행)
             const timeout = setTimeout(resolve, 2000);
@@ -466,7 +454,7 @@ const App: React.FC = () => {
                 'bridgeTokenInjected',
                 handleBridgeInjection
               );
-              log('✅ iOS 브릿지 토큰 재주입 완료');
+
               resolve();
             };
 
@@ -481,11 +469,10 @@ const App: React.FC = () => {
         setupNetworkMonitoring();
 
         // 🎯 1. 동기적 토큰 상태 확인
-        log('🔍 App: 동기적 토큰 상태 확인...');
+
         const hasValid = hasValidToken();
 
         if (hasValid) {
-          log('✅ App: 유효한 토큰 발견 - 즉시 인증 완료');
           safeLS.set('autoLoginCompleted', 'true');
           safeLS.remove('autoLoginInProgress');
 
@@ -498,7 +485,6 @@ const App: React.FC = () => {
               const currentToken = getCurrentToken();
               if (currentToken) {
                 setupOptimizedTokenRefreshTimer(currentToken);
-                log('⏰ App: 백그라운드에서 토큰 갱신 타이머 설정 완료');
               }
             } catch (error) {
               console.error('토큰 갱신 타이머 설정 실패:', error);
@@ -509,12 +495,11 @@ const App: React.FC = () => {
         }
 
         // 🎯 2. 자동 로그인 시도 (토큰이 없거나 만료된 경우)
-        log('🔄 App: 자동 로그인 시도 시작...');
+
         safeLS.set('autoLoginInProgress', 'true');
 
         const autoLoginSuccess = await restorePersistentLogin();
         if (autoLoginSuccess) {
-          log('✅ App: 자동 로그인 성공 - 사용자 인증됨');
           safeLS.set('autoLoginCompleted', 'true');
 
           // 🔧 개선: 자동 로그인 성공 후 토큰 갱신 타이머 설정

@@ -25,3 +25,6 @@ export const PRIVACY_TABS = [
   { label: '파기절차', path: '파기절차' },
   { label: '기타', path: '기타' },
 ];
+
+// 개발 모드에서만 로그 출력을 위한 플래그
+export const DEBUG_MODE = process.env.NODE_ENV === 'development';

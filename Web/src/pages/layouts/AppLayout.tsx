@@ -70,7 +70,7 @@ const AppLayout: React.FC = () => {
     if (el) ro.observe(el);
 
     return () => ro.disconnect();
-  }, [includeHeader1, includeHeader2, includeHeader3, includeHeader4]);
+  }, [includeHeader1, includeHeader2, includeHeader3, includeHeader4, withRaf]);
 
   // 🔧 개선: 바텀 네비게이션 높이도 실측으로 자동화
   const [bottomH, setBottomH] = React.useState(0);
@@ -166,7 +166,7 @@ const AppLayout: React.FC = () => {
     if (el) ro.observe(el);
 
     return () => ro.disconnect();
-  }, [showBottomNav]);
+  }, [showBottomNav, withRaf]);
 
   return (
     <AppContainer

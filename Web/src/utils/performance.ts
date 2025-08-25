@@ -30,7 +30,6 @@ interface PerformanceMetrics {
   cumulativeLayoutShift: number;
   firstInputDelay: number;
   timeToInteractive: number;
-  totalBlockingTime: number;
   speedIndex: number;
 }
 
@@ -105,7 +104,6 @@ export const measurePageLoadPerformance = (): PerformanceMetrics => {
     cumulativeLayoutShift: performanceData.cumulativeLayoutShift || 0,
     firstInputDelay: performanceData.firstInputDelay || 0,
     timeToInteractive: performanceData.timeToInteractive || 0,
-    totalBlockingTime: performanceData.totalBlockingTime || 0,
     speedIndex: performanceData.speedIndex || 0,
   };
 };
@@ -296,11 +294,6 @@ export const setupPerformanceObservers = () => {
         performanceData.firstInputDelay = fid;
 
         if (fid > 100) {
-          console.warn('⚠️ FID가 높습니다:', fid, 'ms');
-          console.log('🔧 FID 최적화 제안:');
-          console.log('- JavaScript 번들 크기 줄이기');
-          console.log('- 긴 작업 분할하기');
-          console.log('- 메인 스레드 블로킹 방지');
           addPerformanceWarning(
             'warning',
             'FID 성능 개선 필요',
@@ -308,41 +301,10 @@ export const setupPerformanceObservers = () => {
             fid,
             100
           );
-        } else {
-          console.log('✅ FID 성능이 양호합니다:', fid, 'ms');
         }
       }
     });
     fidObserver.observe({ entryTypes: ['first-input'] });
-
-    // Total Blocking Time (TBT)
-    const tbtObserver = new PerformanceObserver((list) => {
-      let totalBlockingTime = 0;
-      for (const entry of list.getEntries()) {
-        const blockingTime = Math.max(0, entry.duration - 50);
-        totalBlockingTime += blockingTime;
-      }
-
-      performanceData.totalBlockingTime = totalBlockingTime;
-
-      if (totalBlockingTime > 300) {
-        console.warn('⚠️ TBT가 높습니다:', totalBlockingTime, 'ms');
-        console.log('🔧 TBT 최적화 제안:');
-        console.log('- 긴 JavaScript 작업 분할');
-        console.log('- Web Workers 사용');
-        console.log('- 코드 스플리팅 적용');
-        addPerformanceWarning(
-          'error',
-          'TBT 성능 개선 필요',
-          'tbt',
-          totalBlockingTime,
-          300
-        );
-      } else {
-        console.log('✅ TBT 성능이 양호합니다:', totalBlockingTime, 'ms');
-      }
-    });
-    tbtObserver.observe({ entryTypes: ['longtask'] });
   }
 };
 
@@ -556,22 +518,6 @@ export const getPerformanceRecommendations = () => {
     });
   }
 
-  // TBT 최적화
-  if (metrics.totalBlockingTime > 300) {
-    recommendations.push({
-      priority: 'medium',
-      category: 'tbt',
-      title: 'TBT 최적화',
-      description: 'Total Blocking Time을 300ms 이하로 개선하세요',
-      actions: [
-        '긴 JavaScript 작업 분할',
-        'Web Workers 사용',
-        '코드 스플리팅 적용',
-        '번들 크기 최적화',
-      ],
-    });
-  }
-
   return recommendations;
 };
 
@@ -617,11 +563,6 @@ const calculatePerformanceScore = (metrics: PerformanceMetrics): number => {
   else if (metrics.cumulativeLayoutShift > 0.1) score -= 15;
   else if (metrics.cumulativeLayoutShift > 0.05) score -= 5;
 
-  // TBT 점수 (20% 가중치)
-  if (metrics.totalBlockingTime > 600) score -= 20;
-  else if (metrics.totalBlockingTime > 300) score -= 10;
-  else if (metrics.totalBlockingTime > 150) score -= 5;
-
   // FID 점수 (10% 가중치)
   if (metrics.firstInputDelay > 300) score -= 10;
   else if (metrics.firstInputDelay > 100) score -= 5;
@@ -633,27 +574,21 @@ const calculatePerformanceScore = (metrics: PerformanceMetrics): number => {
  * 성능 데이터 수집 및 전송
  */
 export const collectAndSendPerformanceData = async (endpoint: string) => {
-  try {
-    const report = generatePerformanceReport();
+  const report = generatePerformanceReport();
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(report),
-    });
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(report),
+  });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    console.log('✅ 성능 데이터 전송 완료');
-    return await response.json();
-  } catch (error) {
-    console.error('❌ 성능 데이터 전송 실패:', error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
+
+  return await response.json();
 };
 
 /**
@@ -682,8 +617,6 @@ export const startPerformanceMonitoring = () => {
       );
     }
   }, 10000); // 10초마다 체크
-
-  console.log('🚀 성능 모니터링 시작됨');
 };
 
 /**
@@ -710,6 +643,4 @@ export const applyPerformanceOptimizations = () => {
   fontLinks.forEach((link) => {
     link.setAttribute('crossorigin', 'anonymous');
   });
-
-  console.log('🔧 성능 최적화 자동 적용 완료');
 };
