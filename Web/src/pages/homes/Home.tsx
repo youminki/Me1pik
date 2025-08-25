@@ -13,7 +13,6 @@ import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
 import ReusableModal from '@/components/shared/modals/ReusableModal';
-
 import ProductDetailModal from '@/components/shared/ProductDetailModal';
 import ScrollToTopButtonComponent from '@/components/shared/ScrollToTopButton';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';

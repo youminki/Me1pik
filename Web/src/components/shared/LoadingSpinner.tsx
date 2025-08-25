@@ -7,14 +7,28 @@ interface LoadingSpinnerProps {
   label?: string;
   size?: number;
   variant?: 'spinner' | 'dots' | 'pulse' | 'wave';
+  fullscreen?: boolean; // 전체 화면 오버레이 여부
 }
 
+/**
+ * LoadingSpinner 컴포넌트
+ *
+ * 사용법:
+ * 1. 내용 영역 로딩 (기본): 부모 컨테이너에 position: relative 설정 필요
+ *    <div style={{ position: 'relative', height: '400px' }}>
+ *      <LoadingSpinner variant="spinner" size={48} />
+ *    </div>
+ *
+ * 2. 전체 화면 로딩: fullscreen={true} 설정
+ *    <LoadingSpinner variant="spinner" size={64} fullscreen={true} />
+ */
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   color = '#f7c600',
   className,
   label,
   size = 64,
   variant = 'spinner',
+  fullscreen = false, // 기본값은 false (내용 영역만)
 }) => {
   return (
     <CenterWrapper
@@ -22,6 +36,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       role='status'
       aria-live='polite'
       aria-label={label || '로딩 중'}
+      $fullscreen={fullscreen}
     >
       {variant === 'spinner' && <DonutSpinner size={size} color={color} />}
       {variant === 'dots' && (
@@ -156,20 +171,33 @@ const skeletonShimmer = keyframes`
   }
 `;
 
-const CenterWrapper = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+const CenterWrapper = styled.div<{ $fullscreen: boolean }>`
+  position: ${({ $fullscreen }) => ($fullscreen ? 'fixed' : 'relative')};
+  top: ${({ $fullscreen }) => ($fullscreen ? '0' : 'auto')};
+  left: ${({ $fullscreen }) => ($fullscreen ? '0' : 'auto')};
+  width: ${({ $fullscreen }) => ($fullscreen ? '100%' : '100%')};
+  height: ${({ $fullscreen }) => ($fullscreen ? '100%' : '100%')};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  z-index: 9999;
+  background: ${({ $fullscreen }) =>
+    $fullscreen ? 'rgba(255, 255, 255, 0.8)' : 'transparent'};
+  backdrop-filter: ${({ $fullscreen }) => ($fullscreen ? 'blur(5px)' : 'none')};
+  z-index: ${({ $fullscreen }) => ($fullscreen ? '9999' : '1')};
   animation: ${fadeIn} 0.3s ease-out;
+
+  /* 내용 영역 모드에서 부모 컨테이너의 높이를 채우도록 설정 */
+  ${({ $fullscreen }) =>
+    !$fullscreen &&
+    `
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 100%;
+  `}
 `;
 
 const DonutSpinner = styled.div<{ size: number; color: string }>`
@@ -181,7 +209,6 @@ const DonutSpinner = styled.div<{ size: number; color: string }>`
   border-radius: 50%;
   animation: ${spin} 0.9s linear infinite;
   box-sizing: border-box;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 `;
 
 const DotsSpinner = styled.div<{ color: string }>`
@@ -206,7 +233,6 @@ const PulseSpinner = styled.div<{ size: number; color: string }>`
   background-color: ${({ color }) => color};
   border-radius: 50%;
   animation: ${pulse} 1.5s ease-in-out infinite;
-  box-shadow: 0 0 20px ${({ color }) => color}40;
 `;
 
 const WaveSpinner = styled.div<{ color: string }>`

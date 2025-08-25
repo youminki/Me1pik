@@ -13,14 +13,13 @@ import {
   Product as ApiProduct,
 } from '@/api-utils/product-managements/products/product';
 import MyInfoListBackgroundimage from '@/assets/my-info/MyInfoListBackgroundimage.png';
+import Footer from '@/components/homes/Footer';
 import ItemList, { UIItem } from '@/components/homes/ItemList';
 import SubHeader from '@/components/homes/SubHeader';
-import Footer from '@/components/homes/Footer';
 import MelpikGuideBanner from '@/components/melpik-guide-banner';
 import ErrorMessage from '@/components/shared/ErrorMessage';
 import FilterChipContainer from '@/components/shared/FilterChipContainer';
 import UnifiedHeader from '@/components/shared/headers/UnifiedHeader';
-
 import ProductDetailModal from '@/components/shared/ProductDetailModal';
 import ScrollToTopButtonComponent from '@/components/shared/ScrollToTopButton';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
