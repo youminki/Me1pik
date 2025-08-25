@@ -9,7 +9,7 @@ export default defineConfig({
   base: '/', // 루트에 배포면 '/'
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   build: {
