@@ -124,7 +124,7 @@ export {
   setupTokenRefreshTimer,
   refreshToken,
   clearTokens,
-  setupOptimizedTokenRefreshTimer,
+  setupOptimizedTokenRefreshTimer, // 🎯 레거시 대신 최적화된 타이머 사용
 } from './tokenManager';
 
 // iOS 최적화 저장(웹/앱 공용)
@@ -142,7 +142,7 @@ export const saveTokenForIOS = async (
         path: '/',
         secure: window.location.protocol === 'https:',
         sameSite: 'strict' as const,
-        expires: keepLogin ? 30 : 1,
+        ...(keepLogin ? { expires: 30 } : {}), // keepLogin=false면 세션 쿠키
       };
       Cookies.set('accessToken', token, cookieOptions);
       if (refreshToken)
@@ -209,7 +209,7 @@ export const saveTokenForIOS = async (
         path: '/',
         secure: window.location.protocol === 'https:',
         sameSite: 'strict' as const,
-        expires: keepLogin ? 30 : 1,
+        ...(keepLogin ? { expires: 30 } : {}), // keepLogin=false면 세션 쿠키
       };
       Cookies.set('accessToken', token, cookieOptions);
       if (refreshToken)
@@ -236,8 +236,8 @@ export const saveTokensForPersistentLogin = async (
     }
 
     // 🎯 항상 토큰 갱신 타이머 설정 (keepLogin 여부와 관계없이)
-    const { setupTokenRefreshTimer } = await import('./tokenManager');
-    setupTokenRefreshTimer(accessToken);
+    const { setupOptimizedTokenRefreshTimer } = await import('./tokenManager');
+    setupOptimizedTokenRefreshTimer(accessToken);
   } catch {
     console.error('지속 로그인 토큰 저장 중 오류');
   }
@@ -265,8 +265,10 @@ export const restorePersistentLogin = async (): Promise<boolean> => {
     }
 
     if (accessToken && hasValidToken()) {
-      const { setupTokenRefreshTimer } = await import('./tokenManager');
-      setupTokenRefreshTimer(accessToken);
+      const { setupOptimizedTokenRefreshTimer } = await import(
+        './tokenManager'
+      );
+      setupOptimizedTokenRefreshTimer(accessToken);
       return true;
     }
 
@@ -283,8 +285,10 @@ export const restorePersistentLogin = async (): Promise<boolean> => {
           if (success) {
             const newAccessToken = getNewToken();
             if (newAccessToken) {
-              const { setupTokenRefreshTimer } = await import('./tokenManager');
-              setupTokenRefreshTimer(newAccessToken);
+              const { setupOptimizedTokenRefreshTimer } = await import(
+                './tokenManager'
+              );
+              setupOptimizedTokenRefreshTimer(newAccessToken);
             }
             return true;
           }
@@ -363,14 +367,14 @@ export const checkAndSetupAutoLogin = async (): Promise<void> => {
     const persistentLogin = localStorage.getItem('persistentLogin') === 'true';
     if (!autoLogin && !persistentLogin) return;
 
-    const { getCurrentToken, setupTokenRefreshTimer } = await import(
+    const { getCurrentToken, setupOptimizedTokenRefreshTimer } = await import(
       './tokenManager'
     );
     const token = getCurrentToken();
     if (!token) return;
 
     // 🎯 이 한 줄로 충분 - 현재 토큰으로 타이머만 재설치
-    setupTokenRefreshTimer(token);
+    setupOptimizedTokenRefreshTimer(token);
   } catch {
     console.error('자동 로그인 설정 확인 중 오류');
     clearPersistentLoginSettings();

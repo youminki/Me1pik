@@ -1,9 +1,21 @@
+import axios from 'axios';
 import Cookies from 'js-cookie';
 
 import { isIOS } from './environmentDetection';
 
+// 🔧 인터셉터 없는 전용 axios 인스턴스 (순환 리프레시 방지)
+const rawAxios = axios.create({
+  baseURL: 'https://api.stylewh.com',
+  withCredentials: false,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
+});
+
 // 인스타그램 방식 토큰 갱신 타이머
 let tokenRefreshTimer: number | null = null;
+
+// 🔧 추가: 중복 갱신 방지(동시성 락)
+let refreshInFlight: Promise<boolean> | null = null;
 
 /**
  * JWT 페이로드를 안전하게 디코드합니다 (base64url 규격 대응)
@@ -226,18 +238,25 @@ export const saveTokens = (
         console.log('📱 웹: sessionStorage에 토큰 저장 완료 (세션 로그인)');
       }
 
-      // 3. 쿠키에도 저장 (보안 강화)
-      const cookieOptions = {
-        path: '/',
-        secure: window.location.protocol === 'https:',
-        sameSite: 'strict' as const,
-        expires: keepLogin ? 30 : 1,
-      };
-      Cookies.set('accessToken', accessToken, cookieOptions);
-      if (refreshToken) {
-        Cookies.set('refreshToken', refreshToken, cookieOptions);
-      }
-      console.log('🍪 웹: 쿠키에 토큰 저장 완료');
+      // 3. 쿠키 저장 제거 - 바디 기반 인증으로 통일
+      // const cookieOptions = {
+      //   path: '/',
+      //   secure: window.location.protocol === 'https:',
+      //   sameSite: 'strict' as const,
+      //   expires: keepLogin ? 30 : 1,
+      // };
+      // Cookies.set('accessToken', accessToken, cookieOptions);
+      // if (refreshToken) {
+      //   Cookies.set('refreshToken', refreshToken, cookieOptions);
+      // }
+      // console.log('🍪 웹: 쿠키에 토큰 저장 완료');
+    }
+
+    // 🎯 토큰 저장 후 자동으로 타이머 설정
+    try {
+      setupOptimizedTokenRefreshTimer(accessToken);
+    } catch (e) {
+      console.error('토큰 저장 후 타이머 설정 실패:', e);
     }
 
     console.log('✅ 토큰 저장 완료');
@@ -285,19 +304,38 @@ export const clearAllTokensAndIntervals = (): void => {
 };
 
 /**
- * Refresh 토큰을 가져옵니다
+ * 🎯 개선된 refreshToken 읽기 함수 - 쿠키 의존성 제거
  */
 export const getRefreshToken = (): string | null => {
-  const localToken = localStorage.getItem('refreshToken');
-  const sessionToken = sessionStorage.getItem('refreshToken');
-  const cookieToken = Cookies.get('refreshToken');
-  return (
-    localToken?.trim() || sessionToken?.trim() || cookieToken?.trim() || null
-  );
+  try {
+    const localToken = localStorage.getItem('refreshToken');
+    if (localToken?.trim()) return localToken.trim();
+
+    const sessionToken = sessionStorage.getItem('refreshToken');
+    if (sessionToken?.trim()) return sessionToken.trim();
+
+    // iOS 보강: 쿠키도 마지막 fallback
+    if (isIOS()) {
+      const cookieRT = Cookies.get('refreshToken');
+      if (cookieRT?.trim()) return cookieRT.trim();
+    }
+    return null;
+  } catch (e) {
+    console.error('refreshToken 읽기 중 오류:', e);
+    return null;
+  }
 };
 
 /**
  * 🎯 iOS 환경에 최적화된 토큰 갱신 타이머 설정
+ */
+/**
+ * 🚨 레거시 타이머 설정 함수 (호환성 유지용)
+ *
+ * ⚠️  주의: 이 함수는 이중 타이머를 생성할 수 있습니다.
+ * 🎯  권장: setupOptimizedTokenRefreshTimer() 사용
+ *
+ * @param token - 액세스 토큰
  */
 export const setupTokenRefreshTimer = (token: string): void => {
   try {
@@ -374,125 +412,157 @@ export const setupTokenRefreshTimer = (token: string): void => {
  * 🎯 개선된 토큰 갱신 (인스타그램 방식) - 네트워크 상태 확인 포함
  */
 export const refreshToken = async (retryCount = 0): Promise<boolean> => {
-  // 🎯 네트워크 상태 확인
-  if (!navigator.onLine) {
-    return false;
-  }
+  // 🔧 추가: 중복 갱신 방지(동시성 락)
+  if (refreshInFlight) return refreshInFlight; // 이미 진행중이면 그 결과 재사용
 
-  // 🎯 최대 재시도 횟수 설정
-  const maxRetries = 2;
-  let currentRetryCount = retryCount;
-
-  while (currentRetryCount <= maxRetries) {
+  refreshInFlight = (async () => {
     try {
-      const currentRefreshToken = getRefreshToken();
-      const autoLogin = localStorage.getItem('autoLogin') === 'true';
-
-      if (!currentRefreshToken) {
+      // 🎯 네트워크 상태 확인
+      if (!navigator.onLine) {
         return false;
       }
 
-      // 🎯 토큰 갱신 API 호출
-      const { Axios } = await import('@/api-utils/Axios');
-      const response = await Axios.post('/auth/refresh', {
-        refreshToken: currentRefreshToken,
-        autoLogin,
-      });
+      // 🎯 최대 재시도 횟수 설정
+      const maxRetries = 2;
+      let currentRetryCount = retryCount;
 
-      const { accessToken, refreshToken: newRefreshToken } = response.data;
+      while (currentRetryCount <= maxRetries) {
+        try {
+          const currentRefreshToken = getRefreshToken();
+          const autoLogin = localStorage.getItem('autoLogin') === 'true';
 
-      // 🎯 새 토큰의 만료시간 확인
-      try {
-        const payload = decodeJwtPayload(accessToken);
-        if (payload?.exp) {
-          // 토큰 만료시간 확인 완료
+          if (!currentRefreshToken) {
+            return false;
+          }
+
+          // 🎯 토큰 갱신 API 호출
+          const response = await rawAxios.post('/auth/refresh', {
+            refreshToken: currentRefreshToken,
+            autoLogin,
+          });
+
+          const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+          // 🎯 새 토큰의 만료시간 확인
+          try {
+            const payload = decodeJwtPayload(accessToken);
+            if (payload?.exp) {
+              // 토큰 만료시간 확인 완료
+            }
+          } catch (e) {
+            console.error('새 토큰 디코딩 실패:', e);
+            // 디코딩 실패 시에도 토큰 저장 시도
+          }
+
+          // 🎯 새 토큰 저장 (기존 타이머 정리 후)
+          if (tokenRefreshTimer) {
+            clearTimeout(tokenRefreshTimer);
+            tokenRefreshTimer = null;
+          }
+
+          if (newRefreshToken) {
+            // refreshToken에서 호출된 경우 타이머 설정 건너뛰기
+            if (currentRetryCount === 0) {
+              saveTokens(accessToken, newRefreshToken, autoLogin);
+            } else {
+              // 재시도 중인 경우 타이머 설정 없이 저장
+              saveTokens(accessToken, newRefreshToken, autoLogin);
+            }
+          } else {
+            // 리프레시 토큰이 없으면 액세스 토큰만 업데이트
+            const currentRefreshTokenForSave = getRefreshToken();
+            if (currentRetryCount === 0) {
+              saveTokens(
+                accessToken,
+                currentRefreshTokenForSave || undefined,
+                autoLogin
+              );
+            } else {
+              saveTokens(
+                accessToken,
+                currentRefreshTokenForSave || undefined,
+                autoLogin
+              );
+            }
+          }
+
+          // 🎯 토큰 갱신 성공 이벤트 발생
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(
+              new CustomEvent('tokenRefreshSuccess', {
+                detail: {
+                  message: '토큰 갱신 성공',
+                  timestamp: new Date().toISOString(),
+                },
+              })
+            );
+          }
+
+          console.log('✅ 토큰 갱신 성공');
+
+          // 🎯 성공 시 항상 타이머 재설치 (방어선)
+          try {
+            const latest = getCurrentToken();
+            if (latest) {
+              setupOptimizedTokenRefreshTimer(latest); // ✅ 성공 후 항상 재설치
+            }
+          } catch (e) {
+            console.error('토큰 갱신 성공 후 타이머 재설치 실패:', e);
+          }
+
+          return true;
+        } catch (error: unknown) {
+          console.error(`토큰 갱신 시도 ${currentRetryCount + 1} 실패:`, error);
+
+          // 🔧 추가: 토큰 에러 이벤트 발생
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(
+              new CustomEvent('tokenError', {
+                detail: {
+                  context: 'refreshToken',
+                  error: String(error),
+                },
+              })
+            );
+          }
+
+          // 🎯 401 에러는 재시도하지 않음
+          const errorResponse = error as { response?: { status?: number } };
+          if (errorResponse?.response?.status === 401) {
+            console.log('❌ 401 에러 - 재시도 중단');
+            break;
+          }
+
+          currentRetryCount++;
+          if (currentRetryCount <= maxRetries) {
+            const delay = Math.min(1000 * Math.pow(2, currentRetryCount), 5000);
+            console.log(`⏳ ${delay}ms 후 재시도...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
         }
-      } catch (e) {
-        console.error('새 토큰 디코딩 실패:', e);
-        // 디코딩 실패 시에도 토큰 저장 시도
       }
 
-      // 🎯 새 토큰 저장 (기존 타이머 정리 후)
-      if (tokenRefreshTimer) {
-        clearTimeout(tokenRefreshTimer);
-        tokenRefreshTimer = null;
-      }
+      console.log('❌ 최대 재시도 횟수 초과');
 
-      if (newRefreshToken) {
-        // refreshToken에서 호출된 경우 타이머 설정 건너뛰기
-        if (currentRetryCount === 0) {
-          saveTokens(accessToken, newRefreshToken, autoLogin);
-        } else {
-          // 재시도 중인 경우 타이머 설정 없이 저장
-          saveTokens(accessToken, newRefreshToken, autoLogin);
-        }
-      } else {
-        // 리프레시 토큰이 없으면 액세스 토큰만 업데이트
-        const currentRefreshTokenForSave = getRefreshToken();
-        if (currentRetryCount === 0) {
-          saveTokens(
-            accessToken,
-            currentRefreshTokenForSave || undefined,
-            autoLogin
-          );
-        } else {
-          saveTokens(
-            accessToken,
-            currentRefreshTokenForSave || undefined,
-            autoLogin
-          );
-        }
-      }
-
-      // 🎯 토큰 갱신 성공 이벤트 발생
+      // 🔧 추가: 토큰 갱신 실패 이벤트 발생
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
-          new CustomEvent('tokenRefreshSuccess', {
+          new CustomEvent('tokenRefreshFailed', {
             detail: {
-              message: '토큰 갱신 성공',
+              message: '토큰 갱신 실패',
               timestamp: new Date().toISOString(),
             },
           })
         );
       }
 
-      console.log('✅ 토큰 갱신 성공');
-
-      // 🎯 성공 시 항상 타이머 재설치 (방어선)
-      try {
-        const { getCurrentToken, setupTokenRefreshTimer } = await import(
-          './tokenManager'
-        );
-        const latest = getCurrentToken();
-        if (latest) {
-          setupTokenRefreshTimer(latest); // ✅ 성공 후 항상 재설치(중복 방지 코드 이미 있음)
-        }
-      } catch (e) {
-        console.error('토큰 갱신 성공 후 타이머 재설치 실패:', e);
-      }
-
-      return true;
-    } catch (error: unknown) {
-      console.error(`토큰 갱신 시도 ${currentRetryCount + 1} 실패:`, error);
-
-      // 🎯 401 에러는 재시도하지 않음
-      const errorResponse = error as { response?: { status?: number } };
-      if (errorResponse?.response?.status === 401) {
-        console.log('❌ 401 에러 - 재시도 중단');
-        break;
-      }
-
-      currentRetryCount++;
-      if (currentRetryCount <= maxRetries) {
-        const delay = Math.min(1000 * Math.pow(2, currentRetryCount), 5000);
-        console.log(`⏳ ${delay}ms 후 재시도...`);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-      }
+      return false;
+    } finally {
+      refreshInFlight = null;
     }
-  }
+  })();
 
-  console.log('❌ 최대 재시도 횟수 초과');
-  return false;
+  return refreshInFlight;
 };
 
 /**
@@ -508,7 +578,7 @@ export const clearTokens = (): void => {
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('refreshToken');
 
-    // 2. 쿠키에서 토큰 제거
+    // 2. iOS 대응: 쿠키도 제거 (path 반드시 일치)
     Cookies.remove('accessToken', { path: '/' });
     Cookies.remove('refreshToken', { path: '/' });
 
@@ -544,7 +614,7 @@ export const setupOptimizedTokenRefreshTimer = (accessToken: string): void => {
 
     const tokenExpiry = new Date(payload.exp * 1000);
     const isIOSEnvironment = isIOS();
-    const refreshOffset = isIOSEnvironment ? 15 : 10; // iOS: 15분, 일반: 10분
+    const refreshOffset = isIOSEnvironment ? 30 : 20; // iOS: 30분, 일반: 20분 (7시간 토큰 기준)
     const refreshTime = new Date(
       tokenExpiry.getTime() - refreshOffset * 60 * 1000
     );

@@ -1,7 +1,11 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import Cookies from 'js-cookie';
 
-import { getCurrentToken } from '@/utils/auth';
+import {
+  getCurrentToken,
+  getRefreshToken,
+  saveTokens,
+  clearAllTokensAndIntervals,
+} from '@/utils/auth';
 import { trackApiCall } from '@/utils/monitoring';
 
 // 🔧 개선: 단일 refresh in-flight + 요청 큐잉 보장
@@ -20,22 +24,17 @@ interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   _retryCount?: number;
 }
 
-// 캐시 관리
-const cache = new Map<
-  string,
-  { data: unknown; timestamp: number; ttl: number }
->();
-
-// 재시도 설정
-const retryConfig = {
-  maxRetries: 3,
-  retryDelay: 1000,
-  retryableStatuses: [408, 429, 500, 502, 503, 504],
-};
+// 🔧 인터셉터 없는 전용 axios 인스턴스 (순환 리프레시 방지)
+const rawAxios = axios.create({
+  baseURL: 'https://api.stylewh.com',
+  withCredentials: false,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
+});
 
 export const Axios = axios.create({
   baseURL: 'https://api.stylewh.com',
-  withCredentials: true,
+  withCredentials: false, // CORS 제약 줄이기 - 인증은 헤더로, 리프레시는 바디로
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -47,21 +46,17 @@ export const Axios = axios.create({
 Axios.interceptors.request.use(
   (config) => {
     const token = getCurrentToken();
-    const startTime = Date.now();
 
+    // 🔧 헤더 안전 할당
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
     // 요청 ID 생성 (디버깅용)
     (config as ExtendedAxiosRequestConfig).metadata = {
-      requestId: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      startTime,
+      requestId: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+      startTime: Date.now(),
     };
-
-    // 캐시 키 생성
-    const cacheKey = `${config.method?.toUpperCase()}-${config.url}-${JSON.stringify(config.params || {})}`;
-    (config as ExtendedAxiosRequestConfig).metadata!.cacheKey = cacheKey;
 
     console.log(
       `🚀 API 요청 시작: ${config.method?.toUpperCase()} ${config.url}`
@@ -91,23 +86,6 @@ Axios.interceptors.response.use(
       response.status
     );
 
-    // GET 요청 결과 캐싱
-    if (
-      response.config.method?.toLowerCase() === 'get' &&
-      response.status === 200
-    ) {
-      const cacheKey = (response.config as ExtendedAxiosRequestConfig).metadata
-        ?.cacheKey;
-      if (cacheKey) {
-        cache.set(cacheKey, {
-          data: response.data,
-          timestamp: Date.now(),
-          ttl: 5 * 60 * 1000, // 5분 캐시
-        });
-        console.log('💾 응답 캐싱:', cacheKey);
-      }
-    }
-
     console.log(
       `✅ API 응답 완료: ${response.config.method?.toUpperCase()} ${response.config.url} (${duration}ms)`
     );
@@ -133,35 +111,8 @@ Axios.interceptors.response.use(
 
     // 🔧 개선: 초기 401 폭격 방지 - 복구 중일 때는 요청을 큐잉
     if (error.response?.status === 401) {
-      const isRecovering =
-        localStorage.getItem('autoLoginInProgress') === 'true';
-      const isCompleted = localStorage.getItem('autoLoginCompleted') === 'true';
-
-      if (isRecovering && !isCompleted) {
-        console.log('🔄 자동 로그인 복구 중 - 요청을 큐잉합니다');
-        // 복구가 완료될 때까지 잠시 대기
-        await new Promise((resolve) => {
-          const checkRecovery = () => {
-            const completed =
-              localStorage.getItem('autoLoginCompleted') === 'true';
-            if (completed) {
-              resolve(true);
-            } else {
-              setTimeout(checkRecovery, 100);
-            }
-          };
-          checkRecovery();
-        });
-
-        // 복구 완료 후 원래 요청 재시도
-        console.log('✅ 복구 완료 - 원래 요청 재시도');
-        return Axios(originalRequest);
-      }
-    }
-
-    // 재시도 로직
-    if (shouldRetry(error, originalRequest)) {
-      return retryRequest(originalRequest);
+      // 🎯 이 플래그들은 현재 설정되지 않아 사용되지 않음
+      // 필요시 나중에 구현하여 401 폭주 방지 로직 추가 가능
     }
 
     // 401 에러 처리 (토큰 갱신)
@@ -174,7 +125,9 @@ Axios.interceptors.response.use(
         // 🔧 개선: 재시도 시 최신 토큰 주입
         const currentToken = getCurrentToken();
         if (currentToken) {
-          originalRequest.headers.Authorization = `Bearer ${currentToken}`;
+          if (!originalRequest.headers) originalRequest.headers = {};
+          const oh = originalRequest.headers as Record<string, string>;
+          oh.Authorization = `Bearer ${currentToken}`;
         }
         return Axios(originalRequest); // 토큰 갱신 후 재시도
       }
@@ -182,7 +135,7 @@ Axios.interceptors.response.use(
       // 이미 재시도 중인 경우 무한 루프 방지
       if ((originalRequest as ExtendedAxiosRequestConfig)._retry) {
         console.log('🔄 이미 토큰 갱신을 시도했으므로 로그아웃 처리');
-        clearAllTokens();
+        clearAllTokensAndIntervals();
         redirectToLogin();
         return Promise.reject(error);
       }
@@ -191,16 +144,12 @@ Axios.interceptors.response.use(
       (originalRequest as ExtendedAxiosRequestConfig)._retry = true;
 
       try {
-        // auth.ts의 getRefreshToken 함수와 동일한 로직 사용
-        const localToken = localStorage.getItem('refreshToken');
-        const sessionToken = sessionStorage.getItem('refreshToken');
-        const cookieToken = Cookies.get('refreshToken');
-        const REFRESH_TOKEN =
-          localToken?.trim() || sessionToken?.trim() || cookieToken?.trim();
+        // 🎯 통일된 유틸 사용으로 iOS/웹 일관성 유지
+        const REFRESH_TOKEN = getRefreshToken();
 
         if (!REFRESH_TOKEN) {
           console.log('❌ 리프레시 토큰이 없어서 로그아웃 처리');
-          clearAllTokens();
+          clearAllTokensAndIntervals();
           redirectToLogin();
           return Promise.reject(error);
         }
@@ -214,17 +163,17 @@ Axios.interceptors.response.use(
           refreshTokenLength: REFRESH_TOKEN?.length,
         });
 
-        // 토큰 갱신 시도
-        const { data } = await axios.post(
-          'https://api.stylewh.com/auth/refresh',
-          { refreshToken: REFRESH_TOKEN },
-          { withCredentials: true }
-        );
+        // 🎯 토큰 갱신 시도 (인터셉터 없는 rawAxios 사용)
+        const { data } = await rawAxios.post('/auth/refresh', {
+          refreshToken: REFRESH_TOKEN,
+        });
 
         console.log('✅ Axios 인터셉터: 토큰 갱신 성공');
 
-        // 새 토큰 저장
-        saveTokens(data.accessToken, data.refreshToken);
+        // 새 토큰 저장 및 타이머 재설치 - 방어적 처리
+        const { accessToken, refreshToken: newRefreshToken } = data;
+        saveTokens(accessToken, newRefreshToken ?? undefined); // newRefreshToken 없으면 기존 유지
+        // 🎯 saveTokens에서 자동으로 타이머 설정되므로 중복 호출 제거
 
         // 🔧 개선: 대기 중인 모든 요청들 해제
         waiters.forEach((w) => w());
@@ -241,11 +190,17 @@ Axios.interceptors.response.use(
         );
 
         // 원래 요청 재시도
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        if (!originalRequest.headers) originalRequest.headers = {};
+        const oh = originalRequest.headers as Record<string, string>;
+        oh.Authorization = `Bearer ${data.accessToken}`;
         console.log('🔄 원래 요청 재시도:', originalRequest.url);
         return Axios(originalRequest);
       } catch (refreshError) {
-        console.error('❌ Axios 인터셉터: 토큰 갱신 실패:', refreshError);
+        console.error('❌ Axios 인터셉터: 토큰 갱신 실패', refreshError);
+
+        // 🎯 대기중인 요청도 모두 해제(실패라도 깨워서 에러를 전파)
+        waiters.forEach((w) => w());
+        waiters = [];
 
         // 🎯 토큰 갱신 실패 시 즉시 로그아웃하지 않고 이벤트 발생
         console.log('❌ 토큰 갱신 실패 - 이벤트 발생');
@@ -268,7 +223,7 @@ Axios.interceptors.response.use(
         }
 
         // 웹 환경에서만 로그아웃 처리
-        clearAllTokens();
+        clearAllTokensAndIntervals();
         redirectToLogin();
         return Promise.reject(refreshError);
       } finally {
@@ -285,77 +240,8 @@ Axios.interceptors.response.use(
   }
 );
 
-// 재시도 로직
-function shouldRetry(error: unknown, config: unknown): boolean {
-  const retryCount = (config as ExtendedAxiosRequestConfig)._retryCount || 0;
-
-  return (
-    retryCount < retryConfig.maxRetries &&
-    (retryConfig.retryableStatuses.includes(
-      (error as { response?: { status?: number } }).response?.status || 0
-    ) ||
-      (error as { code?: string }).code === 'ECONNABORTED' ||
-      (error as { code?: string }).code === 'NETWORK_ERROR')
-  );
-}
-
-async function retryRequest(config: unknown): Promise<unknown> {
-  const retryCount =
-    ((config as ExtendedAxiosRequestConfig)._retryCount || 0) + 1;
-  (config as ExtendedAxiosRequestConfig)._retryCount = retryCount;
-
-  const delay = retryConfig.retryDelay * Math.pow(2, retryCount - 1);
-
-  console.log(
-    `🔄 재시도 ${retryCount}/${retryConfig.maxRetries} (${delay}ms 후): ${(config as ExtendedAxiosRequestConfig).method?.toUpperCase()} ${(config as ExtendedAxiosRequestConfig).url}`
-  );
-
-  await new Promise((resolve) => setTimeout(resolve, delay));
-
-  // 타입 안전성을 위해 config를 ExtendedAxiosRequestConfig로 캐스팅
-  return Axios(config as ExtendedAxiosRequestConfig);
-}
-
 // 토큰 관리 함수들
-function clearAllTokens(): void {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  Cookies.remove('accessToken');
-  Cookies.remove('refreshToken');
-}
-
-function saveTokens(accessToken: string, refreshToken?: string): void {
-  localStorage.setItem('accessToken', accessToken);
-  Cookies.set('accessToken', accessToken, { secure: true });
-
-  if (refreshToken) {
-    localStorage.setItem('refreshToken', refreshToken);
-    Cookies.set('refreshToken', refreshToken, { secure: true });
-  }
-}
-
 function redirectToLogin(): void {
   const event = new CustomEvent('forceLoginRedirect');
   window.dispatchEvent(event);
 }
-
-// 캐시 관리 함수들
-export const clearCache = (pattern?: string): void => {
-  if (pattern) {
-    for (const [key] of cache) {
-      if (key.includes(pattern)) {
-        cache.delete(key);
-      }
-    }
-  } else {
-    cache.clear();
-  }
-  console.log('🗑️ 캐시 정리 완료');
-};
-
-export const getCacheStats = (): { size: number; keys: string[] } => {
-  return {
-    size: cache.size,
-    keys: Array.from(cache.keys()),
-  };
-};
