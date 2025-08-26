@@ -6,16 +6,20 @@ import {
   Route,
   Routes,
   useNavigate,
-  useLocation,
 } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 
+import AddCardPayple from '@/__tests__/development/AddCardPayple';
+import PaypleTest from '@/__tests__/development/PaypleTest';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import LoadingSpinner, {
   InlineSpinner,
   SkeletonLoader,
   TextSkeleton,
 } from '@/components/shared/LoadingSpinner';
+import Brand from '@/pages/brands/Brand';
+import BrandDetail from '@/pages/brands/BrandDetail';
+import Melpik from '@/pages/melpiks/Melpik';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { theme } from '@/styles/Theme';
 import {
@@ -52,18 +56,6 @@ const safeLS = {
     }
   },
 };
-
-// 🔧 추가: 운영 빌드에서 콘솔 로그와 alert를 줄이는 헬퍼
-const isProd = import.meta.env.PROD;
-const log = (...args: unknown[]) => {
-  if (!isProd) console.log(...args);
-};
-const notify = (msg: string) =>
-  isProd ? /* TODO: 토스트 호출 */ null : window.alert(msg);
-
-// 사용 예시:
-// log('🔄 윈도우 포커스 - 토큰 상태 확인');
-// notify('토큰 관련 오류가 발생했습니다.');
 
 // ✅ 빠른 체크리스트 - 모든 수정 완료 + 마지막 1% 미세 튜닝 완료
 // [x] utils/auth에 setupNetworkMonitoring 진짜로 export 되어 있다
@@ -153,9 +145,8 @@ const RootRedirect: React.FC = () => {
 
     // 🔧 수정: useEffect cleanup에서 interval 정리
     return () => {
-      if (pollId !== null) {
+      if (pollId) {
         clearInterval(pollId);
-        pollId = null;
       }
     };
   }, []);
@@ -171,8 +162,6 @@ const RootRedirect: React.FC = () => {
 const RequireAuth: React.FC<{ children: React.ReactElement }> = ({
   children,
 }) => {
-  const location = useLocation();
-
   if (hasValidToken()) return children;
 
   const persistent =
@@ -184,8 +173,10 @@ const RequireAuth: React.FC<{ children: React.ReactElement }> = ({
     return <LoadingSpinner variant='wave' label='세션 복구 중...' />;
   }
 
-  // 🔧 개선: 로그인 후 원래 경로로 복귀 (search/hash 포함)
-  return <Navigate to='/login' replace state={{ from: location }} />;
+  // 🔧 개선: 로그인 후 원래 경로로 복귀
+  return (
+    <Navigate to='/login' replace state={{ from: window.location.pathname }} />
+  );
 };
 
 // 🔧 추가: 로딩 데모 컴포넌트
@@ -283,9 +274,7 @@ const queryClient = new QueryClient({
     queries: {
       // 캐시 시간 최적화
       staleTime: 1000 * 60 * 10, // 10분
-      // 🔧 버전 호환성: v5는 gcTime, v4는 cacheTime
-      gcTime: 1000 * 60 * 30, // 30분 (v5)
-      // cacheTime: 1000 * 60 * 30, // 30분 (v4)
+      gcTime: 1000 * 60 * 30, // 30분
 
       // 재시도 로직 최적화
       retry: (failureCount, err: Error) => {
@@ -318,8 +307,9 @@ const Login = React.lazy(() => import('@/pages/auths/Login'));
 const PasswordChange = React.lazy(() => import('@/pages/auths/PasswordChange'));
 const Signup = React.lazy(() => import('@/pages/auths/Signup'));
 
-// 테스트 페이지 컴포넌트들 (lazy 로드로 변경)
+// 테스트 페이지 컴포넌트들
 const TestLoginPage = React.lazy(() => import('@/pages/tests/TestLogin'));
+const TestDashboard = React.lazy(() => import('@/pages/tests/TestDashboard'));
 const ReadyLogin = React.lazy(() => import('@/pages/auths/LoginReady'));
 const Basket = React.lazy(() => import('@/pages/baskets/Basket'));
 const CustomerService = React.lazy(
@@ -417,19 +407,6 @@ const DeliveryManagement = React.lazy(
 const EditAddress = React.lazy(() => import('@/pages/profile/EditAddress'));
 const UpdateProfile = React.lazy(() => import('@/pages/profile/UpdateProfile'));
 
-// 🔧 개발용 페이지를 lazy 로드로 변경 (프로덕션 번들에서 안전)
-const PaypleTest = React.lazy(
-  () => import('@/__tests__/development/PaypleTest')
-);
-const AddCardPayple = React.lazy(
-  () => import('@/__tests__/development/AddCardPayple')
-);
-
-// 🔧 추가: Brand와 Melpik도 lazy 로드로 변경
-const Brand = React.lazy(() => import('@/pages/brands/Brand'));
-const BrandDetail = React.lazy(() => import('@/pages/brands/BrandDetail'));
-const Melpik = React.lazy(() => import('@/pages/melpiks/Melpik'));
-
 // 🔧 개선: 전역 네비게이션 헬퍼 (라우터 컨텍스트 외부에서 사용)
 // window 객체에 직접 할당하여 타입 문제 해결
 
@@ -444,9 +421,6 @@ declare global {
 
 // App 컴포넌트
 const App: React.FC = () => {
-  // 🔧 수정: useNavigate() 제거 (Router 컨텍스트 외부에서 사용 불가)
-  // const navigate = useNavigate();
-
   // 🔧 개선: StrictMode 이펙트 2회 실행 방지
   const didInitRef = useRef(false);
 
@@ -588,8 +562,10 @@ const App: React.FC = () => {
     // 🎯 자동 로그인 실패 이벤트 리스너
     const handleAutoLoginFailed = (event: CustomEvent) => {
       console.log('❌ 자동 로그인 실패 이벤트:', event.detail);
-      // 🔧 개선: 운영 환경에서는 alert 대신 토스트/스낵바 사용 권장 (UX 향상)
-      notify(event.detail.message || '자동 로그인에 실패했습니다.');
+      // 사용자에게 알림 표시 (선택사항)
+      if (typeof window !== 'undefined' && window.alert) {
+        window.alert(event.detail.message || '자동 로그인에 실패했습니다.');
+      }
     };
 
     // 🎯 토큰 갱신 성공 이벤트 리스너
@@ -600,9 +576,10 @@ const App: React.FC = () => {
     // 🎯 토큰 에러 이벤트 리스너
     const handleTokenError = (event: CustomEvent) => {
       console.log('❌ 토큰 에러 이벤트:', event.detail);
-      // 🔧 개선: 운영 환경에서는 alert 대신 토스트/스낵바 사용 권장 (UX 향상)
-      const { context, error } = event.detail || {};
-      notify(error || context || '토큰 관련 오류가 발생했습니다.');
+      // 사용자에게 에러 메시지 표시
+      if (typeof window !== 'undefined' && window.alert) {
+        window.alert(event.detail.message || '토큰 관련 오류가 발생했습니다.');
+      }
     };
 
     // 🎯 토큰 복구 성공 이벤트 리스너
@@ -610,19 +587,14 @@ const App: React.FC = () => {
       console.log('🔄 토큰 복구 성공 이벤트:', event.detail);
     };
 
-    // 🎯 토큰 갱신 실패 이벤트 리스너
-    const handleTokenRefreshFailed = (event: CustomEvent) => {
-      console.log('❌ 토큰 갱신 실패 이벤트 수신:', event.detail);
-
-      // 토큰 갱신 실패 시 로그인 페이지로 리다이렉트
-      if (location.pathname !== '/login') {
-        // 🔧 개선: 전역 네비게이션 헬퍼 사용 (Router 내부에서 설정됨)
-        if (window.globalNavigate) {
-          window.globalNavigate('/login', { replace: true });
-        } else {
-          // 폴백: 하드 리로드 (권장하지 않음)
-          window.location.href = '/login';
-        }
+    // 🎯 토큰 복구 실패 이벤트 리스너
+    const handleTokenRecoveryFailed = (event: CustomEvent) => {
+      console.log('❌ 토큰 복구 실패 이벤트:', event.detail);
+      // 사용자에게 복구 실패 메시지 표시
+      if (typeof window !== 'undefined' && window.alert) {
+        window.alert(
+          event.detail.message || '로그인 상태 복구에 실패했습니다.'
+        );
       }
     };
 
@@ -642,8 +614,8 @@ const App: React.FC = () => {
       handleTokenRecoverySuccess as EventListener
     );
     window.addEventListener(
-      'tokenRefreshFailed',
-      handleTokenRefreshFailed as EventListener
+      'tokenRecoveryFailed',
+      handleTokenRecoveryFailed as EventListener
     );
 
     // 🎯 정리 함수
@@ -669,8 +641,8 @@ const App: React.FC = () => {
         handleTokenRecoverySuccess as EventListener
       );
       window.removeEventListener(
-        'tokenRefreshFailed',
-        handleTokenRefreshFailed as EventListener
+        'tokenRecoveryFailed',
+        handleTokenRecoveryFailed as EventListener
       );
 
       // 🔧 개선: 자동 갱신 타이머 정리 (타입에 맞게)
@@ -691,7 +663,7 @@ const App: React.FC = () => {
     const handleVisibilityChange = async () => {
       if (document.hidden || isProcessing) return;
 
-      log('🔄 페이지 가시성 변경 - 토큰 상태 확인');
+      console.log('🔄 페이지 가시성 변경 - 토큰 상태 확인');
 
       // 디바운싱 적용
       if (debounceTimer) {
@@ -704,39 +676,13 @@ const App: React.FC = () => {
 
         try {
           const currentToken = getCurrentToken();
-          const hasPersistent =
-            safeLS.get('persistentLogin') === 'true' ||
-            safeLS.get('autoLogin') === 'true';
-
-          // 🔧 개선: 온라인 상태 체크 추가 (백그라운드 복귀 시 안전성 향상)
-          if (navigator.onLine && currentToken && !hasValidToken()) {
+          if (currentToken && !hasValidToken()) {
             console.log('🔄 토큰 만료 감지 - 갱신 시도');
             const success = await refreshToken();
             if (success) {
               console.log('✅ 토큰 갱신 성공');
             } else {
               console.log('❌ 토큰 갱신 실패');
-            }
-          }
-
-          // 🔧 추가: 백그라운드 복귀 시 토큰이 없는데 자동로그인 설정만 남아있다면 복원 시도
-          if (
-            navigator.onLine &&
-            !currentToken &&
-            hasPersistent &&
-            safeLS.get('autoLoginInProgress') !== 'true'
-          ) {
-            console.log('🔄 백그라운드 복귀 시 자동 로그인 복원 시도');
-            try {
-              safeLS.set('autoLoginInProgress', 'true');
-              const restored = await restorePersistentLogin();
-              if (restored) {
-                console.log('✅ 백그라운드 복귀 시 자동 로그인 복원 성공');
-              }
-            } catch (error) {
-              console.error('백그라운드 복귀 시 자동 로그인 복원 실패:', error);
-            } finally {
-              safeLS.remove('autoLoginInProgress');
             }
           }
         } catch (error) {
@@ -750,7 +696,7 @@ const App: React.FC = () => {
     const handleFocus = async () => {
       if (isProcessing) return;
 
-      log('🔄 윈도우 포커스 - 토큰 상태 확인');
+      console.log('🔄 윈도우 포커스 - 토큰 상태 확인');
 
       // 디바운싱 적용
       if (debounceTimer) {
@@ -763,39 +709,13 @@ const App: React.FC = () => {
 
         try {
           const currentToken = getCurrentToken();
-          const hasPersistent =
-            safeLS.get('persistentLogin') === 'true' ||
-            safeLS.get('autoLogin') === 'true';
-
-          // 🔧 개선: 온라인 상태 체크 추가 (백그라운드 복귀 시 안전성 향상)
-          if (navigator.onLine && currentToken && !hasValidToken()) {
+          if (currentToken && !hasValidToken()) {
             console.log('🔄 토큰 만료 감지 - 갱신 시도');
             const success = await refreshToken();
             if (success) {
               console.log('✅ 토큰 갱신 성공');
             } else {
               console.log('❌ 토큰 갱신 실패');
-            }
-          }
-
-          // 🔧 추가: 백그라운드 복귀 시 토큰이 없는데 자동로그인 설정만 남아있다면 복원 시도
-          if (
-            navigator.onLine &&
-            !currentToken &&
-            hasPersistent &&
-            safeLS.get('autoLoginInProgress') !== 'true'
-          ) {
-            console.log('🔄 백그라운드 복귀 시 자동 로그인 복원 시도');
-            try {
-              safeLS.set('autoLoginInProgress', 'true');
-              const restored = await restorePersistentLogin();
-              if (restored) {
-                console.log('✅ 백그라운드 복귀 시 자동 로그인 복원 성공');
-              }
-            } catch (error) {
-              console.error('백그라운드 복귀 시 자동 로그인 복원 실패:', error);
-            } finally {
-              safeLS.remove('autoLoginInProgress');
             }
           }
         } catch (error) {
@@ -877,19 +797,6 @@ const AppRouter: React.FC = () => {
         <Route path='/findid' element={<FindId />} />
         <Route path='/findPassword' element={<FindPassword />} />
 
-        {/* ✅ 결제 콜백: 완전 공개 + AppLayout 밖 */}
-        <Route path='/payment/complete' element={<PaymentComplete />} />
-        <Route path='/payment/fail' element={<PaymentFail />} />
-        {/* 구 경로 유지 리다이렉트도 바깥으로 */}
-        <Route
-          path='/payment-complete'
-          element={<Navigate to='/payment/complete' replace />}
-        />
-        <Route
-          path='/payment-fail'
-          element={<Navigate to='/payment/fail' replace />}
-        />
-
         <Route path='/PersonalLink' element={<PersonalLink />} />
         <Route path='/Link' element={<Link />} />
 
@@ -899,6 +806,7 @@ const AppRouter: React.FC = () => {
             <Route path='/test/payple' element={<PaypleTest />} />
             <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
             <Route path='/test-login' element={<TestLoginPage />} />
+            <Route path='/test-dashboard' element={<TestDashboard />} />
             <Route path='/test-loading' element={<LoadingDemo />} />
           </>
         )}
@@ -1004,9 +912,8 @@ const AppRouter: React.FC = () => {
               </RequireAuth>
             }
           />
-          {/* 결제 완료/실패 - AppLayout 밖으로 이동하여 토큰 의존성 문제 방지 */}
-          {/* <Route path='/payment/complete' element={<PaymentComplete />} /> */}
-          {/* <Route path='/payment/fail' element={<PaymentFail />} /> */}
+          <Route path='/payment/complete' element={<PaymentComplete />} />
+          <Route path='/payment/fail' element={<PaymentFail />} />
 
           {/* Brand */}
           <Route
@@ -1259,14 +1166,14 @@ const AppRouter: React.FC = () => {
           />
 
           {/* 결제 완료/실패 - 이전 경로는 리다이렉트로 처리 */}
-          {/* <Route
+          <Route
             path='/payment-complete'
             element={<Navigate to='/payment/complete' replace />}
-          /> */}
-          {/* <Route
+          />
+          <Route
             path='/payment-fail'
             element={<Navigate to='/payment/fail' replace />}
-          /> */}
+          />
 
           <Route
             path='/ticketDetail/:ticketId'

@@ -13,6 +13,7 @@ export {
   saveTokens,
   clearTokens,
   clearAllTokensAndIntervals,
+  setupTokenRefreshTimer,
   setupOptimizedTokenRefreshTimer,
   refreshToken,
 } from './tokenManager';

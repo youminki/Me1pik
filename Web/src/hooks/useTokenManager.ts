@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 
-// 🔧 수정: 순환 참조 제거 - 같은 파일에서 직접 함수 참조 사용
 import {
   getCurrentToken,
   hasValidToken,
-  setupOptimizedTokenRefreshTimer,
   refreshToken,
+  setupTokenRefreshTimer,
 } from '@/utils/auth';
 
 interface TokenState {
@@ -45,7 +44,7 @@ export const useTokenManager = () => {
 
       // 유효한 토큰이 있으면 갱신 타이머 설정
       if (isValid && token) {
-        setupOptimizedTokenRefreshTimer(token);
+        setupTokenRefreshTimer(token);
       }
     } catch (error) {
       console.error('토큰 상태 확인 실패:', error);
@@ -76,7 +75,7 @@ export const useTokenManager = () => {
 
         // 새 토큰으로 갱신 타이머 설정
         if (newToken) {
-          setupOptimizedTokenRefreshTimer(newToken);
+          setupTokenRefreshTimer(newToken);
         }
 
         return true;
@@ -137,7 +136,7 @@ export const useTokenManager = () => {
       } catch (error) {
         console.error('자동 토큰 갱신 체크 실패:', error);
       }
-    }, 300_000); // 5분마다 체크 (7시간 토큰 기준)
+    }, 30_000); // 30초마다 체크
 
     refreshIntervalRef.current = interval;
   }, []); // 의존성 배열 비움 - interval ID는 ref로 관리

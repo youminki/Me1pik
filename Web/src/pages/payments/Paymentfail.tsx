@@ -75,7 +75,6 @@ const IconWrapper = styled.div`
   width: 100%;
   height: 80px;
   margin: 0 auto 24px;
-
   overflow: hidden;
 `;
 
@@ -85,7 +84,6 @@ const CompleteImg = styled.img`
   width: 80px;
   height: 80px;
   object-fit: contain;
-  margin: 0 auto;
 `;
 
 const Title = styled.h1`

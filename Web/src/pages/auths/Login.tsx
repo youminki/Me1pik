@@ -32,9 +32,11 @@ import { schemaLogin } from '@/hooks/useValidationYup';
 import { theme } from '@/styles/Theme';
 import {
   saveTokens,
+  saveTokensForPersistentLogin,
   isNativeApp,
   isIOSApp,
   forceSaveAppToken,
+  setupTokenRefreshTimer,
 } from '@/utils/auth';
 
 interface LoginFormValues {
@@ -352,7 +354,7 @@ const Login: React.FC = () => {
         } else {
           // fallback: 기존 함수 사용
           if (keepLogin) {
-            saveTokens(accessToken, refreshToken, keepLogin);
+            saveTokensForPersistentLogin(accessToken, refreshToken, keepLogin);
           } else {
             saveTokens(accessToken, refreshToken, false);
           }
@@ -361,7 +363,7 @@ const Login: React.FC = () => {
         // 30일 지속성을 위한 토큰 저장 (앱 종료 후에도 유지)
         if (keepLogin) {
           console.log('🌐 웹 환경 - saveTokensForPersistentLogin 사용');
-          saveTokens(accessToken, refreshToken, keepLogin);
+          saveTokensForPersistentLogin(accessToken, refreshToken, keepLogin);
         } else {
           // 일반 로그인 - 표준 토큰 저장
           console.log('🌐 웹 환경 - saveTokens 사용');
@@ -408,8 +410,13 @@ const Login: React.FC = () => {
         // [BRIDGE] 네이티브 브릿지 없음
       }
 
-      // 🎯 saveTokens에서 자동으로 타이머 설정되므로 중복 호출 제거
-      // setupTokenRefreshTimer(accessToken);
+      // 🎯 로그인 직후, 어떤 경우에도 타이머 바로 설치
+      try {
+        setupTokenRefreshTimer(accessToken);
+        console.log('✅ 토큰 갱신 타이머 설치 완료');
+      } catch (e) {
+        console.error('토큰 갱신 타이머 설치 실패:', e);
+      }
 
       const redirectTo = location.state?.from || '/home';
       navigate(redirectTo, {
