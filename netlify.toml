@@ -45,7 +45,6 @@
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = ["admin"]}
 
 # ✅ 루트 경로 자체도 no-cache (일반 새로고침 때 가장 중요)
 [[headers]]

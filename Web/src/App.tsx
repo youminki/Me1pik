@@ -893,15 +893,11 @@ const AppRouter: React.FC = () => {
         <Route path='/PersonalLink' element={<PersonalLink />} />
         <Route path='/Link' element={<Link />} />
 
-        {/* 테스트 페이지들 - 프로덕션 환경에서는 제외 */}
-        {!import.meta.env.PROD && (
-          <>
-            <Route path='/test/payple' element={<PaypleTest />} />
-            <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
-            <Route path='/test-login' element={<TestLoginPage />} />
-            <Route path='/test-loading' element={<LoadingDemo />} />
-          </>
-        )}
+        {/* 테스트 페이지들 */}
+        <Route path='/test/payple' element={<PaypleTest />} />
+        <Route path='/test/AddCardPayple' element={<AddCardPayple />} />
+        <Route path='/test-login' element={<TestLoginPage />} />
+        <Route path='/test-loading' element={<LoadingDemo />} />
 
         {/* 🔧 개선: Router 내부에서 전역 네비게이션 헬퍼 설정 */}
         <Route element={<AppLayout />}>
