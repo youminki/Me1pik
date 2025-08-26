@@ -1,5 +1,5 @@
 import { Axios } from '@/api-utils/Axios';
-import { saveTokens, saveTokensForPersistentLogin } from '@/utils/auth';
+import { saveTokens } from '@/utils/auth';
 
 interface LoginResponse {
   accessToken: string;
@@ -63,15 +63,11 @@ export const LoginPost = async (
     });
 
     // 🎯 auth.ts의 통합된 토큰 저장 함수 사용
-    if (autoLogin) {
-      saveTokensForPersistentLogin(
-        response.data.accessToken,
-        response.data.refreshToken,
-        autoLogin
-      );
-    } else {
-      saveTokens(response.data.accessToken, response.data.refreshToken, false);
-    }
+    saveTokens(
+      response.data.accessToken,
+      response.data.refreshToken,
+      autoLogin
+    );
 
     // iOS 앱에 로그인 정보 전달 (refreshToken 포함)
     if (
