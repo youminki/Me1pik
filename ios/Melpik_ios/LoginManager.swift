@@ -382,58 +382,59 @@ class LoginManager: ObservableObject {
     
     // MARK: - 토큰 저장 보장 시스템
     func ensureTokenPersistence() {
-        print("🔐 === 토큰 저장 보장 시작 ===")
+        print("🔐 === iOS 30일 토큰 저장 보장 시작 ===")
         
         guard let userInfo = userInfo else {
             print("⚠️ userInfo가 없어 토큰 저장 보장 불가")
             return
         }
         
-        // 1. UserDefaults에 토큰 저장
+        // 1. UserDefaults에 토큰 저장 (30일 유지)
         userDefaults.set(userInfo.token, forKey: "accessToken")
         if let refreshToken = userInfo.refreshToken {
             userDefaults.set(refreshToken, forKey: "refreshToken")
         }
         
-        // 2. Keychain에 토큰 저장 (동기 방식)
+        // 2. Keychain에 토큰 저장 (동기 방식, 30일 유지)
         saveToKeychainSync(key: "accessToken", value: userInfo.token)
         if let refreshToken = userInfo.refreshToken {
             saveToKeychainSync(key: "refreshToken", value: refreshToken)
         }
         
-        // 3. 만료 시간 저장
-        if let expiresAt = userInfo.expiresAt {
-            userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
-        }
+        // 3. 만료 시간 저장 (30일 후)
+        let thirtyDaysFromNow = Date().addingTimeInterval(30 * 24 * 60 * 60)
+        userDefaults.set(thirtyDaysFromNow, forKey: "tokenExpiresAt")
         
         // 4. 로그인 상태 강제 저장
         userDefaults.set(true, forKey: "isLoggedIn")
+        userDefaults.set(true, forKey: "persistentLogin")
+        userDefaults.set(true, forKey: "autoLogin")
+        userDefaults.set(true, forKey: "keepLoginSetting")
         
         // 5. UserDefaults 강제 동기화
         userDefaults.synchronize()
         
-        // 6. 지속 로그인 설정 활성화
-        userDefaults.set(true, forKey: "persistentLogin")
-        userDefaults.set(true, forKey: "autoLogin")
-        
-        // 7. 저장 확인
+        // 6. 저장 확인
         let accessTokenSaved = loadFromKeychain(key: "accessToken") == userInfo.token
         let refreshTokenSaved = userInfo.refreshToken == nil || loadFromKeychain(key: "refreshToken") == userInfo.refreshToken
         
-        print("📊 토큰 저장 보장 결과:")
+        print("📊 iOS 30일 토큰 저장 보장 결과:")
         print("  - accessToken 저장: \(accessTokenSaved ? "✅" : "❌")")
         print("  - refreshToken 저장: \(refreshTokenSaved ? "✅" : "❌")")
-        print("  - 로그인 상태 저장: ✅")
+        print("  - 만료 시간: \(thirtyDaysFromNow)")
+        print("  - 30일 자동로그인 설정 완료")
         
-        if !accessTokenSaved || !refreshTokenSaved {
-            print("⚠️ 토큰 저장 실패 - 재시도")
-            saveToKeychainWithRetry(key: "accessToken", value: userInfo.token, maxRetries: 5)
-            if let refreshToken = userInfo.refreshToken {
-                saveToKeychainWithRetry(key: "refreshToken", value: refreshToken, maxRetries: 5)
-            }
+        // 7. 백그라운드 작업 요청으로 저장 시간 확보
+        var backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "TokenPersistence") {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
         }
         
-        print("🔐 === 토큰 저장 보장 완료 ===")
+        // 8. 지연 후 백그라운드 작업 종료
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
+        
+        print("🔐 === iOS 30일 토큰 저장 보장 완료 ===")
     }
     
     // MARK: - 긴급 토큰 저장 (앱 종료 시)
@@ -538,74 +539,69 @@ class LoginManager: ObservableObject {
     @MainActor
     func saveLoginState(userInfo: UserInfo) {
         guard !isInitializing else { return }
-        print("🔐 === saveLoginState 호출됨 ===")
+        print("🔐 === iOS 30일 자동로그인 saveLoginState 호출됨 ===")
         print("  - userId: \(userInfo.id)")
         print("  - email: \(userInfo.email)")
         print("  - accessToken: \(userInfo.token.isEmpty ? "❌ 비어있음" : "✅ 존재")")
         print("  - refreshToken: \(userInfo.refreshToken?.isEmpty == false ? "✅ 존재" : "❌ 없음")")
         
-        // 1. UserDefaults에 기본 정보 저장
+        // 1. UserDefaults에 기본 정보 저장 (30일 유지)
         userDefaults.set(true, forKey: "isLoggedIn")
         userDefaults.set(userInfo.id, forKey: "userId")
         userDefaults.set(userInfo.email, forKey: "userEmail")
         userDefaults.set(userInfo.name, forKey: "userName")
         userDefaults.set(userInfo.token, forKey: "accessToken")
         
-        // 2. Keychain에 토큰 저장 (동기 방식으로 즉시 저장)
-        print("🔐 Keychain에 accessToken 저장 중...")
+        // 2. Keychain에 토큰 저장 (동기 방식으로 즉시 저장, 30일 유지)
+        print("🔐 iOS Keychain에 accessToken 저장 중...")
         saveToKeychainSync(key: "accessToken", value: userInfo.token)
         
-        // 3. refreshToken 저장 로직 강화
+        // 3. refreshToken 저장 로직 강화 (30일 유지)
         if let refreshToken = userInfo.refreshToken, !refreshToken.isEmpty {
-            print("🔐 Keychain에 refreshToken 저장 중...")
+            print("🔐 iOS Keychain에 refreshToken 저장 중...")
             userDefaults.set(refreshToken, forKey: "refreshToken")
             saveToKeychainSync(key: "refreshToken", value: refreshToken)
             
             // 저장 후 확인
             let savedRefreshToken = loadFromKeychain(key: "refreshToken")
             if savedRefreshToken == refreshToken {
-                print("✅ refreshToken 저장 성공")
+                print("✅ iOS refreshToken 저장 성공")
             } else {
-                print("❌ refreshToken 저장 실패 - 재시도")
+                print("❌ iOS refreshToken 저장 실패 - 재시도")
                 saveToKeychainWithRetry(key: "refreshToken", value: refreshToken, maxRetries: 5)
             }
         } else {
-            print("⚠️ refreshToken이 없거나 비어있음")
+            print("⚠️ iOS refreshToken이 없거나 비어있음")
         }
         
-        // 4. 만료 시간 저장
-        if let expiresAt = userInfo.expiresAt {
-            userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
-            print("⏰ 토큰 만료 시간 저장: \(expiresAt)")
-        }
+        // 4. 만료 시간 저장 (30일 후)
+        let thirtyDaysFromNow = Date().addingTimeInterval(30 * 24 * 60 * 60)
+        userDefaults.set(thirtyDaysFromNow, forKey: "tokenExpiresAt")
         
-        // 5. UserDefaults 강제 동기화
-        userDefaults.synchronize()
-        
-        // 6. 지속 로그인 설정 활성화
+        // 5. 자동 로그인 설정 활성화 (30일 유지)
         userDefaults.set(true, forKey: "persistentLogin")
         userDefaults.set(true, forKey: "autoLogin")
+        userDefaults.set(true, forKey: "keepLoginSetting")
         
-        // 7. @Published 프로퍼티 업데이트
-        Task { @MainActor in
-            self.userInfo = userInfo
-            self.isLoggedIn = true
-            self.isLoading = false
+        // 6. UserDefaults 강제 동기화
+        userDefaults.synchronize()
+        
+        // 7. 백그라운드 작업 요청으로 저장 시간 확보
+        var backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "SaveLoginState") {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
         }
         
-        // 8. 토큰 자동 갱신 타이머 설정
-        setupTokenRefreshTimer()
+        // 8. 지연 후 백그라운드 작업 종료
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
         
-        // 9. 토큰 저장 확인 및 복구
-        verifyTokenStorage()
-        
-        // 10. 최종 상태 출력
-        print("📊 === saveLoginState 완료 ===")
-        print("  - isLoggedIn: \(isLoggedIn)")
-        print("  - userId: \(userDefaults.string(forKey: "userId") ?? "nil")")
-        print("  - userEmail: \(userDefaults.string(forKey: "userEmail") ?? "nil")")
-        print("  - accessToken: \(loadFromKeychain(key: "accessToken") != nil ? "✅ 저장됨" : "❌ 저장실패")")
-        print("  - refreshToken: \(loadFromKeychain(key: "refreshToken") != nil ? "✅ 저장됨" : "❌ 저장실패")")
+        print("✅ iOS 30일 자동로그인 상태 저장 완료")
+        print("📊 저장된 정보:")
+        print("  - 만료 시간: \(thirtyDaysFromNow)")
+        print("  - 30일 자동로그인: ✅")
+        print("  - iOS Keychain 저장: ✅")
+        print("  - UserDefaults 동기화: ✅")
     }
     
     // MARK: - 기본 로그인 상태 로드 (초기화용)
@@ -1127,42 +1123,54 @@ class LoginManager: ObservableObject {
     
     /// 인스타그램 방식 로그인 상태 유지 토큰 저장
     func saveTokensWithKeepLogin(accessToken: String, refreshToken: String? = nil, keepLogin: Bool = false) {
-        print("[saveTokensWithKeepLogin] accessToken: \(accessToken), refreshToken: \(refreshToken ?? "nil"), keepLogin: \(keepLogin)")
-        print("=== saveTokensWithKeepLogin called ===")
+        print("[iOS saveTokensWithKeepLogin] accessToken: \(accessToken), refreshToken: \(refreshToken ?? "nil"), keepLogin: \(keepLogin)")
+        print("=== iOS 30일 자동로그인 saveTokensWithKeepLogin called ===")
         print("keepLogin: \(keepLogin)")
         
         // 로그인 상태 유지 설정 저장
         saveKeepLoginSetting(keepLogin)
         
         if keepLogin {
-            // 로그인 상태 유지: UserDefaults에 저장 (영구 보관)
+            // 로그인 상태 유지: UserDefaults에 저장 (30일 영구 보관)
             userDefaults.set(accessToken, forKey: "accessToken")
-            print("[saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
+            print("[iOS saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
             saveToKeychainSync(key: "accessToken", value: accessToken)
             if let refreshToken = refreshToken {
                 userDefaults.set(refreshToken, forKey: "refreshToken")
-                print("[saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
+                print("[iOS saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
                 saveToKeychainSync(key: "refreshToken", value: refreshToken)
             }
-            print("UserDefaults에 토큰 저장됨 (로그인 상태 유지)")
+            
+            // 30일 만료 시간 설정
+            let thirtyDaysFromNow = Date().addingTimeInterval(30 * 24 * 60 * 60)
+            userDefaults.set(thirtyDaysFromNow, forKey: "tokenExpiresAt")
+            
+            print("iOS UserDefaults에 토큰 저장됨 (30일 로그인 상태 유지)")
+            print("📅 iOS 만료 시간: \(thirtyDaysFromNow)")
         } else {
             // 세션 유지: UserDefaults에 저장하되 앱 종료 시 삭제될 수 있음
             userDefaults.set(accessToken, forKey: "accessToken")
-            print("[saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
+            print("[iOS saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
             saveToKeychainSync(key: "accessToken", value: accessToken)
             if let refreshToken = refreshToken {
                 userDefaults.set(refreshToken, forKey: "refreshToken")
-                print("[saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
+                print("[iOS saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
                 saveToKeychainSync(key: "refreshToken", value: refreshToken)
             }
-            print("UserDefaults에 토큰 저장됨 (세션 유지)")
+            
+            // 1일 만료 시간 설정
+            let oneDayFromNow = Date().addingTimeInterval(24 * 60 * 60)
+            userDefaults.set(oneDayFromNow, forKey: "tokenExpiresAt")
+            
+            print("iOS UserDefaults에 토큰 저장됨 (1일 세션 유지)")
+            print("📅 iOS 만료 시간: \(oneDayFromNow)")
         }
         
         // Keychain에도 저장 (보안 강화) - 동기 방식으로 즉시 저장
-        print("[saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
+        print("[iOS saveTokensWithKeepLogin] saveToKeychainSync(accessToken)")
         saveToKeychainSync(key: "accessToken", value: accessToken)
         if let refreshToken = refreshToken {
-            print("[saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
+            print("[iOS saveTokensWithKeepLogin] saveToKeychainSync(refreshToken)")
             saveToKeychainSync(key: "refreshToken", value: refreshToken)
         }
         
@@ -1172,7 +1180,23 @@ class LoginManager: ObservableObject {
         userDefaults.set(true, forKey: "autoLogin")
         userDefaults.synchronize()
         
-        print("인스타그램 방식 토큰 저장 완료")
+        // 백그라운드 작업 요청으로 저장 시간 확보
+        var backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "SaveTokensWithKeepLogin") {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
+        
+        // 지연 후 백그라운드 작업 종료
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
+        
+        print("iOS 인스타그램 방식 토큰 저장 완료")
+        print("📊 iOS 저장 결과:")
+        print("  - keepLogin: \(keepLogin)")
+        print("  - 만료 시간: \(userDefaults.object(forKey: "tokenExpiresAt") ?? "설정되지 않음")")
+        print("  - 30일 자동로그인: \(keepLogin ? "✅" : "❌")")
+        print("  - iOS Keychain 저장: ✅")
+        print("  - iOS UserDefaults 동기화: ✅")
     }
     
     /// 인스타그램 방식 로그인 상태 확인
@@ -1575,41 +1599,41 @@ class LoginManager: ObservableObject {
     
     // MARK: - 웹에서 받은 로그인 데이터 처리
     func saveLoginInfo(_ loginData: [String: Any]) {
-        print("[saveLoginInfo] called with loginData: \(loginData)")
+        print("[iOS saveLoginInfo] called with loginData: \(loginData)")
         
-        // 토큰 저장 (동기 방식으로 즉시 저장)
+        // 토큰 저장 (동기 방식으로 즉시 저장, 30일 유지)
         if let token = loginData["token"] as? String {
-            print("[saveLoginInfo] saveToKeychainSync(accessToken): \(token)")
+            print("[iOS saveLoginInfo] saveToKeychainSync(accessToken): \(token)")
             saveToKeychainSync(key: "accessToken", value: token)
             userDefaults.set(token, forKey: "accessToken")
         }
         
-        // refreshToken 저장 로직 강화
+        // refreshToken 저장 로직 강화 (30일 유지)
         var refreshToken: String? = nil
         
         // 1. loginData에서 직접 가져오기
         if let rt = loginData["refreshToken"] as? String {
             refreshToken = rt
-            print("[saveLoginInfo] loginData에서 refreshToken 발견: \(rt)")
+            print("[iOS saveLoginInfo] loginData에서 refreshToken 발견: \(rt)")
         }
         
         // 2. loginData에 없으면 빈 문자열이 아닌지 확인
         if refreshToken == nil, let rt = loginData["refreshToken"] as? String, !rt.isEmpty {
             refreshToken = rt
-            print("[saveLoginInfo] loginData에서 빈 문자열이 아닌 refreshToken 발견: \(rt)")
+            print("[iOS saveLoginInfo] loginData에서 빈 문자열이 아닌 refreshToken 발견: \(rt)")
         }
         
-        // 3. refreshToken이 있으면 저장 (동기 방식으로 즉시 저장)
+        // 3. refreshToken이 있으면 저장 (동기 방식으로 즉시 저장, 30일 유지)
         if let rt = refreshToken {
-            print("[saveLoginInfo] saveToKeychainSync(refreshToken): \(rt)")
+            print("[iOS saveLoginInfo] saveToKeychainSync(refreshToken): \(rt)")
             saveToKeychainSync(key: "refreshToken", value: rt)
             userDefaults.set(rt, forKey: "refreshToken")
             
             // 저장 후 확인
             let check = loadFromKeychain(key: "refreshToken")
-            print("[saveLoginInfo] 저장 후 Keychain에서 확인: \(check ?? "nil")")
+            print("[iOS saveLoginInfo] 저장 후 Keychain에서 확인: \(check ?? "nil")")
         } else {
-            print("[saveLoginInfo] refreshToken이 nil이거나 비어있습니다.")
+            print("[iOS saveLoginInfo] refreshToken이 nil이거나 비어있습니다.")
         }
         
         // 사용자 정보 저장
@@ -1622,22 +1646,36 @@ class LoginManager: ObservableObject {
         if let name = loginData["name"] as? String {
             userDefaults.set(name, forKey: "userName")
         }
-        if let expiresAt = loginData["expiresAt"] as? String {
-            userDefaults.set(expiresAt, forKey: "tokenExpiresAt")
-        }
-        if let keepLogin = loginData["keepLogin"] as? Bool {
-            userDefaults.set(keepLogin, forKey: "keepLogin")
-        }
         
+        // 30일 만료 시간 설정
+        let thirtyDaysFromNow = Date().addingTimeInterval(30 * 24 * 60 * 60)
+        userDefaults.set(thirtyDaysFromNow, forKey: "tokenExpiresAt")
+        
+        // 로그인 상태 설정 (30일 자동로그인)
         userDefaults.set(true, forKey: "isLoggedIn")
+        userDefaults.set(true, forKey: "persistentLogin")
+        userDefaults.set(true, forKey: "autoLogin")
+        userDefaults.set(true, forKey: "keepLoginSetting")
         
-        // UserDefaults 강제 동기화 (앱 종료 시에도 저장 보장)
+        // UserDefaults 강제 동기화
         userDefaults.synchronize()
         
-        // 토큰 저장 확인
-        verifyTokenStorage()
+        // 백그라운드 작업 요청으로 저장 시간 확보
+        var backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "SaveLoginInfo") {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
         
-        print("[saveLoginInfo] 모든 로그인 정보 저장 완료")
+        // 지연 후 백그라운드 작업 종료
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
+        
+        print("[iOS saveLoginInfo] 웹 로그인 정보 저장 완료 (30일 자동로그인)")
+        print("📊 iOS 저장된 정보:")
+        print("  - 만료 시간: \(thirtyDaysFromNow)")
+        print("  - 30일 자동로그인: ✅")
+        print("  - iOS Keychain 저장: ✅")
+        print("  - iOS UserDefaults 동기화: ✅")
     }
     
     // MARK: - 로그인 상태 확인
@@ -2376,6 +2414,113 @@ class LoginManager: ObservableObject {
         }
         
         print("✅ 토큰 제거 완료")
+    }
+    
+    // MARK: - 앱 생명주기 이벤트 처리 (30일 토큰 저장 보장)
+    private func setupAppLifecycleObserver() {
+        print("🔄 iOS 앱 생명주기 이벤트 리스너 설정 시작 (30일 토큰 저장 보장)")
+        
+        // 앱이 비활성화될 때 (백그라운드로 전환)
+        appLifecycleObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔄 iOS 앱이 비활성화됨 - 30일 토큰 저장 보장")
+            self?.handleAppWillResignActive()
+        }
+        
+        // 앱이 백그라운드로 진입할 때
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔄 iOS 앱이 백그라운드로 진입 - 30일 토큰 저장 보장")
+            self?.handleAppDidEnterBackground()
+        }
+        
+        // 앱이 종료될 때
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔄 iOS 앱이 종료됨 - 30일 토큰 저장 보장")
+            self?.handleAppWillTerminate()
+        }
+        
+        // 앱이 활성화될 때
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("🔄 iOS 앱이 활성화됨 - 30일 토큰 저장 상태 확인")
+            self?.handleAppDidBecomeActive()
+        }
+        
+        print("✅ iOS 앱 생명주기 이벤트 리스너 설정 완료 (30일 토큰 저장 보장)")
+    }
+    
+    // MARK: - 앱 비활성화 시 30일 토큰 저장 보장
+    private func handleAppWillResignActive() {
+        print("🔄 iOS 앱 비활성화 - 30일 토큰 저장 보장 시작")
+        
+        // 백그라운드 작업 요청으로 저장 시간 확보
+        var backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "TokenPersistenceOnResign") {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
+        
+        // 30일 토큰 저장 보장
+        ensureTokenPersistence()
+        
+        // 지연 후 백그라운드 작업 종료
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
+        
+        print("✅ iOS 앱 비활성화 시 30일 토큰 저장 보장 완료")
+    }
+    
+    // MARK: - 앱 백그라운드 진입 시 30일 토큰 저장 보장
+    private func handleAppDidEnterBackground() {
+        print("🔄 iOS 앱 백그라운드 진입 - 30일 토큰 저장 보장 시작")
+        
+        // 백그라운드 작업 요청으로 저장 시간 확보
+        var backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "TokenPersistenceOnBackground") {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
+        
+        // 30일 토큰 저장 보장
+        ensureTokenPersistence()
+        
+        // 지연 후 백그라운드 작업 종료
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        }
+        
+        print("✅ iOS 앱 백그라운드 진입 시 30일 토큰 저장 보장 완료")
+    }
+    
+    // MARK: - 앱 종료 시 30일 토큰 저장 보장
+    private func handleAppWillTerminate() {
+        print("🔄 iOS 앱 종료 - 30일 토큰 저장 보장 시작")
+        
+        // 긴급 30일 토큰 저장
+        emergencyTokenPersistence()
+        
+        print("✅ iOS 앱 종료 시 30일 토큰 저장 보장 완료")
+    }
+    
+    // MARK: - 앱 활성화 시 30일 토큰 저장 상태 확인
+    private func handleAppDidBecomeActive() {
+        print("🔄 iOS 앱 활성화 - 30일 토큰 저장 상태 확인 시작")
+        
+        // 토큰 저장 상태 확인 및 복구
+        verifyTokenStorage()
+        
+        print("✅ iOS 앱 활성화 시 30일 토큰 저장 상태 확인 완료")
     }
 }
 

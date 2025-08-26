@@ -276,10 +276,10 @@ const Login: React.FC = () => {
 
         // 🎯 네이티브 토큰 수신 시에도 타이머 설치
         try {
-          // 🔧 개선: setupOptimizedTokenRefreshTimer 사용
-          import('@/utils/auth').then(({ setupOptimizedTokenRefreshTimer }) => {
-            setupOptimizedTokenRefreshTimer(accessToken);
-            console.log('✅ 네이티브 토큰 수신 후 최적화된 타이머 설치 완료');
+          // 🔧 개선: setupTokenRefreshTimer 사용
+          import('@/utils/tokenManager').then(({ setupTokenRefreshTimer }) => {
+            setupTokenRefreshTimer(accessToken);
+            console.log('✅ 네이티브 토큰 수신 후 통합된 타이머 설치 완료');
           });
         } catch (e) {
           console.error('네이티브 토큰 수신 후 타이머 설치 실패:', e);

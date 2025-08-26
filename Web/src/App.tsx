@@ -533,10 +533,10 @@ const App: React.FC = () => {
           if (newToken) {
             setTimeout(async () => {
               try {
-                const { setupOptimizedTokenRefreshTimer } = await import(
-                  '@/utils/auth'
+                const { setupTokenRefreshTimer } = await import(
+                  '@/utils/tokenManager'
                 );
-                setupOptimizedTokenRefreshTimer(newToken);
+                setupTokenRefreshTimer(newToken);
                 console.log(
                   '⏰ App: 자동 로그인 성공 후 토큰 갱신 타이머 설정 완료'
                 );

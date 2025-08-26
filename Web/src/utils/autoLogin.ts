@@ -138,20 +138,26 @@ export const saveTokenForIOS = async (
     const isIOSEnvironment = isIOS();
 
     if (isIOSEnvironment) {
+      console.log('🍎 iOS 환경: 30일 자동로그인 토큰 저장 시작');
+
       const cookieOptions = {
         path: '/',
         secure: window.location.protocol === 'https:',
         sameSite: 'strict' as const,
-        ...(keepLogin ? { expires: 30 } : {}), // keepLogin=false면 세션 쿠키
+        ...(keepLogin ? { expires: 30 } : { expires: 1 }), // keepLogin=true면 30일, false면 1일
       };
+
+      // 1. 쿠키에 저장 (iOS ITP 대응, 30일 또는 1일)
       Cookies.set('accessToken', token, cookieOptions);
       if (refreshToken)
         Cookies.set('refreshToken', refreshToken, cookieOptions);
 
+      // 2. sessionStorage에 저장 (iOS에서 안정적, 30일 또는 1일)
       sessionStorage.setItem('accessToken', token);
       if (refreshToken) sessionStorage.setItem('refreshToken', refreshToken);
 
       if (keepLogin) {
+        // 3. localStorage에 저장 (30일 영구 보관)
         localStorage.setItem('accessToken', token);
         if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('isLoggedIn', 'true');
@@ -160,25 +166,32 @@ export const saveTokenForIOS = async (
         localStorage.setItem('persistentLogin', 'true');
         localStorage.setItem('loginTimestamp', Date.now().toString());
 
-        // 🎯 토큰 만료 시간 저장 추가
-        try {
-          const { decodeJwtPayload } = await import('./tokenManager');
-          const payload = decodeJwtPayload(token);
-          if (payload?.exp) {
-            const expiryTime = new Date(payload.exp * 1000);
-            localStorage.setItem('tokenExpiresAt', expiryTime.toISOString());
-          }
-        } catch {
-          console.error('토큰 만료 시간 저장 실패');
-        }
+        // 🎯 30일 만료 시간 저장
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+        localStorage.setItem('tokenExpiresAt', thirtyDaysFromNow.toISOString());
+
+        console.log('🍎 iOS: 30일 자동 로그인 설정 완료');
+        console.log('📅 만료 시간:', thirtyDaysFromNow.toLocaleDateString());
       } else {
+        // 4. sessionStorage에 저장 (1일 세션)
         sessionStorage.setItem('accessToken', token);
         if (refreshToken) sessionStorage.setItem('refreshToken', refreshToken);
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('keepLoginSetting', 'false');
+
+        // 🎯 1일 만료 시간 저장
+        const oneDayFromNow = new Date();
+        oneDayFromNow.setDate(oneDayFromNow.getDate() + 1);
+        sessionStorage.setItem('tokenExpiresAt', oneDayFromNow.toISOString());
+
+        console.log('🍎 iOS: 1일 세션 로그인 설정 완료');
+        console.log('📅 만료 시간:', oneDayFromNow.toLocaleDateString());
       }
     } else {
+      // 일반 웹 환경: 30일 자동로그인 보장
       if (keepLogin) {
+        // 1. localStorage에 저장 (30일 영구 보관)
         localStorage.setItem('accessToken', token);
         if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('isLoggedIn', 'true');
@@ -187,34 +200,52 @@ export const saveTokenForIOS = async (
         localStorage.setItem('persistentLogin', 'true');
         localStorage.setItem('loginTimestamp', Date.now().toString());
 
-        // 🎯 토큰 만료 시간 저장 추가
-        try {
-          const { decodeJwtPayload } = await import('./tokenManager');
-          const payload = decodeJwtPayload(token);
-          if (payload?.exp) {
-            const expiryTime = new Date(payload.exp * 1000);
-            localStorage.setItem('tokenExpiresAt', expiryTime.toISOString());
-          }
-        } catch {
-          console.error('토큰 만료 시간 저장 실패');
-        }
+        // 🎯 30일 만료 시간 저장
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+        localStorage.setItem('tokenExpiresAt', thirtyDaysFromNow.toISOString());
+
+        console.log('💾 웹: 30일 자동 로그인 설정 완료');
+        console.log('📅 만료 시간:', thirtyDaysFromNow.toLocaleDateString());
       } else {
+        // 2. sessionStorage에 저장 (1일 세션)
         sessionStorage.setItem('accessToken', token);
         if (refreshToken) sessionStorage.setItem('refreshToken', refreshToken);
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('keepLoginSetting', 'false');
+
+        // 🎯 1일 만료 시간 저장
+        const oneDayFromNow = new Date();
+        oneDayFromNow.setDate(oneDayFromNow.getDate() + 1);
+        sessionStorage.setItem('tokenExpiresAt', oneDayFromNow.toISOString());
+
+        console.log('📱 웹: 1일 세션 로그인 설정 완료');
+        console.log('📅 만료 시간:', oneDayFromNow.toLocaleDateString());
       }
 
+      // 3. 쿠키 저장 (30일 또는 1일)
       const cookieOptions = {
         path: '/',
         secure: window.location.protocol === 'https:',
         sameSite: 'strict' as const,
-        ...(keepLogin ? { expires: 30 } : {}), // keepLogin=false면 세션 쿠키
+        ...(keepLogin ? { expires: 30 } : { expires: 1 }), // keepLogin=true면 30일, false면 1일
       };
+
       Cookies.set('accessToken', token, cookieOptions);
       if (refreshToken)
         Cookies.set('refreshToken', refreshToken, cookieOptions);
+
+      console.log('🍪 웹: 쿠키에 토큰 저장 완료 (30일 또는 1일)');
     }
+
+    console.log('✅ iOS 최적화 토큰 저장 완료');
+    console.log('📊 저장 결과:', {
+      keepLogin,
+      expiryDate: keepLogin
+        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+        : new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString(),
+      isIOS: isIOSEnvironment,
+    });
   } catch {
     console.error('iOS 토큰 저장 중 오류');
   }
@@ -367,14 +398,14 @@ export const checkAndSetupAutoLogin = async (): Promise<void> => {
     const persistentLogin = localStorage.getItem('persistentLogin') === 'true';
     if (!autoLogin && !persistentLogin) return;
 
-    const { getCurrentToken, setupOptimizedTokenRefreshTimer } = await import(
+    const { getCurrentToken, setupTokenRefreshTimer } = await import(
       './tokenManager'
     );
     const token = getCurrentToken();
     if (!token) return;
 
     // 🎯 이 한 줄로 충분 - 현재 토큰으로 타이머만 재설치
-    setupOptimizedTokenRefreshTimer(token);
+    setupTokenRefreshTimer(token);
   } catch {
     console.error('자동 로그인 설정 확인 중 오류');
     clearPersistentLoginSettings();

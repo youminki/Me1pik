@@ -32,9 +32,9 @@
   // 🎯 iOS에서 안정적인 토큰 저장 함수
   const saveTokenForIOS = (token, refreshToken, keepLogin = true) => {
     try {
-      console.log('🍎 iOS: 토큰 저장 시작');
+      console.log('🍎 iOS: 30일 자동로그인 토큰 저장 시작');
 
-      // 1. 쿠키에 우선 저장 (iOS ITP 대응)
+      // 1. 쿠키에 우선 저장 (iOS ITP 대응, 30일 유지)
       const cookieOptions = {
         path: '/',
         secure: window.location.protocol === 'https:',
@@ -46,18 +46,18 @@
       if (refreshToken) {
         document.cookie = `refreshToken=${refreshToken}; path=${cookieOptions.path}; max-age=${cookieOptions.expires * 24 * 60 * 60}`;
       }
-      console.log('🍪 iOS: 쿠키에 토큰 저장 완료');
+      console.log('🍪 iOS: 쿠키에 토큰 저장 완료 (30일 또는 1일)');
 
-      // 2. sessionStorage에 저장 (iOS에서 안정적)
+      // 2. sessionStorage에 저장 (iOS에서 안정적, 30일 유지)
       sessionStorage.setItem('accessToken', token);
       if (refreshToken) {
         sessionStorage.setItem('refreshToken', refreshToken);
       }
       sessionStorage.setItem('isLoggedIn', 'true');
       sessionStorage.setItem('keepLoginSetting', keepLogin.toString());
-      console.log('📱 iOS: sessionStorage에 토큰 저장 완료');
+      console.log('📱 iOS: sessionStorage에 토큰 저장 완료 (30일 또는 1일)');
 
-      // 3. localStorage에도 저장 (백업)
+      // 3. localStorage에도 저장 (30일 백업, 브라우저 종료 후에도 유지)
       if (keepLogin) {
         localStorage.setItem('accessToken', token);
         if (refreshToken) {
@@ -65,7 +65,25 @@
         }
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('keepLoginSetting', keepLogin.toString());
-        console.log('💾 iOS: localStorage에 토큰 저장 완료');
+        localStorage.setItem('autoLogin', 'true');
+        localStorage.setItem('persistentLogin', 'true');
+        localStorage.setItem('loginTimestamp', Date.now().toString());
+
+        // 30일 만료 시간 설정
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+        localStorage.setItem('tokenExpiresAt', thirtyDaysFromNow.toISOString());
+
+        console.log('💾 iOS: localStorage에 토큰 저장 완료 (30일 자동로그인)');
+        console.log('📅 만료 시간:', thirtyDaysFromNow.toLocaleDateString());
+      } else {
+        // 1일 만료 시간 설정
+        const oneDayFromNow = new Date();
+        oneDayFromNow.setDate(oneDayFromNow.getDate() + 1);
+        sessionStorage.setItem('tokenExpiresAt', oneDayFromNow.toISOString());
+
+        console.log('📱 iOS: sessionStorage에 토큰 저장 완료 (1일 세션)');
+        console.log('📅 만료 시간:', oneDayFromNow.toLocaleDateString());
       }
 
       // 4. iOS 앱에 토큰 동기화 요청
@@ -79,9 +97,15 @@
         console.log('🍎 iOS: 네이티브 앱에 토큰 동기화 요청');
       }
 
-      console.log('✅ iOS 토큰 저장 완료');
+      console.log('✅ iOS 토큰 저장 완료 (30일 자동로그인)');
+      console.log('📊 저장 결과:', {
+        keepLogin,
+        expiryDate: keepLogin
+          ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+          : new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString(),
+      });
     } catch (error) {
-      console.error('🍎 iOS 토큰 저장 중 오류:', error);
+      console.error('iOS 토큰 저장 중 오류:', error);
     }
   };
 
@@ -106,19 +130,123 @@
         return sessionToken;
       }
 
-      // 3. localStorage에서 읽기 (마지막 선택)
+      // 3. localStorage에서 읽기 (백업)
       const localToken = localStorage.getItem('accessToken');
       if (localToken) {
         console.log('💾 iOS: localStorage에서 토큰 읽기 성공');
         return localToken;
       }
 
+      console.log('❌ iOS: 모든 저장소에서 토큰을 찾을 수 없음');
       return null;
     } catch (error) {
-      console.error('🍎 iOS 토큰 읽기 중 오류:', error);
+      console.error('iOS 토큰 읽기 중 오류:', error);
       return null;
     }
   };
+
+  // 🎯 iOS 웹뷰 닫힘 시 30일 자동로그인 보장
+  window.addEventListener('beforeunload', function (e) {
+    console.log('🔄 iOS 웹뷰 닫힘 감지 - 30일 자동로그인 보장 시작');
+
+    // keepLogin 설정 확인
+    const keepLogin = localStorage.getItem('keepLoginSetting') === 'true';
+
+    if (keepLogin) {
+      // 30일 자동로그인이 활성화된 경우 토큰 저장 보장
+      const accessToken =
+        localStorage.getItem('accessToken') ||
+        sessionStorage.getItem('accessToken');
+      const refreshToken =
+        localStorage.getItem('refreshToken') ||
+        sessionStorage.getItem('refreshToken');
+
+      if (accessToken) {
+        // localStorage에 30일 토큰 저장 보장
+        localStorage.setItem('accessToken', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('autoLogin', 'true');
+        localStorage.setItem('persistentLogin', 'true');
+        localStorage.setItem('loginTimestamp', Date.now().toString());
+
+        // 30일 만료 시간 설정
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+        localStorage.setItem('tokenExpiresAt', thirtyDaysFromNow.toISOString());
+
+        // iOS 앱에 토큰 동기화 요청 (웹뷰 닫힘 시)
+        if (window.webkit?.messageHandlers?.nativeBridge) {
+          window.webkit.messageHandlers.nativeBridge.postMessage({
+            action: 'syncTokenOnUnload',
+            token: accessToken,
+            refreshToken: refreshToken,
+            keepLogin: keepLogin,
+          });
+          console.log('🍎 iOS: 웹뷰 닫힘 시 네이티브 앱에 토큰 동기화 요청');
+        }
+
+        console.log('💾 iOS 웹뷰 닫힘 시 30일 자동로그인 보장 완료');
+        console.log('📅 만료 시간:', thirtyDaysFromNow.toLocaleDateString());
+      }
+    }
+  });
+
+  // 🎯 iOS 웹뷰 페이지 숨김 시에도 30일 자동로그인 보장
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+      console.log('🔄 iOS 웹뷰 페이지 숨김 감지 - 30일 자동로그인 보장 시작');
+
+      const keepLogin = localStorage.getItem('keepLoginSetting') === 'true';
+
+      if (keepLogin) {
+        const accessToken =
+          localStorage.getItem('accessToken') ||
+          sessionStorage.getItem('accessToken');
+        const refreshToken =
+          localStorage.getItem('refreshToken') ||
+          sessionStorage.getItem('refreshToken');
+
+        if (accessToken) {
+          // localStorage에 30일 토큰 저장 보장
+          localStorage.setItem('accessToken', accessToken);
+          if (refreshToken) {
+            localStorage.setItem('refreshToken', refreshToken);
+          }
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('autoLogin', 'true');
+          localStorage.setItem('persistentLogin', 'true');
+          localStorage.setItem('loginTimestamp', Date.now().toString());
+
+          // 30일 만료 시간 설정
+          const thirtyDaysFromNow = new Date();
+          thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+          localStorage.setItem(
+            'tokenExpiresAt',
+            thirtyDaysFromNow.toISOString()
+          );
+
+          // iOS 앱에 토큰 동기화 요청 (페이지 숨김 시)
+          if (window.webkit?.messageHandlers?.nativeBridge) {
+            window.webkit.messageHandlers.nativeBridge.postMessage({
+              action: 'syncTokenOnHidden',
+              token: accessToken,
+              refreshToken: refreshToken,
+              keepLogin: keepLogin,
+            });
+            console.log(
+              '🍎 iOS: 페이지 숨김 시 네이티브 앱에 토큰 동기화 요청'
+            );
+          }
+
+          console.log('💾 iOS 웹뷰 페이지 숨김 시 30일 자동로그인 보장 완료');
+          console.log('📅 만료 시간:', thirtyDaysFromNow.toLocaleDateString());
+        }
+      }
+    }
+  });
 
   // 🎯 iOS에서 안정적인 로그인 상태 확인
   const checkLoginStatusForIOS = () => {
