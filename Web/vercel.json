@@ -2,17 +2,18 @@
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "redirects": [
     {
-      "source": "http://me1pik.com/(.*)",
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-forwarded-proto",
+          "value": "http"
+        }
+      ],
       "destination": "https://me1pik.com/$1",
-      "permanent": true
-    },
-    {
-      "source": "http://www.me1pik.com/(.*)",
-      "destination": "https://www.me1pik.com/$1",
       "permanent": true
     }
   ],
-  "domains": ["me1pik.com", "www.me1pik.com"],
   "headers": [
     {
       "source": "/(.*)",
