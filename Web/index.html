@@ -15,13 +15,8 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; connect-src 'self' https://api.stylewh.com https://www.google-analytics.com https://hub.payple.kr https://postcode.map.daum.net http://postcode.map.daum.net; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://code.jquery.com https://cpay.payple.kr https://t1.daumcdn.net; frame-src 'self' https://postcode.map.daum.net http://postcode.map.daum.net; style-src 'self' 'unsafe-inline'; img-src * data: blob:; font-src 'self';"
     />
-    <!-- 캐시 방지 메타 태그 -->
-    <meta
-      http-equiv="Cache-Control"
-      content="no-cache, no-store, must-revalidate"
-    />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <!-- 적절한 캐시 정책 -->
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
     <title>Melpik</title>
     <link rel="icon" type="image/png" href="/assets/icon-192.png" />
 
@@ -101,21 +96,14 @@
         }
       }
 
-      // 강력한 캐시 방지
-      if ('caches' in window) {
-        // 모든 캐시 삭제
+      // 스마트 캐시 관리 (필요한 경우에만)
+      if ('caches' in window && performance.navigation.type === 1) {
+        // 새로고침 시에만 오래된 캐시 정리
         caches.keys().then(function (names) {
           names.forEach(function (name) {
-            caches.delete(name);
-          });
-        });
-      }
-
-      // IndexedDB 캐시 정리
-      if ('indexedDB' in window) {
-        indexedDB.databases().then(function (databases) {
-          databases.forEach(function (db) {
-            indexedDB.deleteDatabase(db.name);
+            if (name.includes('melpik-old')) {
+              caches.delete(name);
+            }
           });
         });
       }

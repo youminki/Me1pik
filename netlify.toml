@@ -46,29 +46,25 @@
   to = "/index.html"
   status = 200
 
-# ✅ 루트 경로 자체도 no-cache (일반 새로고침 때 가장 중요)
+# ✅ 루트 경로는 적절한 캐시 허용
 [[headers]]
   for = "/"
   [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
-    Pragma = "no-cache"
-    Expires = "0"
+    Cache-Control = "no-cache, must-revalidate, max-age=300"
     Vary = "Accept-Encoding"
 
-# ✅ index.html도 no-cache
+# ✅ index.html은 적절한 캐시 허용
 [[headers]]
   for = "/index.html"
   [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
-    Pragma = "no-cache"
-    Expires = "0"
+    Cache-Control = "no-cache, must-revalidate, max-age=300"
     Vary = "Accept-Encoding"
 
-# ✅ 모든 HTML no-cache (혹시 라우트에 HTML 출력이 있을 경우 대비)
+# ✅ HTML 파일은 적절한 캐시 허용
 [[headers]]
   for = "/*.html"
   [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
+    Cache-Control = "no-cache, must-revalidate, max-age=300"
 
 # ✅ JavaScript 파일 명확한 MIME 타입 설정
 [[headers]]
