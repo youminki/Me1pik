@@ -177,10 +177,10 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
   const maxDays = 10;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  // 주말(토/일) 및 공휴일을 제외하고 평일 3일 뒤 날짜를 반환하는 함수
+  // 주말(토/일) 및 공휴일을 제외하고 평일 4일 뒤 날짜를 반환하는 함수
   function getMinSelectableDateExcludeHolidayAndWeekend(
     baseDate: Date,
-    minWeekdays: number = 3
+    minWeekdays: number = 4
   ) {
     let daysCounted = 0;
     let date = new Date(baseDate);
