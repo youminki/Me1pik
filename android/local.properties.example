@@ -1,0 +1,10 @@
+# Android Keystore Configuration
+# Copy this file to local.properties and fill in your actual values
+# DO NOT commit local.properties to git!
+
+# Keystore passwords
+KEYSTORE_PASSWORD=your_keystore_password_here
+KEY_PASSWORD=your_key_password_here
+
+# SDK paths (optional, for local development)
+sdk.dir=/path/to/your/android/sdk

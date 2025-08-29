@@ -20,9 +20,9 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("../new_upload_key.jks")
-            storePassword = "zz0722zz0722!"      // keystore 비밀번호
-            keyAlias = "upload"                  // 반드시 upload로!
-            keyPassword = "zz0722zz0722!"        // upload alias의 비밀번호 (keystore와 같으면 그대로)
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = "upload"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
         }
     }
 
