@@ -195,7 +195,7 @@ const RentalOptions: React.FC<RentalOptionsProps> = ({
   }
   const minSelectableDate = getMinSelectableDateExcludeHolidayAndWeekend(
     today,
-    3
+    4 // 평일 4일 후까지 선택 불가
   );
 
   const getTotalDays = (s: Date, e: Date) =>
