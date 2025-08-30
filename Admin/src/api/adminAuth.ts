@@ -12,16 +12,6 @@ export interface AdminLoginResponse {
   refreshToken: string;
 }
 
-export interface AdminProfile {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  team?: string;
-  lastLogin?: string;
-  createdAt?: string;
-}
-
 /**
  * 관리자 로그인 API
  * POST /admin/auth/login
@@ -52,14 +42,5 @@ export const adminRefresh = async (refreshToken: string): Promise<AdminRefreshRe
   const { accessToken, refreshToken: newRefreshToken } = response.data;
   saveTokens(accessToken, newRefreshToken);
 
-  return response.data;
-};
-
-/**
- * 현재 로그인한 관리자 프로필 정보 조회 API
- * GET /admin/auth/profile
- */
-export const getAdminProfile = async (): Promise<AdminProfile> => {
-  const response = await Axios.get('/admin/auth/profile');
   return response.data;
 };
