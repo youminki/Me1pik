@@ -15,16 +15,14 @@ const tabs: TabItem[] = [
   { label: '등록완료', path: '등록완료' },
   { label: '등록대기', path: '등록대기' },
   { label: '판매종료', path: '판매종료' },
-  { label: '삭제예정', path: '삭제예정' },
   { label: '비활성화', path: '비활성화' },
 ];
 
 const statuses: Array<{ label: string; value: string }> = [
-  { label: '등록대기', value: '0' },
-  { label: '등록완료', value: '1' },
-  { label: '판매종료', value: '2' },
-  { label: '삭제예정', value: '4' },
-  { label: '비활성화', value: '5' },
+  { label: '등록대기', value: '등록대기' },
+  { label: '등록완료', value: '등록완료' },
+  { label: '판매종료', value: '판매종료' },
+  { label: '비활성화', value: '비활성화(등록완료)' },
 ];
 
 const colorOptions = [
@@ -120,23 +118,29 @@ categoryOptions.forEach((opt) => {
   });
 });
 
-// 상태 매핑 테이블 (탭 경로 -> 상태 값)
+// 상태 매핑 테이블 (탭 경로 -> 상태 값) - 실제 데이터에 맞게 수정
 const statusMapping: Record<string, string> = {
   전체보기: '',
-  등록완료: '1',
-  등록대기: '0',
-  판매종료: '2',
-  삭제예정: '4',
-  비활성화: '5',
+  등록완료: '등록완료',
+  등록대기: '등록대기',
+  판매종료: '판매종료',
+  비활성화: '비활성화(등록완료)',
 };
 
-// 상태 값 -> 라벨 매핑
+// 상태 값 -> 라벨 매핑 - 실제 데이터에 맞게 수정
 const statusLabelMapping: Record<string, string> = {
-  '0': '등록대기',
-  '1': '등록완료',
-  '2': '판매종료',
-  '4': '삭제예정',
-  '5': '비활성화',
+  등록대기: '등록대기',
+  등록완료: '등록완료',
+  판매종료: '판매종료',
+  '비활성화(등록완료)': '비활성화',
+};
+
+// API 호출용 상태값 매핑 (문자열 -> 숫자)
+const apiStatusMapping: Record<string, number> = {
+  등록대기: 0,
+  등록완료: 1,
+  판매종료: 2,
+  '비활성화(등록완료)': 5,
 };
 
 // Chip 컴포넌트
@@ -313,7 +317,7 @@ const ProductList: React.FC = () => {
     try {
       await updateProductsStatus({
         ids: Array.from(selectedRows),
-        registration: parseInt(newStatus, 10),
+        registration: apiStatusMapping[newStatus] || 0, // 문자열을 숫자로 변환
       });
 
       const label = statuses.find((s) => s.value === newStatus)?.label || '';
