@@ -1,0 +1,7 @@
+{
+  "rootDirectory": "Admin",
+  "buildCommand": "yarn build",
+  "outputDirectory": "Admin/dist",
+  "installCommand": "cd Admin && yarn install",
+  "framework": "vite"
+}
