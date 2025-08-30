@@ -427,6 +427,7 @@ const AdminList: React.FC = () => {
 
   return (
     <Container>
+      <HeaderTitle>관리자 관리</HeaderTitle>
       <SearchSubHeader tabs={TABS} onTabChange={handleTabChange} onSearch={handleSearch} />
 
       <ProductRowHeader>
@@ -1270,6 +1271,12 @@ const SkeletonRow = styled.div`
       background-position: -200% 0;
     }
   }
+`;
+
+const HeaderTitle = styled.h1`
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 18px;
 `;
 
 export default AdminList;
