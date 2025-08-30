@@ -1139,22 +1139,18 @@ const Container = styled.div`
   width: 100%;
   min-width: 834px;
   max-width: 100vw;
-  /* min-height: 1194px; */
-  /* max-height: 100vh; */
+  max-height: 100vh;
   margin: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   background: #fff;
-  /* overflow: hidden; */
+  overflow: hidden;
 
   @media (max-width: 834px) {
     min-width: 100vw;
     padding: 0 8px;
-  }
-  @media (max-height: 1194px) {
-    /* min-height: 100vh; */
   }
 `;
 
@@ -1163,17 +1159,23 @@ const MainFlexRow = styled.div`
   flex-direction: row;
   gap: 24px;
   width: 100%;
+  height: calc(100vh - 200px);
   background: #fff;
+  overflow: hidden;
 `;
 
 const LeftBox = styled.div`
   flex: 1 1 0;
   width: 100%;
   min-width: 400px;
+  height: 100%;
   background: #fff;
   border: 1px solid #eee;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 `;
 
 const RightBox = styled.div`
@@ -1203,8 +1205,11 @@ const ProductRowHeader = styled.div`
 
 const TableWrapper = styled.div`
   width: 100%;
+  flex: 1;
   background: #fff;
+  overflow-y: auto;
   overflow-x: hidden;
+  min-height: 0;
 `;
 
 const Table = styled.table`
@@ -1221,7 +1226,7 @@ const Th = styled.th`
   padding: 4px 0;
   border-bottom: 1px solid #eee;
   text-align: center;
-  height: 51px;
+  height: 41px;
 `;
 
 const Td = styled.td`
@@ -1230,7 +1235,7 @@ const Td = styled.td`
   padding: 4px 0;
   border-bottom: 1px solid #eee;
   text-align: center;
-  height: 51px;
+  height: 41px;
 `;
 
 const Tr = styled.tr`
@@ -1246,8 +1251,10 @@ const FooterRow = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-
   min-width: 0;
+  flex-shrink: 0;
+  border-top: 1px solid #eee;
+  background: #fff;
 `;
 
 const Placeholder = styled.div`
