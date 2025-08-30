@@ -1,11 +1,38 @@
 // src/components/Header.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '@/utils/auth';
+import { getAdminProfile, AdminProfile } from '@/api/adminAuth';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 관리자 프로필 정보 가져오기
+  useEffect(() => {
+    const fetchAdminProfile = async () => {
+      try {
+        setIsLoading(true);
+        const profile = await getAdminProfile();
+        setAdminProfile(profile);
+      } catch (error) {
+        console.error('관리자 프로필 조회 실패:', error);
+        // 에러 발생 시 기본값 설정
+        setAdminProfile({
+          id: 'admin',
+          name: '관리자',
+          email: 'admin@example.com',
+          role: 'admin',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAdminProfile();
+  }, []);
 
   // 로그아웃 처리: 새로운 auth.ts 파일의 logout 함수 사용
   const handleLogout = async () => {
@@ -16,8 +43,14 @@ const Header: React.FC = () => {
   return (
     <HeaderContainer>
       <GreetingContainer>
-        <UnderlinedName>홍길동</UnderlinedName>
-        <GreetingText> 님! 안녕하세요.</GreetingText>
+        {isLoading ? (
+          <LoadingText>로딩 중...</LoadingText>
+        ) : (
+          <>
+            <UnderlinedName>{adminProfile?.name || '관리자'}</UnderlinedName>
+            <GreetingText> 님! 안녕하세요.</GreetingText>
+          </>
+        )}
       </GreetingContainer>
       <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
     </HeaderContainer>
@@ -33,12 +66,11 @@ const HeaderContainer = styled.div`
   justify-content: flex-end;
   align-items: center;
   height: 60px; /* 헤더 높이 축소 */
-  margin-right: 40px; /* 여백 축소 */
+
   width: 100vw;
   background-color: #ffffff;
-  padding: 0 20px; /* 좌우 패딩 최소화 */
-  border-bottom: 2px solid #e0e0e0; /* 아래 회색선 추가 */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 미묘한 그림자 추가 */
+  padding: 0 50px; /* 좌우 패딩 최소화 */
+  border-bottom: 1px solid #e0e0e0; /* 아래 회색선 추가 */
 `;
 
 const GreetingContainer = styled.div`
@@ -56,6 +88,12 @@ const UnderlinedName = styled.span`
 `;
 
 const GreetingText = styled.span`
+  font-weight: 400;
+  font-size: 14px;
+  color: #aaaaaa;
+`;
+
+const LoadingText = styled.span`
   font-weight: 400;
   font-size: 14px;
   color: #aaaaaa;
