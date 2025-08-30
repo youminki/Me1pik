@@ -32,19 +32,16 @@ const HeaderContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  height: 60px; /* 헤더 높이 축소 */
-  margin-right: 40px; /* 여백 축소 */
+  height: 80px; /* 헤더 높이 */
+  margin-right: 60px;
   width: 100vw;
   background-color: #ffffff;
-  padding: 0 20px; /* 좌우 패딩 최소화 */
-  border-bottom: 2px solid #e0e0e0; /* 아래 회색선 추가 */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 미묘한 그림자 추가 */
 `;
 
 const GreetingContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-right: 12px; /* 여백 축소 */
+  margin-right: 16px;
 `;
 
 const UnderlinedName = styled.span`
@@ -62,18 +59,16 @@ const GreetingText = styled.span`
 `;
 
 const LogoutButton = styled.button`
-  width: 80px; /* 너비 축소 */
-  height: 32px; /* 높이 축소 */
+  width: 92px;
+  height: 34px;
   background: #ffffff;
   border: 1px solid #dddddd;
   font-weight: 800;
-  font-size: 13px; /* 폰트 크기 축소 */
+  font-size: 14px;
   color: #000000;
   cursor: pointer;
-  border-radius: 4px; /* 모서리 둥글게 */
 
   &:hover {
     background-color: #f8f8f8;
-    border-color: #cccccc;
   }
 `;
