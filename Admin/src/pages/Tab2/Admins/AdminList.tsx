@@ -1139,22 +1139,18 @@ const Container = styled.div`
   width: 100%;
   min-width: 834px;
   max-width: 100vw;
-  /* min-height: 1194px; */
-  /* max-height: 100vh; */
+  max-height: 100vh;
   margin: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   background: #fff;
-  /* overflow: hidden; */
+  overflow: hidden;
 
   @media (max-width: 834px) {
     min-width: 100vw;
     padding: 0 8px;
-  }
-  @media (max-height: 1194px) {
-    /* min-height: 100vh; */
   }
 `;
 
@@ -1163,28 +1159,38 @@ const MainFlexRow = styled.div`
   flex-direction: row;
   gap: 24px;
   width: 100%;
+  height: calc(100vh - 200px);
   background: #fff;
+  overflow: hidden;
 `;
 
 const LeftBox = styled.div`
   flex: 1 1 0;
   width: 100%;
   min-width: 400px;
+  height: 100%;
   background: #fff;
   border: 1px solid #eee;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `;
 
 const RightBox = styled.div`
   flex: 1 1 0;
   width: 100%;
   min-width: 600px;
+  height: 100%;
   background: #fff;
   border: 1px solid #eee;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   padding: 1rem;
   box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ContentCard = styled.div`
@@ -1199,12 +1205,17 @@ const ProductRowHeader = styled.div`
   width: 100%;
   justify-content: space-between;
   align-items: flex-start;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
 `;
 
 const TableWrapper = styled.div`
   width: 100%;
+  height: calc(100% - 120px);
   background: #fff;
+  overflow-y: auto;
   overflow-x: hidden;
+  flex: 1;
 `;
 
 const Table = styled.table`
@@ -1218,19 +1229,19 @@ const Th = styled.th`
   font-weight: 700;
   font-size: 14px;
   color: #222;
-  padding: 4px 0;
+  padding: 2px 0;
   border-bottom: 1px solid #eee;
   text-align: center;
-  height: 51px;
+  height: 36px;
 `;
 
 const Td = styled.td`
   font-size: 14px;
   color: #222;
-  padding: 4px 0;
+  padding: 2px 0;
   border-bottom: 1px solid #eee;
   text-align: center;
-  height: 51px;
+  height: 36px;
 `;
 
 const Tr = styled.tr`
@@ -1245,9 +1256,9 @@ const FooterRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-
+  padding: 0.5rem;
   min-width: 0;
+  flex-shrink: 0;
 `;
 
 const Placeholder = styled.div`
@@ -1276,7 +1287,8 @@ const SkeletonRow = styled.div`
 const HeaderTitle = styled.h1`
   font-weight: 700;
   font-size: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 `;
 
 export default AdminList;
